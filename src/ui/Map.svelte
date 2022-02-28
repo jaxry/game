@@ -1,6 +1,6 @@
 <script lang='ts'>
   import { onMount } from 'svelte'
-  import { movePlayerToZone } from '../behavior/player'
+  import { playerTravelToZone } from '../behavior/player'
   import MapRenderer from './MapRenderer'
   import { game } from './stores'
 
@@ -12,7 +12,7 @@
     map.player = $game.player
     map.initMap($game.player.container)
     map.onZoneClicked = (area => {
-      movePlayerToZone(area)
+      playerTravelToZone(area)
       // $selectedObject = area
     })
   })

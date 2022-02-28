@@ -15,6 +15,7 @@ export function moveTo(
 
   object.container = container
   object.containedAs = containedAs
+  object.spot = Math.floor(Math.random() * 5)
 
   container.contains.push(object)
 

@@ -1,14 +1,14 @@
 <script lang='ts'>
   import type { Action } from '../behavior/Action'
   import { getObjectInteractions } from '../behavior/actions'
-  import { startPlayerAction } from '../behavior/core'
+  import { activatePlayerAction } from '../behavior/core'
   import ObjectInfo from './ObjectInfo.svelte'
   import { dragAndDropGameObject, game, selectedObject } from './stores'
 
   $: actions = $selectedObject ? getObjectInteractions($game.player, $selectedObject) : []
 
   function clickAction(action: Action) {
-    startPlayerAction(action)
+    activatePlayerAction(action)
   }
 </script>
 

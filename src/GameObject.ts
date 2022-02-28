@@ -17,17 +17,14 @@ export function makeGameObject(type: GameObjectType) {
   return new GameObjectInstance(type) as GameObject
 }
 
-export interface ObjectEventUnsubscribe {
+export interface ActiveObjectEvent {
   obj: GameObject,
   listeners: ObjectEventCallback<any>[],
   listener: ObjectEventCallback<any>
 }
 
-export function unsubscribeEvent({
-  listeners,
-  listener,
-}: ObjectEventUnsubscribe) {
-  deleteElem(listeners, listener)
+export function unsubscribeEvent(ev: ActiveObjectEvent) {
+  deleteElem(ev.listeners, ev.listener)
 }
 
 export function isGameObject(object: any): object is GameObject {
@@ -49,7 +46,7 @@ class GameObjectInstance {
   }
 
   on<T extends ObjectEvent>(
-      event: T, listener: ObjectEventCallback<T>): ObjectEventUnsubscribe {
+      event: T, listener: ObjectEventCallback<T>): ActiveObjectEvent {
     if (!this.events) {
       this.events = {}
     }

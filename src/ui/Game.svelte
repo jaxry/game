@@ -5,6 +5,7 @@
   import Log from './Log.svelte'
   import Map from './Map.svelte'
   import Player from './Player.svelte'
+  import Zone from './Zone.svelte'
 </script>
 
 <main>
@@ -17,49 +18,20 @@
   </div>
 
   <div class='zone'>
-    <h2>{$game.player.container.type.name}</h2>
-    {#if $game.player.container.type.description}
-      <div class='description'>{$game.player.container.type.description}</div>
-    {/if}
+    <Zone zone={$game.player.container} />
   </div>
-
-  <div class='zoneInventory'>
-    <Inventory container={$game.player.container}/>
-  </div>
-
-  <div class='player'>
-    <Player/>
-  </div>
-  <div class='playerInventory'>
-    <Inventory container={$game.player}/>
-  </div>
-
-  <div class='selectedObject'>
-    <SelectedObject/>
-  </div>
-
-  <div class='log'>
-    <Log/>
-  </div>
-
 </main>
 
 <style>
   main {
     height: 100%;
+
     display: grid;
     grid-template-columns: 16rem 1fr 1fr;
-    grid-template-rows: min-content auto auto fit-content(25vmin) 16rem;
+    grid-template-rows: 1fr 16rem;
     grid-template-areas:
-      'global zone player'
-      'global zoneInv playerInv'
-      'global zoneInv playerInv'
-      'global selected  selected'
-      'map    log       log';
-  }
-
-  main > * {
-    overflow: auto;
+      'global zone zone'
+      'map    zone zone';
   }
 
   .global {
@@ -68,7 +40,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: end;
-    border-right: var(--border);
+    /*border-right: var(--border);*/
   }
 
   .log {
@@ -83,7 +55,6 @@
 
   .player {
     grid-area: player;
-    background: #282828;
   }
 
   .playerInventory {
@@ -92,8 +63,9 @@
 
   .zone {
     grid-area: zone;
-    border-right: var(--border);
-    background: #282828;
+    display: grid;
+    align-items: center;
+    justify-items: center;
   }
 
   .zoneInventory {

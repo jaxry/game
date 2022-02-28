@@ -1,4 +1,4 @@
-import type { GameObject, ObjectEventUnsubscribe } from '../GameObject'
+import type { GameObject, ActiveObjectEvent } from '../GameObject'
 import { unsubscribeEvent } from '../GameObject'
 import type { ObjectEventCallback, ObjectEvents } from '../GameObjectType'
 import { deleteElem } from '../util'
@@ -8,7 +8,7 @@ export class Effect {
 
   object: GameObject
   isActive = false
-  private events?: ObjectEventUnsubscribe[]
+  private events?: ActiveObjectEvent[]
 
   constructor(object: GameObject) {
     this.object = object
@@ -42,7 +42,7 @@ export class Effect {
     return unsub
   }
 
-  unsubscribe(event: ObjectEventUnsubscribe) {
+  unsubscribe(event: ActiveObjectEvent) {
     unsubscribeEvent(event)
     deleteElem(this.events!, event)
   }
@@ -110,8 +110,10 @@ export function removeEffects(obj: GameObject) {
 
 export const queuedTickEffects: Effect[] = []
 
-export function addEffectsToGameLoop(fn: (effects: Effect[]) => void) {
-  fn(queuedTickEffects)
+export function addQueuedEffectsToGameLoop(fn: (effects: Effect) => void) {
+  for (const effect of queuedTickEffects) {
+    fn(effect)
+  }
   queuedTickEffects.length = 0
 }
 

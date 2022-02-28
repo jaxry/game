@@ -7,7 +7,7 @@ import { isAncestor } from '../behavior/container'
 
 export default class AttackAction extends Action {
   static override effectName = `attack`
-  static override interruptable = false
+  static override canInterrupt = false
 
   time = 3
 

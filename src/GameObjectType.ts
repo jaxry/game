@@ -27,9 +27,11 @@ export interface GameObjectProps {
   effects: Effect[]
   activeAction: Action
 
-  contains: GameObject[]
   container: GameObject & Required<Pick<GameObjectProps, `contains`>>
   containedAs: ContainedAs
+  contains: GameObject[]
+
+  spot: number
 
   // connections to other game objects on a 2D planar graph
   connections: GameObject[]

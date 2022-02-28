@@ -19,7 +19,7 @@ export function initGame() {
   const zone = world.contains[0]
 
   game.player = spawn(typeYou, zone)
-  spawn(typeMonster, world.contains.at(-1))
+  // spawn(typeMonster, world.contains.at(-1))
 
   for (let i = 0; i < 5; i++) {
     spawn(typeApple, zone)

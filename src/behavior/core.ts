@@ -1,10 +1,10 @@
 import { game } from '../Game'
 import type { Action } from './Action'
 import { destroyMarked } from './destroy'
-import { addEffectsToGameLoop, Effect, effectsCallback } from './Effect'
+import { addQueuedEffectsToGameLoop, Effect, effectsCallback } from './Effect'
 
 export function tick() {
-  addEffectsToGameLoop(addQueuedEffects)
+  addQueuedEffectsToGameLoop(addEffectToGameLoop)
 
   game.time.current += 1
 
@@ -21,7 +21,7 @@ let minTime = 17
 let lastLogSize = 0
 let ticksPerFrame = 0
 
-export function startPlayerAction(action?: Action) {
+export function activatePlayerAction(action?: Action) {
   game.log.start()
 
   if (action) {
@@ -29,7 +29,7 @@ export function startPlayerAction(action?: Action) {
 
     lastLogSize = game.log.size
 
-    const idealTime = 2000 / (1 + action.time)
+    const idealTime = Math.min(500, 2000 / action.time)
     ticksPerFrame = Math.max(1, Math.ceil(minTime / idealTime))
     time = Math.max(minTime, idealTime)
   }
@@ -45,16 +45,16 @@ function playerTick() {
   for (let i = 0; i < ticksPerFrame && continueNextTick; i++) {
     tick()
     continueNextTick = game.player.activeAction &&
-        (!game.player.activeAction.interruptable || !game.log.important)
+        (!game.player.activeAction.canInterrupt || !game.log.important)
   }
 
   game.event.playerTick.emit(undefined)
 
   let thisTime = time
-  if (game.log.size > lastLogSize) {
-    thisTime = 500
-  }
-  lastLogSize = game.log.size
+  // if (game.log.size > lastLogSize) {
+  //   thisTime = 500
+  // }
+  // lastLogSize = game.log.size
 
   if (continueNextTick) {
     timeout = setTimeout(playerTick, thisTime)
@@ -64,10 +64,8 @@ function playerTick() {
   }
 }
 
-function addQueuedEffects(effects: Effect[]) {
-  for (const effect of effects) {
-    game.effectsWithTick.add(effect)
-  }
+function addEffectToGameLoop(effect: Effect) {
+  game.effectsWithTick.add(effect)
 }
 
 effectsCallback.removeEffectFromGameLoop = (effect: Effect) => {

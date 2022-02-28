@@ -20,9 +20,10 @@
   --player: #a2e0a0;
 
   --background: #222;
+  --lighter: #333;
 
-  --hover: #444;
-  --active: #555;
+  --hover: #333;
+  --active: #444;
 
   --borderColor: #555;
   --border: 1px solid var(--borderColor);
