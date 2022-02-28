@@ -9,8 +9,6 @@ import { inPlayerBubble } from '../behavior/player'
 export default class TravelAction extends Action {
   static override effectName = 'Travel'
 
-  time: number
-
   constructor(object: GameObject, public location: GameObject) {
     super(object)
     this.time = Math.round(
@@ -30,7 +28,7 @@ export default class TravelAction extends Action {
     }
   }
 
-  do() {
+  override do() {
     putInsideContainer(this.location, this.object)
 
     if (inPlayerBubble(this.object)) {

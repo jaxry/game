@@ -6,10 +6,14 @@
   import Map from './Map.svelte'
   import Player from './Player.svelte'
   import Zone from './Zone.svelte'
+  import Action from './Action.svelte'
 </script>
 
 <main>
   <div class='global'>
+    {#if $game.player.activeAction}
+      <Action action={$game.player.activeAction} />
+    {/if}
     <h2 class='time'>{$game.time.getTimeOfDay()}</h2>
   </div>
 

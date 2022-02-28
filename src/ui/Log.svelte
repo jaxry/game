@@ -2,7 +2,7 @@
   import { fade } from 'svelte/transition'
   import { isGameObject } from '../GameObject'
   import { dragAndDropGameObject, game, selectedObject, setSelectedObject } from './stores'
-  import { activatePlayerAction } from '../behavior/core'
+  import { startPlayerAction } from '../behavior/core'
   import { afterUpdate } from 'svelte'
   import Action from './Action.svelte'
 
@@ -54,7 +54,7 @@
         <Action action={$game.player.activeAction}/>
       </div>
     {:else}
-      <button on:click={() => activatePlayerAction()} class='message' in:fade={{duration: 100, delay: 200}}
+      <button on:click={() => startPlayerAction()} class='message' in:fade={{duration: 100, delay: 200}}
               out:fade={{duration: 100}}>
         Continue
         <Action action={$game.player.activeAction}/>

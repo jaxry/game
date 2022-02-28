@@ -1,14 +1,14 @@
 <script lang='ts'>
   import type { Action } from '../behavior/Action'
   import { getPlayerInteractions } from '../behavior/actions'
-  import { activatePlayerAction } from '../behavior/core'
+  import { startPlayerAction } from '../behavior/core'
   import ObjectInfo from './ObjectInfo.svelte'
   import { game } from './stores'
 
   $: actions = getPlayerInteractions($game.player)
 
   function doAction(action: Action) {
-    activatePlayerAction(action)
+    startPlayerAction(action)
   }
 
 </script>

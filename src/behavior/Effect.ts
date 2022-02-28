@@ -5,18 +5,24 @@ import { deleteElem } from '../util'
 
 export class Effect {
   static effectName?: string
+  get name() {
+    return (this.constructor as typeof Effect).effectName ??
+        this.constructor.name
+  }
+
+  static tickPriority = 1
+  get tickPriority() {
+    return (this.constructor as typeof Effect).tickPriority
+  }
 
   object: GameObject
+
   isActive = false
+
   private events?: ActiveObjectEvent[]
 
   constructor(object: GameObject) {
     this.object = object
-  }
-
-  get name() {
-    return (this.constructor as typeof Effect).effectName ??
-        this.constructor.name
   }
 
   tick?(): void
@@ -74,6 +80,7 @@ export class Effect {
     this.isActive = false
 
     const isEffectInGameLoop = effectsCallback.removeEffectFromGameLoop(this)
+
     if (this.tick && !isEffectInGameLoop) {
       deleteElem(queuedTickEffects, this)
     }

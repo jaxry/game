@@ -6,7 +6,8 @@ import { inPlayerBubble, isPlayer } from '../behavior/player'
 
 export default class TransferAction extends Action {
   static override effectName = 'transfer'
-  time = 5
+
+  override time = 5
 
   constructor(
       object: GameObject, public item: GameObject,
@@ -40,7 +41,7 @@ export default class TransferAction extends Action {
     }
   }
 
-  do() {
+ override do() {
     putInsideContainer(this.destination, this.item)
 
     if (inPlayerBubble(this.object)) {

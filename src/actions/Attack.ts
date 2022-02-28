@@ -9,7 +9,7 @@ export default class AttackAction extends Action {
   static override effectName = `attack`
   static override canInterrupt = false
 
-  time = 3
+  override time = 3
 
   constructor(attacker: GameObject, public subject: GameObject) {
     super(attacker)
@@ -31,7 +31,7 @@ export default class AttackAction extends Action {
     }
   }
 
-  do() {
+  override do() {
     if (inPlayerBubble(this.object)) {
       if (this.object === game.player) {
         game.log.writeImportant(this.object, ` punch `, this.subject)

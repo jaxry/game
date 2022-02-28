@@ -3,7 +3,7 @@
   import TransferAction from '../actions/Transfer'
   import InventoryEntry from './InventoryEntry.svelte'
   import { dragAndDropGameObject, game } from './stores'
-  import { activatePlayerAction } from '../behavior/core'
+  import { startPlayerAction } from '../behavior/core'
 
   export let container: GameObject
 
@@ -17,7 +17,7 @@
   }
 
   function transfer() {
-    activatePlayerAction(action)
+    startPlayerAction(action)
   }
 
   const {dropAction, isDroppable} = dragAndDropGameObject.drop(canTransfer, transfer)

@@ -1,15 +1,16 @@
 import { Effect } from './Effect'
 
-export abstract class Action extends Effect {
+export class Action extends Effect {
+  static override tickPriority = 0
 
   static canInterrupt = true
   get canInterrupt() {
     return (this.constructor as typeof Action).canInterrupt
   }
 
-  abstract time: number
+  time = 1
 
-  onActionTick?(): void
+  actionTick?(): void
   do?(): void
 
   override activate() {
@@ -36,12 +37,12 @@ export abstract class Action extends Effect {
   override tick() {
     this.time--
 
-    this.onActionTick?.()
+    this.actionTick?.()
 
     if (this.time <= 0) {
       this.deactivate()
-      if (this.do && this.condition()) {
-        this.do()
+      if (this.condition()) {
+        this.do?.()
       }
       this.object.emit('actionEnd', {action: this})
     } else if (!this.condition()) {

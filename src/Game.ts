@@ -11,7 +11,7 @@ export const game = {
     playerTick: new GameEvent<undefined>(),
   },
   player: {} as GameObject,
-  effectsWithTick: new Set<Effect>(),
+  effectsWithTick: [new Set(), new Set()] as Set<Effect>[],
   energyPool: 0,
 }
 

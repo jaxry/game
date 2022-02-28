@@ -8,30 +8,26 @@ export function tick() {
 
   game.time.current += 1
 
-  for (const effect of game.effectsWithTick) {
-    effect.tick!()
+  for (const set of game.effectsWithTick) {
+    for (const effect of set) {
+      effect.tick!()
+    }
   }
 
   game.energyPool += destroyMarked()
 }
 
 let timeout: NodeJS.Timeout | null = null
-let time: number
-let minTime = 17
-let lastLogSize = 0
+let timeoutTime: number
+let lastActionTime = 0
 let ticksPerFrame = 0
 
-export function activatePlayerAction(action?: Action) {
+export function startPlayerAction(action?: Action) {
   game.log.start()
 
   if (action) {
     action.activate()
-
-    lastLogSize = game.log.size
-
-    const idealTime = Math.min(500, 2000 / action.time)
-    ticksPerFrame = Math.max(1, Math.ceil(minTime / idealTime))
-    time = Math.max(minTime, idealTime)
+    computeFrameTime(action)
   }
 
   if (!timeout) {
@@ -39,25 +35,33 @@ export function activatePlayerAction(action?: Action) {
   }
 }
 
+function computeFrameTime(action: Action) {
+  const minTimeoutTime = 17
+  const idealTimeoutTime = Math.min(250, 1000 / action.time)
+  ticksPerFrame = Math.max(1, Math.ceil(minTimeoutTime / idealTimeoutTime))
+  timeoutTime = Math.max(minTimeoutTime, idealTimeoutTime)
+  lastActionTime = action.time
+}
+
 function playerTick() {
+
   let continueNextTick = true
 
   for (let i = 0; i < ticksPerFrame && continueNextTick; i++) {
     tick()
-    continueNextTick = game.player.activeAction &&
-        (!game.player.activeAction.canInterrupt || !game.log.important)
+    continueNextTick = game.player.activeAction
+        && (!game.player.activeAction.canInterrupt || !game.log.important)
   }
 
   game.event.playerTick.emit(undefined)
 
-  let thisTime = time
-  // if (game.log.size > lastLogSize) {
-  //   thisTime = 500
-  // }
-  // lastLogSize = game.log.size
-
   if (continueNextTick) {
-    timeout = setTimeout(playerTick, thisTime)
+    if (game.player.activeAction.time >= lastActionTime) {
+      computeFrameTime(game.player.activeAction)
+    }
+    lastActionTime = game.player.activeAction.time
+
+    timeout = setTimeout(playerTick, timeoutTime)
   } else {
     game.log.finish()
     timeout = null
@@ -65,9 +69,9 @@ function playerTick() {
 }
 
 function addEffectToGameLoop(effect: Effect) {
-  game.effectsWithTick.add(effect)
+  game.effectsWithTick[effect.tickPriority].add(effect)
 }
 
 effectsCallback.removeEffectFromGameLoop = (effect: Effect) => {
-  return game.effectsWithTick.delete(effect)
+  return game.effectsWithTick[effect.tickPriority].delete(effect)
 }

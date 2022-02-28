@@ -5,13 +5,9 @@
 
   export let zone: GameObject
 
-  let spots: GameObject[][]
+  $: spots = groupBySpots(zone)
 
-  $: {
-    spots = groupBySpots(zone)
-  }
-
-  function groupBySpots(zone: GameObject) {
+  function groupBySpots(zone: GameObject): GameObject[][] {
     const spots = [[], [], [], [], []]
     for (const obj of zone.contains) {
       spots[obj.spot].push(obj)
