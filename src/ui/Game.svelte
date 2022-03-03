@@ -1,10 +1,6 @@
 <script lang='ts'>
   import { game } from './stores'
-  import Inventory from './Inventory.svelte'
-  import SelectedObject from './SelectedObject.svelte'
-  import Log from './Log.svelte'
   import Map from './Map.svelte'
-  import Player from './Player.svelte'
   import Zone from './Zone.svelte'
   import Action from './Action.svelte'
 </script>
@@ -12,7 +8,7 @@
 <main>
   <div class='global'>
     {#if $game.player.activeAction}
-      <Action action={$game.player.activeAction} />
+      <Action action={$game.player.activeAction}/>
     {/if}
     <h2 class='time'>{$game.time.getTimeOfDay()}</h2>
   </div>
@@ -22,7 +18,7 @@
   </div>
 
   <div class='zone'>
-    <Zone zone={$game.player.container} />
+    <Zone zone={$game.player.container}/>
   </div>
 </main>
 
@@ -67,9 +63,7 @@
 
   .zone {
     grid-area: zone;
-    display: grid;
-    align-items: center;
-    justify-items: center;
+    display: flex;
   }
 
   .zoneInventory {

@@ -26,7 +26,7 @@
 
 <svelte:window on:resize={() => map?.update() }/>
 
-<div bind:this={mapContainer} class='map'/>
+<div bind:this={mapContainer} class='map'></div>
 
 <style>
   .map {

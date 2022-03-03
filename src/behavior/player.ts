@@ -9,6 +9,7 @@ import MoveSpotAction from '../actions/MoveSpot'
 export function isPlayer(object: GameObject) {
   return object === game.player
 }
+
 export function inPlayerBubble(object: GameObject) {
   return isAncestor(game.player.container, object)
 }

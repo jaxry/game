@@ -4,13 +4,14 @@ export class Action extends Effect {
   static override tickPriority = 0
 
   static canInterrupt = true
+  time = 1
+
   get canInterrupt() {
     return (this.constructor as typeof Action).canInterrupt
   }
 
-  time = 1
-
   actionTick?(): void
+
   do?(): void
 
   override activate() {

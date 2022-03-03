@@ -41,7 +41,7 @@ export default class TransferAction extends Action {
     }
   }
 
- override do() {
+  override do() {
     putInsideContainer(this.destination, this.item)
 
     if (inPlayerBubble(this.object)) {

@@ -1,7 +1,9 @@
-<script lang="ts">
+<script lang='ts'>
   import type { GameObject } from '../GameObject'
   import ObjectInSpot from './ObjectInSpot.svelte'
-  import { playerMoveToSpot} from '../behavior/player'
+  import { playerMoveToSpot } from '../behavior/player'
+  import { gameObjectAnimDuration, gameObjectReceive, gameObjectSend } from './stores'
+  import { flip } from 'svelte/animate'
 
   export let zone: GameObject
 
@@ -22,11 +24,20 @@
 
 <div class='spots'>
   {#each spots as spot, i}
-    <div class='spot' on:click|self={() => clickSpot(i)}>
-      {#each spot as obj (obj)}
-        <ObjectInSpot {obj} />
-      {/each}
+    <div class='spot'>
+      <div class='background' on:click={() => clickSpot(i)}></div>
+      <div class='objects'>
+        {#each spot as obj (obj)}
+          <div
+              animate:flip={{duration: gameObjectAnimDuration}}
+              in:gameObjectSend={{key: obj}}
+              out:gameObjectReceive={{key: obj}}>
+            <ObjectInSpot {obj}/>
+          </div>
+        {/each}
+      </div>
     </div>
+
   {/each}
 </div>
 
@@ -36,18 +47,30 @@
   }
 
   .spot {
+    position: relative;
     min-width: 10rem;
-    padding: 1rem;
     border-right: var(--border);
-    user-select: none;
-    cursor: pointer;
-  }
-
-  .spot:hover {
-    background: var(--hover);
   }
 
   .spot:first-child {
     border-left: var(--border);
+  }
+
+  .objects {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .background {
+    position: absolute;
+    inset: 0;
+  }
+
+  .background:hover {
+    background: var(--lighter);
+    cursor: pointer;
   }
 </style>

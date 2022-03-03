@@ -1,28 +1,26 @@
-import type { GameObject, ActiveObjectEvent } from '../GameObject'
+import type { ActiveObjectEvent, GameObject } from '../GameObject'
 import { unsubscribeEvent } from '../GameObject'
 import type { ObjectEventCallback, ObjectEvents } from '../GameObjectType'
 import { deleteElem } from '../util'
 
 export class Effect {
   static effectName?: string
+  static tickPriority = 1
+  object: GameObject
+  isActive = false
+  private events?: ActiveObjectEvent[]
+
+  constructor(object: GameObject) {
+    this.object = object
+  }
+
   get name() {
     return (this.constructor as typeof Effect).effectName ??
         this.constructor.name
   }
 
-  static tickPriority = 1
   get tickPriority() {
     return (this.constructor as typeof Effect).tickPriority
-  }
-
-  object: GameObject
-
-  isActive = false
-
-  private events?: ActiveObjectEvent[]
-
-  constructor(object: GameObject) {
-    this.object = object
   }
 
   tick?(): void
