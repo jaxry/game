@@ -11,7 +11,7 @@ export const selectedObject = writable<GameObject | null>(null)
 
 export const dragAndDropGameObject = useDragAndDrop<GameObject>()
 
-export const gameObjectAnimDuration = d => Math.sqrt(d) * 25
+export const gameObjectAnimDuration = 200
 
 export const [gameObjectSend, gameObjectReceive] = crossfade({
   fallback: fade,

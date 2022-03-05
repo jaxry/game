@@ -31,6 +31,12 @@ export function putInsideContainer(container: GameObject, item: GameObject) {
   moveTo(container, item, ContainedAs.inside)
 }
 
+export function moveToSpot(item: GameObject, spot: number) {
+  removeFromContainer(item)
+  item.container.contains.push(item)
+  item.spot = spot
+}
+
 export function removeFromContainer(item: GameObject) {
   if (item.container) {
     deleteElem(item.container.contains, item)

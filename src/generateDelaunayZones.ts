@@ -9,7 +9,7 @@ import { makeType } from './GameObject'
 import poissonDiskSampling from './poissonDiskSampling'
 
 const typeZone = makeType({
-  name: `Place, Japan`,
+  name: `Somewhere, Someplace`,
   properNoun: true,
   description: `Somewhere and nowhere. Description of area. Each of these areas will eventually be unique.`,
   isContainer: true,

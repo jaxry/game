@@ -21,23 +21,25 @@ export default class AttackAction extends Action {
 
   override onActivate() {
     if (inPlayerBubble(this.object)) {
-      if (this.object === game.player) {
-        game.log.writeImportant(this.object, ` aim at `,
-            this.subject)
-      } else {
-        game.log.writeImportant(this.object, ` aims at `,
-            this.subject)
-      }
+      // if (this.object === game.player) {
+      //   game.log.writeImportant(this.object, ` aim at `,
+      //       this.subject)
+      // } else {
+      //   game.log.writeImportant(this.object, ` aims at `,
+      //       this.subject)
+      // }
+      game.objectLog.write(this.object, `starts to attack `)
     }
   }
 
   override do() {
     if (inPlayerBubble(this.object)) {
-      if (this.object === game.player) {
-        game.log.writeImportant(this.object, ` punch `, this.subject)
-      } else {
-        game.log.writeImportant(this.object, ` punches `, this.subject)
-      }
+      // if (this.object === game.player) {
+      //   game.log.writeImportant(this.object, ` punch `, this.subject)
+      // } else {
+      //   game.log.writeImportant(this.object, ` punches `, this.subject)
+      // }
+      game.objectLog.write(this.object, `attacks ${this.subject.type.name}`)
     }
 
     if (this.subject.health) {
@@ -46,11 +48,11 @@ export default class AttackAction extends Action {
         markDestroy(this.subject)
 
         if (inPlayerBubble(this.subject)) {
-          if (this.object === game.player) {
-            game.log.writeImportant(this.object, ` destroy `, this.subject)
-          } else {
-            game.log.writeImportant(this.object, ` destroys `, this.subject)
-          }
+          // if (this.object === game.player) {
+          //   game.log.writeImportant(this.object, ` destroy `, this.subject)
+          // } else {
+          //   game.log.writeImportant(this.object, ` destroys `, this.subject)
+          // }
         }
       }
     }

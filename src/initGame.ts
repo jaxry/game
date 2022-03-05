@@ -18,12 +18,14 @@ export function initGame() {
 
   const zone = world.contains[0]
 
-  game.player = spawn(typeYou, zone)
   // spawn(typeMonster, world.contains.at(-1))
 
-  for (let i = 0; i < 5; i++) {
+  game.player = spawn(typeYou, zone)
+
+  for (let i = 0; i < 10; i++) {
     spawn(typeApple, zone)
   }
+
 
   const chest = spawn(typeChest, zone)
   spawn(typeApple, chest)
@@ -45,8 +47,8 @@ const typeYou = makeType({
 })
 
 const typeChest = makeType({
-  name: `locker`,
-  description: `A school locker to store your class supplies in. Easy to stuff weak people in.`,
+  name: `chest`,
+  description: `A wooden chest filled with loot`,
   isContainer: true,
 })
 

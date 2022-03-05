@@ -72,9 +72,8 @@ class MonsterSearch extends Effect {
 }
 
 export const typeMonster = makeType({
-  name: 'rai',
-  description: 'A pissy sissy. Easy to pick up. Easy to bully',
-  properNoun: true,
+  name: 'monster',
+  description: 'a horrendous creature with large claws',
   health: 3,
   effects: [MonsterSearch],
 })

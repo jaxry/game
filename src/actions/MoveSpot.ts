@@ -1,5 +1,6 @@
 import type { GameObject } from '../GameObject'
 import { Action } from '../behavior/Action'
+import { moveToSpot } from '../behavior/container'
 
 const timePerSpot = 2
 
@@ -13,7 +14,8 @@ export default class MoveSpotAction extends Action {
 
   override actionTick() {
     if (this.time % timePerSpot === 0) {
-      this.object.spot += Math.sign(this.to - this.object.spot)
+      const nextSpot = this.object.spot + Math.sign(this.to - this.object.spot)
+      moveToSpot(this.object, nextSpot)
     }
   }
 }

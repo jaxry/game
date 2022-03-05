@@ -24,10 +24,13 @@ let ticksPerFrame = 0
 
 export function startPlayerAction(action?: Action) {
   game.log.start()
+  game.objectLog.clear()
 
   if (action) {
     action.activate()
     computeFrameTime(action)
+  } else {
+    ticksPerFrame = 1
   }
 
   if (!timeout) {
@@ -56,7 +59,7 @@ function playerTick() {
   game.event.playerTick.emit(undefined)
 
   if (continueNextTick) {
-    if (game.player.activeAction.time >= lastActionTime) {
+    if (game.player.activeAction.time !== lastActionTime - ticksPerFrame) {
       computeFrameTime(game.player.activeAction)
     }
     lastActionTime = game.player.activeAction.time

@@ -4,9 +4,10 @@
   import { playerMoveToSpot } from '../behavior/player'
   import { gameObjectAnimDuration, gameObjectReceive, gameObjectSend } from './stores'
   import { flip } from 'svelte/animate'
+  import { game } from './stores'
+  import Action from './Action.svelte'
 
-  export let zone: GameObject
-
+  $: zone = $game.player.container
   $: spots = groupBySpots(zone)
 
   function groupBySpots(zone: GameObject): GameObject[][] {
@@ -17,39 +18,53 @@
     return spots
   }
 
-  function clickSpot(spot) {
+  function move(spot) {
     playerMoveToSpot(spot)
   }
 </script>
 
 <div class='spots'>
-  {#each spots as spot, i}
-    <div class='spot'>
-      <div class='background' on:click={() => clickSpot(i)}></div>
-      <div class='objects'>
-        {#each spot as obj (obj)}
-          <div
-              animate:flip={{duration: gameObjectAnimDuration}}
-              in:gameObjectSend={{key: obj}}
-              out:gameObjectReceive={{key: obj}}>
-            <ObjectInSpot {obj}/>
-          </div>
-        {/each}
+    {#each spots as spot, i}
+      <div class='spot'>
+        <div class='objects'>
+          {#each spot as obj (obj)}
+            <div
+                animate:flip={{duration: gameObjectAnimDuration}}
+                in:gameObjectSend={{key: obj}}
+                out:gameObjectReceive={{key: obj}}>
+              <ObjectInSpot {obj}/>
+            </div>
+          {/each}
+        </div>
+        {#if i !== $game.player.spot}
+          <button class='move' on:click={() => move(i)}>Move</button>
+        {/if}
       </div>
-    </div>
+    {/each}
 
-  {/each}
+  <!--{#if $game.player.activeAction}-->
+  <!--  <div class='playerAction'>-->
+  <!--    <Action action={$game.player.activeAction} />-->
+  <!--    Test-->
+  <!--  </div>-->
+  <!--{/if}-->
 </div>
 
 <style>
+
   .spots {
+    position: relative;
+    height: 100%;
     display: flex;
+    justify-content: center;
   }
 
   .spot {
     position: relative;
-    min-width: 10rem;
     border-right: var(--border);
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
   }
 
   .spot:first-child {
@@ -57,20 +72,28 @@
   }
 
   .objects {
-    position: relative;
+    flex: 1 1 0;
     display: flex;
     flex-direction: column;
     gap: 1rem;
     padding: 1rem;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
-  .background {
+  .move {
+    flex: 0 0 auto;
+  }
+
+  .playerAction {
     position: absolute;
-    inset: 0;
-  }
-
-  .background:hover {
-    background: var(--lighter);
-    cursor: pointer;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 1.5rem;
+    background: linear-gradient(transparent, var(--background));
+    padding-top: 5rem;
+    padding-bottom: 1rem;
   }
 </style>
