@@ -27,13 +27,16 @@
 <style>
   main {
     height: 100%;
-    overflow: auto;
     display: grid;
     grid-template-columns: 16rem 1fr 1fr;
     grid-template-rows: 1fr 16rem;
     grid-template-areas:
       'global zone     zone'
       'map    selected selected';
+  }
+
+  main > * {
+    overflow: hidden;
   }
 
   .global {

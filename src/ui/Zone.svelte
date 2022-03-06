@@ -4,6 +4,7 @@
   import { playerMoveToSpot } from '../behavior/player'
   import { gameObjectAnimDuration, gameObjectReceive, gameObjectSend } from './stores'
   import { flip } from 'svelte/animate'
+  import { fade } from 'svelte/transition'
   import { game } from './stores'
   import Action from './Action.svelte'
 
@@ -23,24 +24,25 @@
   }
 </script>
 
-<div class='spots'>
-    {#each spots as spot, i}
-      <div class='spot'>
-        <div class='objects'>
-          {#each spot as obj (obj)}
-            <div
-                animate:flip={{duration: gameObjectAnimDuration}}
-                in:gameObjectSend={{key: obj}}
-                out:gameObjectReceive={{key: obj}}>
-              <ObjectInSpot {obj}/>
-            </div>
-          {/each}
-        </div>
-        {#if i !== $game.player.spot}
-          <button class='move' on:click={() => move(i)}>Move</button>
-        {/if}
+{#key zone.id}
+<div class='spots' out:fade={{duration: 200}} in:fade={{duration: 200, delay: 200}}>
+  {#each spots as spot, i}
+    <div class='spot'>
+      <div class='objects'>
+        {#each spot as obj (obj)}
+          <div
+              animate:flip={{duration: gameObjectAnimDuration}}
+              in:gameObjectSend|local={{key: obj}}
+              out:gameObjectReceive|local={{key: obj}}>
+            <ObjectInSpot {obj}/>
+          </div>
+        {/each}
       </div>
-    {/each}
+      {#if i !== $game.player.spot}
+        <button class='move' on:click={() => move(i)}>Move</button>
+      {/if}
+    </div>
+  {/each}
 
   <!--{#if $game.player.activeAction}-->
   <!--  <div class='playerAction'>-->
@@ -49,9 +51,10 @@
   <!--  </div>-->
   <!--{/if}-->
 </div>
+{/key}
+
 
 <style>
-
   .spots {
     position: relative;
     height: 100%;
