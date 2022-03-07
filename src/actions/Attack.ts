@@ -16,7 +16,7 @@ export default class AttackAction extends Action {
   }
 
   override condition() {
-    return isAncestor(this.object.container, this.subject)
+    return this.subject.health && isAncestor(this.object.container, this.subject)
   }
 
   override onActivate() {

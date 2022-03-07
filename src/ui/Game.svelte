@@ -1,9 +1,10 @@
 <script lang='ts'>
   import { game } from './stores'
   import Map from './Map.svelte'
-  import Zone from './Zone.svelte'
+  import ZoneSpots from './ZoneSpots.svelte'
   import Action from './Action.svelte'
   import SelectedObject from './SelectedObject.svelte'
+  import ObjectInfo from './ObjectInfo.svelte'
 </script>
 
 <main>
@@ -15,8 +16,8 @@
     <Map/>
   </div>
 
-  <div class='zone'>
-    <Zone />
+  <div class='zoneSpots'>
+    <ZoneSpots />
   </div>
 
   <div class='selectedObject'>
@@ -31,8 +32,8 @@
     grid-template-columns: 16rem 1fr 1fr;
     grid-template-rows: 1fr 16rem;
     grid-template-areas:
-      'global zone     zone'
-      'map    selected selected';
+      'global zoneSpots zoneSpots'
+      'map    selected  selected';
   }
 
   main > * {
@@ -51,12 +52,13 @@
     grid-area: map;
   }
 
-  .zone {
-    grid-area: zone;
+  .zoneSpots {
+    grid-area: zoneSpots;
+    border-bottom: var(--border);
   }
 
   .selectedObject {
     grid-area: selected;
-    border-top: var(--border);
   }
+
 </style>

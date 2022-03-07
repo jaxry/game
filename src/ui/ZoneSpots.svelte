@@ -2,7 +2,7 @@
   import type { GameObject } from '../GameObject'
   import ObjectInSpot from './ObjectInSpot.svelte'
   import { playerMoveToSpot } from '../behavior/player'
-  import { gameObjectAnimDuration, gameObjectReceive, gameObjectSend } from './stores'
+  import { gameObjectReceive, gameObjectSend, setSelectedObject } from './stores'
   import { flip } from 'svelte/animate'
   import { fade } from 'svelte/transition'
   import { game } from './stores'
@@ -22,16 +22,20 @@
   function move(spot) {
     playerMoveToSpot(spot)
   }
+
+  function selectZone() {
+    setSelectedObject(null)
+  }
 </script>
 
 {#key zone.id}
 <div class='spots' out:fade={{duration: 200}} in:fade={{duration: 200, delay: 200}}>
   {#each spots as spot, i}
     <div class='spot'>
-      <div class='objects'>
+      <div class='objects' on:click={selectZone}>
         {#each spot as obj (obj)}
           <div
-              animate:flip={{duration: gameObjectAnimDuration}}
+              animate:flip
               in:gameObjectSend|local={{key: obj}}
               out:gameObjectReceive|local={{key: obj}}>
             <ObjectInSpot {obj}/>

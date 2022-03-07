@@ -8,6 +8,7 @@
 
 <style>
   .action {
+    text-transform: capitalize;
     color: var(--action);
   }
 </style>

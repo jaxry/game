@@ -18,14 +18,13 @@ export function initGame() {
 
   const zone = world.contains[0]
 
-  // spawn(typeMonster, world.contains.at(-1))
-
   game.player = spawn(typeYou, zone)
+
+  spawn(typeMonster, world.contains[0])
 
   for (let i = 0; i < 10; i++) {
     spawn(typeApple, zone)
   }
-
 
   const chest = spawn(typeChest, zone)
   spawn(typeApple, chest)

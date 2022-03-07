@@ -11,11 +11,9 @@ export const selectedObject = writable<GameObject | null>(null)
 
 export const dragAndDropGameObject = useDragAndDrop<GameObject>()
 
-export const gameObjectAnimDuration = 200
-
 export const [gameObjectSend, gameObjectReceive] = crossfade({
   fallback: fade,
-  duration: gameObjectAnimDuration,
+  duration: 200,
 })
 
 export function rerenderGame() {
@@ -23,8 +21,8 @@ export function rerenderGame() {
   selectedObject.update(x => x && isSelectable(x) ? x : null)
 }
 
-export function setSelectedObject(object: GameObject) {
-  if (isSelectable((object))) {
+export function setSelectedObject(object: GameObject | null) {
+  if (object === null || isSelectable(object)) {
     selectedObject.set(object)
   }
 }
