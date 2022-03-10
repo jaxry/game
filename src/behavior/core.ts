@@ -23,27 +23,29 @@ let lastActionTime = 0
 let ticksPerFrame = 0
 
 export function startPlayerAction(action?: Action) {
-  game.log.start()
   game.objectLog.clear()
 
   if (action) {
     action.activate()
     computeFrameTime(action)
+
   } else {
     ticksPerFrame = 1
   }
 
+  game.event.playerTick.emit(undefined)
+
   if (!timeout) {
-    playerTick()
+    setTimeout(playerTick, timeoutTime)
   }
 }
 
 function computeFrameTime(action: Action) {
   const minTimeoutTime = 17
-  const idealTimeoutTime = Math.min(250, 1000 / action.time)
+  const idealTimeoutTime = Math.min(250, 1000 / (action.time + 1))
   ticksPerFrame = Math.max(1, Math.ceil(minTimeoutTime / idealTimeoutTime))
   timeoutTime = Math.max(minTimeoutTime, idealTimeoutTime)
-  lastActionTime = action.time
+  // lastActionTime = action.time
 }
 
 function playerTick() {
@@ -52,21 +54,20 @@ function playerTick() {
 
   for (let i = 0; i < ticksPerFrame && continueNextTick; i++) {
     tick()
-    continueNextTick = game.player.activeAction
-        && (!game.player.activeAction.canInterrupt || !game.log.important)
+    continueNextTick = game.player.activeAction && true
+        // && (!game.player.activeAction.canInterrupt || !game.log.important)
   }
 
   game.event.playerTick.emit(undefined)
 
   if (continueNextTick) {
-    if (game.player.activeAction.time !== lastActionTime - ticksPerFrame) {
-      computeFrameTime(game.player.activeAction)
-    }
-    lastActionTime = game.player.activeAction.time
+    // if (game.player.activeAction.time !== lastActionTime - ticksPerFrame) {
+    //   computeFrameTime(game.player.activeAction)
+    // }
+    // lastActionTime = game.player.activeAction.time
 
     timeout = setTimeout(playerTick, timeoutTime)
   } else {
-    game.log.finish()
     timeout = null
   }
 }

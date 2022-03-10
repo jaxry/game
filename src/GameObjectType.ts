@@ -41,6 +41,14 @@ export interface GameObjectProps {
   energy: number
 }
 
+// export interface ObjectEvents {
+//   destroy: undefined,
+//   actionStart: { action: Action }
+//   actionEnd: { action: Action }
+//   receive: { receiving: GameObject, from?: GameObject },
+//   move: { to: GameObject, from?: GameObject }
+// }
+
 export interface ObjectEvents {
   destroy: undefined,
   actionStart: { action: Action }
@@ -48,6 +56,7 @@ export interface ObjectEvents {
   receive: { receiving: GameObject, from?: GameObject },
   move: { to: GameObject, from?: GameObject }
 }
+
 
 export enum ContainedAs {
   inside,

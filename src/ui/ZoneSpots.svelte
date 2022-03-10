@@ -2,11 +2,9 @@
   import type { GameObject } from '../GameObject'
   import ObjectInSpot from './ObjectInSpot.svelte'
   import { playerMoveToSpot } from '../behavior/player'
-  import { gameObjectReceive, gameObjectSend, setSelectedObject } from './stores'
+  import { game, gameObjectReceive, gameObjectSend, setSelectedObject } from './stores'
   import { flip } from 'svelte/animate'
   import { fade } from 'svelte/transition'
-  import { game } from './stores'
-  import Action from './Action.svelte'
 
   $: zone = $game.player.container
   $: spots = groupBySpots(zone)
@@ -29,32 +27,32 @@
 </script>
 
 {#key zone.id}
-<div class='spots' out:fade={{duration: 200}} in:fade={{duration: 200, delay: 200}}>
-  {#each spots as spot, i}
-    <div class='spot'>
-      <div class='objects' on:click={selectZone}>
-        {#each spot as obj (obj)}
-          <div
-              animate:flip
-              in:gameObjectSend|local={{key: obj}}
-              out:gameObjectReceive|local={{key: obj}}>
-            <ObjectInSpot {obj}/>
-          </div>
-        {/each}
+  <div class='spots' out:fade={{duration: 200}} in:fade={{duration: 200, delay: 200}}>
+    {#each spots as spot, i}
+      <div class='spot'>
+        <div class='objects' on:click={selectZone}>
+          {#each spot as object (object)}
+            <div
+                animate:flip
+                in:gameObjectSend|local={{key: object}}
+                out:gameObjectReceive|local={{key: object}}>
+              <ObjectInSpot {object}/>
+            </div>
+          {/each}
+        </div>
+        {#if i !== $game.player.spot}
+          <button class='move' on:click={() => move(i)}>Move</button>
+        {/if}
       </div>
-      {#if i !== $game.player.spot}
-        <button class='move' on:click={() => move(i)}>Move</button>
-      {/if}
-    </div>
-  {/each}
+    {/each}
 
-  <!--{#if $game.player.activeAction}-->
-  <!--  <div class='playerAction'>-->
-  <!--    <Action action={$game.player.activeAction} />-->
-  <!--    Test-->
-  <!--  </div>-->
-  <!--{/if}-->
-</div>
+    <!--{#if $game.player.activeAction}-->
+    <!--  <div class='playerAction'>-->
+    <!--    <Action action={$game.player.activeAction} />-->
+    <!--    Test-->
+    <!--  </div>-->
+    <!--{/if}-->
+  </div>
 {/key}
 
 

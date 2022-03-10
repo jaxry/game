@@ -1,12 +1,14 @@
 <script lang='ts'>
   import type { GameObject } from '../GameObject'
-  import {dragAndDropGameObject} from './stores'
+  import { dragAndDropGameObject, selectedObject } from './stores'
   import Action from './Action.svelte'
 
   export let object: GameObject
+
+  $: selected = object === $selectedObject
 </script>
 
-<h2 class='label' use:dragAndDropGameObject.drag={object}>
+<h2 class='label' class:selected use:dragAndDropGameObject.drag={object}>
   {object.type.name}
 </h2>
 
@@ -25,7 +27,13 @@
 <style>
   .label {
     text-transform: capitalize;
+    cursor: grab;
   }
+
+  .selected {
+    color: var(--secondary);
+  }
+
   .description {
     font-style: italic;
   }

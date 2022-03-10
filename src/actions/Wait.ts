@@ -7,8 +7,6 @@ export default class WaitAction extends Action {
   override time = 1
 
   override do() {
-    if (this.object === game.player) {
-      game.log.write(this.object, ` wait for a bit`)
-    }
+
   }
 }

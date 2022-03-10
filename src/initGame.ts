@@ -11,7 +11,7 @@ export function initGame() {
 
   const world = spawn(typeWorld)
 
-  const zones = generateDelaunayZones(7)
+  const zones = generateDelaunayZones(3)
   for (const zone of zones) {
     putInsideContainer(world, zone)
   }
@@ -20,17 +20,16 @@ export function initGame() {
 
   game.player = spawn(typeYou, zone)
 
-  spawn(typeMonster, world.contains[0])
 
   for (let i = 0; i < 10; i++) {
     spawn(typeApple, zone)
   }
 
+  spawn(typeMonster, world.contains[0])
+
   const chest = spawn(typeChest, zone)
   spawn(typeApple, chest)
   spawn(typeApple, chest)
-
-  game.log.write(`Welcome to your new life, soyboy`)
 }
 
 const typeWorld = makeType({
@@ -53,5 +52,6 @@ const typeChest = makeType({
 
 const typeApple = makeType({
   name: 'apple',
+  health: 2,
   description: `A crunchy apple. The most generic of items`,
 })

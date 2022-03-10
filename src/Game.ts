@@ -7,10 +7,9 @@ import GameObjectLog from './GameObjectLog'
 
 export const game = {
   time: new GameTime(),
-  log: new GameLog(),
   objectLog: new GameObjectLog(),
   event: {
-    playerTick: new GameEvent<undefined>(),
+    playerTick: new GameEvent(),
   },
   player: {} as GameObject,
   effectsWithTick: [new Set(), new Set()] as Set<Effect>[],

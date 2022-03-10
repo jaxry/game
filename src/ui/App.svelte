@@ -3,7 +3,6 @@
   import { game } from '../Game'
   import GameOver from './GameOver.svelte'
   import Game from './Game.svelte'
-  import { rerenderGame } from './stores'
 
   let state = Game
 
@@ -11,9 +10,6 @@
     state = GameOver
   })
 
-  game.event.playerTick.on(() => {
-    rerenderGame()
-  })
 </script>
 
 <svelte:component this={state}/>

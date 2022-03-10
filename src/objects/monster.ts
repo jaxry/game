@@ -6,6 +6,7 @@ import { game } from '../Game'
 import type { GameObject } from '../GameObject'
 import { makeType } from '../GameObject'
 import { randomElement } from '../util'
+import MoveSpotAction from '../actions/MoveSpot'
 
 class MonsterAttack extends Effect {
   constructor(object: GameObject, public target: GameObject) {
@@ -13,13 +14,19 @@ class MonsterAttack extends Effect {
   }
 
   override tick() {
-    if (!this.object.activeAction) {
-      if (isContainedWith(this.object, this.target)) {
-        new AttackAction(this.object, this.target).activate()
+    if (this.object.activeAction) {
+      return
+    }
+
+    if (isContainedWith(this.object, this.target)) {
+      if (this.object.spot !== this.target.spot) {
+        new MoveSpotAction(this.object, this.object.spot + Math.sign(this.target.spot - this.object.spot)).activate()
       } else {
-        this.deactivate()
-        new MonsterSearch(this.object).activate()
+        new AttackAction(this.object, this.target).activate()
       }
+    } else {
+      this.deactivate()
+      new MonsterSearch(this.object).activate()
     }
   }
 }
@@ -32,7 +39,7 @@ class MonsterSearch extends Effect {
   }
 
   travel() {
-    if (this.object.activeAction || !this.object.container.connections) {
+    if (!this.object.container.connections) {
       return
     }
     const location = randomElement(this.object.container.connections)
@@ -58,7 +65,6 @@ class MonsterSearch extends Effect {
       if (isContainedWith(this.object, game.player)) {
         return this.found()
       }
-
       this.unsubscribe(receiveListener)
       receiveListener = addReceiveListener()
     })
@@ -72,7 +78,8 @@ class MonsterSearch extends Effect {
 }
 
 export const typeMonster = makeType({
-  name: 'monster',
+  name: 'rai',
+  properNoun: true,
   description: 'a horrendous creature with sharp claws',
   health: 3,
   effects: [MonsterSearch],

@@ -1,10 +1,13 @@
 <script lang='ts'>
-  import { game } from './stores'
+  import { game, rerenderGame } from './stores'
   import Map from './Map.svelte'
   import ZoneSpots from './ZoneSpots.svelte'
-  import Action from './Action.svelte'
   import SelectedObject from './SelectedObject.svelte'
-  import ObjectInfo from './ObjectInfo.svelte'
+
+  $game.event.playerTick.on(() => {
+    rerenderGame()
+  })
+
 </script>
 
 <main>
@@ -17,11 +20,11 @@
   </div>
 
   <div class='zoneSpots'>
-    <ZoneSpots />
+    <ZoneSpots/>
   </div>
 
   <div class='selectedObject'>
-    <SelectedObject />
+    <SelectedObject/>
   </div>
 </main>
 
