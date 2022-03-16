@@ -1,7 +1,15 @@
+<script lang='ts' context='module'>
+  import type { GameObject } from '../GameObject'
+
+  let objMap = new Map<GameObject, HTMLElement>()
+</script>
+
 <script lang='ts'>
   import type { GameObject } from '../GameObject'
   import Action from './Action.svelte'
   import { dragAndDropGameObject, game, selectedObject, setSelectedObject } from './stores'
+  import { onDestroy, onMount } from 'svelte'
+  import { isLooping, startPlayerAction } from '../behavior/core'
 
   export let object: GameObject
 
@@ -9,19 +17,37 @@
   $: selected = object === $selectedObject
   $: player = object === $game.player
 
+  let container: HTMLElement
+
   function click(e: PointerEvent) {
     // new MoveAndPickup($game.player, obj).activate()
     // startPlayerAction()
     setSelectedObject(object)
     e.stopPropagation()
   }
+
+  onMount(() => {
+    objMap.set(object, container)
+  })
+  onDestroy(() => {
+    if (objMap.get(object) === container) {
+      objMap.delete(object)
+    }
+  })
 </script>
 
-<div class='container' class:selected class:player on:click={click} use:dragAndDropGameObject.drag={object}>
+<div class='container'
+     class:selected class:player
+     bind:this={container}
+     on:click={click} use:dragAndDropGameObject.drag={object}>
+
   <div class='name'>{object.type.name}</div>
 
   {#if object.activeAction}
     <Action action={object.activeAction}/>
+    {#if $game && player && !isLooping()}
+      <button on:click={() => startPlayerAction()}>Continue</button>
+    {/if}
   {/if}
 
   <!--{#if log}-->

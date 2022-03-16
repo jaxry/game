@@ -14,14 +14,14 @@ class MonsterAttack extends Effect {
   }
 
   override tick() {
-    if (this.object.activeAction) {
-      return
-    }
+    const active = this.object.activeAction
+    const sameSpot = this.object.spot === this.target.spot
 
     if (isContainedWith(this.object, this.target)) {
-      if (this.object.spot !== this.target.spot) {
-        new MoveSpotAction(this.object, this.object.spot + Math.sign(this.target.spot - this.object.spot)).activate()
-      } else {
+      if (!sameSpot && !(active instanceof MoveSpotAction)) {
+        const to = this.object.spot + Math.sign(this.target.spot - this.object.spot)
+        new MoveSpotAction(this.object, to).activate()
+      } else if (sameSpot && !(active instanceof AttackAction)) {
         new AttackAction(this.object, this.target).activate()
       }
     } else {

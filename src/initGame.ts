@@ -20,12 +20,13 @@ export function initGame() {
 
   game.player = spawn(typeYou, zone)
 
-
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 0; i++) {
     spawn(typeApple, zone)
   }
 
-  spawn(typeMonster, world.contains[0])
+  for (let i = 0; i < 5; i++) {
+    spawn(typeMonster, world.contains.at(Math.random() * world.contains.length))
+  }
 
   const chest = spawn(typeChest, zone)
   spawn(typeApple, chest)

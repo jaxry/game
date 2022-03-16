@@ -1,6 +1,6 @@
 <script lang='ts'>
   import type { GameObject } from '../GameObject'
-  import ObjectInSpot from './ObjectInSpot.svelte'
+  import ObjectTile from './ObjectTile.svelte'
   import { playerMoveToSpot } from '../behavior/player'
   import { game, gameObjectReceive, gameObjectSend, setSelectedObject } from './stores'
   import { flip } from 'svelte/animate'
@@ -36,7 +36,7 @@
                 animate:flip
                 in:gameObjectSend|local={{key: object}}
                 out:gameObjectReceive|local={{key: object}}>
-              <ObjectInSpot {object}/>
+              <ObjectTile {object}/>
             </div>
           {/each}
         </div>

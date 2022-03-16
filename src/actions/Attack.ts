@@ -4,6 +4,7 @@ import { game } from '../Game'
 import type { GameObject } from '../GameObject'
 import { inPlayerBubble } from '../behavior/player'
 import { isAncestor } from '../behavior/container'
+import { interruptPlayerLoop } from '../behavior/core'
 
 export default class AttackAction extends Action {
   static override effectName = `attack`
@@ -22,6 +23,9 @@ export default class AttackAction extends Action {
   }
 
   override onActivate() {
+    if (inPlayerBubble(this.object)) {
+      interruptPlayerLoop()
+    }
   }
 
   override do() {

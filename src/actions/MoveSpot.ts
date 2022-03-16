@@ -2,7 +2,7 @@ import type { GameObject } from '../GameObject'
 import { Action } from '../behavior/Action'
 import { moveToSpot } from '../behavior/container'
 
-const timePerSpot = 2
+const timePerSpot = 3
 
 export default class MoveSpotAction extends Action {
   static override effectName = 'move to spot'

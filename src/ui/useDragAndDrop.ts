@@ -1,6 +1,6 @@
 import { derived, get, writable } from 'svelte/store'
 
-type Effect = 'copy' | 'move' | 'link'
+type DropEffect = 'copy' | 'move' | 'link'
 
 export default function useDragAndDrop<T>() {
   const payloadStore = writable<T | null>(null)
@@ -23,12 +23,12 @@ export default function useDragAndDrop<T>() {
   }
 
   function drop(
-      canDrop: (object: T) => Effect | void,
+      canDrop: (object: T) => DropEffect | void,
       onDrop: (object: T, e: DragEvent) => void,
   ) {
 
     function dropAction(node: HTMLElement) {
-      let returnedEffect: Effect | void
+      let returnedEffect: DropEffect | void
 
       node.addEventListener('dragenter', (e) => {
         const payload = get(payloadStore)
