@@ -2,10 +2,9 @@ import { Effect } from '../behavior/Effect'
 import { game } from '../Game'
 import AttackAction from '../actions/Attack'
 import { interruptPlayerLoop } from '../behavior/core'
-import { gameObjectToCard } from './stores'
-import { tick } from 'svelte'
+import { attackAnimations } from './stores'
 
-export class PlayerUIEffect extends Effect {
+export class PlayerUIHook extends Effect {
   override onActivate() {
     this.onEvent(this.object.container, 'enter', ({item}) => {
       console.log(item, 'enter')
@@ -22,12 +21,19 @@ export class PlayerUIEffect extends Effect {
     })
 
     this.onEvent(this.object.container, 'itemActionFinish', async ({action}) => {
-      await tick()
-      console.log('finished', action, gameObjectToCard.get(action.object))
+      if (action instanceof AttackAction) {
+        // await tick()
+        // animateAttack(gameObjectToCard.get(action.object), gameObjectToCard.get(action.target))
+        attackAnimations.add(action)
+      }
     })
 
     this.onEvent(this.object, 'move', () => {
       this.deactivate().activate()
     })
   }
+}
+
+function animateAttack(from: HTMLElement, to: HTMLElement) {
+  console.log(from, to)
 }

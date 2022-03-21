@@ -1,8 +1,9 @@
 <script lang='ts'>
-  import { game, rerenderGame } from './stores'
+  import { attackAnimations, game, rerenderGame } from './stores'
   import Map from './Map.svelte'
   import ZoneSpots from './Zone.svelte'
   import SelectedObject from './SelectedObject.svelte'
+  import AttackAnimation from './AttackAnimation.svelte'
 
   $game.event.playerTick.on(() => {
     rerenderGame()
@@ -26,6 +27,10 @@
   <div class='selectedObject'>
     <SelectedObject/>
   </div>
+
+  {#each $attackAnimations as attack (attack)}
+    <AttackAnimation {attack} />
+  {/each}
 </main>
 
 <style>

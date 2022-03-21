@@ -39,7 +39,7 @@
   {#if object.activeAction}
     <Action action={object.activeAction}/>
     {#if $game && player && !isLooping()}
-      <button on:click={() => startPlayerAction()}>Continue</button>
+      <button on:click|stopPropagation={() => startPlayerAction()}>Continue</button>
     {/if}
   {/if}
 

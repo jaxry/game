@@ -2,9 +2,9 @@
   import type { GameObject } from '../GameObject'
   import ObjectTile from './ObjectCard.svelte'
   import { playerMoveToSpot } from '../behavior/player'
-  import { game, gameObjectReceive, gameObjectSend, setSelectedObject } from './stores'
+  import { game, setSelectedObject } from './stores'
   import { flip } from 'svelte/animate'
-  import { fade } from 'svelte/transition'
+  import { crossfade, fade } from 'svelte/transition'
 
   $: zone = $game.player.container
   $: spots = groupBySpots(zone)
@@ -24,6 +24,12 @@
   function selectZone() {
     setSelectedObject(null)
   }
+
+  export const [gameObjectSend, gameObjectReceive] = crossfade({
+    fallback: fade,
+    duration: 200,
+  })
+
 </script>
 
 {#key zone.id}
@@ -54,7 +60,6 @@
     <!--{/if}-->
   </div>
 {/key}
-
 
 <style>
   .spots {

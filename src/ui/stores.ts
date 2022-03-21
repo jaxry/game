@@ -4,6 +4,8 @@ import type { GameObject } from '../GameObject'
 import { isSelectable } from '../behavior/player'
 import useDragAndDrop from './useDragAndDrop'
 import { crossfade, fade } from 'svelte/transition'
+import type AttackAction from '../actions/Attack'
+import { deleteElem } from '../util'
 
 export const game = writable(gameInstance)
 
@@ -13,10 +15,23 @@ export const dragAndDropGameObject = useDragAndDrop<GameObject>()
 
 export const gameObjectToCard = new Map<GameObject, HTMLElement>()
 
-export const [gameObjectSend, gameObjectReceive] = crossfade({
-  fallback: fade,
-  duration: 200,
-})
+export const attackAnimations = (() => {
+  const store = writable<AttackAction[]>([])
+  return {
+    ...store,
+    add(x: AttackAction) {
+      store.update(arr => {
+        arr.push(x)
+        return arr
+      })
+
+      setTimeout(() => store.update(arr => {
+        deleteElem(arr, x)
+        return arr
+      }), 2000)
+    }
+  }
+})()
 
 export function rerenderGame() {
   game.update(x => x)

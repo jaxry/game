@@ -5,7 +5,7 @@ import { makeType } from './GameObject'
 import GameTime from './GameTime'
 import { generateDelaunayZones } from './generateDelaunayZones'
 import { typeMonster } from './objects/monster'
-import { PlayerUIEffect } from './ui/PlayerUIEffect'
+import { PlayerUIHook } from './ui/PlayerUIHook'
 
 export function initGame() {
   game.energyPool = 2 * GameTime.hour
@@ -44,7 +44,7 @@ const typeYou = makeType({
   properNoun: true,
   isContainer: true,
   health: 25,
-  effects: [PlayerUIEffect]
+  effects: [PlayerUIHook]
 })
 
 const typeChest = makeType({
