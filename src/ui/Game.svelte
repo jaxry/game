@@ -1,7 +1,7 @@
 <script lang='ts'>
   import { game, rerenderGame } from './stores'
   import Map from './Map.svelte'
-  import ZoneSpots from './ZoneSpots.svelte'
+  import ZoneSpots from './Zone.svelte'
   import SelectedObject from './SelectedObject.svelte'
 
   $game.event.playerTick.on(() => {

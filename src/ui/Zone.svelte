@@ -1,6 +1,6 @@
 <script lang='ts'>
   import type { GameObject } from '../GameObject'
-  import ObjectTile from './ObjectTile.svelte'
+  import ObjectTile from './ObjectCard.svelte'
   import { playerMoveToSpot } from '../behavior/player'
   import { game, gameObjectReceive, gameObjectSend, setSelectedObject } from './stores'
   import { flip } from 'svelte/animate'

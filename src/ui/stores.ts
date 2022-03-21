@@ -11,6 +11,8 @@ export const selectedObject = writable<GameObject | null>(null)
 
 export const dragAndDropGameObject = useDragAndDrop<GameObject>()
 
+export const gameObjectToCard = new Map<GameObject, HTMLElement>()
+
 export const [gameObjectSend, gameObjectReceive] = crossfade({
   fallback: fade,
   duration: 200,

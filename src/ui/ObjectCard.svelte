@@ -1,13 +1,7 @@
-<script lang='ts' context='module'>
-  import type { GameObject } from '../GameObject'
-
-  let objMap = new Map<GameObject, HTMLElement>()
-</script>
-
 <script lang='ts'>
   import type { GameObject } from '../GameObject'
   import Action from './Action.svelte'
-  import { dragAndDropGameObject, game, selectedObject, setSelectedObject } from './stores'
+  import { dragAndDropGameObject, game, gameObjectToCard, selectedObject, setSelectedObject } from './stores'
   import { onDestroy, onMount } from 'svelte'
   import { isLooping, startPlayerAction } from '../behavior/core'
 
@@ -18,6 +12,14 @@
   $: player = object === $game.player
 
   let container: HTMLElement
+  onMount(() => {
+    gameObjectToCard.set(object, container)
+  })
+  onDestroy(() => {
+    if (gameObjectToCard.get(object) === container) {
+      gameObjectToCard.delete(object)
+    }
+  })
 
   function click(e: PointerEvent) {
     // new MoveAndPickup($game.player, obj).activate()
@@ -25,15 +27,6 @@
     setSelectedObject(object)
     e.stopPropagation()
   }
-
-  onMount(() => {
-    objMap.set(object, container)
-  })
-  onDestroy(() => {
-    if (objMap.get(object) === container) {
-      objMap.delete(object)
-    }
-  })
 </script>
 
 <div class='container'

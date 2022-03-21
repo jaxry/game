@@ -49,32 +49,3 @@ export function getObjectInteractions(player: GameObject, subject: GameObject) {
 
   return actions
 }
-
-export const actionMap = new Map<GameObject, Action>()
-
-export class PlayerUI extends Effect {
-  override onActivate() {
-    this.onEvent(this.object.container, 'enter', ({item}) => {
-      console.log(item, 'enter')
-    })
-
-    this.onEvent(this.object.container, 'leave', ({item}) => {
-      console.log(item, 'leave')
-    })
-
-    this.onEvent(this.object.container, 'itemActionStart', ({action}) => {
-      if (action.object !== game.player && action instanceof AttackAction) {
-        interruptPlayerLoop()
-      }
-    })
-
-    this.onEvent(this.object.container, 'itemActionFinish', ({action}) => {
-      actionMap.set(action.object, action)
-      console.log(actionMap)
-    })
-
-    this.onEvent(this.object, 'move', () => {
-      this.deactivate().activate()
-    })
-  }
-}

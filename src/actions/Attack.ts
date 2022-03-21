@@ -12,21 +12,21 @@ export default class AttackAction extends Action {
 
   override time = 3
 
-  constructor(attacker: GameObject, public subject: GameObject) {
+  constructor(attacker: GameObject, public target: GameObject) {
     super(attacker)
   }
 
   override condition() {
-    return this.subject.health &&
-        isAncestor(this.object.container, this.subject) &&
-        this.object.spot === this.subject.spot
+    return this.target.health &&
+        isAncestor(this.object.container, this.target) &&
+        this.object.spot === this.target.spot
   }
 
   override do() {
-    if (this.subject.health) {
-      this.subject.health--
-      if (this.subject.health <= 0) {
-        markDestroy(this.subject)
+    if (this.target.health) {
+      this.target.health--
+      if (this.target.health <= 0) {
+        markDestroy(this.target)
       }
     }
   }
