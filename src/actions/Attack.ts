@@ -22,12 +22,6 @@ export default class AttackAction extends Action {
         this.object.spot === this.subject.spot
   }
 
-  override onActivate() {
-    if (inPlayerBubble(this.object)) {
-      interruptPlayerLoop()
-    }
-  }
-
   override do() {
     if (this.subject.health) {
       this.subject.health--

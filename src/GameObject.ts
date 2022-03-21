@@ -68,15 +68,16 @@ class GameObjectInstance {
     // listeners = this.type.events?.[event]
     // if (listeners) {
     //   for (const listener of listeners) {
-    //     listener(this data)
+    //     listener(data)
     //   }
     // }
 
     listeners = this.events?.[event]
     if (listeners) {
       for (const listener of listeners) {
-        listener(this, data)
+        listener(data)
       }
     }
+
   }
 }

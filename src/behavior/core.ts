@@ -60,7 +60,7 @@ function computeFrameTime(action: Action) {
 
 function playerTick() {
 
-  let continueNextTick = !interrupt
+  let continueNextTick = true
 
   for (let i = 0; continueNextTick && i < ticksPerFrame; i++) {
     tick()

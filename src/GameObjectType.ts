@@ -27,7 +27,7 @@ export interface GameObjectProps {
   effects: Effect[]
   activeAction: Action
 
-  container: GameObject & Required<Pick<GameObjectProps, `contains`>>
+  container: GameObject
   containedAs: ContainedAs
   contains: GameObject[]
 
@@ -41,22 +41,20 @@ export interface GameObjectProps {
   energy: number
 }
 
-// export interface ObjectEvents {
-//   destroy: undefined,
-//   actionStart: { action: Action }
-//   actionEnd: { action: Action }
-//   receive: { receiving: GameObject, from?: GameObject },
-//   move: { to: GameObject, from?: GameObject }
-// }
-
 export interface ObjectEvents {
   destroy: undefined,
-  actionStart: { action: Action }
-  actionEnd: { action: Action }
-  receive: { receiving: GameObject, from?: GameObject },
-  move: { to: GameObject, from?: GameObject }
-}
 
+  // actions starting/finishing on a contained object of the event object
+  itemActionStart: { action: Action},
+  itemActionFinish: { action: Action },
+
+  // objects being contained or taken out of the event object
+  enter: { item: GameObject, from?: GameObject },
+  leave: { item: GameObject, to?: GameObject },
+
+  // the event object put inside a new container object
+  move: { to: GameObject, from?: GameObject },
+}
 
 export enum ContainedAs {
   inside,
@@ -66,5 +64,5 @@ export enum ContainedAs {
 export type ObjectEvent = keyof ObjectEvents
 
 export interface ObjectEventCallback<T extends ObjectEvent> {
-  (object: GameObject, data: ObjectEvents[T]): void
+  (data: ObjectEvents[T]): void
 }

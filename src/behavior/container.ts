@@ -19,8 +19,9 @@ export function moveTo(
 
   container.contains.push(object)
 
-  container.emit('receive', {receiving: object, from})
   object.emit('move', {to: container, from})
+  from?.emit('leave', {item: object, to: container})
+  container.emit('enter', {item: object, from})
 }
 
 export function wearOnContainer(container: GameObject, item: GameObject) {

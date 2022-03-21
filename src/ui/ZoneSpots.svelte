@@ -34,8 +34,8 @@
           {#each spot as object (object)}
             <div
                 animate:flip
-                in:gameObjectSend|local={{key: object}}
-                out:gameObjectReceive|local={{key: object}}>
+                in:gameObjectReceive|local={{key: object}}
+                out:gameObjectSend|local={{key: object}}>
               <ObjectTile {object}/>
             </div>
           {/each}

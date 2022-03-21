@@ -1,9 +1,9 @@
 <script lang='ts'>
   import type { Action } from '../behavior/Action'
-  import { getPlayerInteractions } from '../behavior/actions'
   import { startPlayerAction } from '../behavior/core'
   import ObjectInfo from './ObjectInfo.svelte'
   import { game } from './stores'
+  import { getPlayerInteractions } from '../behavior/player'
 
   $: actions = getPlayerInteractions($game.player)
 

@@ -77,10 +77,11 @@ export class Effect {
   deactivate(destroyedObject = false) {
     this.isActive = false
 
-    const isEffectInGameLoop = effectsCallback.removeEffectFromGameLoop(this)
-
-    if (this.tick && !isEffectInGameLoop) {
-      deleteElem(queuedTickEffects, this)
+    if (this.tick) {
+      const isEffectInGameLoop = effectsCallback.removeEffectFromGameLoop(this)
+      if (!isEffectInGameLoop) {
+        deleteElem(queuedTickEffects, this)
+      }
     }
 
     if (!destroyedObject) {

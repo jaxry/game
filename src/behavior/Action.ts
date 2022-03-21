@@ -20,7 +20,7 @@ export class Action extends Effect {
     this.object.activeAction?.deactivate()
     this.object.activeAction = this
 
-    this.object.emit('actionStart', {action: this})
+    this.object.container.emit('itemActionStart', {action: this})
 
     return this
   }
@@ -45,10 +45,9 @@ export class Action extends Effect {
       if (this.condition()) {
         this.do?.()
       }
-      this.object.emit('actionEnd', {action: this})
+      this.object.container.emit('itemActionFinish', {action: this})
     } else if (!this.condition()) {
       this.deactivate()
-      this.object.emit('actionEnd', {action: this})
     }
   }
 
