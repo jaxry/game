@@ -1,5 +1,5 @@
 <script lang='ts'>
-  import { Action } from '../behavior/Action'
+  import Action from '../behavior/Action'
 
   export let action: Action
 </script>

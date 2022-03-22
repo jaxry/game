@@ -1,5 +1,5 @@
 import type { GameObject } from '../GameObject'
-import { Action } from '../behavior/Action'
+import Action from '../behavior/Action'
 import { moveToSpot } from '../behavior/container'
 
 const timePerSpot = 3

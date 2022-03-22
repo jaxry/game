@@ -33,6 +33,7 @@ export default function useDragAndDrop<T>() {
       node.addEventListener('dragenter', (e) => {
         const payload = get(payloadStore)
         if (payload) {
+          // TODO: use isDroppable instead of canDrop
           returnedEffect = canDrop(payload)
           e.stopPropagation()
           e.preventDefault()

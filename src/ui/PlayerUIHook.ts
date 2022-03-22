@@ -2,7 +2,7 @@ import { Effect } from '../behavior/Effect'
 import { game } from '../Game'
 import AttackAction from '../actions/Attack'
 import { interruptPlayerLoop } from '../behavior/core'
-import { attackAnimations } from './stores'
+import { targetActions } from './stores'
 
 export class PlayerUIHook extends Effect {
   override onActivate() {
@@ -21,10 +21,8 @@ export class PlayerUIHook extends Effect {
     })
 
     this.onEvent(this.object.container, 'itemActionFinish', async ({action}) => {
-      if (action instanceof AttackAction) {
-        // await tick()
-        // animateAttack(gameObjectToCard.get(action.object), gameObjectToCard.get(action.target))
-        attackAnimations.add(action)
+      if (action.target) {
+        targetActions.add(action)
       }
     })
 
@@ -32,8 +30,4 @@ export class PlayerUIHook extends Effect {
       this.deactivate().activate()
     })
   }
-}
-
-function animateAttack(from: HTMLElement, to: HTMLElement) {
-  console.log(from, to)
 }

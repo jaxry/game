@@ -1,6 +1,7 @@
 import { Effect } from './Effect'
+import type { GameObject } from '../GameObject'
 
-export class Action extends Effect {
+export default class Action extends Effect {
   static override tickPriority = 0
 
   static canInterrupt = true
@@ -13,6 +14,8 @@ export class Action extends Effect {
   actionTick?(): void
 
   do?(): void
+
+  target?: GameObject
 
   override activate() {
     super.activate()

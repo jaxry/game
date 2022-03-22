@@ -1,5 +1,4 @@
-import { Action } from '../behavior/Action'
-import { game } from '../Game'
+import Action from '../behavior/Action'
 
 export default class WaitAction extends Action {
   static override effectName = `Wait`

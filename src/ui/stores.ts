@@ -3,11 +3,13 @@ import { game as gameInstance } from '../Game'
 import type { GameObject } from '../GameObject'
 import { isSelectable } from '../behavior/player'
 import useDragAndDrop from './useDragAndDrop'
-import { crossfade, fade } from 'svelte/transition'
-import type AttackAction from '../actions/Attack'
 import { deleteElem } from '../util'
+import useContext from './useContext'
+import type Action from '../behavior/Action'
 
 export const game = writable(gameInstance)
+
+export const mainElementContext = useContext<HTMLElement>()
 
 export const selectedObject = writable<GameObject | null>(null)
 
@@ -15,11 +17,11 @@ export const dragAndDropGameObject = useDragAndDrop<GameObject>()
 
 export const gameObjectToCard = new Map<GameObject, HTMLElement>()
 
-export const attackAnimations = (() => {
-  const store = writable<AttackAction[]>([])
+export const targetActions = (() => {
+  const store = writable<Action[]>([])
   return {
     ...store,
-    add(x: AttackAction) {
+    add(x: Action) {
       store.update(arr => {
         arr.push(x)
         return arr

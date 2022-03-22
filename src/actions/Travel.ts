@@ -1,10 +1,7 @@
-import { Action } from '../behavior/Action'
+import Action from '../behavior/Action'
 import { connectionDistance } from '../behavior/connections'
 import { putInsideContainer } from '../behavior/container'
-import { game } from '../Game'
 import type { GameObject } from '../GameObject'
-import GameTime from '../GameTime'
-import { inPlayerBubble } from '../behavior/player'
 
 export default class TravelAction extends Action {
   static override effectName = 'Travel'

@@ -1,17 +1,23 @@
 <script lang='ts'>
-  import { attackAnimations, game, rerenderGame } from './stores'
+  import { targetActions, game, mainElementContext, rerenderGame } from './stores'
   import Map from './Map.svelte'
   import ZoneSpots from './Zone.svelte'
   import SelectedObject from './SelectedObject.svelte'
-  import AttackAnimation from './AttackAnimation.svelte'
+  import AttackAnimation from './TargetActionAnimation.svelte'
+
+  let container: HTMLElement
+  $: {
+    if (container) {
+      mainElementContext.set(container)
+    }
+  }
 
   $game.event.playerTick.on(() => {
     rerenderGame()
   })
-
 </script>
 
-<main>
+<main bind:this={container}>
   <div class='global'>
     <h2 class='time'>{$game.time.getTimeOfDay()}</h2>
   </div>
@@ -28,8 +34,8 @@
     <SelectedObject/>
   </div>
 
-  {#each $attackAnimations as attack (attack)}
-    <AttackAnimation {attack} />
+  {#each $targetActions as action (action)}
+    <AttackAnimation {action} />
   {/each}
 </main>
 
