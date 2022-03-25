@@ -1,4 +1,4 @@
-import type { Action } from './behavior/Action'
+import type Action from './behavior/Action'
 import type { Effect } from './behavior/Effect'
 import type { GameObject } from './GameObject'
 

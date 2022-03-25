@@ -1,7 +1,7 @@
 import TravelAction from '../actions/Travel'
 import { game } from '../Game'
 import type { GameObject } from '../GameObject'
-import type { Action } from './Action'
+import type Action from './Action'
 import { interruptPlayerLoop, startPlayerAction } from './core'
 import { isContainedWith } from './container'
 import { isDestroyed } from './destroy'

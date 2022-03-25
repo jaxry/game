@@ -2,9 +2,10 @@
   import type { GameObject } from '../GameObject'
   import ObjectTile from './ObjectCard.svelte'
   import { playerMoveToSpot } from '../behavior/player'
-  import { game, setSelectedObject } from './stores'
+  import { game, setSelectedObject, zoneObjectDelay } from './stores'
   import { flip } from 'svelte/animate'
-  import { crossfade, fade } from 'svelte/transition'
+  import { fade } from 'svelte/transition'
+  import crossfade from './crossfade'
 
   $: zone = $game.player.container
   $: spots = groupBySpots(zone)
@@ -25,21 +26,31 @@
     setSelectedObject(null)
   }
 
-  export const [gameObjectSend, gameObjectReceive] = crossfade({
+  const [gameObjectSend, gameObjectReceive] = crossfade({
     fallback: fade,
     duration: 200,
+    delay: zoneObjectDelay
   })
 
+  function animateObjects(node: Element, fromTo: any, params: { delay: number }) {
+    params.delay = zoneObjectDelay()
+    return flip(node, fromTo, params)
+  }
+
+  function transitionZone(node: Element, params: any, intro) {
+    params.delay = (params.delay ?? 0) + zoneObjectDelay()
+    return fade(node, params)
+  }
 </script>
 
 {#key zone.id}
-  <div class='spots' out:fade={{duration: 200}} in:fade={{duration: 200, delay: 200}}>
+  <div class='spots' out:transitionZone={{duration: 200}} in:transitionZone={{duration: 200, delay: 200}}>
     {#each spots as spot, i}
       <div class='spot'>
         <div class='objects' on:click={selectZone}>
           {#each spot as object (object)}
             <div
-                animate:flip
+                animate:animateObjects={{duration: 200}}
                 in:gameObjectReceive|local={{key: object}}
                 out:gameObjectSend|local={{key: object}}>
               <ObjectTile {object}/>

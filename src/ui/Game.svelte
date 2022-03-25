@@ -1,5 +1,5 @@
 <script lang='ts'>
-  import { targetActions, game, mainElementContext, rerenderGame } from './stores'
+  import { game, mainElementContext, rerenderGame, targetActions } from './stores'
   import Map from './Map.svelte'
   import ZoneSpots from './Zone.svelte'
   import SelectedObject from './SelectedObject.svelte'

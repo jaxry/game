@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte'
-  import { gameObjectToCard, mainElementContext } from './stores'
+  import { onMount } from 'svelte'
+  import { gameObjectToCard, mainElementContext, targetActionDuration } from './stores'
   import Action from '../behavior/Action'
 
   export let action: Action
@@ -12,7 +12,9 @@
   function getElementPos(from: HTMLElement, to: HTMLElement) {
     const fromBbox = from.getBoundingClientRect()
     const toBbox = to.getBoundingClientRect()
-    const offset = 0.2 + 0.8 * Math.random() * (fromBbox.width + toBbox.width) / 2
+    const avgWidth = (fromBbox.width + toBbox.width) / 2
+    const offset = avgWidth * (0.3 + 0.4 * Math.random())
+
     return {
       fromX: Math.round(fromBbox.x + offset),
       fromY: Math.round(fromBbox.y + fromBbox.height / 2),
@@ -23,17 +25,25 @@
 
   onMount(async () => {
     mainElement.appendChild(container)
-    await tick()
     const pos = getElementPos(gameObjectToCard.get(action.object), gameObjectToCard.get(action.target))
+
     container.animate({
       transform: [
         `translate(-50%, -50%) translate(${pos.fromX}px, ${pos.fromY}px`,
         `translate(-50%, -50%) translate(${pos.toX}px, ${pos.toY}px`
       ]
     }, {
-      duration: 2000,
+      duration: targetActionDuration,
       fill: 'forwards',
       easing: 'ease-in-out'
+    })
+
+    container.animate([
+      {opacity: 1, offset: 0.9},
+      {opacity: 0}
+    ], {
+      duration: targetActionDuration,
+      fill: 'forwards'
     })
   })
 
@@ -48,7 +58,5 @@
     position: fixed;
     top: 0;
     left: 0;
-    transform: translate(-50%, -50%);
-    transform-origin: center center;
   }
 </style>

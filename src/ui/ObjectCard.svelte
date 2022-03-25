@@ -12,6 +12,7 @@
   $: player = object === $game.player
 
   let container: HTMLElement
+
   onMount(() => {
     gameObjectToCard.set(object, container)
   })
@@ -30,11 +31,11 @@
 </script>
 
 <div class='container'
-     class:selected class:player
+     class:player
      bind:this={container}
      on:click={click} use:dragAndDropGameObject.drag={object}>
 
-  <div class='name'>{object.type.name}</div>
+  <div class='name' class:selected>{object.type.name}</div>
 
   {#if object.activeAction}
     <Action action={object.activeAction}/>

@@ -6,8 +6,6 @@ import { removeEffects } from './Effect'
 const destroyedSet: WeakSet<GameObject> = new WeakSet()
 
 function destroy(obj: GameObject, isContainerDestroyed = false) {
-  destroyedSet.add(obj)
-
   if (!isContainerDestroyed) {
     removeFromContainer(obj)
   }
@@ -27,6 +25,7 @@ function destroy(obj: GameObject, isContainerDestroyed = false) {
 }
 
 export function markDestroy(obj: GameObject) {
+  destroyedSet.add(obj)
   toDestroy.push(obj)
 }
 

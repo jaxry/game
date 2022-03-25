@@ -17,20 +17,32 @@ export const dragAndDropGameObject = useDragAndDrop<GameObject>()
 
 export const gameObjectToCard = new Map<GameObject, HTMLElement>()
 
+export const targetActionDuration = 1000
+
+export let delayAnim = false
+
+export function zoneObjectDelay() {
+  return delayAnim ? targetActionDuration : 0
+}
+
 export const targetActions = (() => {
   const store = writable<Action[]>([])
   return {
     ...store,
-    add(x: Action) {
-      store.update(arr => {
-        arr.push(x)
-        return arr
+    add(action: Action) {
+
+      store.update(list => {
+        list.push(action)
+        return list
       })
 
-      setTimeout(() => store.update(arr => {
-        deleteElem(arr, x)
-        return arr
-      }), 2000)
+      setTimeout(() => store.update(list => {
+        deleteElem(list, action)
+        delayAnim = false
+        return list
+      }), targetActionDuration)
+
+      delayAnim = true
     }
   }
 })()

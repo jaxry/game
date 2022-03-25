@@ -1,5 +1,5 @@
 import { game } from '../Game'
-import type { Action } from './Action'
+import type Action from './Action'
 import { destroyMarked } from './destroy'
 import { addQueuedEffectsToGameLoop, Effect, effectsCallback } from './Effect'
 

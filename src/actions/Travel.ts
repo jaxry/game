@@ -9,9 +9,7 @@ export default class TravelAction extends Action {
   constructor(object: GameObject, public location: GameObject) {
     super(object)
     this.time = Math.round(
-        Math.random()
-        * 30
-        * connectionDistance(object.container, location),
+        3 * connectionDistance(object.container, location),
     )
   }
 

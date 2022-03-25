@@ -1,5 +1,5 @@
 <script lang='ts'>
-  import type { Action } from '../behavior/Action'
+  import type Action from '../behavior/Action'
   import ActionComponent from './Action.svelte'
   import { startPlayerAction } from '../behavior/core'
   import ObjectInfo from './ObjectInfo.svelte'
