@@ -37,7 +37,7 @@
     return flip(node, fromTo, params)
   }
 
-  function transitionZone(node: Element, params: any, intro) {
+  function transitionZone(node: Element, params: any) {
     params.delay = (params.delay ?? 0) + zoneObjectDelay()
     return fade(node, params)
   }

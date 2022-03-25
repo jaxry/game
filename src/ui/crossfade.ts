@@ -2,6 +2,10 @@ import type { EasingFunction, TransitionConfig } from 'svelte/transition'
 import { assign, is_function } from 'svelte/internal'
 import { cubicOut } from 'svelte/easing'
 
+// Grabbed from the Svelte source code
+// https://github.com/sveltejs/svelte/blob/master/src/runtime/transition/index.ts
+// simply changed the duration to accept a function and not just a number
+
 type ClientRectMap = Map<any, { rect: DOMRect }>;
 
 interface CrossfadeParams {
@@ -9,7 +13,6 @@ interface CrossfadeParams {
   duration?: number | ((len: number) => number);
   easing?: EasingFunction;
 }
-
 
 export default function crossfade({ fallback, ...defaults }: CrossfadeParams & {
   fallback?: (node: Element, params: CrossfadeParams, intro: boolean) => TransitionConfig;
