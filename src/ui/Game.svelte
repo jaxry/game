@@ -1,15 +1,13 @@
 <script lang='ts'>
-  import { game, mainElementContext, rerenderGame, targetActions } from './stores'
+  import { elements, game, rerenderGame } from './stores'
   import Map from './Map.svelte'
   import ZoneSpots from './Zone.svelte'
   import SelectedObject from './SelectedObject.svelte'
-  import AttackAnimation from './TargetActionAnimation.svelte'
 
   let container: HTMLElement
+
   $: {
-    if (container) {
-      mainElementContext.set(container)
-    }
+    elements.main = container
   }
 
   $game.event.playerTick.on(() => {
@@ -33,10 +31,6 @@
   <div class='selectedObject'>
     <SelectedObject/>
   </div>
-
-  {#each $targetActions as action (action)}
-    <AttackAnimation {action} />
-  {/each}
 </main>
 
 <style>

@@ -2,13 +2,24 @@
   import type { GameObject } from '../GameObject'
   import ObjectTile from './ObjectCard.svelte'
   import { playerMoveToSpot } from '../behavior/player'
-  import { game, setSelectedObject, zoneObjectDelay } from './stores'
+  import { elements, game, setSelectedObject, zoneObjectDelay } from './stores'
   import { flip } from 'svelte/animate'
   import { fade } from 'svelte/transition'
   import crossfade from './crossfade'
 
+  //TODO: Update crossfade via a proxy prop versus using a delay function
+
   $: zone = $game.player.container
   $: spots = groupBySpots(zone)
+
+  let container: HTMLElement
+  $: {
+    if (container) {
+      elements.zone = container
+    }
+  }
+
+  const animDuration = 200
 
   function groupBySpots(zone: GameObject): GameObject[][] {
     const spots = [[], [], [], [], []]
@@ -27,8 +38,11 @@
   }
 
   const [gameObjectSend, gameObjectReceive] = crossfade({
-    fallback: fade,
-    duration: 200,
+    fallback: (node: Element, params: any) => {
+      params.delay = zoneObjectDelay()
+      return fade(node, params)
+    },
+    duration: animDuration,
     delay: zoneObjectDelay
   })
 
@@ -44,13 +58,17 @@
 </script>
 
 {#key zone.id}
-  <div class='spots' out:transitionZone={{duration: 200}} in:transitionZone={{duration: 200, delay: 200}}>
+  <div class='spots'
+       bind:this={container}
+       out:transitionZone={{duration: animDuration}}
+       in:transitionZone={{duration: animDuration, delay: animDuration}}
+  >
     {#each spots as spot, i}
       <div class='spot'>
         <div class='objects' on:click={selectZone}>
           {#each spot as object (object)}
             <div
-                animate:animateObjects={{duration: 200}}
+                animate:animateObjects={{duration: animDuration * 2}}
                 in:gameObjectReceive|local={{key: object}}
                 out:gameObjectSend|local={{key: object}}>
               <ObjectTile {object}/>

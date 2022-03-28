@@ -2,7 +2,7 @@
   import type { GameObject } from '../GameObject'
   import Action from './Action.svelte'
   import { dragAndDropGameObject, game, gameObjectToCard, selectedObject, setSelectedObject } from './stores'
-  import { onDestroy, onMount } from 'svelte'
+  import { onDestroy, onMount, tick } from 'svelte'
   import { isLooping, startPlayerAction } from '../behavior/core'
 
   export let object: GameObject
@@ -13,7 +13,8 @@
 
   let container: HTMLElement
 
-  onMount(() => {
+  onMount(async () => {
+    await tick()
     gameObjectToCard.set(object, container)
   })
   onDestroy(() => {

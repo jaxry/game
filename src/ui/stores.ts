@@ -3,13 +3,13 @@ import { game as gameInstance } from '../Game'
 import type { GameObject } from '../GameObject'
 import { isSelectable } from '../behavior/player'
 import useDragAndDrop from './useDragAndDrop'
-import { deleteElem } from '../util'
-import useContext from './useContext'
-import type Action from '../behavior/Action'
 
 export const game = writable(gameInstance)
 
-export const mainElementContext = useContext<HTMLElement>()
+export const elements: {
+  main: HTMLElement,
+  zone: HTMLElement
+} = {} as any
 
 export const selectedObject = writable<GameObject | null>(null)
 
@@ -24,28 +24,6 @@ export let delayAnim = false
 export function zoneObjectDelay() {
   return delayAnim ? targetActionDuration : 0
 }
-
-export const targetActions = (() => {
-  const store = writable<Action[]>([])
-  return {
-    ...store,
-    add(action: Action) {
-
-      store.update(list => {
-        list.push(action)
-        return list
-      })
-
-      setTimeout(() => store.update(list => {
-        deleteElem(list, action)
-        delayAnim = false
-        return list
-      }), targetActionDuration)
-
-      delayAnim = true
-    }
-  }
-})()
 
 export function rerenderGame() {
   game.update(x => x)

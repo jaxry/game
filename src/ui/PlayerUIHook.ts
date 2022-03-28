@@ -2,7 +2,8 @@ import { Effect } from '../behavior/Effect'
 import { game } from '../Game'
 import AttackAction from '../actions/Attack'
 import { interruptPlayerLoop } from '../behavior/core'
-import { targetActions } from './stores'
+import { elements } from './stores'
+import TargetActionAnimation from './TargetActionAnimation.svelte'
 
 export class PlayerUIHook extends Effect {
   override onActivate() {
@@ -22,7 +23,13 @@ export class PlayerUIHook extends Effect {
 
     this.onEvent(this.object.container, 'itemActionFinish', ({action}) => {
       if (action.target) {
-        targetActions.add(action)
+        const elem = new TargetActionAnimation({
+          target: elements.zone,
+          props: {
+            action,
+            destroy: () => elem.$destroy()
+          }
+        })
       }
     })
 

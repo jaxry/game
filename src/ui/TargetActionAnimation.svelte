@@ -1,13 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { gameObjectToCard, mainElementContext, targetActionDuration } from './stores'
+  import { gameObjectToCard, targetActionDuration } from './stores'
   import Action from '../behavior/Action'
 
+  // TODO: Animate one action at a time instead of all at once
+
   export let action: Action
+  export let destroy: () => void
 
   let container: HTMLElement
-
-  const mainElement = mainElementContext.get()
 
   function getElementPos(from: HTMLElement, to: HTMLElement) {
     const fromBbox = from.getBoundingClientRect()
@@ -23,8 +24,7 @@
     }
   }
 
-  onMount(async () => {
-    mainElement.appendChild(container)
+  onMount(() => {
     const pos = getElementPos(gameObjectToCard.get(action.object), gameObjectToCard.get(action.target))
 
     container.animate({
@@ -45,6 +45,8 @@
       duration: targetActionDuration,
       fill: 'forwards'
     })
+
+    setTimeout(destroy, targetActionDuration)
   })
 
 </script>
