@@ -1,7 +1,7 @@
 <script lang='ts'>
   import { elements, game, rerenderGame } from './stores'
   import Map from './Map.svelte'
-  import ZoneSpots from './Zone.svelte'
+  import Zone from './Zone.svelte'
   import SelectedObject from './SelectedObject.svelte'
 
   let container: HTMLElement
@@ -25,7 +25,7 @@
   </div>
 
   <div class='zoneSpots'>
-    <ZoneSpots/>
+    <Zone />
   </div>
 
   <div class='selectedObject'>

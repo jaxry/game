@@ -39,16 +39,15 @@ function animateTargetedAction(action: Action) {
   const duration = 1000
   const currentDelay = zoneState.animationDelay
 
-  setTimeout(() => {
-    const elem = new TargetActionAnimation({
-      target: elements.zone,
-      props: {
-        action,
-        duration,
-        destroy: () => elem.$destroy()
-      }
-    })
-  }, currentDelay - duration / 2)
+  const elem = new TargetActionAnimation({
+    target: elements.zone,
+    props: {
+      action,
+      duration,
+      delay: currentDelay - duration / 2,
+      destroy: () => elem.$destroy()
+    }
+  })
 
   zoneState.animationDelay += currentDelay === 0 ? duration : duration / 2
 }

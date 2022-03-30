@@ -9,7 +9,14 @@
   import { zoneState } from './Zone.ts'
   import { afterUpdate, tick } from 'svelte'
 
-  $: zone = $game.player.container
+  let zone
+  let changedZone
+  $: {
+    const newZone = $game.player.container
+    changedZone = newZone !== zone
+    zone = newZone
+  }
+
   $: spots = groupBySpots(zone)
 
   let container: HTMLElement
@@ -52,11 +59,6 @@
     return flip(node, fromTo, params)
   }
 
-  function transitionZone(node: Element, params: any, intro: boolean) {
-    params.delay = (params.delay ?? 0) + zoneState.animationDelay
-    return fade(node, params)
-  }
-
   afterUpdate(async () => {
     await tick()
     zoneState.animationDelay = 0
@@ -64,38 +66,32 @@
 
 </script>
 
-{#key zone.id}
-  <div class='spots'
-       bind:this={container}
-       out:transitionZone={{duration: animDuration}}
-       in:transitionZone={{duration: animDuration, delay: animDuration}}
-  >
-    {#each spots as spot, i}
-      <div class='spot'>
-        <div class='objects' on:click={selectZone}>
-          {#each spot as object (object)}
-            <div
-                animate:animateObjects={{duration: animDuration, delay: 2 * animDuration}}
-                in:gameObjectReceive|local={{key: object}}
-                out:gameObjectSend|local={{key: object}}>
-              <ObjectTile {object}/>
-            </div>
-          {/each}
-        </div>
-        {#if i !== $game.player.spot}
-          <button class='move' on:click={() => move(i)}>Move</button>
-        {/if}
+<div class='spots' bind:this={container}>
+  {#each spots as spot, i}
+    <div class='spot'>
+      <div class='objects' on:click={selectZone}>
+        {#each spot as object (object)}
+          <div
+              animate:animateObjects={{duration: animDuration}}
+              in:gameObjectReceive={{key: changedZone ? null : object}}
+              out:gameObjectSend={{key: changedZone ? null : object}}>
+            <ObjectTile {object}/>
+          </div>
+        {/each}
       </div>
-    {/each}
+      {#if i !== $game.player.spot}
+        <button class='move' on:click={() => move(i)}>Move</button>
+      {/if}
+    </div>
+  {/each}
 
-    <!--{#if $game.player.activeAction}-->
-    <!--  <div class='playerAction'>-->
-    <!--    <Action action={$game.player.activeAction} />-->
-    <!--    Test-->
-    <!--  </div>-->
-    <!--{/if}-->
-  </div>
-{/key}
+  <!--{#if $game.player.activeAction}-->
+  <!--  <div class='playerAction'>-->
+  <!--    <Action action={$game.player.activeAction} />-->
+  <!--    Test-->
+  <!--  </div>-->
+  <!--{/if}-->
+</div>
 
 <style>
   .spots {

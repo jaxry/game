@@ -9,6 +9,7 @@
 
   export let action: Action
   export let duration: number
+  export let delay: number
   export let destroy: () => void
 
   let container: HTMLElement
@@ -36,7 +37,8 @@
         `translate(-50%, -50%) translate(${pos.toX}px, ${pos.toY}px`
       ]
     }, {
-      duration: duration,
+      duration,
+      delay,
       fill: 'forwards',
       easing: 'cubic-bezier(0.5,0,0,1)'
     })
@@ -45,11 +47,15 @@
       {opacity: 1, offset: 0.9},
       {opacity: 0}
     ], {
-      duration: duration,
+      duration,
+      delay,
       fill: 'forwards'
     })
 
-    setTimeout(destroy, duration)
+    setTimeout(() => {
+      container.style.display = 'initial'
+    }, delay)
+    setTimeout(destroy, delay + duration)
   })
 
 </script>
@@ -63,5 +69,6 @@
     position: fixed;
     top: 0;
     left: 0;
+    display: none;
   }
 </style>
