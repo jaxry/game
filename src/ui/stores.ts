@@ -19,12 +19,6 @@ export const gameObjectToCard = new Map<GameObject, HTMLElement>()
 
 export const targetActionDuration = 1000
 
-export let delayAnim = false
-
-export function zoneObjectDelay() {
-  return delayAnim ? targetActionDuration : 0
-}
-
 export function rerenderGame() {
   game.update(x => x)
   selectedObject.update(x => x && isSelectable(x) ? x : null)

@@ -1,11 +1,14 @@
+<script lang="ts" context="module">
+  let offset = 1 / 3
+</script>
+
 <script lang="ts">
   import { onMount } from 'svelte'
   import { gameObjectToCard, targetActionDuration } from './stores'
   import Action from '../behavior/Action'
 
-  // TODO: Animate one action at a time instead of all at once
-
   export let action: Action
+  export let duration: number
   export let destroy: () => void
 
   let container: HTMLElement
@@ -13,16 +16,16 @@
   function getElementPos(from: HTMLElement, to: HTMLElement) {
     const fromBbox = from.getBoundingClientRect()
     const toBbox = to.getBoundingClientRect()
-    const avgWidth = (fromBbox.width + toBbox.width) / 2
-    const offset = avgWidth * (0.3 + 0.4 * Math.random())
 
     return {
-      fromX: Math.round(fromBbox.x + offset),
+      fromX: Math.round(fromBbox.x + offset * fromBbox.width),
       fromY: Math.round(fromBbox.y + fromBbox.height / 2),
-      toX: Math.round(toBbox.x + offset),
+      toX: Math.round(toBbox.x + offset * toBbox.width),
       toY: Math.round(toBbox.y + toBbox.height / 2)
     }
   }
+
+  offset = 1 - offset
 
   onMount(() => {
     const pos = getElementPos(gameObjectToCard.get(action.object), gameObjectToCard.get(action.target))
@@ -33,20 +36,20 @@
         `translate(-50%, -50%) translate(${pos.toX}px, ${pos.toY}px`
       ]
     }, {
-      duration: targetActionDuration,
+      duration: duration,
       fill: 'forwards',
-      easing: 'ease-in-out'
+      easing: 'cubic-bezier(0.5,0,0,1)'
     })
 
     container.animate([
       {opacity: 1, offset: 0.9},
       {opacity: 0}
     ], {
-      duration: targetActionDuration,
+      duration: duration,
       fill: 'forwards'
     })
 
-    setTimeout(destroy, targetActionDuration)
+    setTimeout(destroy, duration)
   })
 
 </script>

@@ -2,12 +2,12 @@
   import type { GameObject } from '../GameObject'
   import ObjectTile from './ObjectCard.svelte'
   import { playerMoveToSpot } from '../behavior/player'
-  import { elements, game, setSelectedObject, zoneObjectDelay } from './stores'
+  import { elements, game, setSelectedObject } from './stores'
   import { flip } from 'svelte/animate'
   import { fade } from 'svelte/transition'
   import crossfade from './crossfade'
-
-  //TODO: Update crossfade via a proxy prop versus using a delay function
+  import { zoneState } from './Zone.ts'
+  import { afterUpdate, tick } from 'svelte'
 
   $: zone = $game.player.container
   $: spots = groupBySpots(zone)
@@ -39,22 +39,29 @@
 
   const [gameObjectSend, gameObjectReceive] = crossfade({
     fallback: (node: Element, params: any) => {
-      params.delay = zoneObjectDelay()
+      params.delay = zoneState.animationDelay
+      params.duration = animDuration
       return fade(node, params)
     },
     duration: animDuration,
-    delay: zoneObjectDelay
+    delay: () => zoneState.animationDelay
   })
 
   function animateObjects(node: Element, fromTo: any, params: { delay: number }) {
-    params.delay = zoneObjectDelay()
+    params.delay = (params.delay ?? 0) + zoneState.animationDelay
     return flip(node, fromTo, params)
   }
 
-  function transitionZone(node: Element, params: any) {
-    params.delay = (params.delay ?? 0) + zoneObjectDelay()
+  function transitionZone(node: Element, params: any, intro: boolean) {
+    params.delay = (params.delay ?? 0) + zoneState.animationDelay
     return fade(node, params)
   }
+
+  afterUpdate(async () => {
+    await tick()
+    zoneState.animationDelay = 0
+  })
+
 </script>
 
 {#key zone.id}
@@ -68,7 +75,7 @@
         <div class='objects' on:click={selectZone}>
           {#each spot as object (object)}
             <div
-                animate:animateObjects={{duration: animDuration * 2}}
+                animate:animateObjects={{duration: animDuration, delay: 2 * animDuration}}
                 in:gameObjectReceive|local={{key: object}}
                 out:gameObjectSend|local={{key: object}}>
               <ObjectTile {object}/>

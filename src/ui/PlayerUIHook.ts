@@ -4,6 +4,8 @@ import AttackAction from '../actions/Attack'
 import { interruptPlayerLoop } from '../behavior/core'
 import { elements } from './stores'
 import TargetActionAnimation from './TargetActionAnimation.svelte'
+import { zoneState } from './Zone'
+import type Action from '../behavior/Action'
 
 export class PlayerUIHook extends Effect {
   override onActivate() {
@@ -23,13 +25,7 @@ export class PlayerUIHook extends Effect {
 
     this.onEvent(this.object.container, 'itemActionFinish', ({action}) => {
       if (action.target) {
-        const elem = new TargetActionAnimation({
-          target: elements.zone,
-          props: {
-            action,
-            destroy: () => elem.$destroy()
-          }
-        })
+        animateTargetedAction(action)
       }
     })
 
@@ -37,4 +33,22 @@ export class PlayerUIHook extends Effect {
       this.deactivate().activate()
     })
   }
+}
+
+function animateTargetedAction(action: Action) {
+  const duration = 1000
+  const currentDelay = zoneState.animationDelay
+
+  setTimeout(() => {
+    const elem = new TargetActionAnimation({
+      target: elements.zone,
+      props: {
+        action,
+        duration,
+        destroy: () => elem.$destroy()
+      }
+    })
+  }, currentDelay - duration / 2)
+
+  zoneState.animationDelay += currentDelay === 0 ? duration : duration / 2
 }
