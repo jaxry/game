@@ -84,13 +84,6 @@
       {/if}
     </div>
   {/each}
-
-  <!--{#if $game.player.activeAction}-->
-  <!--  <div class='playerAction'>-->
-  <!--    <Action action={$game.player.activeAction} />-->
-  <!--    Test-->
-  <!--  </div>-->
-  <!--{/if}-->
 </div>
 
 <style>
@@ -125,17 +118,5 @@
 
   .move {
     flex: 0 0 auto;
-  }
-
-  .playerAction {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 1.5rem;
-    background: linear-gradient(transparent, var(--background));
-    padding-top: 5rem;
-    padding-bottom: 1rem;
   }
 </style>
