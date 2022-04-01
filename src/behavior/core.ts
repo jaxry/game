@@ -27,8 +27,8 @@ export function interruptPlayerLoop() {
   interrupt = true
 }
 
-export function isLooping() {
-  return timeout && !interrupt
+export function isInterrupted() {
+  return interrupt
 }
 
 export function startPlayerAction(action?: Action) {
@@ -44,7 +44,7 @@ export function startPlayerAction(action?: Action) {
       timeout = setTimeout(playerTick, timeoutTime)
     }
   } else if (!timeout) {
-    ticksPerFrame = 1
+    // ticksPerFrame = 1
     playerTick()
   }
 }

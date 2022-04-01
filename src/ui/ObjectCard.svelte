@@ -1,33 +1,26 @@
 <script lang='ts'>
   import type { GameObject } from '../GameObject'
   import Action from './Action.svelte'
-  import { dragAndDropGameObject, game, gameObjectToCard, selectedObject, setSelectedObject } from './stores'
-  import { onDestroy, onMount, tick } from 'svelte'
-  import { isLooping, startPlayerAction } from '../behavior/core'
+  import { dragAndDropGameObject, game, selectedObject, setSelectedObject } from './stores'
+  import { isInterrupted, startPlayerAction } from '../behavior/core'
 
   export let object: GameObject
 
-  $: log = $game.objectLog.get(object)
+  // $: log = $game.objectLog.get(object)
   $: selected = object === $selectedObject
   $: player = object === $game.player
 
   let container: HTMLElement
 
-  onMount(async () => {
-    await tick()
-    gameObjectToCard.set(object, container)
-  })
-  onDestroy(() => {
-    if (gameObjectToCard.get(object) === container) {
-      gameObjectToCard.delete(object)
-    }
-  })
-
-  function click(e: PointerEvent) {
+  function click(e: MouseEvent) {
     // new MoveAndPickup($game.player, obj).activate()
     // startPlayerAction()
     setSelectedObject(object)
     e.stopPropagation()
+  }
+
+  export function getContainer() {
+    return container
   }
 </script>
 
@@ -40,7 +33,7 @@
 
   {#if object.activeAction}
     <Action action={object.activeAction}/>
-    {#if $game && player && !isLooping()}
+    {#if $game && player && isInterrupted()}
       <button on:click|stopPropagation={() => startPlayerAction()}>Continue</button>
     {/if}
   {/if}

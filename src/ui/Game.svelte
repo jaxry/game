@@ -25,7 +25,7 @@
   </div>
 
   <div class='zoneSpots'>
-    <Zone />
+    <Zone/>
   </div>
 
   <div class='selectedObject'>

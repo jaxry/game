@@ -4,12 +4,13 @@
 
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { gameObjectToCard, targetActionDuration } from './stores'
-  import Action from '../behavior/Action'
+  import type Action from '../behavior/Action'
+import type ObjectCard from './ObjectCard.svelte';
 
   export let action: Action
   export let duration: number
-  export let delay: number
+  export let from: ObjectCard
+  export let to: ObjectCard
   export let destroy: () => void
 
   let container: HTMLElement
@@ -26,10 +27,8 @@
     }
   }
 
-  offset = 1 - offset
-
   onMount(() => {
-    const pos = getElementPos(gameObjectToCard.get(action.object), gameObjectToCard.get(action.target))
+    const pos = getElementPos(from.getContainer(), to.getContainer())
 
     container.animate({
       transform: [
@@ -38,7 +37,6 @@
       ]
     }, {
       duration,
-      delay,
       fill: 'forwards',
       easing: 'cubic-bezier(0.5,0,0,1)'
     })
@@ -48,16 +46,13 @@
       {opacity: 0}
     ], {
       duration,
-      delay,
       fill: 'forwards'
     })
 
-    setTimeout(() => {
-      container.style.display = 'initial'
-    }, delay)
-    setTimeout(destroy, delay + duration)
-  })
+    setTimeout(destroy, duration)
 
+    offset = 1 - offset
+  })
 </script>
 
 <div class='container' bind:this={container}>
@@ -69,6 +64,5 @@
     position: fixed;
     top: 0;
     left: 0;
-    display: none;
   }
 </style>

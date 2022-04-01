@@ -1,32 +1,37 @@
 <script lang='ts'>
   import type { GameObject } from '../GameObject'
-  import ObjectTile from './ObjectCard.svelte'
+  import ObjectCard from './ObjectCard.svelte'
   import { playerMoveToSpot } from '../behavior/player'
-  import { elements, game, setSelectedObject } from './stores'
-  import { flip } from 'svelte/animate'
-  import { fade } from 'svelte/transition'
-  import crossfade from './crossfade'
-  import { zoneState } from './Zone.ts'
-  import { afterUpdate, tick } from 'svelte'
+  import { game, setSelectedObject } from './stores'
+  import type Action from '../behavior/Action'
+  import { onMount } from 'svelte'
+  import ActionTargetAnimation from './ActionTargetAnimation.svelte'
+  import { Effect } from '../behavior/Effect'
+  import { crossfade, fade } from 'svelte/transition';
+  import { flip } from 'svelte/animate';
 
-  let zone
-  let changedZone
+
+  let player: GameObject
+  let spots: GameObject[][]
+  let zone: GameObject
+  let actions: Action[] = []
+
   $: {
-    const newZone = $game.player.container
-    changedZone = newZone !== zone
-    zone = newZone
-  }
+    player = $game.player
 
-  $: spots = groupBySpots(zone)
+    function updateZone() {
+      zone = player.container
+      spots = groupBySpots(zone)
+    }
 
-  let container: HTMLElement
-  $: {
-    if (container) {
-      elements.zone = container
+    if (actions.length > 0) {
+      const duration = animateActions()
+      actions.length = 0
+      setTimeout(updateZone, duration)
+    } else {
+      updateZone()
     }
   }
-
-  const animDuration = 200
 
   function groupBySpots(zone: GameObject): GameObject[][] {
     const spots = [[], [], [], [], []]
@@ -36,51 +41,80 @@
     return spots
   }
 
-  function move(spot) {
-    playerMoveToSpot(spot)
-  }
-
-  function selectZone() {
+  function deselect() {
     setSelectedObject(null)
   }
 
-  const [gameObjectSend, gameObjectReceive] = crossfade({
-    fallback: (node: Element, params: any) => {
-      params.delay = zoneState.animationDelay
-      params.duration = animDuration
-      return fade(node, params)
-    },
-    duration: animDuration,
-    delay: () => zoneState.animationDelay
+  let container: HTMLElement
+  const cards = {}
+
+  function animateActions() {
+    const duration = 1000
+    let elapsed = 0
+
+    for (const action of actions) {
+      console.log(cards, action.object.id, action.target.id)
+      setTimeout(() => {
+        const elem = new ActionTargetAnimation({
+          target: container,
+          props: {
+            action,
+            duration,
+            from: cards[action.object.id],
+            to: cards[action.target.id],
+            destroy: () => elem.$destroy()
+          }
+        })
+      }, elapsed - duration / 2)
+
+      elapsed += elapsed === 0 ? duration : duration / 2
+    }
+
+    return elapsed
+  }
+  
+  class ActionAnimEffect extends Effect {
+    override onActivate() {
+      this.onEvent(this.object.container, 'itemActionFinish', ({action}) => {
+        if (action.target) {
+          actions.push(action)
+        }
+      })
+
+      this.onEvent(this.object, 'move', () => {
+        this.deactivate().activate()
+      })
+    }
+  }
+  onMount(() => {
+    const effect = new ActionAnimEffect(player).activate()
+    return () => {
+      effect.deactivate()
+    }
   })
 
-  function animateObjects(node: Element, fromTo: any, params: { delay: number }) {
-    params.delay = (params.delay ?? 0) + zoneState.animationDelay
-    return flip(node, fromTo, params)
-  }
-
-  afterUpdate(async () => {
-    await tick()
-    zoneState.animationDelay = 0
+  const [gameObjectSend, gameObjectReceive] = crossfade({
+    fallback: fade,
+    duration: 200
   })
 
 </script>
 
-<div class='spots' bind:this={container}>
+<div bind:this={container} class='spots'>
   {#each spots as spot, i}
     <div class='spot'>
-      <div class='objects' on:click={selectZone}>
+      <div class='objects' on:click={deselect}>
         {#each spot as object (object)}
           <div
-              animate:animateObjects={{duration: animDuration}}
-              in:gameObjectReceive={{key: changedZone ? null : object}}
-              out:gameObjectSend={{key: changedZone ? null : object}}>
-            <ObjectTile {object}/>
+              animate:flip={{duration: 200}}
+              in:gameObjectReceive={{key: object}}
+              out:gameObjectSend={{key: object}}>
+            <ObjectCard {object} bind:this={cards[object.id]}/>
           </div>
         {/each}
       </div>
-      {#if i !== $game.player.spot}
-        <button class='move' on:click={() => move(i)}>Move</button>
+      {#if i !== player.spot}
+        <button class='move' on:click={() => playerMoveToSpot(i)}>Move</button>
       {/if}
     </div>
   {/each}

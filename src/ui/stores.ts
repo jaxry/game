@@ -8,16 +8,11 @@ export const game = writable(gameInstance)
 
 export const elements: {
   main: HTMLElement,
-  zone: HTMLElement
 } = {} as any
 
 export const selectedObject = writable<GameObject | null>(null)
 
 export const dragAndDropGameObject = useDragAndDrop<GameObject>()
-
-export const gameObjectToCard = new Map<GameObject, HTMLElement>()
-
-export const targetActionDuration = 1000
 
 export function rerenderGame() {
   game.update(x => x)
@@ -29,4 +24,3 @@ export function setSelectedObject(object: GameObject | null) {
     selectedObject.set(object)
   }
 }
-
