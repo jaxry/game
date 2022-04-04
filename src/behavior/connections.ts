@@ -1,0 +1,162 @@
+import type { GameObject } from '../GameObject'
+import PriorityQueue from '../PriorityQueue'
+import { deleteElem } from '../util'
+import { Game } from '../Game'
+
+export const renderedConnectionDistance = 30
+
+export function connectZones(
+    source: GameObject, target: GameObject, autoPosition = true) {
+  if (!source.connections) {
+    source.connections = []
+  }
+
+  if (!target.connections) {
+    target.connections = []
+  }
+
+  if (autoPosition) {
+    positionZone(source, target)
+  }
+
+  source.connections.push(target)
+  target.connections.push(source)
+}
+
+export function positionZone(source: GameObject, target: GameObject) {
+  if (!source.position) {
+    source.position = {x: 0, y: 0}
+  }
+
+  if (!target.position) {
+    target.position = {x: 0, y: 0}
+  }
+
+  const theta = 2 * Math.PI * Math.random()
+  const d = renderedConnectionDistance
+  const dx = d * Math.cos(theta)
+  const dy = d * Math.sin(theta)
+  target.position.x = source.position.x + dx
+  target.position.y = source.position.y + dy
+}
+
+export function disconnectZones(source: GameObject, target: GameObject) {
+  deleteElem(source.connections, target)
+  deleteElem(target.connections, source)
+}
+
+export function removeConnections(a: GameObject) {
+  if (a.connections) {
+    for (const b of a.connections) {
+      deleteElem(b.connections, a)
+    }
+    a.connections.length = 0
+  }
+}
+
+export function connectionDistance(a: GameObject, b: GameObject) {
+  // const dx = a.position.x - b.position.x
+  // const dy = a.position.y - b.position.y
+  // return Math.sqrt(dx * dx + dy * dy)
+  return 1
+}
+
+export interface Edge {
+  source: GameObject,
+  target: GameObject
+}
+
+export interface ZoneGraph {
+  nodes: Set<GameObject>,
+  edges: Map<string, Edge>,
+}
+
+export function getZoneGraph(startingNode: GameObject, maxDepth = Infinity): ZoneGraph {
+  const nodes = new Set<GameObject>()
+  const edges = new Map<string, Edge>()
+  const queue: GameObject[] = [startingNode]
+  const depthQueue: number[] = [0]
+
+  while (queue.length > 0) {
+    const node = queue.shift()!
+    const depth = depthQueue.shift()!
+
+    nodes.add(node)
+
+    if (depth >= maxDepth) {
+      continue
+    }
+
+    for (const target of node.connections) {
+      if (!nodes.has(target)) {
+        const edge = {source: node, target}
+        edges.set(edgeHash(edge), edge)
+        queue.push(target)
+        depthQueue.push(depth + 1)
+      }
+    }
+  }
+
+  return {
+    nodes,
+    edges,
+  }
+}
+
+function edgeHash({source, target}: Edge) {
+  if (source.id < target.id) {
+    return `${source.id}-${target.id}`
+  } else {
+    return `${target.id}-${source.id}`
+  }
+}
+
+// A* search
+export function getPath(source: GameObject, destination: GameObject) {
+  const cameFrom = new Map<GameObject, GameObject>()
+  const costSoFar = new Map<GameObject, number>()
+  const frontier = new PriorityQueue<GameObject>()
+
+  frontier.set(source, 0)
+  cameFrom.set(source, source)
+  costSoFar.set(source, 0)
+
+  while (frontier.length) {
+    const current = frontier.get()
+
+    if (current === destination) {
+      return reconstructPath(source, destination, cameFrom)
+    }
+
+    const currentCost = costSoFar.get(current)!
+
+    for (const next of current.connections) {
+      const newCost = currentCost + connectionDistance(current, next)
+      const neighborCost = costSoFar.get(next)
+
+      if (neighborCost === undefined || newCost < neighborCost) {
+        // const heuristic = connectionDistance(next, destination)
+        const heuristic = 0
+        frontier.set(next, newCost + heuristic)
+        costSoFar.set(next, newCost)
+        cameFrom.set(next, current)
+      }
+    }
+  }
+}
+
+function reconstructPath(
+    source: GameObject, destination: GameObject,
+    cameFrom: Map<GameObject, GameObject>) {
+  const path: GameObject[] = []
+  let current = destination
+
+  while (current !== source) {
+    path.push(current)
+    current = cameFrom.get(current)!
+  }
+
+  path.reverse()
+
+  return path.reverse
+}

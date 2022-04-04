@@ -1,0 +1,97 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+:root {
+  color-scheme: dark;
+
+  --primary: #94bdff;
+
+  --secondary: #f1f1af;
+
+  --action: #ee995f;
+
+  --player: #a2e0a0;
+
+  --background: #222;
+  --lighter: #333;
+
+  --hover: #333;
+  --active: #444;
+
+  --borderColor: #555;
+  --border: 1px solid var(--borderColor);
+
+  line-height: 1.25;
+  color: #d8d8d8;
+}
+
+html,
+body,
+#app {
+  height: 100%
+}
+
+body {
+  background: var(--background);
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.25rem;
+}
+
+i {
+  font-style: italic;
+}
+
+ul {
+  list-style: none
+}
+
+input {
+  width: 5rem;
+  background: #444;
+  padding: 0.25rem;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+button {
+  font-size: 1.15rem;
+  padding: 0.5rem 1rem;
+  border-radius: 3px;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 0.1rem;
+  color: var(--primary);
+}
+
+/*button:disabled {*/
+/*  color: var(--disabled)*/
+/*}*/
+
+button:hover {
+  /*color: var(--primaryBright);*/
+  /*background: var(--hover);*/
+  text-shadow: var(--primary) 0 0 10px;
+}
+
+button:active {
+  text-shadow: var(--primary) 0 0 15px;
+}
