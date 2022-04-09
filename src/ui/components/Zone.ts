@@ -4,6 +4,8 @@ import { Effect } from '../../behavior/Effect'
 import { game } from '../../Game'
 import { GameObject } from '../../GameObject'
 import style from './Zone.module.css'
+import ObjectInfo from './ObjectInfo'
+import { isPlayer } from '../../behavior/player'
 
 export default class Zone extends Component {
   objsToElem = new Map<GameObject, HTMLElement>()
@@ -11,31 +13,35 @@ export default class Zone extends Component {
   spots: HTMLElement[] = []
 
   constructor() {
-    super($('div', style.container))
+    super()
+
+    this.element.classList.add(style.container)
+
+    this.populateZone()
 
     const self = this
 
     this.newEffect(class extends Effect {
       onActivate() {
-        this.onEvent(this.object, 'move', () => {
-          this.reactivate()
-          self.moveZones()
-        })
-
         this.onEvent(this.object.container, 'enter', ({item}) => {
-          // console.log('enter', item)
+          console.log('enter', item)
         })
 
         this.onEvent(this.object.container, 'leave', ({item}) => {
-          // console.log('leave', item)
+          if (item === this.object) {
+            this.reactivate()
+            self.moveZones()
+          }
+        })
+
+        this.onEvent(this.object.container, 'moveSpot', ({item}) => {
+          console.log(item, 'moves')
         })
       }
     }, game.player)
-
-    this.populate()
   }
 
-  private populate() {
+  private populateZone() {
     this.objsToElem.clear()
 
     this.zone = $('div', style.zone)
@@ -49,70 +55,99 @@ export default class Zone extends Component {
     }
 
     for (const obj of game.player.container.contains) {
-      const elem = $('div', style.object, obj.type.name)
-      this.spots[obj.spot].append(elem)
-      this.objsToElem.set(obj, elem)
+      this.createObject(obj)
     }
   }
 
+  private createObject(obj: GameObject) {
+    const elem = $('div', style.object, obj.type.name)
+
+    if (isPlayer(obj)) {
+      elem.classList.add(style.player)
+    }
+
+    this.spots[obj.spot].append(elem)
+    this.objsToElem.set(obj, elem)
+    elem.addEventListener('click', () => {
+      const info = this.newComponent(ObjectInfo, obj, elem.getBoundingClientRect())
+      info.exit = () => this.removeComponent(info)
+    })
+  }
+
   private moveZones() {
-    const oldPlayer = this.objsToElem.get(game.player)!
-    oldPlayer.style.opacity = '0'
-
-    const oldPlayerBbox = oldPlayer.getBoundingClientRect()
     const oldZone = this.zone
+    const oldPlayer = this.objsToElem.get(game.player)!
+    const oldPlayerBBox = oldPlayer.getBoundingClientRect()
 
-    this.populate()
+    this.populateZone()
 
     const newPlayer = this.objsToElem.get(game.player)!
-    const newPlayerBbox = newPlayer.getBoundingClientRect()
-    const playerBboxDiff = bboxDifference(oldPlayerBbox, newPlayerBbox)
+    const newPlayerBBox = newPlayer.getBoundingClientRect()
+    const bBoxDiff = bBoxDifference(oldPlayerBBox, newPlayerBBox)
 
     oldZone.animate({
-      transform: `translate(0, ${-this.element.offsetHeight}px)`,
-      // transform: `translate(-${this.element.offsetWidth}px, 0)`,
       opacity: 0
     }, {
-      duration: 1000,
-      easing: 'ease-in-out'
+      duration: 500,
+      easing: 'linear'
     }).onfinish = () => {
       oldZone.remove()
     }
 
-    const newZone = this.zone
-    newZone.animate({
-      // transform: [`translate(${this.element.offsetWidth}px, 0)`, 'translate(0, 0)'],
-      transform: [`translate(0, ${this.element.offsetHeight}px)`, 'translate(0, 0)'],
-    }, {
-      duration: 1000,
-      easing: 'ease-in-out'
-    })
+    const fadeInOptions = {duration: 500, delay: 500, easing: 'linear'}
+
+    for (const spot of this.spots) {
+      animateWithDelay(spot,
+          {borderImage: 'linear-gradient(transparent, transparent) 1'},
+          {borderImage: ''},
+          fadeInOptions)
+    }
 
     for (const elem of this.objsToElem.values()) {
       if (elem !== newPlayer) {
-        elem.animate({
-          opacity: [0, 1],
-        }, {
-          duration: 1000,
-          easing: 'ease-in-out'
-        })
+        animateWithDelay(elem, {opacity: 0}, {opacity: 1}, fadeInOptions)
       }
     }
 
-    newPlayer.animate({
-      transform: [`translate(${ playerBboxDiff.x}px, ${-this.element.offsetHeight + playerBboxDiff.y}px)`, 'translate(0, 0)'],
-    }, {
-      duration: 1000,
-      easing: 'ease-in-out',
-    })
+    oldPlayer.style.opacity = '0'
+    animateWithDelay(newPlayer,
+        {transform: `translate(${bBoxDiff.x}px, ${bBoxDiff.y}px)`},
+        {transform: `translate(0, 0)`},
+        {
+          delay: 500,
+          duration: 1000,
+          easing: 'ease-in-out',
+        })
   }
 }
 
-function bboxDifference(before: DOMRect, after: DOMRect) {
+function bBoxDifference(before: DOMRect, after: DOMRect) {
   return {
     x: before.x - after.x,
     y: before.y - after.y,
     width: before.width / after.width,
     height: before.height / after.height
   }
+}
+
+function animateWithDelay(elem: HTMLElement, from: Keyframe, to: Keyframe, options: KeyframeAnimationOptions) {
+  const delay = Number(options.delay) ?? 0
+  const duration = Number(options.duration) ?? 1000
+  const total = delay + duration
+  elem.animate([
+    {
+      ...from,
+      easing: 'linear'
+    },
+    {
+      ...from,
+      easing: options.easing || 'linear',
+      offset: delay / total
+    },
+    to
+  ], {
+    ...options,
+    duration: total,
+    delay: 0,
+  })
 }

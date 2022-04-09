@@ -7,6 +7,7 @@ import type { GameObject } from '../GameObject'
 import { makeType } from '../GameObject'
 import { randomElement } from '../util'
 import MoveSpotAction from '../actions/MoveSpot'
+import { isPlayer } from '../behavior/player'
 
 class MonsterAttack extends Effect {
   constructor(object: GameObject, public target: GameObject) {
@@ -54,7 +55,7 @@ class MonsterSearch extends Effect {
     const addEnterListener = () => this.onEvent(
         this.object.container, 'enter',
         ({item}) => {
-          if (item === game.player) {
+          if (isPlayer(item)) {
             this.found()
           }
         })
@@ -74,11 +75,12 @@ class MonsterSearch extends Effect {
     if (!this.object.activeAction) {
       this.travel()
     }
+
   }
 }
 
 export const typeMonster = makeType({
-  name: 'rai',
+  name: 'monster',
   properNoun: true,
   description: 'a horrendous creature with sharp claws',
   health: 3,

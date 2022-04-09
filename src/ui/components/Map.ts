@@ -1,5 +1,4 @@
 import Component from './Component'
-import $ from '../makeDomTree'
 import { game } from '../../Game'
 import createSvg from '../createSvg'
 import PanZoom from '../PanZoom'
@@ -28,7 +27,7 @@ export default class MapComponent extends Component {
   private centerElem?: Element
 
   constructor() {
-    super($('div'))
+    super()
 
     this.element.append(this.svg)
     this.svg.setAttribute('width', '100%')

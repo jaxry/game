@@ -8,6 +8,8 @@ import { playerTravelToZone } from '../../behavior/player'
 import { Effect } from '../../behavior/Effect'
 import Zone from './Zone'
 
+export const outsideElem = document.createElement('div')
+
 export default class AppComponent extends Component {
   constructor(element: HTMLElement) {
     super(element)
@@ -48,6 +50,7 @@ export default class AppComponent extends Component {
       ]],
       [zone, style.zone],
       [map, style.map],
+      outsideElem
     ])
   }
 }

@@ -1,7 +1,6 @@
 .map * {
   transform-box: fill-box;
   transform-origin: center;
-
 }
 
 .transitionTransform {
@@ -14,12 +13,12 @@
 
 .node {
   fill: #d8d8d8;
-  filter: drop-shadow(0 0.25rem 0.25rem #111);
+  filter: drop-shadow(0 0.25rem 0.25rem var(--shadowColor));
   cursor: pointer;
   transition: fill 0.25s, filter 0.25s;
 }
 
 .center {
-  fill: #94bdff;
-  filter: drop-shadow(0 0.25rem 0.25rem #111) drop-shadow(0 0 0.25rem #94bdff);
+  fill: var(--player);
+  filter: drop-shadow(0 0.25rem 0.25rem var(--shadowColor)) drop-shadow(0 0 0.25rem var(--player));
 }

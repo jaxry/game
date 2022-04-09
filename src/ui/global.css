@@ -17,7 +17,7 @@
 
   --action: #ee995f;
 
-  --player: #a2e0a0;
+  --player: #66c462;
 
   --background: #222;
   --lighter: #333;
@@ -27,6 +27,8 @@
 
   --borderColor: #555;
   --border: 1px solid var(--borderColor);
+
+  --shadowColor: #111;
 
   line-height: 1.25;
   color: #d8d8d8;
