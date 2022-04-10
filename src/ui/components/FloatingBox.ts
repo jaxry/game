@@ -12,10 +12,9 @@ export default class FloatingBox extends Component {
     this.element.classList.add(style.container)
     this.element.style.transform = `translate(${parentBBox.left}px, ${parentBBox.bottom}px)`
 
-    setTimeout(() => {
-      console.log(this.element.getBoundingClientRect())
-
-    })
+    // setTimeout(() => {
+    //   console.log(this.element.getBoundingClientRect())
+    // })
 
     this.register(clickOutside(this.element, () => {
       this.exit()

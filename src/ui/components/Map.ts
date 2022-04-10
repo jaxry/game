@@ -148,7 +148,7 @@ export default class MapComponent extends Component {
       duration: 1000,
       fill: 'forwards',
       easing: 'ease-in-out',
-    })
+    }).commitStyles()
   }
 }
 

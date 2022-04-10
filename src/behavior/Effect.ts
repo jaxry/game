@@ -1,6 +1,6 @@
-import type { ActiveObjectEvent, GameObject } from '../GameObject'
+import type { ActiveGameObjectEvent, GameObject } from '../GameObject'
 import { unsubscribeEvent } from '../GameObject'
-import type { ObjectEventCallback, ObjectEvents } from '../GameObjectType'
+import type { GameObjectEventCallback, GameObjectEvents } from '../GameObjectType'
 import { deleteElem } from '../util'
 
 export class Effect {
@@ -8,7 +8,7 @@ export class Effect {
   static tickPriority = 1
   object: GameObject
   isActive = false
-  private events?: ActiveObjectEvent[]
+  private events?: ActiveGameObjectEvent[]
 
   constructor(object: GameObject) {
     this.object = object
@@ -29,8 +29,8 @@ export class Effect {
 
   onDeactivate?(): void
 
-  onEvent<T extends keyof ObjectEvents>(
-      obj: GameObject, event: T, listener: ObjectEventCallback<T>) {
+  onEvent<T extends keyof GameObjectEvents>(
+      obj: GameObject, event: T, listener: GameObjectEventCallback<T>) {
     if (!this.isActive) {
       console.warn(this, 'must be activated before subscribing to events')
       return undefined as never
@@ -46,7 +46,7 @@ export class Effect {
     return unsub
   }
 
-  unsubscribe(event: ActiveObjectEvent) {
+  unsubscribe(event: ActiveGameObjectEvent) {
     unsubscribeEvent(event)
     deleteElem(this.events!, event)
   }

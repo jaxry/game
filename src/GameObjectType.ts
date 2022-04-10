@@ -10,7 +10,7 @@ export interface GameObjectType {
   description: string,
 
   events: {
-    [T in keyof ObjectEvents]?: ObjectEventCallback<T>[]
+    [T in keyof GameObjectEvents]?: GameObjectEventCallback<T>[]
   }
 
   effects: Array<typeof Effect>
@@ -41,7 +41,7 @@ export interface GameObjectProps {
   energy: number
 }
 
-export interface ObjectEvents {
+export interface GameObjectEvents {
   destroy: undefined,
 
   // objects being contained or taken out of the event object
@@ -62,8 +62,8 @@ export enum ContainedAs {
   wearing
 }
 
-export type ObjectEvent = keyof ObjectEvents
+export type GameObjectEvent = keyof GameObjectEvents
 
-export interface ObjectEventCallback<T extends ObjectEvent> {
-  (data: ObjectEvents[T]): void
+export interface GameObjectEventCallback<T extends GameObjectEvent> {
+  (data: GameObjectEvents[T]): void
 }

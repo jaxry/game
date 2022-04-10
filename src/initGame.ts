@@ -24,7 +24,7 @@ export function initGame() {
     spawn(typeApple, zone)
   }
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 10; i++) {
     // spawn(typeMonster, world.contains.at(Math.random() * world.contains.length))
     spawn(typeMonster, world.contains[0])
   }
@@ -46,7 +46,7 @@ const typeYou = makeType({
   name: `Soyboy Jack`,
   properNoun: true,
   isContainer: true,
-  health: 25
+  health: Infinity
 })
 
 const typeChest = makeType({

@@ -1,9 +1,9 @@
 import type {
   GameObjectProps,
   GameObjectType,
-  ObjectEvent,
-  ObjectEventCallback,
-  ObjectEvents,
+  GameObjectEvent,
+  GameObjectEventCallback,
+  GameObjectEvents,
 } from './GameObjectType'
 import { deleteElem } from './util'
 
@@ -17,13 +17,13 @@ export function makeGameObject(type: GameObjectType) {
   return new GameObjectInstance(type) as GameObject
 }
 
-export interface ActiveObjectEvent {
+export interface ActiveGameObjectEvent {
   obj: GameObject,
-  listeners: ObjectEventCallback<any>[],
-  listener: ObjectEventCallback<any>
+  listeners: GameObjectEventCallback<any>[],
+  listener: GameObjectEventCallback<any>
 }
 
-export function unsubscribeEvent(ev: ActiveObjectEvent) {
+export function unsubscribeEvent(ev: ActiveGameObjectEvent) {
   deleteElem(ev.listeners, ev.listener)
 }
 
@@ -38,15 +38,15 @@ class GameObjectInstance {
   id = nextId++
 
   events?: {
-    [T in ObjectEvent]?: ObjectEventCallback<T>[]
+    [T in GameObjectEvent]?: GameObjectEventCallback<T>[]
   }
 
   constructor(type: GameObjectType) {
     this.type = type
   }
 
-  on<T extends ObjectEvent>(
-      event: T, listener: ObjectEventCallback<T>): ActiveObjectEvent {
+  on<T extends GameObjectEvent>(
+      event: T, listener: GameObjectEventCallback<T>): ActiveGameObjectEvent {
     if (!this.events) {
       this.events = {}
     }
@@ -62,7 +62,7 @@ class GameObjectInstance {
     }
   }
 
-  emit<T extends keyof ObjectEvents>(event: T, data: ObjectEvents[T]) {
+  emit<T extends keyof GameObjectEvents>(event: T, data: GameObjectEvents[T]) {
     let listeners: any
 
     // listeners = this.type.events?.[event]

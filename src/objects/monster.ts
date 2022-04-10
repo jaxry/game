@@ -75,7 +75,6 @@ class MonsterSearch extends Effect {
     if (!this.object.activeAction) {
       this.travel()
     }
-
   }
 }
 
