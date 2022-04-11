@@ -7,6 +7,8 @@ import MapComponent from './Map'
 import { playerTravelToZone } from '../../behavior/player'
 import { Effect } from '../../behavior/Effect'
 import Zone from './Zone'
+import { interruptPlayerLoop, startGameLoop } from '../../behavior/core'
+import TimeComponent from './Time'
 
 export const outsideElem = document.createElement('div')
 
@@ -14,18 +16,39 @@ export default class AppComponent extends Component {
   constructor(element: HTMLElement) {
     super(element)
 
-    // setup game time
-    let time = $('h2')
-    function setTime() {
-      time.textContent = game.time.getTimeOfDay()
+    const time = this.newComponent(TimeComponent)
+
+    const map = this.setupMap()
+
+    //setup zone
+    const zone = this.newComponent(Zone)
+
+    $(element, style.game, [
+      [
+        'div', style.global, [
+        time,
+      ]],
+      [zone, style.zone],
+      [map, style.map],
+      outsideElem
+    ])
+
+    startGameLoop()
+
+    function visibilityChange() {
+      if (document.hidden){
+        interruptPlayerLoop()
+      } else {
+        startGameLoop()
+      }
     }
-
-    setTime()
-    this.on(game.event.playerTick, () => {
-      setTime()
+    document.addEventListener('visibilitychange', visibilityChange);
+    this.register(() => {
+      document.removeEventListener('visibilitychange', visibilityChange)
     })
+  }
 
-    // setup map
+  private setupMap() {
     const map = this.newComponent(MapComponent)
 
     map.onZoneClick = playerTravelToZone
@@ -40,17 +63,6 @@ export default class AppComponent extends Component {
       }
     }, game.player)
 
-    //setup zone
-    const zone = this.newComponent(Zone)
-
-    $(element, style.game, [
-      [
-        'div', style.global, [
-        time,
-      ]],
-      [zone, style.zone],
-      [map, style.map],
-      outsideElem
-    ])
+    return map
   }
 }

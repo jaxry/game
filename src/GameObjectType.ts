@@ -51,7 +51,7 @@ export interface GameObjectEvents {
 
   // actions starting/finishing on a contained object of the event object
   itemActionStart: { action: Action},
-  itemActionFinish: { action: Action },
+  itemActionEnd: { action: Action },
 
   // the event object put inside a new container object
   move: { to: GameObject, from?: GameObject },

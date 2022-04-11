@@ -18,67 +18,31 @@ export function tick() {
 }
 
 let timeout: number | null = null
-let timeoutTime: number
-let lastActionTime = 0
-let ticksPerFrame = 1
-let interrupt = false
+let playerAction: Action | null = null
 
 export function interruptPlayerLoop() {
-  interrupt = true
+  clearTimeout(timeout!)
+  timeout = null
 }
 
-export function isInterrupted() {
-  return interrupt
-}
-
-export function startPlayerAction(action?: Action) {
-  game.objectLog.clear()
-
-  interrupt = false
-
-  if (action) {
-    action.activate()
-    computeFrameTime(action)
-    game.event.playerTick.emit(undefined)
-    if (!timeout) {
-      timeout = setTimeout(playerTick, timeoutTime)
-    }
-  } else if (!timeout) {
-    // ticksPerFrame = 1
-    playerTick()
+export function startGameLoop() {
+  if (!timeout) {
+    timeout = setTimeout(playerTick, 1000)
   }
 }
 
-
-function computeFrameTime(action: Action) {
-  const minTimeoutTime = 17
-  const idealTimeoutTime = Math.min(250, 1000 / action.time)
-  ticksPerFrame = Math.max(1, Math.ceil(minTimeoutTime / idealTimeoutTime))
-  timeoutTime = Math.max(minTimeoutTime, idealTimeoutTime)
-  // lastActionTime = action.time
+export function setPlayerAction(action: Action) {
+  playerAction = action
 }
 
 function playerTick() {
-
-  let continueNextTick = true
-
-  for (let i = 0; continueNextTick && i < ticksPerFrame; i++) {
-    tick()
-    continueNextTick = game.player.activeAction && !interrupt
+  if (playerAction) {
+    playerAction.activate()
+    playerAction = null
   }
-
+  tick()
   game.event.playerTick.emit(undefined)
-
-  if (continueNextTick) {
-    // if (game.player.activeAction.time !== lastActionTime - ticksPerFrame) {
-    //   computeFrameTime(game.player.activeAction)
-    // }
-    // lastActionTime = game.player.activeAction.time
-
-    timeout = setTimeout(playerTick, timeoutTime)
-  } else {
-    timeout = null
-  }
+  timeout = setTimeout(playerTick, 1000)
 }
 
 function addEffectToGameLoop(effect: Effect) {

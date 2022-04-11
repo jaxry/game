@@ -14,9 +14,9 @@ export default class Zone extends Component {
   private zone!: HTMLElement
   private spots: HTMLElement[] = []
 
-  private movedSpot: GameObjectEvents['moveSpot'][] = []
-  private enteredZone: GameObjectEvents['enter'][] = []
-  private leftZone: GameObjectEvents['leave'][] = []
+  private changes: (() => void)[] = []
+  private finally?: () => void
+  private inProgressTime = 0
 
   constructor() {
     super()
@@ -29,25 +29,27 @@ export default class Zone extends Component {
 
     this.newEffect(class extends Effect {
       onActivate() {
-        this.onEvent(this.object.container, 'enter', (event) => {
-          // if (!isPlayer(item)) {
-          //   self.objectEnter(item)
-          // }
-          self.enteredZone.push(event)
-        })
-
-        this.onEvent(this.object.container, 'leave', (event) => {
-          if (event.item === this.object) {
-            this.reactivate()
-          //   self.playerMoveZone()
-          // } else {
-          //   self.objectLeave(item)
+        this.onEvent(this.object.container, 'enter', ({item}) => {
+          if (!isPlayer(item)) {
+            self.changes.push(() => self.objectEnter(item))
           }
-          self.leftZone.push(event)
         })
+        this.onEvent(this.object.container, 'leave', ({item}) => {
+          if (item === this.object) {
+            this.reactivate()
+            self.finally = () => self.playerMoveZone()
+          } else {
+            self.changes.push(() => self.objectLeave(item))
+          }
+        })
+        this.onEvent(this.object.container, 'moveSpot', ({item, from, to}) => {
+          self.changes.push(() => self.moveSpot(item, from, to))
+        })
+        this.onEvent(this.object.container, 'itemActionStart', (event) => {
 
-        this.onEvent(this.object.container, 'moveSpot', (event) => {
-          self.movedSpot.push(event)
+        })
+        this.onEvent(this.object.container, 'itemActionEnd', (event) => {
+
         })
       }
     }, game.player)
@@ -76,11 +78,33 @@ export default class Zone extends Component {
   }
 
   private animateChanges() {
-    for (let i = 0; i < this.movedSpot.length; i++) {
-      const event = this.movedSpot[i]
-      this.moveSpot(event.item, event.from, event.to, i)
+    if (this.changes.length > 0) {
+      const elemToBBox = new Map()
+      for (const elem of this.objsToElem.values()) {
+        elemToBBox.set(elem, elem.getBoundingClientRect())
+      }
+      for (const change of this.changes) {
+        change()
+      }
+      for (const [elem, oldBBox] of elemToBBox) {
+        const bBox = elem.getBoundingClientRect()
+        if (bBox.x !== oldBBox.x || bBox.y !== oldBBox.y) {
+          animateWithDelay(elem,
+              { transform: `translate(${oldBBox.x - bBox.x}px, ${oldBBox.y - bBox.y}px)` },
+              { transform: `translate(0, 0)` },
+              {
+                delay: this.inProgressTime += 100,
+                duration: 500,
+                easing: 'ease-in-out'
+              })
+        }
+      }
+      this.changes.length = 0
     }
-    this.movedSpot.length = 0
+
+    this.finally?.()
+    this.finally = undefined
+    this.inProgressTime = 0
   }
 
   private createObject(obj: GameObject) {
@@ -101,32 +125,18 @@ export default class Zone extends Component {
     return elem
   }
 
-  private moveSpot(obj: GameObject, from: number, to: number, count: number) {
+  private moveSpot(obj: GameObject, from: number, to: number) {
     const elem = this.objsToElem.get(obj)!
-    const fromBBox = elem.getBoundingClientRect()
-    setTimeout(() => {
-      this.spots[to].append(elem)
-      const toBBox = elem.getBoundingClientRect()
-      elem.animate([
-        { transform: `translate(${fromBBox.x - toBBox.x}px, ${fromBBox.y - toBBox.y}px)` },
-        { transform: `translate(0, 0)` }
-      ], {
-        duration: 500,
-        easing: 'ease-in-out'
-      })
-    })
+    this.spots[to].append(elem)
   }
 
   private objectEnter(obj: GameObject) {
     const elem = this.createObject(obj)
     const bBox = elem.getBoundingClientRect()
-    elem.animate({
-      opacity: [0, 1],
-      transform: [`translate(0, ${bBox.height}px)`, `translate(0,0)`]
-    }, {
-      easing: 'ease-in-out',
-      duration: 500
-    })
+    animateWithDelay(elem,
+        { opacity: 0, transform: `translate(0, ${bBox.height}px)`},
+        { opacity: 1, transform: `translate(0, 0)` },
+        { easing: 'ease-in-out', duration: 500, delay: this.inProgressTime += 100 })
   }
 
   private objectLeave(obj: GameObject) {

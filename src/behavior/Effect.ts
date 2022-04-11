@@ -1,6 +1,9 @@
 import type { ActiveGameObjectEvent, GameObject } from '../GameObject'
 import { unsubscribeEvent } from '../GameObject'
-import type { GameObjectEventCallback, GameObjectEvents } from '../GameObjectType'
+import type {
+  GameObjectEventCallback,
+  GameObjectEvents,
+} from '../GameObjectType'
 import { deleteElem } from '../util'
 
 export class Effect {

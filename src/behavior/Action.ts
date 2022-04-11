@@ -48,7 +48,7 @@ export default class Action extends Effect {
       if (this.condition()) {
         this.do?.()
       }
-      this.object.container.emit('itemActionFinish', {action: this})
+      this.object.container.emit('itemActionEnd', {action: this})
     } else if (!this.condition()) {
       this.deactivate()
     }

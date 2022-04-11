@@ -2,7 +2,7 @@ import TravelAction from '../actions/Travel'
 import { game } from '../Game'
 import type { GameObject } from '../GameObject'
 import type Action from './Action'
-import { startPlayerAction } from './core'
+import { setPlayerAction } from './core'
 import { isContainedWith } from './container'
 import { isDestroyed } from './destroy'
 import MoveSpotAction from '../actions/MoveSpot'
@@ -26,13 +26,13 @@ export function playerTravelToZone(zone: GameObject) {
 
   for (const neighbor of playerZone.connections) {
     if (neighbor == zone) {
-      startPlayerAction(new TravelAction(game.player, neighbor))
+      setPlayerAction(new TravelAction(game.player, neighbor))
     }
   }
 }
 
 export function playerMoveToSpot(spot: number) {
-  startPlayerAction(new MoveSpotAction(game.player, spot))
+  setPlayerAction(new MoveSpotAction(game.player, spot))
 }
 
 export function getPlayerInteractions(player: GameObject) {
