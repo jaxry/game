@@ -15,6 +15,10 @@ class MonsterAttack extends Effect {
   }
 
   override tick() {
+    if (Math.random() > 0.5) {
+      return
+    }
+
     const active = this.object.activeAction
     const sameSpot = this.object.spot === this.target.spot
 
@@ -72,7 +76,7 @@ class MonsterSearch extends Effect {
   }
 
   override tick() {
-    if (!this.object.activeAction) {
+    if (!this.object.activeAction && Math.random() < 0.5) {
       this.travel()
     }
   }
