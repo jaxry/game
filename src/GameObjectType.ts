@@ -32,6 +32,7 @@ export interface GameObjectProps {
   contains: GameObject[]
 
   spot: number
+  numSpots: number
 
   // connections to other game objects on a 2D planar graph
   connections: GameObject[]

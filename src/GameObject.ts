@@ -27,10 +27,6 @@ export function unsubscribeEvent(ev: ActiveGameObjectEvent) {
   deleteElem(ev.listeners, ev.listener)
 }
 
-export function isGameObject(object: any): object is GameObject {
-  return object instanceof GameObjectInstance
-}
-
 let nextId = 1
 
 class GameObjectInstance {

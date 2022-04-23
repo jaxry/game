@@ -62,14 +62,16 @@ export default class Zone extends Component {
     this.zone = $('div', style.zone)
     this.element.append(this.zone)
 
+    const container = game.player.container
+
     this.spots = []
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < container.numSpots; i++) {
       const spot = $('div', style.spot)
       this.spots.push(spot)
       this.zone.append(spot)
     }
 
-    for (const obj of game.player.container.contains) {
+    for (const obj of container.contains) {
       this.createCard(obj)
     }
   }
@@ -206,8 +208,8 @@ export default class Zone extends Component {
     oldPlayer.style.opacity = '0'
     animateWithDelay(newPlayer,
         [
-          {transform: bBoxDiff(oldPlayerBBox, newPlayerBBox)},
-          {transform: `translate(0, 0)`}],
+          {transform: bBoxDiff(oldPlayerBBox, newPlayerBBox), width: `${oldPlayerBBox.width}px`},
+          {transform: `translate(0, 0)`, width: `${newPlayerBBox.width}px`}],
         {
           delay: 500,
           duration: 1000,

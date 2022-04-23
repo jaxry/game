@@ -40,6 +40,7 @@ export function generateDelaunayZones(count: number) {
 
   for (const point of points) {
     const zone = spawn(typeZone)
+    zone.numSpots = 3 + Math.floor(Math.random() * 4)
     point.x *= renderedConnectionDistance
     point.y *= renderedConnectionDistance
     zone.position = point
