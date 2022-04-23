@@ -1,5 +1,5 @@
 import '../global.css'
-import style from './App.module.css'
+import style from './Game.module.css'
 import Component from './Component'
 import $ from '../makeDomTree'
 import { game } from '../../Game'
@@ -43,7 +43,7 @@ export default class AppComponent extends Component {
       }
     }
     document.addEventListener('visibilitychange', visibilityChange);
-    this.register(() => {
+    this.onDestroy(() => {
       document.removeEventListener('visibilitychange', visibilityChange)
     })
   }

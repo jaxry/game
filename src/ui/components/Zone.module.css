@@ -22,14 +22,3 @@
 .spot:first-child {
   border-left: 1px dashed var(--borderColor)
 }
-
-.object {
-  padding: 1rem;
-  background: var(--lighter);
-  box-shadow: 0rem 0.25rem 0.5rem var(--shadowColor);
-  border-radius: 0.25rem;
-}
-
-.player {
-  border: 1px solid var(--player)
-}

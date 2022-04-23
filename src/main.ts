@@ -1,6 +1,6 @@
 import { initGame } from './initGame'
-import './ui/components/App'
-import AppComponent from './ui/components/App'
+import './ui/components/Game'
+import AppComponent from './ui/components/Game'
 
 initGame()
 

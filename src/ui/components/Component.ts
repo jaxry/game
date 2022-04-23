@@ -28,7 +28,7 @@ export default class Component {
     component.destroy()
   }
 
-  register(unsubscribe: () => void) {
+  onDestroy(unsubscribe: () => void) {
     this.destroyCallbacks.push(unsubscribe)
   }
 
@@ -43,7 +43,7 @@ export default class Component {
   }
 
   on<T>(event: CustomEvent<T>, listener: (data: T) => void) {
-    this.register(event.on(listener))
+    this.onDestroy(event.on(listener))
   }
 
   newEffect<T extends Constructor<Effect>>(
@@ -51,7 +51,7 @@ export default class Component {
       ...args: ConstructorParameters<T>) {
 
     const effect = new constructor(...args).activate()!
-    this.register(() => {
+    this.onDestroy(() => {
       effect.deactivate()
     })
   }

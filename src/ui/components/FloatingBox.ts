@@ -1,6 +1,6 @@
 import style from './FloatingBox.module.css'
 import Component from './Component'
-import { outsideElem } from './App'
+import { outsideElem } from './Game'
 import clickOutside from '../clickOutside'
 
 export default class FloatingBox extends Component {
@@ -16,7 +16,7 @@ export default class FloatingBox extends Component {
     //   console.log(this.element.getBoundingClientRect())
     // })
 
-    this.register(clickOutside(this.element, () => {
+    this.onDestroy(clickOutside(this.element, () => {
       this.exit()
     }))
 

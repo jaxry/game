@@ -4,13 +4,13 @@ import { Effect } from '../../behavior/Effect'
 import { game } from '../../Game'
 import { GameObject } from '../../GameObject'
 import style from './Zone.module.css'
-import ObjectInfo from './ObjectInfo'
 import { isPlayer } from '../../behavior/player'
 import animateWithDelay from '../animateWithDelay'
 import removeElementFromList from '../removeElementFromList'
+import ObjectCard from './ObjectCard'
 
 export default class Zone extends Component {
-  private objsToElem = new Map<GameObject, HTMLElement>()
+  private objsToCard = new Map<GameObject, ObjectCard>()
   private zone!: HTMLElement
   private spots: HTMLElement[] = []
   private changes: (() => void)[] = []
@@ -57,7 +57,7 @@ export default class Zone extends Component {
   }
 
   private populateZone() {
-    this.objsToElem.clear()
+    this.objsToCard.clear()
 
     this.zone = $('div', style.zone)
     this.element.append(this.zone)
@@ -70,12 +70,11 @@ export default class Zone extends Component {
     }
 
     for (const obj of game.player.container.contains) {
-      this.createObject(obj)
+      this.createCard(obj)
     }
   }
 
   private animateChanges() {
-
     if (this.changes.length > 0) {
       let delay = 0
       let time = 1000 / this.changes.length
@@ -87,27 +86,15 @@ export default class Zone extends Component {
     }
   }
 
-  private createObject(obj: GameObject) {
-    const elem = $('div', style.object, obj.type.name)
-    if (isPlayer(obj)) {
-      elem.classList.add(style.player)
-    }
-
-    this.spots[obj.spot].append(elem)
-
-    this.objsToElem.set(obj, elem)
-
-    elem.addEventListener('click', () => {
-      const info = this.newComponent(ObjectInfo, obj,
-          elem.getBoundingClientRect())
-      info.exit = () => this.removeComponent(info)
-    })
-
-    return elem
+  private createCard(obj: GameObject) {
+    const card = this.newComponent(ObjectCard, obj)
+    this.spots[obj.spot].append(card.element)
+    this.objsToCard.set(obj, card)
+    return card
   }
 
   private moveSpot(obj: GameObject, from: number, to: number) {
-    const elem = this.objsToElem.get(obj)!
+    const elem = this.objsToCard.get(obj)!.element
 
     if (!elem) return
 
@@ -136,7 +123,7 @@ export default class Zone extends Component {
   }
 
   private objectEnter(obj: GameObject) {
-    const elem = this.createObject(obj)
+    const elem = this.createCard(obj).element
     elem.animate([
       {opacity: 0, transform: `translate(0, 200%)`},
       {opacity: 1, transform: `translate(0, 0)`},
@@ -147,9 +134,10 @@ export default class Zone extends Component {
   }
 
   private objectLeave(obj: GameObject) {
-    const elem = this.objsToElem.get(obj)!
+    const card = this.objsToCard.get(obj)!
+    const elem = card.element
+    elem.style.zIndex = '999'
     elem.animate({
-      zIndex: ['999', '999'],
       opacity: 0,
       transform: 'translate(0, 200%)',
     }, {
@@ -167,18 +155,20 @@ export default class Zone extends Component {
           composite: 'accumulate',
         })
       })
+      this.removeComponent(card)
+      this.objsToCard.delete(obj)
     }
-
   }
 
   private playerMoveZone() {
     const oldZone = this.zone
-    const oldPlayer = this.objsToElem.get(game.player)!
+    const oldCards = [...this.objsToCard.values()]
+    const oldPlayer = this.objsToCard.get(game.player)!.element
     const oldPlayerBBox = oldPlayer.getBoundingClientRect()
 
     this.populateZone()
 
-    const newPlayer = this.objsToElem.get(game.player)!
+    const newPlayer = this.objsToCard.get(game.player)!.element
     const newPlayerBBox = newPlayer.getBoundingClientRect()
 
     oldZone.animate({
@@ -188,6 +178,9 @@ export default class Zone extends Component {
       easing: 'linear',
     }).onfinish = () => {
       oldZone.remove()
+      for (const card of oldCards) {
+        this.removeComponent(card)
+      }
     }
 
     const fadeInOptions = {
@@ -204,9 +197,9 @@ export default class Zone extends Component {
           fadeInOptions)
     }
 
-    for (const elem of this.objsToElem.values()) {
-      if (elem !== newPlayer) {
-        animateWithDelay(elem, [{opacity: 0}, {opacity: 1}], fadeInOptions)
+    for (const card of this.objsToCard.values()) {
+      if (card.element !== newPlayer) {
+        animateWithDelay(card.element, [{opacity: 0}, {opacity: 1}], fadeInOptions)
       }
     }
 
