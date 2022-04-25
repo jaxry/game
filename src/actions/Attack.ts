@@ -4,14 +4,14 @@ import type { GameObject } from '../GameObject'
 import { isAncestor } from '../behavior/container'
 
 export default class AttackAction extends Action {
-  static override effectName = `attack`
-  static override canInterrupt = false
-
   override time = 3
 
   constructor(attacker: GameObject, public override target: GameObject) {
     super(attacker)
   }
+
+  override get name() { return `attacking ${this.target.type.name}`}
+  override get icon() { return `⚔️${this.target.type.icon}` }
 
   override condition() {
     return this.target.health > 0 &&

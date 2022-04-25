@@ -13,47 +13,58 @@ export default class Zone extends Component {
   private objsToCard = new Map<GameObject, ObjectCard>()
   private zone!: HTMLElement
   private spots: HTMLElement[] = []
-  private changes: (() => void)[] = []
 
   constructor() {
     super()
 
     this.element.classList.add(style.container)
 
-    this.populateZone()
-
     const self = this
+
+    const changes: (() => void)[] = []
 
     this.newEffect(class extends Effect {
       onActivate() {
         this.onEvent(this.object.container, 'enter', ({item}) => {
           if (!isPlayer(item)) {
-            self.changes.push(() => self.objectEnter(item))
+            changes.push(() => self.objectEnter(item))
           }
         })
         this.onEvent(this.object.container, 'leave', ({item}) => {
           if (item === this.object) {
-            self.changes.push(() => self.playerMoveZone())
+            changes.push(() => self.playerMoveZone())
             this.reactivate()
           } else {
-            self.changes.push(() => self.objectLeave(item))
+            changes.push(() => self.objectLeave(item))
           }
         })
         this.onEvent(this.object.container, 'moveSpot', ({item, from, to}) => {
-          self.changes.push(() => self.moveSpot(item, from, to))
+          changes.push(() => self.moveSpot(item, from, to))
         })
-        this.onEvent(this.object.container, 'itemActionStart', (event) => {
-
+        this.onEvent(this.object.container, 'itemActionStart', ({action}) => {
+          changes.push(() => {
+            self.objsToCard.get(action.object)!.setAction(action)
+          })
         })
-        this.onEvent(this.object.container, 'itemActionEnd', (event) => {
-
+        this.onEvent(this.object.container, 'itemActionEnd', ({action}) => {
+          changes.push(() => {
+            self.objsToCard.get(action.object)!.clearAction()
+          })
         })
       }
     }, game.player)
 
     this.on(game.event.playerTick, () => {
-      this.animateChanges()
+      for (const card of this.objsToCard.values()) {
+        card.update()
+      }
+      if (changes.length > 0) {
+        this.animateChanges(changes)
+        changes.length = 0
+      }
     })
+
+    this.populateZone()
   }
 
   private populateZone() {
@@ -76,15 +87,12 @@ export default class Zone extends Component {
     }
   }
 
-  private animateChanges() {
-    if (this.changes.length > 0) {
-      let delay = 0
-      let time = 1000 / this.changes.length
-      for (const change of this.changes) {
-        setTimeout(change, delay)
-        delay += time
-      }
-      this.changes.length = 0
+  private animateChanges(changes: (() => void)[]) {
+    let delay = 0
+    let time = 1000 / changes.length
+    for (const change of changes) {
+      setTimeout(change, delay)
+      delay += time
     }
   }
 
@@ -97,8 +105,6 @@ export default class Zone extends Component {
 
   private moveSpot(obj: GameObject, from: number, to: number) {
     const elem = this.objsToCard.get(obj)!.element
-
-    if (!elem) return
 
     const oldBBox = elem.getBoundingClientRect()
     removeElementFromList(elem, (child, oldBBox, newBBox) => {

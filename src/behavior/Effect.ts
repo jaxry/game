@@ -7,7 +7,6 @@ import type {
 import { deleteElem } from '../util'
 
 export class Effect {
-  static effectName?: string
   static tickPriority = 1
   object: GameObject
   isActive = false
@@ -18,8 +17,7 @@ export class Effect {
   }
 
   get name() {
-    return (this.constructor as typeof Effect).effectName ??
-        this.constructor.name
+    return this.constructor.name
   }
 
   get tickPriority() {

@@ -83,7 +83,8 @@ class MonsterSearch extends Effect {
 }
 
 export const typeMonster = makeType({
-  name: 'monster',
+  name: 'Ogre Magi',
+  icon: '👹',
   properNoun: true,
   description: 'a horrendous creature with sharp claws',
   health: 3,

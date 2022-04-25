@@ -3,8 +3,6 @@ import type { GameObject } from '../GameObject'
 import { isAncestor, putInsideContainer } from '../behavior/container'
 
 export default class TransferAction extends Action {
-  static override effectName = 'transfer'
-
   override time = 5
 
   constructor(
@@ -12,6 +10,8 @@ export default class TransferAction extends Action {
       public destination: GameObject) {
     super(object)
   }
+
+  override get name() { return 'transfer' }
 
   override condition() {
     return this.item.container !== this.destination &&

@@ -3,6 +3,13 @@
   background: var(--lighter);
   box-shadow: 0rem 0.25rem 0.5rem var(--shadowColor);
   border-radius: 0.25rem;
+  text-align: center;
+  font-size: 1.5rem;
+  display: flex;
+}
+
+.name {
+  font-size: 2rem;
 }
 
 .player {

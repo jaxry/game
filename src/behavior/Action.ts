@@ -4,18 +4,16 @@ import type { GameObject } from '../GameObject'
 export default class Action extends Effect {
   static override tickPriority = 0
 
-  static canInterrupt = true
   time = 1
+  target?: GameObject
 
-  get canInterrupt() {
-    return (this.constructor as typeof Action).canInterrupt
+  get icon() {
+    return '🙾'
   }
 
   actionTick?(): void
 
   do?(): void
-
-  target?: GameObject
 
   override activate() {
     super.activate()

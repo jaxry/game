@@ -5,6 +5,8 @@ import type { GameObject } from './GameObject'
 export interface GameObjectType {
   name: string,
 
+  icon: string,
+
   properNoun: boolean,
 
   description: string,

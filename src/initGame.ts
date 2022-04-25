@@ -45,6 +45,7 @@ const typeWorld = makeType({
 
 const typeYou = makeType({
   name: `Soyboy Jack`,
+  icon: `😭`,
   properNoun: true,
   isContainer: true,
   health: Infinity
@@ -52,12 +53,14 @@ const typeYou = makeType({
 
 const typeChest = makeType({
   name: `chest`,
+  icon: `📦`,
   description: `A wooden chest filled with loot`,
   isContainer: true,
 })
 
 const typeApple = makeType({
-  name: 'apple',
+  name: `apple`,
+  icon: '🍎',
   health: 2,
   description: `A crunchy apple. The most generic of items`,
 })
