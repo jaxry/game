@@ -33,7 +33,7 @@ export function positionZone(source: GameObject, target: GameObject) {
   }
 
   const theta = 2 * Math.PI * Math.random()
-  const d = renderedConnectionDistance
+  const d = 2 * renderedConnectionDistance
   const dx = d * Math.cos(theta)
   const dy = d * Math.sin(theta)
   target.position.x = source.position.x + dx
@@ -74,26 +74,30 @@ export interface ZoneGraph {
 export function getZoneGraph(startingNode: GameObject, maxDepth = Infinity): ZoneGraph {
   const nodes = new Set<GameObject>()
   const edges = new Map<string, Edge>()
-  const queue: GameObject[] = [startingNode]
-  const depthQueue: number[] = [0]
 
-  while (queue.length > 0) {
-    const node = queue.shift()!
-    const depth = depthQueue.shift()!
-
+  function traverse(node: GameObject, depth: number) {
     nodes.add(node)
-
     if (depth >= maxDepth) {
-      continue
+      return
     }
-
-    for (const target of node.connections) {
-      if (!nodes.has(target)) {
-        const edge = {source: node, target}
-        edges.set(edgeHash(edge), edge)
-        queue.push(target)
-        depthQueue.push(depth + 1)
+    for (const neighbor of node.connections) {
+      if (!nodes.has(neighbor)) {
+        traverse(neighbor, depth + 1)
       }
+    }
+  }
+
+  traverse(startingNode, 0)
+
+  const visited = new Set<GameObject>()
+  for (const node of nodes) {
+    visited.add(node)
+    for (const neighbor of node.connections) {
+      if (visited.has(neighbor) || !nodes.has(neighbor)) {
+        continue
+      }
+      const edge = {source: node, target: neighbor}
+      edges.set(edgeHash(edge), edge)
     }
   }
 

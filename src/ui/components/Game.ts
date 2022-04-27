@@ -53,8 +53,6 @@ export default class AppComponent extends Component {
 
     map.onZoneClick = playerTravelToZone
 
-    setTimeout(() => map.update(game.player.container))
-
     this.newEffect(class extends Effect {
       onActivate() {
         this.onEvent(this.object, 'move', () => {

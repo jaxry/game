@@ -2,10 +2,10 @@ import Delaunator from 'delaunator'
 import {
   connectZones,
   renderedConnectionDistance,
-} from './behavior/connections'
-import { spawn } from './behavior/spawn'
-import type { GameObject } from './GameObject'
-import { makeType } from './GameObject'
+} from '../behavior/connections'
+import { spawn } from '../behavior/spawn'
+import type { GameObject } from '../GameObject'
+import { makeType } from '../GameObject'
 import poissonDiskSampling from './poissonDiskSampling'
 
 const typeZone = makeType({

@@ -3,15 +3,15 @@ import { spawn } from './behavior/spawn'
 import { game } from './Game'
 import { makeType } from './GameObject'
 import GameTime from './GameTime'
-import { generateDelaunayZones } from './generateDelaunayZones'
 import { typeMonster } from './objects/monster'
+import { generateRandomGraph } from './map/generateRandomGraph'
 
 export function initGame() {
   game.energyPool = 2 * GameTime.hour
 
   const world = spawn(typeWorld)
 
-  const zones = generateDelaunayZones(7)
+  const zones = generateRandomGraph(20)
   for (const zone of zones) {
     putInsideContainer(world, zone)
   }

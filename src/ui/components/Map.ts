@@ -50,23 +50,27 @@ export default class MapComponent extends Component {
     // temporary place to put this
     // force simulation should be run outside of MapComponent
     // usually when the map has zones added or removed by the game
-    const d3Graph = makeD3Graph(getZoneGraph(game.player.container))
+    const graph = getZoneGraph(game.player.container)
+    const nodes = [...graph.nodes]
+    const d3Graph = makeD3Graph(graph)
     const sim = d3.forceSimulation()
     sim.nodes(d3Graph.nodes).
         force('charge',
-            d3.forceManyBody().distanceMax(10 * renderedConnectionDistance)).
+            d3.forceManyBody().distanceMax(5 * renderedConnectionDistance).strength(node => {
+              return -30 * nodes[node.index!].connections.length
+            })).
         force('link',
             d3.forceLink(d3Graph.edges).distance(renderedConnectionDistance)).
         velocityDecay(0.2).
-        alpha(1).
-        restart().
+        // alphaDecay(0.0075).
         tick(300).
         on('end', () => {
+          console.log('done')
           this.update(game.player.container)
         })
   }
 
-  nodeSize = (node: GameObject) => lerp(1, 6, 6, 15, node.connections.length)
+  nodeSize = (node: GameObject) => lerp(1, 6, 5, 20, node.connections.length)
 
   update(centerZone: GameObject) {
     const graph = getZoneGraph(centerZone, 2)
