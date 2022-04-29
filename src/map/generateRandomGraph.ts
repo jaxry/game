@@ -38,6 +38,6 @@ export function generateRandomGraph(vertexCount: number) {
     }
   }
   console.warn(`Graph generation couldn't reach desired size`)
-  return largest
+  return makeZones(largest)
 }
 

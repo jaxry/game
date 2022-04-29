@@ -24,7 +24,6 @@ export default class MapComponent extends Component {
 
   private nodeToElem: Map<GameObject, Element> = new Map()
   private edgeToElem: Map<string, Element> = new Map()
-  private centerElem?: Element
 
   constructor() {
     super()
@@ -107,10 +106,13 @@ export default class MapComponent extends Component {
       this.nodeToElem.set(node, circle)
     }
 
-    const newCenterElem = this.nodeToElem.get(centerZone)!
-    this.centerElem?.classList.remove(style.center)
-    newCenterElem.classList.add(style.center)
-    this.centerElem = newCenterElem
+    for (const circle of this.nodeToElem.values()) {
+      circle.classList.remove(style.center, style.canTravel)
+    }
+    this.nodeToElem.get(centerZone)!.classList.add(style.center)
+    for (const zone of centerZone.connections) {
+      this.nodeToElem.get(zone)!.classList.add(style.canTravel)
+    }
 
     for (const [hash, edge] of graph.edges) {
       if (this.edgeToElem.has(hash)) {
