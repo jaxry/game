@@ -54,8 +54,7 @@ export class Effect {
 
   activate() {
     if (this.isActive) {
-      console.warn(this, 'already activated')
-      return
+      return this
     }
 
     this.isActive = true
@@ -76,6 +75,10 @@ export class Effect {
   }
 
   deactivate(destroyedObject = false) {
+    if (!this.isActive) {
+      return this
+    }
+
     this.isActive = false
 
     if (this.tick) {

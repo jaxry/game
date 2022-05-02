@@ -2,7 +2,7 @@ import style from './ObjectInfo.module.css'
 import { GameObject } from '../../GameObject'
 import FloatingBox from './FloatingBox'
 import { isPlayer } from '../../behavior/player'
-import { setPlayerAction } from '../../behavior/core'
+import { startPlayerBehavior } from '../../behavior/core'
 import WaitAction from '../../actions/Wait'
 import $ from '../makeDomTree'
 
@@ -17,7 +17,7 @@ export default class ObjectInfo extends FloatingBox {
     if (isPlayer(object)) {
       const wait = $('button', null, 'Wait')
       wait.addEventListener('click', () => {
-        setPlayerAction(new WaitAction(object))
+        startPlayerBehavior(new WaitAction(object))
       })
       this.element.append(wait)
     }

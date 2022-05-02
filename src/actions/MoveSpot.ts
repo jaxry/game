@@ -2,13 +2,13 @@ import type { GameObject } from '../GameObject'
 import Action from '../behavior/Action'
 import { moveToSpot } from '../behavior/container'
 
-const timePerSpot = 3
-
 export default class MoveSpotAction extends Action {
+  to: number
 
-  constructor(object: GameObject, public to: number) {
+  constructor(object: GameObject, to: number) {
     super(object)
-    this.time = timePerSpot * Math.abs(this.to - this.object.spot)
+    this.to = this.object.spot + Math.sign(to - this.object.spot)
+    this.time = 3
   }
 
   private direction() {

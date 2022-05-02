@@ -13,6 +13,8 @@ export default class TravelAction extends Action {
 
   override get name() { return 'travel' }
 
+  override get icon() { return '🥾' }
+
   override do() {
     putInsideContainer(this.location, this.object)
   }

@@ -4,12 +4,14 @@ import type { GameObject } from './GameObject'
 import type { Effect } from './behavior/Effect'
 import CustomEvent from './CustomEvent'
 import GameObjectLog from './GameObjectLog'
+import Action from './behavior/Action'
 
 export const game = {
   time: new GameTime(),
   objectLog: new GameObjectLog(),
   event: {
-    playerTick: new CustomEvent(),
+    playerTickStart: new CustomEvent(),
+    playerTickEnd: new CustomEvent(),
   },
   player: {} as GameObject,
   effectsWithTick: [new Set(), new Set()] as Set<Effect>[],

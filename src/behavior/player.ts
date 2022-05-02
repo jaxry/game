@@ -2,12 +2,13 @@ import TravelAction from '../actions/Travel'
 import { game } from '../Game'
 import type { GameObject } from '../GameObject'
 import type Action from './Action'
-import { setPlayerAction } from './core'
+import { startPlayerBehavior } from './core'
 import { isContainedWith } from './container'
 import { isDestroyed } from './destroy'
 import MoveSpotAction from '../actions/MoveSpot'
 import AttackAction from '../actions/Attack'
 import WaitAction from '../actions/Wait'
+import { Effect } from './Effect'
 
 export function isPlayer(object: GameObject) {
   return object === game.player
@@ -26,13 +27,9 @@ export function playerTravelToZone(zone: GameObject) {
 
   for (const neighbor of playerZone.connections) {
     if (neighbor == zone) {
-      setPlayerAction(new TravelAction(game.player, neighbor))
+      startPlayerBehavior(new TravelAction(game.player, neighbor))
     }
   }
-}
-
-export function playerMoveToSpot(spot: number) {
-  setPlayerAction(new MoveSpotAction(game.player, spot))
 }
 
 export function getPlayerInteractions(player: GameObject) {
@@ -47,4 +44,24 @@ export function getObjectInteractions(player: GameObject, subject: GameObject) {
   ].filter(action => action.condition())
 
   return actions
+}
+
+export class MovePlayerToSpot extends Effect {
+  constructor(object: GameObject, public spot: number) {
+    super(object)
+    this.move()
+  }
+
+  move() {
+    new MoveSpotAction(this.object, this.spot).activate()
+  }
+
+  tick() {
+    if (this.object.spot === this.spot) {
+      this.deactivate()
+    } else if (!this.object.activeAction) {
+      this.move()
+    }
+  }
+
 }

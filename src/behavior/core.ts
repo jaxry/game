@@ -18,7 +18,7 @@ export function tick() {
 }
 
 let timeout: number | null = null
-let playerAction: Action | null = null
+let playerBehavior: Effect | Action | null = null
 
 export function interruptPlayerLoop() {
   clearTimeout(timeout!)
@@ -31,17 +31,16 @@ export function startGameLoop() {
   }
 }
 
-export function setPlayerAction(action: Action) {
-  playerAction = action
+export function startPlayerBehavior(effect: Effect) {
+  playerBehavior?.deactivate()
+  playerBehavior = effect
+  playerBehavior.activate()
 }
 
 function playerTick() {
-  if (playerAction) {
-    playerAction.activate()
-    playerAction = null
-  }
+  game.event.playerTickStart.emit(undefined)
   tick()
-  game.event.playerTick.emit(undefined)
+  game.event.playerTickEnd.emit(undefined)
   timeout = setTimeout(playerTick, 1000)
 }
 
