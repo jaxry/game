@@ -5,14 +5,15 @@ export default class Action extends Effect {
   static override tickPriority = 0
 
   time = 1
+
+  // for targeted actions such as attacks
   target?: GameObject
 
   get icon() {
     return '🙾'
   }
 
-  actionTick?(): void
-
+  // Called after the specified time is elapsed
   do?(): void
 
   override activate() {
@@ -38,8 +39,6 @@ export default class Action extends Effect {
 
   override tick() {
     this.time--
-
-    this.actionTick?.()
 
     if (this.time <= 0) {
       this.deactivate()

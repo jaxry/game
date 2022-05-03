@@ -14,12 +14,23 @@
 }
 
 .spot {
+  position: relative;
+  border-right: 1px dashed var(--borderColor);
+  padding: 0.5rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: 0.5rem;
-  border-right: 1px dashed var(--borderColor);
-  /*border-image: linear-gradient(var(--borderColor), transparent) 1;*/
+}
+
+.spot > * {
+  z-index: 1;
+}
+
+.clickSpot {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  z-index: 0
 }
 
 .spot:first-child {

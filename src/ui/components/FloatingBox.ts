@@ -4,8 +4,6 @@ import { outsideElem } from './Game'
 import clickOutside from '../clickOutside'
 
 export default class FloatingBox extends Component {
-  exit = () => {}
-
   constructor(parentBBox: DOMRect) {
     super()
 
@@ -16,8 +14,8 @@ export default class FloatingBox extends Component {
     //   console.log(this.element.getBoundingClientRect())
     // })
 
-    this.onDestroy(clickOutside(this.element, () => {
-      this.exit()
+    this.onRemove(clickOutside(this.element, () => {
+      this.remove()
     }))
 
     outsideElem.append(this.element)

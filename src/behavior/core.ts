@@ -18,7 +18,7 @@ export function tick() {
 }
 
 let timeout: number | null = null
-let playerBehavior: Effect | Action | null = null
+let playerBehavior: Effect | null = null
 
 export function interruptPlayerLoop() {
   clearTimeout(timeout!)

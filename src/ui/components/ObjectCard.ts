@@ -28,13 +28,12 @@ export default class ObjectCard extends Component {
     this.element.addEventListener('click', () => {
       const info = this.newComponent(ObjectInfo, object,
           this.element.getBoundingClientRect())
-      info.exit = () => this.removeComponent(info)
     })
   }
 
   setAction(action: Action) {
     if (this.actionComponent) {
-      this.removeComponent(this.actionComponent)
+      this.actionComponent.remove()
     }
     this.actionComponent = this.newComponent(ActionComponent, action)
     // this.actionContainer.append(this.actionComponent.element)
@@ -55,7 +54,7 @@ export default class ObjectCard extends Component {
     }, {
       duration: 250
     }).onfinish = () => {
-      this.removeComponent(component)
+      component.remove()
     }
   }
 

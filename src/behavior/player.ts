@@ -53,7 +53,9 @@ export class MovePlayerToSpot extends Effect {
   }
 
   move() {
-    new MoveSpotAction(this.object, this.spot).activate()
+    if (this.object.spot !== this.spot) {
+      new MoveSpotAction(this.object, this.spot).activate()
+    }
   }
 
   tick() {

@@ -43,7 +43,7 @@ export default class AppComponent extends Component {
       }
     }
     document.addEventListener('visibilitychange', visibilityChange);
-    this.onDestroy(() => {
+    this.onRemove(() => {
       document.removeEventListener('visibilitychange', visibilityChange)
     })
   }

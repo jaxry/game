@@ -7,6 +7,7 @@ type Constructor<T> = {new (...args: any[]): T}
 export default class Component {
   element: HTMLElement
 
+  private parentComponent?: Component
   private childComponents: Component[] = []
   private destroyCallbacks: Array<() => void> = []
 
@@ -17,33 +18,35 @@ export default class Component {
   newComponent<T extends Constructor<Component>>(
       constructor: T,
       ...args: ConstructorParameters<T>): InstanceType<T> {
+
     const component = new constructor(...args)
+    component.parentComponent = this
     this.childComponents.push(component)
     return component as InstanceType<T>
   }
 
-  removeComponent(component: Component) {
-    deleteElem(this.childComponents, component)
-    component.element.remove()
-    component.destroy()
-  }
-
-  onDestroy(unsubscribe: () => void) {
+  onRemove(unsubscribe: () => void) {
     this.destroyCallbacks.push(unsubscribe)
   }
 
-  destroy() {
+  remove() {
     this.element.remove()
-    for (const component of this.childComponents) {
-      component.destroy()
+
+    if (this.parentComponent) {
+      deleteElem(this.parentComponent.childComponents, this)
     }
+
     for (const callback of this.destroyCallbacks) {
       callback()
+    }
+
+    for (const component of this.childComponents) {
+      component.remove()
     }
   }
 
   on<T>(event: CustomEvent<T>, listener: (data: T) => void) {
-    this.onDestroy(event.on(listener))
+    this.onRemove(event.on(listener))
   }
 
   newEffect<T extends Constructor<Effect>>(
@@ -51,7 +54,7 @@ export default class Component {
       ...args: ConstructorParameters<T>) {
 
     const effect = new constructor(...args).activate()!
-    this.onDestroy(() => {
+    this.onRemove(() => {
       effect.deactivate()
     })
   }

@@ -9,6 +9,7 @@ import animateWithDelay from '../animateWithDelay'
 import removeElementFromList from '../removeElementFromList'
 import ObjectCard from './ObjectCard'
 import { startPlayerBehavior } from '../../behavior/core'
+import Action from '../../behavior/Action'
 
 export default class Zone extends Component {
   private objsToCard = new Map<GameObject, ObjectCard>()
@@ -62,17 +63,15 @@ export default class Zone extends Component {
         this.onEvent(this.object.container, 'itemActionStart', ({action}) => {
           const fn = () => self.objsToCard.get(action.object)!.setAction(action)
           if (!tickInEffect && action.object === game.player) {
-            // if player starts a new action
-            // show action immediately even if outside of tick
+            // If player starts a new action,
+            // show action immediately even if outside of tick.
             fn()
           } else {
             changes.push(fn)
           }
         })
         this.onEvent(this.object.container, 'itemActionEnd', ({action}) => {
-          changes.push(() => {
-            self.objsToCard.get(action.object)!.clearAction()
-          })
+          changes.push(() => self.finishAction(action))
         })
       }
     }, game.player)
@@ -90,12 +89,12 @@ export default class Zone extends Component {
 
     this.spots = []
     for (let i = 0; i < container.numSpots; i++) {
-      const spot = $('div', style.spot)
 
-      spot.addEventListener('click', (e) => {
-        if (e.target !== e.currentTarget) {
-          return
-        }
+      const clickSpot = $('div', style.clickSpot)
+
+      const spot = $('div', style.spot, [clickSpot])
+
+      clickSpot.addEventListener('click', (e) => {
         startPlayerBehavior(new MovePlayerToSpot(game.player, i))
       })
 
@@ -122,6 +121,10 @@ export default class Zone extends Component {
     this.spots[obj.spot].append(card.element)
     this.objsToCard.set(obj, card)
     return card
+  }
+
+  private finishAction(action: Action) {
+    this.objsToCard.get(action.object)!.clearAction()
   }
 
   private moveSpot(obj: GameObject, from: number, to: number) {
@@ -184,7 +187,7 @@ export default class Zone extends Component {
           composite: 'accumulate',
         })
       })
-      this.removeComponent(card)
+      card.remove()
       this.objsToCard.delete(obj)
     }
   }
@@ -208,7 +211,7 @@ export default class Zone extends Component {
     }).onfinish = () => {
       oldZone.remove()
       for (const card of oldCards) {
-        this.removeComponent(card)
+        card.remove()
       }
     }
 

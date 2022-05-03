@@ -7,7 +7,13 @@ import type {
 import { deleteElem } from '../util'
 
 export class Effect {
+  // From 0 to a positive integer.
+  // The lower the number, the sooner the effect's tick method
+  // is called in the game loop.
   static tickPriority = 1
+
+  // The object associated with the effect.
+  // When the object is destroyed, the effect is automatically cleaned up.
   object: GameObject
   isActive = false
   private events?: ActiveGameObjectEvent[]
@@ -24,12 +30,15 @@ export class Effect {
     return (this.constructor as typeof Effect).tickPriority
   }
 
+  // called once every game loop (every second)
   tick?(): void
 
   onActivate?(): void
 
   onDeactivate?(): void
 
+  // Adds a GameObject event that is automatically cleaned up when the effect
+  // is deactivated
   onEvent<T extends keyof GameObjectEvents>(
       obj: GameObject, event: T, listener: GameObjectEventCallback<T>) {
     if (!this.isActive) {
