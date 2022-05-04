@@ -50,10 +50,10 @@ export interface GameObjectEvents {
   // objects being contained or taken out of the event object
   enter: { item: GameObject, from?: GameObject },
   leave: { item: GameObject, to?: GameObject },
-  moveSpot: {item: GameObject, from: number, to: number},
+  moveSpot: { item: GameObject, from: number, to: number },
 
   // actions starting/finishing on a contained object of the event object
-  itemActionStart: { action: Action},
+  itemActionStart: { action: Action },
   itemActionEnd: { action: Action },
 
   // the event object put inside a new container object

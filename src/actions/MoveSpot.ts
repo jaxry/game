@@ -11,12 +11,6 @@ export default class MoveSpotAction extends Action {
     this.time = 3
   }
 
-  private direction() {
-    if (this.to < this.object.spot) return '⬅'
-    if (this.to > this.object.spot) return '➡'
-    return ''
-  }
-
   override get name() {
     return `move ${this.direction()}`
   }
@@ -27,6 +21,12 @@ export default class MoveSpotAction extends Action {
 
   do() {
     moveToSpot(this.object, this.to)
+  }
+
+  private direction() {
+    if (this.to < this.object.spot) return '⬅'
+    if (this.to > this.object.spot) return '➡'
+    return ''
   }
 
 }

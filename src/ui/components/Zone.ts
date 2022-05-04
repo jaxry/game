@@ -45,12 +45,12 @@ export default class Zone extends Component {
 
     this.newEffect(class extends Effect {
       onActivate() {
-        this.onEvent(this.object.container, 'enter', ({item}) => {
+        this.onEvent(this.object.container, 'enter', ({ item }) => {
           if (!isPlayer(item)) {
             changes.push(() => self.objectEnter(item))
           }
         })
-        this.onEvent(this.object.container, 'leave', ({item}) => {
+        this.onEvent(this.object.container, 'leave', ({ item }) => {
           if (item === this.object) {
             changes.push(() => self.playerMoveZone())
             this.reactivate()
@@ -58,10 +58,11 @@ export default class Zone extends Component {
             changes.push(() => self.objectLeave(item))
           }
         })
-        this.onEvent(this.object.container, 'moveSpot', ({item, from, to}) => {
-          changes.push(() => self.moveSpot(item, from, to))
-        })
-        this.onEvent(this.object.container, 'itemActionStart', ({action}) => {
+        this.onEvent(this.object.container, 'moveSpot',
+            ({ item, from, to }) => {
+              changes.push(() => self.moveSpot(item, from, to))
+            })
+        this.onEvent(this.object.container, 'itemActionStart', ({ action }) => {
           const fn = () => self.objsToCard.get(action.object)!.setAction(action)
 
           // If player starts a new action,
@@ -72,7 +73,7 @@ export default class Zone extends Component {
             changes.push(fn)
           }
         })
-        this.onEvent(this.object.container, 'itemActionEnd', ({action}) => {
+        this.onEvent(this.object.container, 'itemActionEnd', ({ action }) => {
           changes.push(() => self.finishAction(action))
         })
       }
@@ -128,7 +129,8 @@ export default class Zone extends Component {
     card.clearAction()
     if (action.target) {
       const from = card.element.getBoundingClientRect()
-      const to = this.objsToCard.get(action.target)!.element.getBoundingClientRect()
+      const to = this.objsToCard.get(
+          action.target)!.element.getBoundingClientRect()
       this.newComponent(TargetActionAnimation, action, from, to)
     }
   }
@@ -139,8 +141,8 @@ export default class Zone extends Component {
     const oldBBox = elem.getBoundingClientRect()
     removeElementFromList(elem, (child, oldBBox, newBBox) => {
       child.animate([
-        {transform: bBoxDiff(oldBBox, newBBox)},
-        {transform: `translate(0, 0)`},
+        { transform: bBoxDiff(oldBBox, newBBox) },
+        { transform: `translate(0, 0)` },
       ], {
         duration: 500,
         easing: 'ease-in-out',
@@ -151,8 +153,8 @@ export default class Zone extends Component {
     this.spots[to].append(elem)
     const newBBox = elem.getBoundingClientRect()
     elem.animate([
-      {transform: bBoxDiff(oldBBox, newBBox)},
-      {transform: `translate(0, 0)`},
+      { transform: bBoxDiff(oldBBox, newBBox) },
+      { transform: `translate(0, 0)` },
     ], {
       duration: 500,
       easing: 'ease-in-out',
@@ -163,8 +165,8 @@ export default class Zone extends Component {
   private objectEnter(obj: GameObject) {
     const elem = this.createCard(obj).element
     elem.animate([
-      {opacity: 0, transform: `translate(0, 200%)`},
-      {opacity: 1, transform: `translate(0, 0)`},
+      { opacity: 0, transform: `translate(0, 200%)` },
+      { opacity: 1, transform: `translate(0, 0)` },
     ], {
       easing: 'ease-in-out',
       duration: 500,
@@ -185,8 +187,8 @@ export default class Zone extends Component {
     }).onfinish = () => {
       removeElementFromList(elem, (child, oldBBox, newBBox) => {
         child.animate([
-          {transform: bBoxDiff(oldBBox, newBBox)},
-          {transform: `translate(0, 0)`},
+          { transform: bBoxDiff(oldBBox, newBBox) },
+          { transform: `translate(0, 0)` },
         ], {
           duration: 500,
           easing: 'ease-in-out',
@@ -201,7 +203,8 @@ export default class Zone extends Component {
   private playerMoveZone() {
     const oldZone = this.zone
     const oldCards = [...this.objsToCard.values()]
-    const oldPlayerBBox = this.objsToCard.get(game.player)!.element.getBoundingClientRect()
+    const oldPlayerBBox = this.objsToCard.get(
+        game.player)!.element.getBoundingClientRect()
 
     this.objsToCard.clear()
     this.makeZoneSpots()
@@ -229,19 +232,19 @@ export default class Zone extends Component {
 
     for (const spot of this.spots) {
       animateWithDelay(spot, {
-        borderColor: ['transparent', 'var(--borderColor)']
+        borderColor: ['transparent', 'var(--borderColor)'],
       }, fadeInOptions)
     }
 
     for (const card of this.objsToCard.values()) {
       if (card.element !== newPlayer) {
-        animateWithDelay(card.element, {opacity: [0, 1]}, fadeInOptions)
+        animateWithDelay(card.element, { opacity: [0, 1] }, fadeInOptions)
       }
     }
 
     animateWithDelay(newPlayer, {
       transform: [bBoxDiff(oldPlayerBBox, newPlayerBBox), `translate(0, 0)`],
-      width: [`${oldPlayerBBox.width}px`, `${newPlayerBBox.width}px`]
+      width: [`${oldPlayerBBox.width}px`, `${newPlayerBBox.width}px`],
     }, {
       delay: 500,
       duration: 1000,

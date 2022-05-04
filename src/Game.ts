@@ -1,10 +1,8 @@
-import GameLog from './GameLog'
 import GameTime from './GameTime'
 import type { GameObject } from './GameObject'
 import type { Effect } from './behavior/Effect'
 import CustomEvent from './CustomEvent'
 import GameObjectLog from './GameObjectLog'
-import Action from './behavior/Action'
 
 export const game = {
   time: new GameTime(),

@@ -24,5 +24,7 @@ export default class TargetActionAnimation extends Component {
 }
 
 function center(d: DOMRect) {
-  return `translate(-50%,-50%) translate(${d.x + d.width / 2}px, ${d.y + d.height / 2}px)`
+  const x = d.x + d.width / 2
+  const y = d.y + d.height / 2
+  return `translate(-50%,-50%) translate(${x}px, ${y}px)`
 }

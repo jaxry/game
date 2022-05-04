@@ -27,11 +27,10 @@ export function initGame() {
   for (let i = 0; i < 25; i++) {
     // spawn(typeMonster, world.contains.at(Math.random() * world.contains.length))
     // spawn(Math.random() > 0.5 ? typeMonster : typeApple, world.contains[0])
-    spawn(Math.random() > 0.5 ? typeMonster : typeApple, world.contains.at(Math.random() * world.contains.length))
+    spawn(Math.random() > 0.5 ? typeMonster : typeApple,
+        world.contains.at(Math.random() * world.contains.length))
 
   }
-
-
 
   const chest = spawn(typeChest, zone)
   spawn(typeApple, chest)
@@ -48,7 +47,7 @@ const typeYou = makeType({
   icon: `😭`,
   properNoun: true,
   isContainer: true,
-  health: Infinity
+  health: Infinity,
 })
 
 const typeChest = makeType({

@@ -20,7 +20,7 @@ export default class ActionComponent extends Component {
 
   update() {
     if (this.action.time <= 0) {
-      this.time.animate({ opacity: 0}, {duration: 250, fill: 'forwards'})
+      this.time.animate({ opacity: 0 }, { duration: 250, fill: 'forwards' })
     } else {
       this.time.textContent = this.action.time.toString()
     }

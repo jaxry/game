@@ -12,7 +12,7 @@ export default class PanZoom {
         lastX = e.clientX
         lastY = e.clientY
         this.elem.addEventListener('pointermove', pointerMove)
-        window.addEventListener('pointerup', pointerUp, {once: true})
+        window.addEventListener('pointerup', pointerUp, { once: true })
       }
     })
 
@@ -37,7 +37,7 @@ export default class PanZoom {
       // const amount = e.deltaMode === 0 ? 1.03 : 1.25
       const amount = 1.10
 
-      const {top, left, width, height} = this.elem.getBoundingClientRect()
+      const { top, left, width, height } = this.elem.getBoundingClientRect()
       const x = (e.clientX - left)
       const y = (e.clientY - top)
 

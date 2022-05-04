@@ -24,7 +24,8 @@ class MonsterAttack extends Effect {
 
     if (isContainedWith(this.object, this.target)) {
       if (!sameSpot && !(active instanceof MoveSpotAction)) {
-        const to = this.object.spot + Math.sign(this.target.spot - this.object.spot)
+        const to = this.object.spot +
+            Math.sign(this.target.spot - this.object.spot)
         new MoveSpotAction(this.object, to).activate()
       } else if (sameSpot && !(active instanceof AttackAction)) {
         new AttackAction(this.object, this.target).activate()
@@ -58,7 +59,7 @@ class MonsterSearch extends Effect {
 
     const addEnterListener = () => this.onEvent(
         this.object.container, 'enter',
-        ({item}) => {
+        ({ item }) => {
           if (isPlayer(item)) {
             this.found()
           }

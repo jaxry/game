@@ -37,7 +37,7 @@ export default class ObjectCard extends Component {
     this.actionComponent = this.newComponent(ActionComponent, action)
     // this.actionContainer.append(this.actionComponent.element)
     $(this.element, style.action, [this.actionComponent])
-    this.actionComponent.element.animate({opacity: [0, 1]}, {duration: 250})
+    this.actionComponent.element.animate({ opacity: [0, 1] }, { duration: 250 })
   }
 
   clearAction() {
@@ -49,9 +49,9 @@ export default class ObjectCard extends Component {
     this.actionComponent = undefined
 
     component.element.animate({
-      opacity: [1, 0]
+      opacity: [1, 0],
     }, {
-      duration: 250
+      duration: 250,
     }).onfinish = () => {
       component.remove()
     }

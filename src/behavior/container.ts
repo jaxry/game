@@ -19,9 +19,9 @@ export function moveTo(
 
   container.contains.push(object)
 
-  object.emit('move', {to: container, from})
-  from?.emit('leave', {item: object, to: container})
-  container.emit('enter', {item: object, from})
+  object.emit('move', { to: container, from })
+  from?.emit('leave', { item: object, to: container })
+  container.emit('enter', { item: object, from })
 }
 
 export function wearOnContainer(container: GameObject, item: GameObject) {
@@ -35,7 +35,7 @@ export function putInsideContainer(container: GameObject, item: GameObject) {
 export function moveToSpot(item: GameObject, spot: number) {
   const from = item.spot
   item.spot = spot
-  item.container.emit('moveSpot', {item, from, to: spot})
+  item.container.emit('moveSpot', { item, from, to: spot })
 }
 
 export function removeFromContainer(item: GameObject) {

@@ -1,7 +1,6 @@
 import Component from './Component'
 import { game } from '../../Game'
 import createSvg from '../createSvg'
-import PanZoom from '../PanZoom'
 import {
   getZoneGraph,
   renderedConnectionDistance,
@@ -55,9 +54,11 @@ export default class MapComponent extends Component {
     const sim = d3.forceSimulation()
     sim.nodes(d3Graph.nodes).
         force('charge',
-            d3.forceManyBody().distanceMax(5 * renderedConnectionDistance).strength(node => {
-              return -30 * nodes[node.index!].connections.length
-            })).
+            d3.forceManyBody().
+                distanceMax(5 * renderedConnectionDistance).
+                strength(node => {
+                  return -30 * nodes[node.index!].connections.length
+                })).
         force('link',
             d3.forceLink(d3Graph.edges).distance(renderedConnectionDistance)).
         velocityDecay(0.2).
@@ -190,7 +191,7 @@ function makeD3Graph(graph: ZoneGraph) {
 
   const nodes = mapIter(graph.nodes, n => n.position)
 
-  for (const {source, target} of graph.edges.values()) {
+  for (const { source, target } of graph.edges.values()) {
     edges.push({
       source: source.position,
       target: target.position,

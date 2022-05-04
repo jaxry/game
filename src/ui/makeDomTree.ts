@@ -15,13 +15,13 @@ function makeDomTree<T extends Element>(
     styles?: Styles,
     content?: Content): T;
 
-
 function makeDomTree<T extends keyof HTMLElementTagNameMap>(
     tag: T,
     styles?: Styles,
     content?: Content): HTMLElementTagNameMap[T];
 
-function makeDomTree(elem: Elem, styles?: Styles, content?: Content): HTMLElement {
+function makeDomTree(
+    elem: Elem, styles?: Styles, content?: Content): HTMLElement {
   let node = getNode(elem)
 
   if (styles) {
@@ -35,7 +35,7 @@ function makeDomTree(elem: Elem, styles?: Styles, content?: Content): HTMLElemen
       for (const child of content) {
         node.append(
             // @ts-ignore: bug?
-            Array.isArray(child) ? makeDomTree(...child) : getNode(child)
+            Array.isArray(child) ? makeDomTree(...child) : getNode(child),
         )
       }
     } else {

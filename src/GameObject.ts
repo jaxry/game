@@ -1,9 +1,9 @@
 import type {
-  GameObjectProps,
-  GameObjectType,
   GameObjectEvent,
   GameObjectEventCallback,
   GameObjectEvents,
+  GameObjectProps,
+  GameObjectType,
 } from './GameObjectType'
 import { deleteElem } from './util'
 

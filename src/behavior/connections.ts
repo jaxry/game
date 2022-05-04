@@ -1,7 +1,6 @@
 import type { GameObject } from '../GameObject'
 import PriorityQueue from '../PriorityQueue'
 import { deleteElem } from '../util'
-import { Game } from '../Game'
 
 export const renderedConnectionDistance = 30
 
@@ -25,11 +24,11 @@ export function connectZones(
 
 export function positionZone(source: GameObject, target: GameObject) {
   if (!source.position) {
-    source.position = {x: 0, y: 0}
+    source.position = { x: 0, y: 0 }
   }
 
   if (!target.position) {
-    target.position = {x: 0, y: 0}
+    target.position = { x: 0, y: 0 }
   }
 
   const theta = 2 * Math.PI * Math.random()
@@ -71,7 +70,8 @@ export interface ZoneGraph {
   edges: Map<string, Edge>,
 }
 
-export function getZoneGraph(startingNode: GameObject, maxDepth = Infinity): ZoneGraph {
+export function getZoneGraph(
+    startingNode: GameObject, maxDepth = Infinity): ZoneGraph {
   const nodes = new Set<GameObject>()
   const edges = new Map<string, Edge>()
 
@@ -96,7 +96,7 @@ export function getZoneGraph(startingNode: GameObject, maxDepth = Infinity): Zon
       if (visited.has(neighbor) || !nodes.has(neighbor)) {
         continue
       }
-      const edge = {source: node, target: neighbor}
+      const edge = { source: node, target: neighbor }
       edges.set(edgeHash(edge), edge)
     }
   }
@@ -107,7 +107,7 @@ export function getZoneGraph(startingNode: GameObject, maxDepth = Infinity): Zon
   }
 }
 
-function edgeHash({source, target}: Edge) {
+function edgeHash({ source, target }: Edge) {
   if (source.id < target.id) {
     return `${source.id}-${target.id}`
   } else {

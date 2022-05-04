@@ -40,7 +40,7 @@ export default function poissonDiskSampling(numPoints: number, minRadius = 1) {
       const x = center.x + r * Math.cos(theta)
       const y = center.y + r * Math.sin(theta)
       if (sufficientRoom(x, y)) {
-        const p = {x, y}
+        const p = { x, y }
         points.push(p)
         active.push(p)
 
@@ -52,7 +52,7 @@ export default function poissonDiskSampling(numPoints: number, minRadius = 1) {
     active.splice(centerIndex, 1)
   }
 
-  const first = {x: 0, y: 0}
+  const first = { x: 0, y: 0 }
   points.push(first)
   active.push(first)
   grid.set(0, first)

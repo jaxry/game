@@ -20,7 +20,7 @@ export function generateDelaunayZones(count: number) {
 
   const edges: number[][] = []
 
-  const {triangles, halfedges} = Delaunator.from(points, p => p.x, p => p.y)
+  const { triangles, halfedges } = Delaunator.from(points, p => p.x, p => p.y)
 
   for (let i = 0; i < triangles.length; i++) {
     if (i > halfedges[i]) {
