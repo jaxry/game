@@ -1,9 +1,4 @@
 .container {
-  position: relative;
-}
-
-.zone {
-  position: absolute;
   display: grid;
   grid-auto-columns: minmax(10rem, calc(100% / 8));
   grid-auto-flow: column;

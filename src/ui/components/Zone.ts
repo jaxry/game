@@ -14,7 +14,6 @@ import TargetActionAnimation from './TargetActionAnimation'
 
 export default class Zone extends Component {
   private objsToCard = new Map<GameObject, ObjectCard>()
-  private zone!: HTMLElement
   private spots: HTMLElement[] = []
 
   constructor() {
@@ -63,7 +62,7 @@ export default class Zone extends Component {
               changes.push(() => self.moveSpot(item, from, to))
             })
         this.onEvent(this.object.container, 'itemActionStart', ({ action }) => {
-          const fn = () => self.objsToCard.get(action.object)!.setAction(action)
+          const fn = () => self.objsToCard.get(action.object)?.setAction(action)
 
           // If player starts a new action,
           // show action immediately even if outside of tick.
@@ -92,12 +91,9 @@ export default class Zone extends Component {
   }
 
   private makeZoneSpots() {
-    this.zone = $('div', style.zone)
-    this.element.append(this.zone)
-
     const container = game.player.container
 
-    this.spots = []
+    this.spots.length = 0
     for (let i = 0; i < container.numSpots; i++) {
 
       const clickSpot = $('div', style.clickSpot)
@@ -109,7 +105,7 @@ export default class Zone extends Component {
       })
 
       this.spots.push(spot)
-      this.zone.append(spot)
+      this.element.append(spot)
     }
 
     for (const obj of container.contains) {
@@ -118,9 +114,14 @@ export default class Zone extends Component {
   }
 
   private createCard(obj: GameObject) {
-    const card = this.newComponent(ObjectCard, obj)
+    let card = this.objsToCard.get(obj)
+
+    if (!card) {
+      card = this.newComponent(ObjectCard, obj)
+      this.objsToCard.set(obj, card)
+    }
+
     this.spots[obj.spot].append(card.element)
-    this.objsToCard.set(obj, card)
     return card
   }
 
@@ -201,55 +202,66 @@ export default class Zone extends Component {
   }
 
   private playerMoveZone() {
-    const oldZone = this.zone
-    const oldCards = [...this.objsToCard.values()]
-    const oldPlayerBBox = this.objsToCard.get(
-        game.player)!.element.getBoundingClientRect()
-
-    this.objsToCard.clear()
-    this.makeZoneSpots()
-
-    const newPlayer = this.objsToCard.get(game.player)!.element
-    const newPlayerBBox = newPlayer.getBoundingClientRect()
-
-    oldZone.animate({
-      opacity: 0,
-    }, {
-      duration: 500,
-      easing: 'linear',
-    }).onfinish = () => {
-      oldZone.remove()
-      for (const card of oldCards) {
-        card.remove()
+    for (const [obj, card] of this.objsToCard) {
+      if (obj === game.player) {
+        continue
       }
-    }
-
-    const fadeInOptions = {
-      duration: 500,
-      delay: 750,
-      easing: 'linear',
+      card.element.animate({
+        opacity: 0
+      }, {
+        duration: 500
+      }).onfinish = () => {
+        card.remove()
+        this.objsToCard.delete(obj)
+      }
     }
 
     for (const spot of this.spots) {
-      animateWithDelay(spot, {
-        borderColor: ['transparent', 'var(--borderColor)'],
-      }, fadeInOptions)
-    }
-
-    for (const card of this.objsToCard.values()) {
-      if (card.element !== newPlayer) {
-        animateWithDelay(card.element, { opacity: [0, 1] }, fadeInOptions)
+      spot.animate({
+        borderColor: 'transparent'
+      }, {
+        duration: 500
+      }).onfinish = () => {
+        spot.remove()
       }
     }
 
-    animateWithDelay(newPlayer, {
-      transform: [bBoxDiff(oldPlayerBBox, newPlayerBBox), `translate(0, 0)`],
-      width: [`${oldPlayerBBox.width}px`, `${newPlayerBBox.width}px`],
-    }, {
-      delay: 500,
-      duration: 1000,
-      easing: 'ease-in-out',
-    })
+    const playerCard = this.objsToCard.get(game.player)!
+    const playerBbox = playerCard.element.getBoundingClientRect()
+
+    setTimeout(() => {
+      this.makeZoneSpots()
+
+      for (const card of this.objsToCard.values()) {
+        if (card === playerCard) {
+          continue
+        }
+        animateWithDelay(card.element, {
+          opacity: [0, 1]
+        }, {
+          duration: 500,
+          delay: 250
+        })
+      }
+
+      for (const spot of this.spots) {
+        animateWithDelay(spot, {
+          borderColor: ['transparent', 'var(--borderColor)']
+        }, {
+          duration: 500,
+          delay: 250
+        })
+      }
+
+      setTimeout(() => {
+        playerCard.element.animate({
+          transform: [bBoxDiff(playerBbox, playerCard.element.getBoundingClientRect()), 'translate(0, 0)'],
+        }, {
+          duration: 500,
+          easing: 'ease-in-out'
+        })
+      })
+    }, 500)
   }
 }
 
