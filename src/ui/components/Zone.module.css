@@ -5,7 +5,7 @@
 .zone {
   position: absolute;
   display: grid;
-  grid-auto-columns: minmax(9rem, calc(100% / 8));
+  grid-auto-columns: minmax(10rem, calc(100% / 8));
   grid-auto-flow: column;
   justify-content: center;
   width: 100%;

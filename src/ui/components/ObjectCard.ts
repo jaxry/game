@@ -23,10 +23,9 @@ export default class ObjectCard extends Component {
 
     // this.actionContainer = $('div')
     // this.element.append(this.actionContainer)
-    this.clearAction()
 
     this.element.addEventListener('click', () => {
-      const info = this.newComponent(ObjectInfo, object,
+      this.newComponent(ObjectInfo, object,
           this.element.getBoundingClientRect())
     })
   }

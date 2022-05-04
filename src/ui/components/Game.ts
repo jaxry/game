@@ -10,39 +10,36 @@ import Zone from './Zone'
 import { interruptPlayerLoop, startGameLoop } from '../../behavior/core'
 import TimeComponent from './Time'
 
-export const outsideElem = document.createElement('div')
-
-export default class AppComponent extends Component {
-  constructor(element: HTMLElement) {
-    super(element)
+export default class GameComponent extends Component {
+  constructor() {
+    super()
 
     const time = this.newComponent(TimeComponent)
 
     const map = this.setupMap()
 
-    //setup zone
     const zone = this.newComponent(Zone)
 
-    $(element, style.game, [
+    $(this.element, style.game, [
       [
         'div', style.global, [
         time,
       ]],
       [zone, style.zone],
       [map, style.map],
-      outsideElem
     ])
 
     startGameLoop()
 
     function visibilityChange() {
-      if (document.hidden){
+      if (document.hidden) {
         interruptPlayerLoop()
       } else {
         startGameLoop()
       }
     }
-    document.addEventListener('visibilitychange', visibilityChange);
+
+    document.addEventListener('visibilitychange', visibilityChange)
     this.onRemove(() => {
       document.removeEventListener('visibilitychange', visibilityChange)
     })

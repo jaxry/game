@@ -1,14 +1,13 @@
-import { deleteElem } from '../../util'
 import CustomEvent from '../../CustomEvent'
 import { Effect } from '../../behavior/Effect'
 
-type Constructor<T> = {new (...args: any[]): T}
+type Constructor<T> = { new(...args: any[]): T }
 
 export default class Component {
   element: HTMLElement
 
   private parentComponent?: Component
-  private childComponents: Component[] = []
+  private childComponents = new Set<Component>()
   private destroyCallbacks: Array<() => void> = []
 
   constructor(element: HTMLElement = document.createElement('div')) {
@@ -21,7 +20,9 @@ export default class Component {
 
     const component = new constructor(...args)
     component.parentComponent = this
-    this.childComponents.push(component)
+
+    this.childComponents.add(component)
+
     return component as InstanceType<T>
   }
 
@@ -33,7 +34,7 @@ export default class Component {
     this.element.remove()
 
     if (this.parentComponent) {
-      deleteElem(this.parentComponent.childComponents, this)
+      this.parentComponent.childComponents.delete(this)
     }
 
     for (const callback of this.destroyCallbacks) {

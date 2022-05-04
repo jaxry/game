@@ -1,6 +1,6 @@
 import style from './FloatingBox.module.css'
 import Component from './Component'
-import { outsideElem } from './Game'
+import { outsideElem } from './App'
 import clickOutside from '../clickOutside'
 
 export default class FloatingBox extends Component {
@@ -9,10 +9,6 @@ export default class FloatingBox extends Component {
 
     this.element.classList.add(style.container)
     this.element.style.transform = `translate(${parentBBox.left}px, ${parentBBox.bottom}px)`
-
-    // setTimeout(() => {
-    //   console.log(this.element.getBoundingClientRect())
-    // })
 
     this.onRemove(clickOutside(this.element, () => {
       this.remove()

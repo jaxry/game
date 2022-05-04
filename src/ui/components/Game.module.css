@@ -1,5 +1,5 @@
 .game {
-  height: 100%;
+  height: 100vh;
   display: grid;
   grid-template-columns: 20rem 1fr 1fr;
   grid-template-rows: 1fr 20rem;
@@ -34,4 +34,5 @@
   margin: 1rem;
   background: #aaa;
 }
+
 
