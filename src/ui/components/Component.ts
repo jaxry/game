@@ -58,5 +58,6 @@ export default class Component {
     this.onRemove(() => {
       effect.deactivate()
     })
+    return effect
   }
 }

@@ -4,7 +4,7 @@ import style from './TargetActionAnimation.module.css'
 import { outsideElem } from './App'
 
 export default class TargetActionAnimation extends Component {
-  constructor(action: Action, from: DOMRect, to: DOMRect) {
+  constructor(action: Action, from: HTMLElement, to: HTMLElement) {
     super()
 
     outsideElem.append(this.element)
@@ -15,7 +15,7 @@ export default class TargetActionAnimation extends Component {
 
     this.element.animate({
       transform: [center(from), center(to)],
-      opacity: [1, 1, 1, 0],
+      opacity: [0, 1, 1, 1, 0],
     }, {
       duration: 1000,
       easing: 'cubic-bezier(0.5,0,0,1)',
@@ -23,8 +23,9 @@ export default class TargetActionAnimation extends Component {
   }
 }
 
-function center(d: DOMRect) {
-  const x = d.x + d.width / 2
-  const y = d.y + d.height / 2
+function center(elem: HTMLElement) {
+  const r = elem.getBoundingClientRect()
+  const x = r.x + r.width / 2
+  const y = r.y + r.height / 2
   return `translate(-50%,-50%) translate(${x}px, ${y}px)`
 }

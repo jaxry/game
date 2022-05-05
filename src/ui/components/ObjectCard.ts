@@ -24,6 +24,10 @@ export default class ObjectCard extends Component {
     // this.actionContainer = $('div')
     // this.element.append(this.actionContainer)
 
+    if (object.activeAction) {
+      this.setAction(object.activeAction)
+    }
+
     this.element.addEventListener('click', () => {
       this.newComponent(ObjectInfo, object,
           this.element.getBoundingClientRect())
@@ -49,7 +53,7 @@ export default class ObjectCard extends Component {
     this.actionComponent = undefined
 
     component.element.animate({
-      opacity: [1, 0],
+      opacity: 0,
     }, {
       duration: 250,
     }).onfinish = () => {

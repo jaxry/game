@@ -15,6 +15,7 @@ import TargetActionAnimation from './TargetActionAnimation'
 export default class Zone extends Component {
   private objsToCard = new Map<GameObject, ObjectCard>()
   private spots: HTMLElement[] = []
+  private zoneEvents: Effect
 
   constructor() {
     super()
@@ -26,6 +27,7 @@ export default class Zone extends Component {
     const changes: (() => void)[] = []
 
     let tickInEffect = false
+
 
     this.on(game.event.playerTickStart, () => {
       tickInEffect = true
@@ -42,7 +44,7 @@ export default class Zone extends Component {
       tickInEffect = false
     })
 
-    this.newEffect(class extends Effect {
+    this.zoneEvents = this.newEffect(class extends Effect {
       onActivate() {
         this.onEvent(this.object.container, 'enter', ({ item }) => {
           if (!isPlayer(item)) {
@@ -52,7 +54,7 @@ export default class Zone extends Component {
         this.onEvent(this.object.container, 'leave', ({ item }) => {
           if (item === this.object) {
             changes.push(() => self.playerMoveZone())
-            this.reactivate()
+            self.zoneEvents.deactivate()
           } else {
             changes.push(() => self.objectLeave(item))
           }
@@ -62,7 +64,7 @@ export default class Zone extends Component {
               changes.push(() => self.moveSpot(item, from, to))
             })
         this.onEvent(this.object.container, 'itemActionStart', ({ action }) => {
-          const fn = () => self.objsToCard.get(action.object)?.setAction(action)
+          const fn = () => self.objsToCard.get(action.object)!.setAction(action)
 
           // If player starts a new action,
           // show action immediately even if outside of tick.
@@ -129,10 +131,8 @@ export default class Zone extends Component {
     const card = this.objsToCard.get(action.object)!
     card.clearAction()
     if (action.target) {
-      const from = card.element.getBoundingClientRect()
-      const to = this.objsToCard.get(
-          action.target)!.element.getBoundingClientRect()
-      this.newComponent(TargetActionAnimation, action, from, to)
+      const to = this.objsToCard.get(action.target)!.element
+      this.newComponent(TargetActionAnimation, action, card.element, to)
     }
   }
 
@@ -221,16 +221,16 @@ export default class Zone extends Component {
         borderColor: 'transparent'
       }, {
         duration: 500
-      }).onfinish = () => {
-        spot.remove()
-      }
+      })
     }
 
     const playerCard = this.objsToCard.get(game.player)!
     const playerBbox = playerCard.element.getBoundingClientRect()
 
     setTimeout(() => {
+      this.spots.forEach(spot => spot.remove())
       this.makeZoneSpots()
+      this.zoneEvents.reactivate()
 
       for (const card of this.objsToCard.values()) {
         if (card === playerCard) {
@@ -253,13 +253,11 @@ export default class Zone extends Component {
         })
       }
 
-      setTimeout(() => {
-        playerCard.element.animate({
-          transform: [bBoxDiff(playerBbox, playerCard.element.getBoundingClientRect()), 'translate(0, 0)'],
-        }, {
-          duration: 500,
-          easing: 'ease-in-out'
-        })
+      playerCard.element.animate({
+        transform: [bBoxDiff(playerBbox, playerCard.element.getBoundingClientRect()), 'translate(0, 0)'],
+      }, {
+        duration: 500,
+        easing: 'ease-in-out'
       })
     }, 500)
   }

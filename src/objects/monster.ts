@@ -56,23 +56,21 @@ class MonsterSearch extends Effect {
     if (isContainedWith(this.object, game.player)) {
       return this.found()
     }
+    this.onEvent(this.object.container, 'enter', ({ item }) => {
+      if (isPlayer(item)) {
+        this.found()
+      }
+    })
 
-    const addEnterListener = () => this.onEvent(
-        this.object.container, 'enter',
-        ({ item }) => {
-          if (isPlayer(item)) {
-            this.found()
-          }
-        })
-
-    let enterListener = addEnterListener()
-
-    this.onEvent(this.object, 'move', () => {
+    this.onEvent(this.object.container, 'leave', ({ item }) => {
+      if (item !== this.object) {
+        return
+      }
       if (isContainedWith(this.object, game.player)) {
         return this.found()
+      } else {
+        this.reactivate()
       }
-      this.unsubscribe(enterListener)
-      enterListener = addEnterListener()
     })
   }
 
