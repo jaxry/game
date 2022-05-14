@@ -1,7 +1,7 @@
 import type { ActiveGameObjectEvent, GameObject } from '../GameObject'
 import { unsubscribeEvent } from '../GameObject'
 import type {
-  GameObjectEventCallback,
+  GameObjectEventListener,
   GameObjectEvents,
 } from '../GameObjectType'
 import { deleteElem } from '../util'
@@ -40,7 +40,7 @@ export class Effect {
   // Adds a GameObject event that is automatically cleaned up when the effect
   // is deactivated
   onEvent<T extends keyof GameObjectEvents>(
-      obj: GameObject, event: T, listener: GameObjectEventCallback<T>) {
+      obj: GameObject, event: T, listener: GameObjectEventListener<T>) {
     if (!this.isActive) {
       console.warn(this, 'must be activated before subscribing to events')
       return undefined as never
@@ -73,10 +73,10 @@ export class Effect {
     }
 
     if (!this.object.effects) {
-      this.object.effects = []
+      this.object.effects = new Set()
     }
 
-    this.object.effects.push(this)
+    this.object.effects.add(this)
 
     this.onActivate?.()
 
@@ -99,7 +99,7 @@ export class Effect {
 
     if (!destroyedObject) {
       // no need to remove effect from object if object is destroyed
-      deleteElem(this.object.effects, this)
+      this.object.effects.delete(this)
     }
 
     if (this.events) {
@@ -127,7 +127,7 @@ export function removeEffects(obj: GameObject) {
     for (const effect of obj.effects) {
       effect.deactivate(true)
     }
-    obj.effects.length = 0
+    obj.effects.clear()
   }
 }
 

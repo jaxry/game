@@ -17,7 +17,7 @@ export function moveTo(
   object.containedAs = containedAs
   object.spot = Math.floor(Math.random() * container.numSpots)
 
-  container.contains.push(object)
+  container.contains.add(object)
 
   object.emit('move', { to: container, from })
   from?.emit('leave', { item: object, to: container })
@@ -40,7 +40,7 @@ export function moveToSpot(item: GameObject, spot: number) {
 
 export function removeFromContainer(item: GameObject) {
   if (item.container) {
-    deleteElem(item.container.contains, item)
+    item.container.contains.delete(item)
   }
 }
 

@@ -1,6 +1,6 @@
 import type {
   GameObjectEvent,
-  GameObjectEventCallback,
+  GameObjectEventListener,
   GameObjectEvents,
   GameObjectProps,
   GameObjectType,
@@ -19,12 +19,12 @@ export function makeGameObject(type: GameObjectType) {
 
 export interface ActiveGameObjectEvent {
   obj: GameObject,
-  listeners: GameObjectEventCallback<any>[],
-  listener: GameObjectEventCallback<any>
+  listeners: Set<GameObjectEventListener<any>>,
+  listener: GameObjectEventListener<any>
 }
 
 export function unsubscribeEvent(ev: ActiveGameObjectEvent) {
-  deleteElem(ev.listeners, ev.listener)
+  ev.listeners.delete(ev.listener)
 }
 
 let nextId = 1
@@ -34,7 +34,7 @@ class GameObjectInstance {
   id = nextId++
 
   events?: {
-    [T in GameObjectEvent]?: GameObjectEventCallback<T>[]
+    [T in GameObjectEvent]?: Set<GameObjectEventListener<T>>
   }
 
   constructor(type: GameObjectType) {
@@ -42,14 +42,14 @@ class GameObjectInstance {
   }
 
   on<T extends GameObjectEvent>(
-      event: T, listener: GameObjectEventCallback<T>): ActiveGameObjectEvent {
+      event: T, listener: GameObjectEventListener<T>): ActiveGameObjectEvent {
     if (!this.events) {
       this.events = {}
     }
     if (!this.events[event]) {
-      this.events[event] = []
+      this.events[event] = new Set() as any
     }
-    this.events[event]!.push(listener as any)
+    this.events[event]!.add(listener as any)
 
     return {
       obj: this as any,

@@ -1,12 +1,12 @@
 import { deleteElem } from './util'
 
 export default class CustomEvent<T> {
-  private listeners: Array<(data: T) => void> = []
+  private listeners: Set<(data: T) => void> = new Set()
 
   on(listener: (data: T) => void) {
-    this.listeners.push(listener)
+    this.listeners.add(listener)
     return () => {
-      deleteElem(this.listeners, listener)
+      this.listeners.delete(listener)
     }
   }
 

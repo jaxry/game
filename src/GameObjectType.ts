@@ -11,10 +11,6 @@ export interface GameObjectType {
 
   description: string,
 
-  events: {
-    [T in keyof GameObjectEvents]?: GameObjectEventCallback<T>[]
-  }
-
   effects: Array<typeof Effect>
 
   isContainer: boolean,
@@ -26,14 +22,17 @@ export interface GameObjectType {
 export interface GameObjectProps {
   type: GameObjectType
 
-  effects: Effect[]
+  effects: Set<Effect>
   activeAction: Action
 
   container: GameObject
   containedAs: ContainedAs
-  contains: GameObject[]
+  contains: Set<GameObject>
 
+  // the 1-dimensional space that the object resides in
   spot: number
+
+  // the number of 1-dimensional spaces the container has
   numSpots: number
 
   // connections to other game objects on a 2D planar graph
@@ -67,6 +66,6 @@ export enum ContainedAs {
 
 export type GameObjectEvent = keyof GameObjectEvents
 
-export interface GameObjectEventCallback<T extends GameObjectEvent> {
+export interface GameObjectEventListener<T extends GameObjectEvent> {
   (data: GameObjectEvents[T]): void
 }

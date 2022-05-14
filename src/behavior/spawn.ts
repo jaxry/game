@@ -11,7 +11,7 @@ export function spawn(type: GameObjectType, container?: GameObject) {
   }
 
   if (type.isContainer) {
-    instance.contains = []
+    instance.contains = new Set()
   }
 
   if (container) {

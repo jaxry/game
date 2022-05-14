@@ -16,7 +16,7 @@ export function initGame() {
     putInsideContainer(world, zone)
   }
 
-  const zone = world.contains[0]
+  const zone = zones[0]
 
   game.player = spawn(typeYou, zone)
 
@@ -28,7 +28,8 @@ export function initGame() {
     // spawn(typeMonster, world.contains.at(Math.random() * world.contains.length))
     // spawn(Math.random() > 0.5 ? typeMonster : typeApple, world.contains[0])
     spawn(Math.random() > 0.5 ? typeMonster : typeApple,
-        world.contains.at(Math.random() * world.contains.length))
+        zones.at(Math.random() * zones.length))
+
 
   }
 
