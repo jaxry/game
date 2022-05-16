@@ -28,7 +28,6 @@ export default class Zone extends Component {
 
     let tickInEffect = false
 
-
     this.on(game.event.playerTickStart, () => {
       tickInEffect = true
     })
@@ -180,7 +179,7 @@ export default class Zone extends Component {
     elem.style.zIndex = '1'
     elem.animate({
       opacity: 0,
-      transform: 'translate(0, 200%)',
+      // transform: 'translate(0, 200%)',
     }, {
       duration: 500,
       easing: 'ease-in-out',

@@ -1,3 +1,11 @@
 .container {
   background: var(--lighter);
 }
+
+.inventory {
+  padding: 0.5rem;
+  border: 1px dashed var(--borderColor);
+  display: flex;
+  gap: 0.5rem;
+  min-height: 5rem;
+}

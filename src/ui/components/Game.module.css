@@ -1,11 +1,11 @@
 .game {
   height: 100vh;
   display: grid;
-  grid-template-columns: 20rem 1fr 1fr;
+  grid-template-columns: 20rem 1fr;
   grid-template-rows: 1fr 20rem;
   grid-template-areas:
-      'global zone zone'
-      'map    zone zone';
+      'zone zone'
+      'map global';
 }
 
 .game > * {

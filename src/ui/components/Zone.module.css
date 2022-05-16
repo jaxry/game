@@ -1,6 +1,6 @@
 .container {
   display: grid;
-  grid-auto-columns: minmax(10rem, calc(100% / 8));
+  grid-auto-columns: minmax(12rem, calc(100% / 8));
   grid-auto-flow: column;
   justify-content: center;
   width: 100%;
@@ -24,7 +24,6 @@
 .clickSpot {
   position: absolute;
   inset: 0;
-  cursor: pointer;
   z-index: 0
 }
 

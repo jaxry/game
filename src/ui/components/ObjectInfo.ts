@@ -5,6 +5,7 @@ import { isPlayer } from '../../behavior/player'
 import { startPlayerBehavior } from '../../behavior/core'
 import WaitAction from '../../actions/Wait'
 import $ from '../makeDomTree'
+import ObjectCard from './ObjectCard'
 
 export default class ObjectInfo extends FloatingBox {
   constructor(object: GameObject, parentBBox: DOMRect) {
@@ -12,14 +13,20 @@ export default class ObjectInfo extends FloatingBox {
 
     this.element.classList.add(style.container)
 
-    this.element.append(object.type.name)
+    const name = $('div', style.name, object.type.name)
+    this.element.append(name)
 
-    if (isPlayer(object)) {
-      const wait = $('button', null, 'Wait')
-      wait.addEventListener('click', () => {
-        startPlayerBehavior(new WaitAction(object))
-      })
-      this.element.append(wait)
+
+    if (object.contains) {
+      const inventory = $('div', style.inventory)
+      this.element.append(inventory)
+
+      for (const item of object.contains) {
+        const card = this.newComponent(ObjectCard, item)
+        inventory.append(card.element)
+      }
     }
+
+
   }
 }

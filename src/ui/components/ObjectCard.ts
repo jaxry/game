@@ -6,6 +6,9 @@ import ObjectInfo from './ObjectInfo'
 import Action from '../../behavior/Action'
 import $ from '../makeDomTree'
 import ActionComponent from './ActionComponent'
+import { dragAndDropGameObject } from './Game'
+import TransferAction from '../../actions/Transfer'
+import { game } from '../../Game'
 
 export default class ObjectCard extends Component {
   // private readonly actionContainer: HTMLElement
@@ -19,7 +22,8 @@ export default class ObjectCard extends Component {
       this.element.classList.add(style.player)
     }
 
-    this.element.append($('div', style.name, object.type.icon))
+    const icon = $('div', style.icon, object.type.icon)
+    this.element.append(icon)
 
     // this.actionContainer = $('div')
     // this.element.append(this.actionContainer)
@@ -31,6 +35,17 @@ export default class ObjectCard extends Component {
     this.element.addEventListener('click', () => {
       this.newComponent(ObjectInfo, object,
           this.element.getBoundingClientRect())
+    })
+
+    let action: Action | null = null
+    dragAndDropGameObject.drag(this.element, object, icon)
+    dragAndDropGameObject.drop(this.element, (item) => {
+      action = new TransferAction(game.player, item, object)
+      if (action.condition()) {
+        return 'move'
+      }
+    }, (item) => {
+      new TransferAction(game.player, item, object).activate()
     })
   }
 

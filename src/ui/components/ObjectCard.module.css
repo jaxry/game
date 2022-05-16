@@ -1,4 +1,5 @@
 .container {
+  user-select: none;
   background: var(--lighter);
   box-shadow: 0rem 0.25rem 0.5rem var(--shadowColor);
   border-radius: 0.25rem;
@@ -8,7 +9,11 @@
   padding: 0.25rem;
 }
 
-.name {
+.container:hover {
+  background: var(--hover);
+}
+
+.icon {
   font-size: 3rem;
 }
 

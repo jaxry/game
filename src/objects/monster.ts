@@ -57,9 +57,9 @@ class MonsterSearch extends Effect {
       return this.found()
     }
     this.onEvent(this.object.container, 'enter', ({ item }) => {
-      if (isPlayer(item)) {
-        this.found()
-      }
+      // if (isPlayer(item)) {
+      //   this.found()
+      // }
     })
 
     this.onEvent(this.object.container, 'leave', ({ item }) => {

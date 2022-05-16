@@ -9,6 +9,10 @@ import { Effect } from '../../behavior/Effect'
 import Zone from './Zone'
 import { interruptPlayerLoop, startGameLoop } from '../../behavior/core'
 import TimeComponent from './Time'
+import DragAndDrop from '../DragAndDrop'
+import { GameObject } from '../../GameObject'
+
+export const dragAndDropGameObject = new DragAndDrop<GameObject>()
 
 export default class GameComponent extends Component {
   constructor() {
