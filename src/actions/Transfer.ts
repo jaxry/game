@@ -13,7 +13,7 @@ export default class TransferAction extends Action {
 
   override get name() { return 'transfer' }
 
-  override get icon() { return `🖐${this.target.type.icon}` }
+  override get icon() { return `${this.target.type.icon}🖐${this.destination.type.icon}` }
 
   override condition() {
     return this.target.container !== this.destination &&

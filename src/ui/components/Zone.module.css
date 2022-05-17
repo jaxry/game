@@ -28,5 +28,9 @@
 }
 
 .spot:first-child {
-  border-left: 1px dashed var(--borderColor)
+  border-left: var(--border);
+}
+
+.spot:last-child {
+  border-right: var(--border);
 }

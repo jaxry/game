@@ -1,26 +1,26 @@
 .container {
-  user-select: none;
-  background: var(--lighter);
-  box-shadow: 0rem 0.25rem 0.5rem var(--shadowColor);
-  border-radius: 0.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.25rem;
+  background: var(--objectCard);
+  box-shadow: 0rem 0.25rem 0.5rem var(--shadowColor);
+  border-radius: var(--borderRadius);
+  user-select: none;
 }
 
 .container:hover {
-  background: var(--hover);
+  background: var(--objectCardHover);
+}
+
+.player {
+  background: var(--playerCard);
+}
+
+.player:hover {
+  background: var(--playerCardHover);
 }
 
 .icon {
   font-size: 3rem;
-}
-
-.player {
-  border: 1px solid var(--player)
-}
-
-.action {
-  font-size: 1.5rem;
 }

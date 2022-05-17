@@ -2,6 +2,7 @@ import Component from './Component'
 import Action from '../../behavior/Action'
 import $ from '../makeDomTree'
 import style from './ActionComponent.module.css'
+import animationDuration from '../animationDuration'
 
 export default class ActionComponent extends Component {
   private readonly name: HTMLElement
@@ -10,8 +11,8 @@ export default class ActionComponent extends Component {
   constructor(public action: Action) {
     super()
 
-    this.name = $('span', null, action.icon)
-    this.time = $('span')
+    this.name = $('div', null, action.icon)
+    this.time = $('div')
 
     $(this.element, style.container, [this.name, this.time])
 
@@ -20,7 +21,8 @@ export default class ActionComponent extends Component {
 
   update() {
     if (this.action.time <= 0) {
-      this.time.animate({ opacity: 0 }, { duration: 250, fill: 'forwards' })
+      this.time.animate({ opacity: 0 },
+          { duration: animationDuration.fast, fill: 'forwards' })
     } else {
       this.time.textContent = this.action.time.toString()
     }

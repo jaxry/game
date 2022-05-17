@@ -11,6 +11,7 @@ import ObjectCard from './ObjectCard'
 import { startPlayerBehavior } from '../../behavior/core'
 import Action from '../../behavior/Action'
 import TargetActionAnimation from './TargetActionAnimation'
+import animationDuration from '../animationDuration'
 
 export default class Zone extends Component {
   private objsToCard = new Map<GameObject, ObjectCard>()
@@ -144,7 +145,7 @@ export default class Zone extends Component {
         { transform: bBoxDiff(oldBBox, newBBox) },
         { transform: `translate(0, 0)` },
       ], {
-        duration: 500,
+        duration: animationDuration.normal,
         easing: 'ease-in-out',
         composite: 'accumulate',
       })
@@ -156,7 +157,7 @@ export default class Zone extends Component {
       { transform: bBoxDiff(oldBBox, newBBox) },
       { transform: `translate(0, 0)` },
     ], {
-      duration: 500,
+      duration: animationDuration.normal,
       easing: 'ease-in-out',
       composite: 'accumulate',
     })
@@ -169,7 +170,7 @@ export default class Zone extends Component {
       { opacity: 1, transform: `translate(0, 0)` },
     ], {
       easing: 'ease-in-out',
-      duration: 500,
+      duration: animationDuration.normal,
     })
   }
 
@@ -181,7 +182,7 @@ export default class Zone extends Component {
       opacity: 0,
       // transform: 'translate(0, 200%)',
     }, {
-      duration: 500,
+      duration: animationDuration.normal,
       easing: 'ease-in-out',
       fill: 'forwards',
     }).onfinish = () => {
@@ -190,7 +191,7 @@ export default class Zone extends Component {
           { transform: bBoxDiff(oldBBox, newBBox) },
           { transform: `translate(0, 0)` },
         ], {
-          duration: 500,
+          duration: animationDuration.normal,
           easing: 'ease-in-out',
           composite: 'accumulate',
         })
@@ -206,9 +207,9 @@ export default class Zone extends Component {
         continue
       }
       card.element.animate({
-        opacity: 0
+        opacity: 0,
       }, {
-        duration: 500
+        duration: animationDuration.normal,
       }).onfinish = () => {
         card.remove()
         this.objsToCard.delete(obj)
@@ -217,9 +218,9 @@ export default class Zone extends Component {
 
     for (const spot of this.spots) {
       spot.animate({
-        borderColor: 'transparent'
+        borderColor: 'transparent',
       }, {
-        duration: 500
+        duration: animationDuration.normal,
       })
     }
 
@@ -236,27 +237,29 @@ export default class Zone extends Component {
           continue
         }
         animateWithDelay(card.element, {
-          opacity: [0, 1]
+          opacity: [0, 1],
         }, {
-          duration: 500,
-          delay: 250
+          duration: animationDuration.normal,
+          delay: animationDuration.fast,
         })
       }
 
       for (const spot of this.spots) {
         animateWithDelay(spot, {
-          borderColor: ['transparent', 'var(--borderColor)']
+          borderColor: ['transparent', 'var(--borderColor)'],
         }, {
-          duration: 500,
-          delay: 250
+          duration: animationDuration.normal,
+          delay: animationDuration.fast,
         })
       }
 
       playerCard.element.animate({
-        transform: [bBoxDiff(playerBbox, playerCard.element.getBoundingClientRect()), 'translate(0, 0)'],
+        transform: [
+          bBoxDiff(playerBbox, playerCard.element.getBoundingClientRect()),
+          'translate(0, 0)'],
       }, {
-        duration: 500,
-        easing: 'ease-in-out'
+        duration: animationDuration.normal,
+        easing: 'ease-in-out',
       })
     }, 500)
   }

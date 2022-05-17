@@ -26,6 +26,7 @@
 
 .zone {
   grid-area: zone;
+  border-bottom: var(--border);
 }
 
 .box {

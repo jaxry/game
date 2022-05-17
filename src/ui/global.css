@@ -8,30 +8,43 @@
   font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
+/* Variables */
 :root {
   color-scheme: dark;
 
-  --primary: #94bdff;
-
-  --secondary: #f1f1af;
-
-  --action: #ee995f;
-
-  --player: #66c462;
+  /*should be set to the same values as animationDuration.ts*/
+  --durationFast: 0.25s;
+  --durationNormal: 0.5s;
+  --durationSlow: 1s;
 
   --background: #222;
   --lighter: #333;
-
   --hover: #383838;
   --active: #444;
 
-  --borderColor: #555;
+  --fontColor: #d8d8d8;
+
+  --borderRadius: 0.25rem;
+  --borderColor: #666;
   --border: 1px solid var(--borderColor);
 
-  --shadowColor: #111;
+  --shadowColor: #181818;
 
+  --playerMap: hsl(164, 95%, 43%);
+  --playerCard: hsl(164, 97%, 30%);
+  --playerCardHover: hsl(164, 97%, 35%);
+
+  --objectCard: hsl(194, 40%, 25%);
+  --objectCardHover: hsl(194, 40%, 30%);
+  --objectInfo: hsl(194, 15%, 25%);
+
+  --action: hsl(42, 100%, 70%);
+  --actionCard: hsla(42, 100%, 70%, 0.15);
+}
+
+:root {
   line-height: 1.25;
-  color: #d8d8d8;
+  color: var(--fontColor);
 }
 
 body {
@@ -71,7 +84,7 @@ table {
 button {
   font-size: 1.15rem;
   padding: 0.5rem 1rem;
-  border-radius: 3px;
+  border-radius: var(--borderRadius);
   font-weight: bold;
   cursor: pointer;
   letter-spacing: 0.1rem;

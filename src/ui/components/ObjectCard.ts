@@ -9,6 +9,7 @@ import ActionComponent from './ActionComponent'
 import { dragAndDropGameObject } from './Game'
 import TransferAction from '../../actions/Transfer'
 import { game } from '../../Game'
+import animationDuration from '../animationDuration'
 
 export default class ObjectCard extends Component {
   // private readonly actionContainer: HTMLElement
@@ -54,9 +55,11 @@ export default class ObjectCard extends Component {
       this.actionComponent.remove()
     }
     this.actionComponent = this.newComponent(ActionComponent, action)
-    // this.actionContainer.append(this.actionComponent.element)
-    $(this.element, style.action, [this.actionComponent])
-    this.actionComponent.element.animate({ opacity: [0, 1] }, { duration: 250 })
+    this.element.append(this.actionComponent.element)
+
+    this.actionComponent.element.animate(
+        { opacity: [0, 1] },
+        { duration: animationDuration.fast })
   }
 
   clearAction() {
@@ -70,7 +73,7 @@ export default class ObjectCard extends Component {
     component.element.animate({
       opacity: 0,
     }, {
-      duration: 250,
+      duration: animationDuration.fast,
     }).onfinish = () => {
       component.remove()
     }

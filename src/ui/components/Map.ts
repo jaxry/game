@@ -10,6 +10,7 @@ import { GameObject } from '../../GameObject'
 import style from './Map.module.css'
 import * as d3 from 'd3-force'
 import { lerp, mapIter } from '../../util'
+import animationDuration from '../animationDuration'
 
 export default class MapComponent extends Component {
   onZoneClick?: (zone: GameObject) => void
@@ -152,7 +153,7 @@ export default class MapComponent extends Component {
     this.mapG.animate({
       transform: this.transform.toString(),
     }, {
-      duration: 1000,
+      duration: animationDuration.slow,
       fill: 'forwards',
       easing: 'ease-in-out',
     }).commitStyles()
@@ -208,7 +209,7 @@ function transitionIn(elem: Element) {
   elem.animate({
     transform: ['scale(0)', 'scale(1)'],
   }, {
-    duration: 500,
+    duration: animationDuration.normal,
   })
 }
 
@@ -216,7 +217,7 @@ function transitionOut(elem: Element) {
   elem.animate({
     transform: ['scale(1)', 'scale(0)'],
   }, {
-    duration: 500,
+    duration: animationDuration.normal,
   }).onfinish = () => {
     elem.remove()
   }

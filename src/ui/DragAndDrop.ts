@@ -26,12 +26,18 @@ export default class DragAndDrop<T> {
     })
   }
 
-  drop(elem: HTMLElement, isDroppable: (payload: T) => DropEffect | void, onDrop: (payload: T) => void) {
+  drop(
+      elem: HTMLElement, isDroppable: (payload: T) => DropEffect | void,
+      onDrop: (payload: T) => void) {
 
     let dropEffect: DropEffect | null = null
 
     elem.addEventListener('dragenter', (e) => {
       dropEffect = isDroppable(this.payload!) || null
+      if (dropEffect) {
+        e.stopPropagation()
+        e.preventDefault()
+      }
     })
 
     elem.addEventListener('dragover', (e) => {
@@ -43,6 +49,8 @@ export default class DragAndDrop<T> {
     })
 
     elem.addEventListener('drop', (e) => {
+      e.stopPropagation()
+      e.preventDefault()
       onDrop(this.payload!)
     })
   }
