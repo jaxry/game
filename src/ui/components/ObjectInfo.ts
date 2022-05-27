@@ -1,10 +1,10 @@
 import style from './ObjectInfo.module.css'
 import { GameObject } from '../../GameObject'
-import FloatingBox from './FloatingBox'
+import Window from './Window'
 import $ from '../makeDomTree'
 import ObjectCard from './ObjectCard'
 
-export default class ObjectInfo extends FloatingBox {
+export default class ObjectInfo extends Window {
   constructor(object: GameObject, parentBBox: DOMRect) {
     super(parentBBox)
 

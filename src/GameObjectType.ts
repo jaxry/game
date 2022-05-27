@@ -56,7 +56,7 @@ export interface GameObjectEvents {
   itemActionEnd: { action: Action },
 
   // the event object put inside a new container object
-  move: { to: GameObject, from?: GameObject },
+  // move: { to: GameObject, from?: GameObject },
 }
 
 export enum ContainedAs {

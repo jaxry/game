@@ -7,7 +7,6 @@ import Action from '../../behavior/Action'
 import $ from '../makeDomTree'
 import ActionComponent from './ActionComponent'
 import { dragAndDropGameObject } from './Game'
-import TransferAction from '../../actions/Transfer'
 import { game } from '../../Game'
 import animationDuration from '../animationDuration'
 
@@ -34,20 +33,14 @@ export default class ObjectCard extends Component {
     }
 
     this.element.addEventListener('click', () => {
+      if (game.player === object) {
+        return
+      }
       this.newComponent(ObjectInfo, object,
           this.element.getBoundingClientRect())
     })
 
-    let action: Action | null = null
     dragAndDropGameObject.drag(this.element, object, icon)
-    dragAndDropGameObject.drop(this.element, (item) => {
-      action = new TransferAction(game.player, item, object)
-      if (action.condition()) {
-        return 'move'
-      }
-    }, (item) => {
-      new TransferAction(game.player, item, object).activate()
-    })
   }
 
   setAction(action: Action) {

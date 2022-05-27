@@ -11,6 +11,7 @@ import { interruptPlayerLoop, startGameLoop } from '../../behavior/core'
 import TimeComponent from './Time'
 import DragAndDrop from '../DragAndDrop'
 import { GameObject } from '../../GameObject'
+import Player from './Player'
 
 export const dragAndDropGameObject = new DragAndDrop<GameObject>()
 
@@ -24,10 +25,13 @@ export default class GameComponent extends Component {
 
     const zone = this.newComponent(Zone)
 
+    const player = this.newComponent(Player)
+
     $(this.element, style.game, [
       [
         'div', style.global, [
         time,
+        player,
       ]],
       [zone, style.zone],
       [map, style.map],
@@ -56,8 +60,11 @@ export default class GameComponent extends Component {
 
     this.newEffect(class extends Effect {
       onActivate() {
-        this.onEvent(this.object, 'move', () => {
-          map.update(this.object.container)
+        this.onEvent(this.object.container, 'leave', ({ item }) => {
+          if (item === this.object) {
+            map.update(this.object.container)
+            this.reactivate()
+          }
         })
       }
     }, game.player)

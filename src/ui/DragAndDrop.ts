@@ -1,8 +1,7 @@
 import CustomEvent from '../CustomEvent'
 
 export default class DragAndDrop<T> {
-  onDragStart = new CustomEvent<T>()
-  onDragEnd = new CustomEvent()
+  onDrag = new CustomEvent<T | null>()
 
   private payload: T | null = null
 
@@ -17,12 +16,12 @@ export default class DragAndDrop<T> {
         e.dataTransfer!.setDragImage(image, x, y)
       }
       this.payload = payload
-      this.onDragStart.emit(this.payload)
+      this.onDrag.emit(this.payload)
     })
 
     elem.addEventListener('dragend', () => {
       this.payload = null
-      this.onDragEnd.emit(undefined)
+      this.onDrag.emit(null)
     })
   }
 

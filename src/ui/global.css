@@ -26,13 +26,14 @@
 
   --borderRadius: 0.25rem;
   --borderColor: #666;
+  --borderColorDarker: #444;
   --border: 1px solid var(--borderColor);
 
   --shadowColor: #181818;
 
-  --playerMap: hsl(164, 95%, 43%);
-  --playerCard: hsl(164, 97%, 30%);
-  --playerCardHover: hsl(164, 97%, 35%);
+  --playerMap: hsl(164, 95%, 40%);
+  --playerCard: hsl(164, 95%, 30%);
+  --playerCardHover: hsl(164, 95%, 35%);
 
   --objectCard: hsl(194, 40%, 25%);
   --objectCardHover: hsl(194, 40%, 30%);

@@ -16,9 +16,16 @@ export default class TransferAction extends Action {
   override get icon() { return `${this.target.type.icon}🖐${this.destination.type.icon}` }
 
   override condition() {
+    // moving to a different spot
     return this.target.container !== this.destination &&
+
+        // not moving target to an item it contains
         !isAncestor(this.target, this.destination) &&
+
+        // object in same room as target
         isAncestor(this.object.container, this.target) &&
+
+        // destination in same room as target
         isAncestor(this.object.container, this.destination)
   }
 

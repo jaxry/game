@@ -20,8 +20,8 @@ export function initGame() {
 
   game.player = spawn(typeYou, zone)
 
-  for (let i = 0; i < 0; i++) {
-    spawn(typeApple, zone)
+  for (let i = 0; i < 3; i++) {
+    spawn(typeApple, game.player)
   }
 
   for (let i = 0; i < 25; i++) {

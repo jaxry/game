@@ -98,12 +98,13 @@ export default class Zone extends Component {
     this.spots.length = 0
     for (let i = 0; i < container.numSpots; i++) {
 
-      const clickSpot = $('div', style.clickSpot)
+      const spot = $('div', style.spot)
 
-      const spot = $('div', style.spot, [clickSpot])
-
-      clickSpot.addEventListener('click', (e) => {
-        startPlayerBehavior(new MovePlayerToSpot(game.player, i))
+      spot.addEventListener('click', (e) => {
+        // only click if not clicked on a child element
+        if (e.target === e.currentTarget) {
+          startPlayerBehavior(new MovePlayerToSpot(game.player, i))
+        }
       })
 
       this.spots.push(spot)
@@ -130,7 +131,7 @@ export default class Zone extends Component {
   private finishAction(action: Action) {
     const card = this.objsToCard.get(action.object)!
     card.clearAction()
-    if (action.target) {
+    if (action.target && this.objsToCard.has(action.target)) {
       const to = this.objsToCard.get(action.target)!.element
       this.newComponent(TargetActionAnimation, action, card.element, to)
     }
@@ -202,6 +203,8 @@ export default class Zone extends Component {
   }
 
   private playerMoveZone() {
+    const fadeTime = animationDuration.normal
+
     for (const [obj, card] of this.objsToCard) {
       if (obj === game.player) {
         continue
@@ -209,7 +212,7 @@ export default class Zone extends Component {
       card.element.animate({
         opacity: 0,
       }, {
-        duration: animationDuration.normal,
+        duration: fadeTime,
       }).onfinish = () => {
         card.remove()
         this.objsToCard.delete(obj)
@@ -220,14 +223,14 @@ export default class Zone extends Component {
       spot.animate({
         borderColor: 'transparent',
       }, {
-        duration: animationDuration.normal,
+        duration: fadeTime,
       })
     }
 
     const playerCard = this.objsToCard.get(game.player)!
     const playerBbox = playerCard.element.getBoundingClientRect()
 
-    setTimeout(() => {
+    const animateNewZone = () => {
       this.spots.forEach(spot => spot.remove())
       this.makeZoneSpots()
       this.zoneEvents.reactivate()
@@ -239,16 +242,16 @@ export default class Zone extends Component {
         animateWithDelay(card.element, {
           opacity: [0, 1],
         }, {
-          duration: animationDuration.normal,
+          duration: fadeTime,
           delay: animationDuration.fast,
         })
       }
 
       for (const spot of this.spots) {
         animateWithDelay(spot, {
-          borderColor: ['transparent', 'var(--borderColor)'],
+          borderColor: ['transparent', 'var(--borderColorDarker)'],
         }, {
-          duration: animationDuration.normal,
+          duration: fadeTime,
           delay: animationDuration.fast,
         })
       }
@@ -258,10 +261,12 @@ export default class Zone extends Component {
           bBoxDiff(playerBbox, playerCard.element.getBoundingClientRect()),
           'translate(0, 0)'],
       }, {
-        duration: animationDuration.normal,
+        duration: fadeTime,
         easing: 'ease-in-out',
       })
-    }, 500)
+    }
+
+    setTimeout(animateNewZone, fadeTime)
   }
 }
 

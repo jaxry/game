@@ -19,7 +19,7 @@ export function moveTo(
 
   container.contains.add(object)
 
-  object.emit('move', { to: container, from })
+  // object.emit('move', { to: container, from })
   from?.emit('leave', { item: object, to: container })
   container.emit('enter', { item: object, from })
 }
