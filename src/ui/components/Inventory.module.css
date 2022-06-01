@@ -1,0 +1,10 @@
+.container {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  margin: 1px;
+}
+
+.dragging {
+  outline: 1px dashed var(--borderColor)
+}

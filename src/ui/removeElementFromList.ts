@@ -1,4 +1,7 @@
-export default function removeElementFromList(
+import bBoxDiff from './bBoxDiff'
+import animationDuration from './animationDuration'
+
+export function removeElementFromList(
     elem: HTMLElement,
     callback: (child: Element, oldBBox: DOMRect, newBBox: DOMRect) => void) {
   const parentElement = elem.parentElement!
@@ -19,4 +22,17 @@ export default function removeElementFromList(
     const newBBox = child.getBoundingClientRect()
     callback(child, bBoxes[i], newBBox)
   }
+}
+
+export function removeElemAndAnimateList(elem: HTMLElement) {
+  removeElementFromList(elem, (child, oldBBox, newBBox) => {
+    child.animate([
+      { transform: bBoxDiff(oldBBox, newBBox) },
+      { transform: `translate(0, 0)` },
+    ], {
+      duration: animationDuration.normal,
+      easing: 'ease-in-out',
+      composite: 'accumulate',
+    })
+  })
 }

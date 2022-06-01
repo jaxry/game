@@ -6,12 +6,14 @@ import { GameObject } from '../../GameObject'
 import style from './Zone.module.css'
 import { isPlayer, MovePlayerToSpot } from '../../behavior/player'
 import animateWithDelay from '../animateWithDelay'
-import removeElementFromList from '../removeElementFromList'
 import ObjectCard from './ObjectCard'
 import { startPlayerBehavior } from '../../behavior/core'
 import Action from '../../behavior/Action'
 import TargetActionAnimation from './TargetActionAnimation'
 import animationDuration from '../animationDuration'
+import bBoxDiff from '../bBoxDiff'
+import { removeElemAndAnimateList } from '../removeElementFromList'
+import { getAndDelete } from '../../util'
 
 export default class Zone extends Component {
   private objsToCard = new Map<GameObject, ObjectCard>()
@@ -141,16 +143,8 @@ export default class Zone extends Component {
     const elem = this.objsToCard.get(obj)!.element
 
     const oldBBox = elem.getBoundingClientRect()
-    removeElementFromList(elem, (child, oldBBox, newBBox) => {
-      child.animate([
-        { transform: bBoxDiff(oldBBox, newBBox) },
-        { transform: `translate(0, 0)` },
-      ], {
-        duration: animationDuration.normal,
-        easing: 'ease-in-out',
-        composite: 'accumulate',
-      })
-    })
+
+    removeElemAndAnimateList(elem)
 
     this.spots[to].append(elem)
     const newBBox = elem.getBoundingClientRect()
@@ -176,29 +170,17 @@ export default class Zone extends Component {
   }
 
   private objectLeave(obj: GameObject) {
-    const card = this.objsToCard.get(obj)!
+    const card = getAndDelete(this.objsToCard, obj)!
     const elem = card.element
-    elem.style.zIndex = '1'
     elem.animate({
       opacity: 0,
-      // transform: 'translate(0, 200%)',
+      transform: `translate(0, 200%)`,
     }, {
       duration: animationDuration.normal,
       easing: 'ease-in-out',
-      fill: 'forwards',
     }).onfinish = () => {
-      removeElementFromList(elem, (child, oldBBox, newBBox) => {
-        child.animate([
-          { transform: bBoxDiff(oldBBox, newBBox) },
-          { transform: `translate(0, 0)` },
-        ], {
-          duration: animationDuration.normal,
-          easing: 'ease-in-out',
-          composite: 'accumulate',
-        })
-      })
+      removeElemAndAnimateList(elem)
       card.remove()
-      this.objsToCard.delete(obj)
     }
   }
 
@@ -268,8 +250,4 @@ export default class Zone extends Component {
 
     setTimeout(animateNewZone, fadeTime)
   }
-}
-
-function bBoxDiff(oldBBox: DOMRect, newBBox: DOMRect) {
-  return `translate(${oldBBox.x - newBBox.x}px, ${oldBBox.y - newBBox.y}px)`
 }

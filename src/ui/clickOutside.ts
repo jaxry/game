@@ -13,6 +13,8 @@ export default function clickOutside(
     clicked = false
   }
 
+  // add listeners after current event loop, so that they aren't triggered
+  // with a currently active click
   setTimeout(() => {
     inner.addEventListener('click', insideClick)
     outer.addEventListener('click', outsideClick)

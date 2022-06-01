@@ -71,3 +71,9 @@ export function mapIter<T, U>(
 export function deleteElem<T>(array: T[], elem: T) {
   array.splice(array.indexOf(elem), 1)
 }
+
+export function getAndDelete<T, U>(map: Map<T, U>, key: T): U | undefined {
+  const value = map.get(key)
+  map.delete(key)
+  return value
+}

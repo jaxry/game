@@ -2,7 +2,7 @@ import style from './ObjectInfo.module.css'
 import { GameObject } from '../../GameObject'
 import Window from './Window'
 import $ from '../makeDomTree'
-import ObjectCard from './ObjectCard'
+import Inventory from './Inventory'
 
 export default class ObjectInfo extends Window {
   constructor(object: GameObject, parentBBox: DOMRect) {
@@ -14,13 +14,8 @@ export default class ObjectInfo extends Window {
     this.element.append(name)
 
     if (object.contains) {
-      const inventory = $('div', style.inventory)
-      this.element.append(inventory)
-
-      for (const item of object.contains) {
-        const card = this.newComponent(ObjectCard, item)
-        inventory.append(card.element)
-      }
+      const inventory = this.newComponent(Inventory, object)
+      this.element.append(inventory.element)
     }
   }
 }
