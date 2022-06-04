@@ -2,7 +2,7 @@ import Component from './Component'
 import style from './Inventory.module.css'
 import ObjectCard from './ObjectCard'
 import { game } from '../../Game'
-import { dragAndDropGameObject } from './Game'
+import { dragAndDropGameObject, staggerStateChange } from './Game'
 import TransferAction from '../../actions/Transfer'
 import { GameObject } from '../../GameObject'
 import { Effect } from '../../behavior/Effect'
@@ -27,10 +27,10 @@ export default class Inventory extends Component {
     this.newEffect(class extends Effect {
       onActivate() {
         this.onEvent(this.object, 'enter', ({ item }) => {
-          self.createCard(item, true)
+          staggerStateChange.add(() => self.createCard(item, true))
         })
         this.onEvent(this.object, 'leave', ({ item }) => {
-          self.removeCard(item)
+          staggerStateChange.add(() => self.removeCard(item))
         })
       }
     }, object)

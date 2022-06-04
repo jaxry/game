@@ -3,25 +3,25 @@ import { Vertex } from './types'
 export default function findLargestGraph(vertices: Vertex[]) {
   const visited = new Map<Vertex, number>()
 
-  let nextGraphNum = 0
+  let nextGraphId = 0
   for (const vertex of vertices) {
     if (visited.has(vertex)) continue
-    traverse(vertex, nextGraphNum++)
+    traverse(vertex, nextGraphId++)
   }
 
-  function traverse(vertex: Vertex, graphNum: number) {
+  function traverse(vertex: Vertex, graphId: number) {
     if (visited.has(vertex)) return
 
-    visited.set(vertex, graphNum)
+    visited.set(vertex, graphId)
 
     for (const edge of vertex.edges) {
-      traverse(edge, graphNum)
+      traverse(edge, graphId)
     }
   }
 
-  function getLargestGraphNum() {
+  function getLargestGraph() {
     const graphSizes: number[] = []
-    for (let i = 0; i < nextGraphNum; i++) {
+    for (let i = 0; i < nextGraphId; i++) {
       graphSizes[i] = 0
     }
 
@@ -29,19 +29,19 @@ export default function findLargestGraph(vertices: Vertex[]) {
       graphSizes[graphNum]++
     }
 
-    let largestGraphNum = 0
+    let largestGraph = 0
     for (let i = 0; i < graphSizes.length; i++) {
-      if (graphSizes[i] > graphSizes[largestGraphNum]) {
-        largestGraphNum = i
+      if (graphSizes[i] > graphSizes[largestGraph]) {
+        largestGraph = i
       }
     }
-    return largestGraphNum
+    return largestGraph
   }
 
-  const maxGraphNum = getLargestGraphNum()
+  const largestGraph = getLargestGraph()
   const newVertices: Vertex[] = []
-  for (const [vertex, graphNum] of visited) {
-    if (graphNum === maxGraphNum) {
+  for (const [vertex, graphId] of visited) {
+    if (graphId === largestGraph) {
       newVertices.push(vertex)
     }
   }

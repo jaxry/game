@@ -1,17 +1,21 @@
 import { game } from '../Game'
 import { destroyMarked } from './destroy'
-import { addQueuedEffectsToGameLoop, Effect, effectsCallback } from './Effect'
+import { iterateQueuedEffects, Effect, effectsCallback } from './Effect'
+
+let tickActive = false
 
 export function tick() {
-  addQueuedEffectsToGameLoop(addEffectToGameLoop)
+  iterateQueuedEffects(addEffectToGameLoop)
 
   game.time.current += 1
 
+  tickActive = true
   for (const set of game.effectsWithTick) {
     for (const effect of set) {
       effect.tick!()
     }
   }
+  tickActive = false
 
   game.energyPool += destroyMarked()
 }
@@ -34,6 +38,10 @@ export function startPlayerBehavior(effect: Effect) {
   playerBehavior?.deactivate()
   playerBehavior = effect
   playerBehavior.activate()
+}
+
+export function isTickActive() {
+  return tickActive
 }
 
 function playerTick() {

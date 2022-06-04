@@ -133,7 +133,7 @@ export function removeEffects(obj: GameObject) {
 
 export const queuedTickEffects: Effect[] = []
 
-export function addQueuedEffectsToGameLoop(fn: (effects: Effect) => void) {
+export function iterateQueuedEffects(fn: (effects: Effect) => void) {
   for (const effect of queuedTickEffects) {
     fn(effect)
   }

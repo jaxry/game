@@ -77,3 +77,4 @@ export function getAndDelete<T, U>(map: Map<T, U>, key: T): U | undefined {
   map.delete(key)
   return value
 }
+

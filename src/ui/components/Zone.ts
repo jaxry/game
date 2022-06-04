@@ -8,12 +8,11 @@ import { isPlayer, MovePlayerToSpot } from '../../behavior/player'
 import animateWithDelay from '../animateWithDelay'
 import ObjectCard from './ObjectCard'
 import { startPlayerBehavior } from '../../behavior/core'
-import Action from '../../behavior/Action'
-import TargetActionAnimation from './TargetActionAnimation'
 import animationDuration from '../animationDuration'
 import bBoxDiff from '../bBoxDiff'
 import { removeElemAndAnimateList } from '../removeElementFromList'
 import { getAndDelete } from '../../util'
+import { staggerStateChange } from './Game'
 
 export default class Zone extends Component {
   private objsToCard = new Map<GameObject, ObjectCard>()
@@ -27,71 +26,29 @@ export default class Zone extends Component {
 
     const self = this
 
-    const changes: (() => void)[] = []
-
-    let tickInEffect = false
-
-    this.on(game.event.playerTickStart, () => {
-      tickInEffect = true
-    })
-
-    this.on(game.event.playerTickEnd, () => {
-      for (const card of this.objsToCard.values()) {
-        card.update()
-      }
-      if (changes.length > 0) {
-        this.animateChanges(changes)
-        changes.length = 0
-      }
-      tickInEffect = false
-    })
-
     this.zoneEvents = this.newEffect(class extends Effect {
       onActivate() {
         this.onEvent(this.object.container, 'enter', ({ item }) => {
           if (!isPlayer(item)) {
-            changes.push(() => self.objectEnter(item))
+            staggerStateChange.add(() => self.objectEnter(item))
           }
         })
         this.onEvent(this.object.container, 'leave', ({ item }) => {
           if (item === this.object) {
-            changes.push(() => self.playerMoveZone())
+            staggerStateChange.add(() => self.playerMoveZone())
             self.zoneEvents.deactivate()
           } else {
-            changes.push(() => self.objectLeave(item))
+            staggerStateChange.add(() => self.objectLeave(item))
           }
         })
         this.onEvent(this.object.container, 'moveSpot',
             ({ item, from, to }) => {
-              changes.push(() => self.moveSpot(item, from, to))
+              staggerStateChange.add(() => self.moveSpot(item, from, to))
             })
-        this.onEvent(this.object.container, 'itemActionStart', ({ action }) => {
-          const fn = () => self.objsToCard.get(action.object)!.setAction(action)
-
-          // If player starts a new action,
-          // show action immediately even if outside of tick.
-          if (!tickInEffect && action.object === game.player) {
-            fn()
-          } else {
-            changes.push(fn)
-          }
-        })
-        this.onEvent(this.object.container, 'itemActionEnd', ({ action }) => {
-          changes.push(() => self.finishAction(action))
-        })
       }
     }, game.player)
 
     this.makeZoneSpots()
-  }
-
-  private animateChanges(changes: (() => void)[]) {
-    let delay = 0
-    let time = 1000 / changes.length
-    for (const change of changes) {
-      setTimeout(change, delay)
-      delay += time
-    }
   }
 
   private makeZoneSpots() {
@@ -128,15 +85,6 @@ export default class Zone extends Component {
 
     this.spots[obj.spot].append(card.element)
     return card
-  }
-
-  private finishAction(action: Action) {
-    const card = this.objsToCard.get(action.object)!
-    card.clearAction()
-    if (action.target && this.objsToCard.has(action.target)) {
-      const to = this.objsToCard.get(action.target)!.element
-      this.newComponent(TargetActionAnimation, action, card.element, to)
-    }
   }
 
   private moveSpot(obj: GameObject, from: number, to: number) {
@@ -231,7 +179,7 @@ export default class Zone extends Component {
 
       for (const spot of this.spots) {
         animateWithDelay(spot, {
-          borderColor: ['transparent', 'var(--borderColorDarker)'],
+          borderColor: ['transparent', ''],
         }, {
           duration: fadeTime,
           delay: animationDuration.fast,

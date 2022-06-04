@@ -6,9 +6,14 @@ import ObjectInfo from './ObjectInfo'
 import Action from '../../behavior/Action'
 import $ from '../makeDomTree'
 import ActionComponent from './ActionComponent'
-import { dragAndDropGameObject } from './Game'
+import { dragAndDropGameObject, staggerStateChange } from './Game'
 import { game } from '../../Game'
 import animationDuration from '../animationDuration'
+import { Effect } from '../../behavior/Effect'
+import { isTickActive } from '../../behavior/core'
+import TargetActionAnimation from './TargetActionAnimation'
+
+const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
 export default class ObjectCard extends Component {
   // private readonly actionContainer: HTMLElement
@@ -16,6 +21,8 @@ export default class ObjectCard extends Component {
 
   constructor(object: GameObject) {
     super()
+
+    objectToCard.set(object, this)
 
     this.element.classList.add(style.container)
     if (isPlayer(object)) {
@@ -41,6 +48,45 @@ export default class ObjectCard extends Component {
     })
 
     dragAndDropGameObject.drag(this.element, object, icon)
+
+    this.on(game.event.playerTickEnd, () => this.update())
+
+    const self = this
+
+    this.newEffect(class extends Effect {
+      onActivate() {
+        this.onEvent(object.container, 'leave', ({item}) =>{
+          if (item === this.object) {
+            this.reactivate()
+          }
+        })
+        this.onEvent(object.container, 'itemActionStart', ({action}) => {
+          if (action.object !== this.object) {
+            return
+          }
+
+          const fn = () => self.setAction(action)
+
+          // If player starts a new action,
+          // show action immediately even if outside of tick.
+          if (action.object === game.player && !isTickActive()) {
+            fn()
+          } else {
+            staggerStateChange.add(fn)
+          }
+        })
+        this.onEvent(object.container, 'itemActionEnd', ({action}) => {
+          if (action.object !== this.object) {
+            return
+          }
+          staggerStateChange.add(() => self.clearAction())
+          if (action.target && objectToCard.has(action.target)) {
+            const to = objectToCard.get(action.target)!.element
+            self.newComponent(TargetActionAnimation, action, self.element, to)
+          }
+        })
+      }
+    }, object)
   }
 
   setAction(action: Action) {
@@ -61,7 +107,6 @@ export default class ObjectCard extends Component {
     }
 
     const component = this.actionComponent
-    this.actionComponent = undefined
 
     component.element.animate({
       opacity: 0,
@@ -69,6 +114,9 @@ export default class ObjectCard extends Component {
       duration: animationDuration.fast,
     }).onfinish = () => {
       component.remove()
+      if (this.actionComponent === component) {
+        this.actionComponent = undefined
+      }
     }
   }
 

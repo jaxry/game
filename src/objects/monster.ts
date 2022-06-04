@@ -7,7 +7,6 @@ import type { GameObject } from '../GameObject'
 import { makeType } from '../GameObject'
 import { randomElement } from '../util'
 import MoveSpotAction from '../actions/MoveSpot'
-import { isPlayer } from '../behavior/player'
 
 class MonsterAttack extends Effect {
   constructor(object: GameObject, public target: GameObject) {
