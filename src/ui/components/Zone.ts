@@ -7,15 +7,16 @@ import style from './Zone.module.css'
 import { isPlayer, MovePlayerToSpot } from '../../behavior/player'
 import animateWithDelay from '../animateWithDelay'
 import ObjectCard from './ObjectCard'
-import { startPlayerBehavior } from '../../behavior/core'
+import { startPlayerEffect } from '../../behavior/core'
 import animationDuration from '../animationDuration'
 import bBoxDiff from '../bBoxDiff'
 import { removeElemAndAnimateList } from '../removeElementFromList'
 import { getAndDelete } from '../../util'
-import { staggerStateChange } from './Game'
+import { dragAndDropGameObject, staggerStateChange } from './Game'
+import TransferAction from '../../actions/Transfer'
 
 export default class Zone extends Component {
-  private objsToCard = new Map<GameObject, ObjectCard>()
+  private objectToCard = new Map<GameObject, ObjectCard>()
   private spots: HTMLElement[] = []
   private zoneEvents: Effect
 
@@ -62,8 +63,16 @@ export default class Zone extends Component {
       spot.addEventListener('click', (e) => {
         // only click if not clicked on a child element
         if (e.target === e.currentTarget) {
-          startPlayerBehavior(new MovePlayerToSpot(game.player, i))
+          startPlayerEffect(new MovePlayerToSpot(game.player, i))
         }
+      })
+
+      dragAndDropGameObject.drop(spot, (item) => {
+        if (new TransferAction(game.player, item, container, i).condition()) {
+          return 'move'
+        }
+      }, (item) => {
+        startPlayerEffect(new TransferAction(game.player, item, container, i))
       })
 
       this.spots.push(spot)
@@ -71,16 +80,16 @@ export default class Zone extends Component {
     }
 
     for (const obj of container.contains) {
-      this.createCard(obj)
+      this.makeCard(obj)
     }
   }
 
-  private createCard(obj: GameObject) {
-    let card = this.objsToCard.get(obj)
+  private makeCard(obj: GameObject) {
+    let card = this.objectToCard.get(obj)
 
     if (!card) {
       card = this.newComponent(ObjectCard, obj)
-      this.objsToCard.set(obj, card)
+      this.objectToCard.set(obj, card)
     }
 
     this.spots[obj.spot].append(card.element)
@@ -88,7 +97,7 @@ export default class Zone extends Component {
   }
 
   private moveSpot(obj: GameObject, from: number, to: number) {
-    const elem = this.objsToCard.get(obj)!.element
+    const elem = this.objectToCard.get(obj)!.element
 
     const oldBBox = elem.getBoundingClientRect()
 
@@ -98,7 +107,7 @@ export default class Zone extends Component {
     const newBBox = elem.getBoundingClientRect()
     elem.animate([
       { transform: bBoxDiff(oldBBox, newBBox) },
-      { transform: `translate(0, 0)` },
+      { transform: `` },
     ], {
       duration: animationDuration.normal,
       easing: 'ease-in-out',
@@ -107,10 +116,10 @@ export default class Zone extends Component {
   }
 
   private objectEnter(obj: GameObject) {
-    const elem = this.createCard(obj).element
+    const elem = this.makeCard(obj).element
     elem.animate([
       { opacity: 0, transform: `translate(0, 200%)` },
-      { opacity: 1, transform: `translate(0, 0)` },
+      { opacity: 1, transform: `` },
     ], {
       easing: 'ease-in-out',
       duration: animationDuration.normal,
@@ -118,7 +127,7 @@ export default class Zone extends Component {
   }
 
   private objectLeave(obj: GameObject) {
-    const card = getAndDelete(this.objsToCard, obj)!
+    const card = getAndDelete(this.objectToCard, obj)!
     const elem = card.element
     elem.animate({
       opacity: 0,
@@ -135,7 +144,7 @@ export default class Zone extends Component {
   private playerMoveZone() {
     const fadeTime = animationDuration.normal
 
-    for (const [obj, card] of this.objsToCard) {
+    for (const [obj, card] of this.objectToCard) {
       if (obj === game.player) {
         continue
       }
@@ -145,7 +154,7 @@ export default class Zone extends Component {
         duration: fadeTime,
       }).onfinish = () => {
         card.remove()
-        this.objsToCard.delete(obj)
+        this.objectToCard.delete(obj)
       }
     }
 
@@ -157,7 +166,7 @@ export default class Zone extends Component {
       })
     }
 
-    const playerCard = this.objsToCard.get(game.player)!
+    const playerCard = this.objectToCard.get(game.player)!
     const playerBbox = playerCard.element.getBoundingClientRect()
 
     const animateNewZone = () => {
@@ -165,7 +174,7 @@ export default class Zone extends Component {
       this.makeZoneSpots()
       this.zoneEvents.reactivate()
 
-      for (const card of this.objsToCard.values()) {
+      for (const card of this.objectToCard.values()) {
         if (card === playerCard) {
           continue
         }
@@ -189,7 +198,7 @@ export default class Zone extends Component {
       playerCard.element.animate({
         transform: [
           bBoxDiff(playerBbox, playerCard.element.getBoundingClientRect()),
-          'translate(0, 0)'],
+          ''],
       }, {
         duration: fadeTime,
         easing: 'ease-in-out',

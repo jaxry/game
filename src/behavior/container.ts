@@ -1,9 +1,9 @@
 import type { GameObject } from '../GameObject'
 import { ContainedAs } from '../GameObjectType'
-import { deleteElem } from '../util'
 
 export function moveTo(
-    container: GameObject, object: GameObject, containedAs: ContainedAs) {
+    container: GameObject, object: GameObject, containedAs: ContainedAs,
+    spot?: number) {
   if (!container.contains) {
     console.warn(container, `is not a container`)
     return
@@ -15,7 +15,10 @@ export function moveTo(
 
   object.container = container
   object.containedAs = containedAs
-  object.spot = Math.floor(Math.random() * container.numSpots)
+
+  if (container.numSpots) {
+    object.spot = spot ?? Math.floor(Math.random() * container.numSpots)
+  }
 
   container.contains.add(object)
 
@@ -28,8 +31,9 @@ export function wearOnContainer(container: GameObject, item: GameObject) {
   moveTo(container, item, ContainedAs.wearing)
 }
 
-export function putInsideContainer(container: GameObject, item: GameObject) {
-  moveTo(container, item, ContainedAs.inside)
+export function putInsideContainer(
+    container: GameObject, item: GameObject, spot?: number) {
+  moveTo(container, item, ContainedAs.inside, spot)
 }
 
 export function moveToSpot(item: GameObject, spot: number) {

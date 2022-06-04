@@ -19,7 +19,7 @@ export default class Inventory extends Component {
     this.element.classList.add(style.container)
 
     for (const item of object.contains) {
-      this.createCard(item)
+      this.makeCard(item)
     }
 
     const self = this
@@ -27,7 +27,7 @@ export default class Inventory extends Component {
     this.newEffect(class extends Effect {
       onActivate() {
         this.onEvent(this.object, 'enter', ({ item }) => {
-          staggerStateChange.add(() => self.createCard(item, true))
+          staggerStateChange.add(() => self.makeCard(item, true))
         })
         this.onEvent(this.object, 'leave', ({ item }) => {
           staggerStateChange.add(() => self.removeCard(item))
@@ -38,7 +38,7 @@ export default class Inventory extends Component {
     this.addDragAndDrop()
   }
 
-  private createCard(object: GameObject, animate = false) {
+  private makeCard(object: GameObject, animate = false) {
     const card = this.newComponent(ObjectCard, object)
     this.element.appendChild(card.element)
     this.objectToCard.set(object, card)

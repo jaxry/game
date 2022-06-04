@@ -7,7 +7,7 @@ export default class TransferAction extends Action {
 
   constructor(
       object: GameObject, public target: GameObject,
-      public destination: GameObject) {
+      public destination: GameObject, public spot?: number) {
     super(object)
   }
 
@@ -30,6 +30,6 @@ export default class TransferAction extends Action {
   }
 
   override do() {
-    putInsideContainer(this.destination, this.target)
+    putInsideContainer(this.destination, this.target, this.spot)
   }
 }

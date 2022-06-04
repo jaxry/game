@@ -10,7 +10,7 @@ import { dragAndDropGameObject, staggerStateChange } from './Game'
 import { game } from '../../Game'
 import animationDuration from '../animationDuration'
 import { Effect } from '../../behavior/Effect'
-import { isTickActive } from '../../behavior/core'
+import { isTickInProgress } from '../../behavior/core'
 import TargetActionAnimation from './TargetActionAnimation'
 
 const objectToCard = new WeakMap<GameObject, ObjectCard>()
@@ -19,7 +19,7 @@ export default class ObjectCard extends Component {
   // private readonly actionContainer: HTMLElement
   private actionComponent?: ActionComponent
 
-  constructor(object: GameObject) {
+  constructor(public object: GameObject) {
     super()
 
     objectToCard.set(object, this)
@@ -51,31 +51,26 @@ export default class ObjectCard extends Component {
 
     this.on(game.event.playerTickEnd, () => this.update())
 
-    const self = this
-
     this.newEffect(class extends Effect {
       onActivate() {
-        this.onEvent(object.container, 'leave', ({item}) =>{
+        this.onEvent(object.container, 'leave', ({ item }) => {
           if (item === this.object) {
             this.reactivate()
           }
         })
-        this.onEvent(object.container, 'itemActionStart', ({action}) => {
+        this.onEvent(object.container, 'itemActionStart', ({ action }) => {
           if (action.object !== this.object) {
             return
           }
 
-          const fn = () => self.setAction(action)
-
           // If player starts a new action,
           // show action immediately even if outside of tick.
-          if (action.object === game.player && !isTickActive()) {
-            fn()
-          } else {
-            staggerStateChange.add(fn)
-          }
+          action.object === game.player && !isTickInProgress() ?
+              self.setAction(action) :
+              staggerStateChange.add(() => self.setAction(action))
+
         })
-        this.onEvent(object.container, 'itemActionEnd', ({action}) => {
+        this.onEvent(object.container, 'itemActionEnd', ({ action }) => {
           if (action.object !== this.object) {
             return
           }
@@ -87,6 +82,8 @@ export default class ObjectCard extends Component {
         })
       }
     }, object)
+
+    const self = this
   }
 
   setAction(action: Action) {
