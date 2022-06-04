@@ -28,16 +28,15 @@ export default class MapComponent extends Component {
   constructor() {
     super()
 
-    this.element.append(this.svg)
     this.svg.setAttribute('width', '100%')
     this.svg.setAttribute('height', '100%')
+    this.element.append(this.svg)
 
-    this.svg.append(this.mapG)
     this.mapG.classList.add(style.map)
-
-    this.mapG.append(this.edgeG)
-
-    this.mapG.append(this.nodeG)
+    this.mapG.append(
+        this.edgeG,
+        this.nodeG)
+    this.svg.append(this.mapG)
 
     // const panZoom = new PanZoom(this.element, this.transform, () => {
     //   // this.mapG.setAttribute('transform', this.transform.toString())

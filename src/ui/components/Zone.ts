@@ -1,5 +1,4 @@
 import Component from './Component'
-import $ from '../makeDomTree'
 import { Effect } from '../../behavior/Effect'
 import { game } from '../../Game'
 import { GameObject } from '../../GameObject'
@@ -58,7 +57,8 @@ export default class Zone extends Component {
     this.spots.length = 0
     for (let i = 0; i < container.numSpots; i++) {
 
-      const spot = $('div', style.spot)
+      const spot = document.createElement('div')
+      spot.classList.add(style.spot)
 
       spot.addEventListener('click', (e) => {
         // only click if not clicked on a child element

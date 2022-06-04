@@ -1,7 +1,6 @@
 import style from './ObjectInfo.module.css'
 import { GameObject } from '../../GameObject'
 import Window from './Window'
-import $ from '../makeDomTree'
 import Inventory from './Inventory'
 
 export default class ObjectInfo extends Window {
@@ -10,7 +9,9 @@ export default class ObjectInfo extends Window {
 
     this.element.classList.add(style.container)
 
-    const name = $('div', style.name, object.type.name)
+    const name = document.createElement('div')
+    name.classList.add(style.name)
+    name.textContent = object.type.name
     this.element.append(name)
 
     if (object.contains) {

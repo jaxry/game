@@ -4,7 +4,6 @@ import style from './ObjectCard.module.css'
 import { isPlayer } from '../../behavior/player'
 import ObjectInfo from './ObjectInfo'
 import Action from '../../behavior/Action'
-import $ from '../makeDomTree'
 import ActionComponent from './ActionComponent'
 import { dragAndDropGameObject, staggerStateChange } from './Game'
 import { game } from '../../Game'
@@ -29,7 +28,9 @@ export default class ObjectCard extends Component {
       this.element.classList.add(style.player)
     }
 
-    const icon = $('div', style.icon, object.type.icon)
+    const icon = document.createElement('div')
+    icon.classList.add(style.icon)
+    icon.textContent = object.type.icon
     this.element.append(icon)
 
     // this.actionContainer = $('div')

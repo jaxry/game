@@ -1,6 +1,5 @@
 import Component from './Component'
 import Action from '../../behavior/Action'
-import $ from '../makeDomTree'
 import style from './ActionComponent.module.css'
 import animationDuration from '../animationDuration'
 
@@ -11,10 +10,14 @@ export default class ActionComponent extends Component {
   constructor(public action: Action) {
     super()
 
-    this.name = $('div', null, action.icon)
-    this.time = $('div')
+    this.element.classList.add(style.container)
 
-    $(this.element, style.container, [this.name, this.time])
+    this.name = document.createElement('div')
+    this.name.textContent = action.icon
+    this.element.append(this.name)
+
+    this.time = document.createElement('div')
+    this.element.append(this.time)
 
     this.update()
   }

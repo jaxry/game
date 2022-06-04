@@ -1,4 +1,4 @@
-.game {
+.container {
   height: 100vh;
   display: grid;
   grid-template-columns: 20rem 1fr;
@@ -8,7 +8,7 @@
       'map global';
 }
 
-.game > * {
+.container > * {
   overflow: hidden;
 }
 

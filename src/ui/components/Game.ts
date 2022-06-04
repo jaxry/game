@@ -1,7 +1,6 @@
 import '../global.css'
 import style from './Game.module.css'
 import Component from './Component'
-import $ from '../makeDomTree'
 import { game } from '../../Game'
 import MapComponent from './Map'
 import { playerTravelToZone } from '../../behavior/player'
@@ -21,23 +20,25 @@ export default class GameComponent extends Component {
   constructor() {
     super()
 
-    const time = this.newComponent(TimeComponent)
+    this.element.classList.add(style.container)
 
     const map = this.createMap()
+    map.element.classList.add(style.map)
+    this.element.append(map.element)
 
     const zone = this.newComponent(Zone)
+    zone.element.classList.add(style.zone)
+    this.element.append(zone.element)
+
+    const global = document.createElement('div')
+    global.classList.add(style.global)
+    this.element.append(global)
+
+    const time = this.newComponent(TimeComponent)
+    global.append(time.element)
 
     const player = this.newComponent(Player)
-
-    $(this.element, style.game, [
-      [
-        'div', style.global, [
-        time,
-        player,
-      ]],
-      [zone, style.zone],
-      [map, style.map],
-    ])
+    global.append(player.element)
 
     this.on(game.event.playerTickEnd, () => {
       staggerStateChange.start()
