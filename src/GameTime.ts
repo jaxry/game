@@ -9,23 +9,23 @@ export default class GameTime {
 
   current = 0
 
-  getSecondOfMinute(): number {
+  getSecondOfMinute (): number {
     return this.current % 60
   }
 
-  getMinuteOfHour(): number {
+  getMinuteOfHour (): number {
     return Math.floor(this.current / GameTime.minute) % 60
   }
 
-  getHourOfDay(): number {
+  getHourOfDay (): number {
     return Math.floor(this.current / GameTime.hour) % 24
   }
 
-  getDayOfWeek(): number {
+  getDayOfWeek (): number {
     return Math.floor(this.current / GameTime.day) % 7
   }
 
-  getTimeOfDay() {
+  getTimeOfDay () {
     return this.getHourOfDay().toString().padStart(2, `0`) + `:`
         + this.getMinuteOfHour().toString().padStart(2, `0`) + `:`
         + this.getSecondOfMinute().toString().padStart(2, `0`)

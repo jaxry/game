@@ -1,10 +1,10 @@
 import { game } from '../Game'
 import { destroyMarked } from './destroy'
-import { iterateQueuedEffects, Effect, effectsCallback } from './Effect'
+import { Effect, effectsCallback, iterateQueuedEffects } from './Effect'
 
 let tickInProgress = false
 
-function tick() {
+function tick () {
   iterateQueuedEffects(addEffectToGameLoop)
 
   game.time.current += 1
@@ -23,35 +23,35 @@ function tick() {
 let timeout: number | null = null
 let playerEffect: Effect | null = null
 
-export function interruptPlayerLoop() {
+export function interruptPlayerLoop () {
   clearTimeout(timeout!)
   timeout = null
 }
 
-export function startGameLoop() {
+export function startGameLoop () {
   if (!timeout) {
     timeout = setTimeout(playerTick, 1000)
   }
 }
 
-export function startPlayerEffect(effect: Effect) {
+export function startPlayerEffect (effect: Effect) {
   playerEffect?.deactivate()
   playerEffect = effect
   playerEffect.activate()
 }
 
-export function isTickInProgress() {
+export function isTickInProgress () {
   return tickInProgress
 }
 
-function playerTick() {
+function playerTick () {
   game.event.playerTickStart.emit(undefined)
   tick()
   game.event.playerTickEnd.emit(undefined)
   timeout = setTimeout(playerTick, 1000)
 }
 
-function addEffectToGameLoop(effect: Effect) {
+function addEffectToGameLoop (effect: Effect) {
   game.effectsWithTick[effect.tickPriority].add(effect)
 }
 

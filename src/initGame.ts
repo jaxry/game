@@ -6,7 +6,7 @@ import GameTime from './GameTime'
 import { typeMonster } from './objects/monster'
 import { generateRandomGraph } from './map/generateRandomGraph'
 
-export function initGame() {
+export function initGame () {
   game.energyPool = 2 * GameTime.hour
 
   const world = spawn(typeWorld)

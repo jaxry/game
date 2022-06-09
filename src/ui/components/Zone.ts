@@ -19,7 +19,7 @@ export default class Zone extends Component {
   private spots: HTMLElement[] = []
   private zoneEvents: Effect
 
-  constructor() {
+  constructor () {
     super()
 
     this.element.classList.add(style.container)
@@ -27,7 +27,7 @@ export default class Zone extends Component {
     const self = this
 
     this.zoneEvents = this.newEffect(class extends Effect {
-      onActivate() {
+      onActivate () {
         this.onEvent(this.object.container, 'enter', ({ item }) => {
           if (!isPlayer(item)) {
             staggerStateChange.add(() => self.objectEnter(item))
@@ -51,7 +51,7 @@ export default class Zone extends Component {
     this.makeZoneSpots()
   }
 
-  private makeZoneSpots() {
+  private makeZoneSpots () {
     const container = game.player.container
 
     this.spots.length = 0
@@ -84,7 +84,7 @@ export default class Zone extends Component {
     }
   }
 
-  private makeCard(obj: GameObject) {
+  private makeCard (obj: GameObject) {
     let card = this.objectToCard.get(obj)
 
     if (!card) {
@@ -96,7 +96,7 @@ export default class Zone extends Component {
     return card
   }
 
-  private moveSpot(obj: GameObject, from: number, to: number) {
+  private moveSpot (obj: GameObject, from: number, to: number) {
     const elem = this.objectToCard.get(obj)!.element
 
     const oldBBox = elem.getBoundingClientRect()
@@ -115,7 +115,7 @@ export default class Zone extends Component {
     })
   }
 
-  private objectEnter(obj: GameObject) {
+  private objectEnter (obj: GameObject) {
     const elem = this.makeCard(obj).element
     elem.animate([
       { opacity: 0, transform: `translate(0, 200%)` },
@@ -126,7 +126,7 @@ export default class Zone extends Component {
     })
   }
 
-  private objectLeave(obj: GameObject) {
+  private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
     const elem = card.element
     elem.animate({
@@ -141,7 +141,7 @@ export default class Zone extends Component {
     }
   }
 
-  private playerMoveZone() {
+  private playerMoveZone () {
     const fadeTime = animationDuration.normal
 
     for (const [obj, card] of this.objectToCard) {

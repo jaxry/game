@@ -18,7 +18,7 @@ export default class ObjectCard extends Component {
   // private readonly actionContainer: HTMLElement
   private actionComponent?: ActionComponent
 
-  constructor(public object: GameObject) {
+  constructor (public object: GameObject) {
     super()
 
     objectToCard.set(object, this)
@@ -53,7 +53,7 @@ export default class ObjectCard extends Component {
     this.on(game.event.playerTickEnd, () => this.update())
 
     this.newEffect(class extends Effect {
-      onActivate() {
+      onActivate () {
         this.onEvent(object.container, 'leave', ({ item }) => {
           if (item === this.object) {
             this.reactivate()
@@ -87,7 +87,7 @@ export default class ObjectCard extends Component {
     const self = this
   }
 
-  setAction(action: Action) {
+  setAction (action: Action) {
     if (this.actionComponent) {
       this.actionComponent.remove()
     }
@@ -99,7 +99,7 @@ export default class ObjectCard extends Component {
         { duration: animationDuration.fast })
   }
 
-  clearAction() {
+  clearAction () {
     if (!this.actionComponent) {
       return
     }
@@ -118,7 +118,7 @@ export default class ObjectCard extends Component {
     }
   }
 
-  update() {
+  update () {
     this.actionComponent?.update()
   }
 }

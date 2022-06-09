@@ -1,7 +1,7 @@
 import type { GameObject } from '../GameObject'
 import { ContainedAs } from '../GameObjectType'
 
-export function moveTo(
+export function moveTo (
     container: GameObject, object: GameObject, containedAs: ContainedAs,
     spot?: number) {
   if (!container.contains) {
@@ -27,28 +27,28 @@ export function moveTo(
   container.emit('enter', { item: object, from })
 }
 
-export function wearOnContainer(container: GameObject, item: GameObject) {
+export function wearOnContainer (container: GameObject, item: GameObject) {
   moveTo(container, item, ContainedAs.wearing)
 }
 
-export function putInsideContainer(
+export function putInsideContainer (
     container: GameObject, item: GameObject, spot?: number) {
   moveTo(container, item, ContainedAs.inside, spot)
 }
 
-export function moveToSpot(item: GameObject, spot: number) {
+export function moveToSpot (item: GameObject, spot: number) {
   const from = item.spot
   item.spot = spot
   item.container.emit('moveSpot', { item, from, to: spot })
 }
 
-export function removeFromContainer(item: GameObject) {
+export function removeFromContainer (item: GameObject) {
   if (item.container) {
     item.container.contains.delete(item)
   }
 }
 
-export function isAncestor(ancestor: GameObject, item: GameObject) {
+export function isAncestor (ancestor: GameObject, item: GameObject) {
   do {
     if (item === ancestor) {
       return true
@@ -59,6 +59,6 @@ export function isAncestor(ancestor: GameObject, item: GameObject) {
   return false
 }
 
-export function isContainedWith(object: GameObject, neighbor: GameObject) {
+export function isContainedWith (object: GameObject, neighbor: GameObject) {
   return object.container === neighbor.container
 }

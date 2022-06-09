@@ -3,7 +3,7 @@ import { makeGameObject } from '../GameObject'
 import type { GameObjectType } from '../GameObjectType'
 import { putInsideContainer } from './container'
 
-export function spawn(type: GameObjectType, container?: GameObject) {
+export function spawn (type: GameObjectType, container?: GameObject) {
   const instance = makeGameObject(type)
 
   if (type.health) {

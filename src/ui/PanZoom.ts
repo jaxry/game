@@ -1,7 +1,7 @@
 import throttle from './throttle'
 
 export default class PanZoom {
-  constructor(
+  constructor (
       public elem: HTMLElement, public transform: DOMMatrix,
       public onTransform: () => void) {
     let lastX = 0

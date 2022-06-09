@@ -1,6 +1,6 @@
 import { Vertex } from './types'
 
-export default function findLargestGraph(vertices: Vertex[]) {
+export default function findLargestGraph (vertices: Vertex[]) {
   const visited = new Map<Vertex, number>()
 
   let nextGraphId = 0
@@ -9,7 +9,7 @@ export default function findLargestGraph(vertices: Vertex[]) {
     traverse(vertex, nextGraphId++)
   }
 
-  function traverse(vertex: Vertex, graphId: number) {
+  function traverse (vertex: Vertex, graphId: number) {
     if (visited.has(vertex)) return
 
     visited.set(vertex, graphId)
@@ -19,7 +19,7 @@ export default function findLargestGraph(vertices: Vertex[]) {
     }
   }
 
-  function getLargestGraph() {
+  function getLargestGraph () {
     const graphSizes: number[] = []
     for (let i = 0; i < nextGraphId; i++) {
       graphSizes[i] = 0

@@ -1,7 +1,7 @@
 import CustomEvent from '../../CustomEvent'
 import { Effect } from '../../behavior/Effect'
 
-type Constructor<T> = { new(...args: any[]): T }
+type Constructor<T> = { new (...args: any[]): T }
 
 export default class Component {
   element: HTMLElement
@@ -10,11 +10,11 @@ export default class Component {
   private childComponents = new Set<Component>()
   private destroyCallbacks: Array<() => void> = []
 
-  constructor(element: HTMLElement = document.createElement('div')) {
+  constructor (element: HTMLElement = document.createElement('div')) {
     this.element = element
   }
 
-  newComponent<T extends Constructor<Component>>(
+  newComponent<T extends Constructor<Component>> (
       constructor: T,
       ...args: ConstructorParameters<T>): InstanceType<T> {
 
@@ -26,11 +26,11 @@ export default class Component {
     return component as InstanceType<T>
   }
 
-  onRemove(unsubscribe: () => void) {
+  onRemove (unsubscribe: () => void) {
     this.destroyCallbacks.push(unsubscribe)
   }
 
-  remove() {
+  remove () {
     this.element.remove()
 
     if (this.parentComponent) {
@@ -46,11 +46,11 @@ export default class Component {
     }
   }
 
-  on<T>(event: CustomEvent<T>, listener: (data: T) => void) {
+  on<T> (event: CustomEvent<T>, listener: (data: T) => void) {
     this.onRemove(event.on(listener))
   }
 
-  newEffect<T extends Constructor<Effect>>(
+  newEffect<T extends Constructor<Effect>> (
       constructor: T,
       ...args: ConstructorParameters<T>) {
 

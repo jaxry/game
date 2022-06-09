@@ -4,7 +4,7 @@ import Window from './Window'
 import Inventory from './Inventory'
 
 export default class ObjectInfo extends Window {
-  constructor(object: GameObject, parentBBox: DOMRect) {
+  constructor (object: GameObject, parentBBox: DOMRect) {
     super(parentBBox)
 
     this.element.classList.add(style.container)

@@ -3,19 +3,19 @@ import type { Effect } from './behavior/Effect'
 import type { GameObject } from './GameObject'
 
 export interface GameObjectType {
-  name: string,
+  name: string
 
-  icon: string,
+  icon: string
 
-  properNoun: boolean,
+  properNoun: boolean
 
-  description: string,
+  description: string
 
   effects: Array<typeof Effect>
 
-  isContainer: boolean,
+  isContainer: boolean
 
-  health: number,
+  health: number
   energy: number
 }
 
@@ -44,16 +44,16 @@ export interface GameObjectProps {
 }
 
 export interface GameObjectEvents {
-  destroy: undefined,
+  destroy: undefined
 
   // objects being contained or taken out of the event object
-  enter: { item: GameObject, from?: GameObject },
-  leave: { item: GameObject, to?: GameObject },
-  moveSpot: { item: GameObject, from: number, to: number },
+  enter: { item: GameObject, from?: GameObject }
+  leave: { item: GameObject, to?: GameObject }
+  moveSpot: { item: GameObject, from: number, to: number }
 
   // actions starting/finishing on a contained object of the event object
-  itemActionStart: { action: Action },
-  itemActionEnd: { action: Action },
+  itemActionStart: { action: Action }
+  itemActionEnd: { action: Action }
 
   // the event object put inside a new container object
   // move: { to: GameObject, from?: GameObject },

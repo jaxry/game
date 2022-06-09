@@ -7,7 +7,7 @@ export default class ActionComponent extends Component {
   private readonly name: HTMLElement
   private readonly time: HTMLElement
 
-  constructor(public action: Action) {
+  constructor (public action: Action) {
     super()
 
     this.element.classList.add(style.container)
@@ -22,7 +22,7 @@ export default class ActionComponent extends Component {
     this.update()
   }
 
-  update() {
+  update () {
     if (this.action.time <= 0) {
       this.time.animate({ opacity: 0 },
           { duration: animationDuration.fast, fill: 'forwards' })

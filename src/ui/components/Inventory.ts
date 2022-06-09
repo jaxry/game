@@ -13,7 +13,7 @@ import { getAndDelete } from '../../util'
 export default class Inventory extends Component {
   private objectToCard: Map<GameObject, ObjectCard> = new Map()
 
-  constructor(public object: GameObject) {
+  constructor (public object: GameObject) {
     super()
 
     this.element.classList.add(style.container)
@@ -25,7 +25,7 @@ export default class Inventory extends Component {
     const self = this
 
     this.newEffect(class extends Effect {
-      onActivate() {
+      onActivate () {
         this.onEvent(this.object, 'enter', ({ item }) => {
           staggerStateChange.add(() => self.makeCard(item, true))
         })
@@ -38,7 +38,7 @@ export default class Inventory extends Component {
     this.addDragAndDrop()
   }
 
-  private makeCard(object: GameObject, animate = false) {
+  private makeCard (object: GameObject, animate = false) {
     const card = this.newComponent(ObjectCard, object)
     this.element.appendChild(card.element)
     this.objectToCard.set(object, card)
@@ -53,7 +53,7 @@ export default class Inventory extends Component {
     }
   }
 
-  private removeCard(object: GameObject) {
+  private removeCard (object: GameObject) {
     const card = getAndDelete(this.objectToCard, object)!
     card.element.animate({
       opacity: 0,
@@ -67,7 +67,7 @@ export default class Inventory extends Component {
     }
   }
 
-  private addDragAndDrop() {
+  private addDragAndDrop () {
     const draggable = (item: GameObject) => {
       if (new TransferAction(game.player, item, this.object).condition()) {
         return 'move'

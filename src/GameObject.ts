@@ -5,25 +5,24 @@ import type {
   GameObjectProps,
   GameObjectType,
 } from './GameObjectType'
-import { deleteElem } from './util'
 
 export type GameObject = GameObjectInstance & GameObjectProps
 
-export function makeType(type: Partial<GameObjectType>) {
+export function makeType (type: Partial<GameObjectType>) {
   return type as GameObjectType
 }
 
-export function makeGameObject(type: GameObjectType) {
+export function makeGameObject (type: GameObjectType) {
   return new GameObjectInstance(type) as GameObject
 }
 
 export interface ActiveGameObjectEvent {
-  obj: GameObject,
-  listeners: Set<GameObjectEventListener<any>>,
+  obj: GameObject
+  listeners: Set<GameObjectEventListener<any>>
   listener: GameObjectEventListener<any>
 }
 
-export function unsubscribeEvent(ev: ActiveGameObjectEvent) {
+export function unsubscribeEvent (ev: ActiveGameObjectEvent) {
   ev.listeners.delete(ev.listener)
 }
 
@@ -37,11 +36,11 @@ class GameObjectInstance {
     [T in GameObjectEvent]?: Set<GameObjectEventListener<T>>
   }
 
-  constructor(type: GameObjectType) {
+  constructor (type: GameObjectType) {
     this.type = type
   }
 
-  on<T extends GameObjectEvent>(
+  on<T extends GameObjectEvent> (
       event: T, listener: GameObjectEventListener<T>): ActiveGameObjectEvent {
     if (!this.events) {
       this.events = {}
@@ -58,7 +57,7 @@ class GameObjectInstance {
     }
   }
 
-  emit<T extends keyof GameObjectEvents>(event: T, data: GameObjectEvents[T]) {
+  emit<T extends keyof GameObjectEvents> (event: T, data: GameObjectEvents[T]) {
     let listeners: any
 
     // listeners = this.type.events?.[event]

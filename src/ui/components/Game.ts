@@ -17,7 +17,7 @@ export const dragAndDropGameObject = new DragAndDrop<GameObject>()
 export const staggerStateChange = new StaggerStateChange()
 
 export default class GameComponent extends Component {
-  constructor() {
+  constructor () {
     super()
 
     this.element.classList.add(style.container)
@@ -49,13 +49,13 @@ export default class GameComponent extends Component {
     startGameLoop()
   }
 
-  private createMap() {
+  private createMap () {
     const map = this.newComponent(MapComponent)
 
     map.onZoneClick = playerTravelToZone
 
     this.newEffect(class extends Effect {
-      onActivate() {
+      onActivate () {
         this.onEvent(this.object.container, 'leave', ({ item }) => {
           if (item === this.object) {
             map.update(this.object.container)
@@ -68,8 +68,8 @@ export default class GameComponent extends Component {
     return map
   }
 
-  private setupWindowVisibility() {
-    function visibilityChange() {
+  private setupWindowVisibility () {
+    function visibilityChange () {
       if (document.hidden) {
         interruptPlayerLoop()
       } else {

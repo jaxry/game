@@ -1,4 +1,4 @@
-export default function animateWithDelay(
+export default function animateWithDelay (
     elem: HTMLElement, keyframes: Keyframe[] | PropertyIndexedKeyframes,
     options: KeyframeAnimationOptions) {
 

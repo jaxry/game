@@ -18,28 +18,28 @@ export class Effect {
   isActive = false
   private events?: ActiveGameObjectEvent[]
 
-  constructor(object: GameObject) {
+  constructor (object: GameObject) {
     this.object = object
   }
 
-  get name() {
+  get name () {
     return this.constructor.name
   }
 
-  get tickPriority() {
+  get tickPriority () {
     return (this.constructor as typeof Effect).tickPriority
   }
 
   // called once every game loop (every second)
-  tick?(): void
+  tick? (): void
 
-  onActivate?(): void
+  onActivate? (): void
 
-  onDeactivate?(): void
+  onDeactivate? (): void
 
   // Adds a GameObject event that is automatically cleaned up when the effect
   // is deactivated
-  onEvent<T extends keyof GameObjectEvents>(
+  onEvent<T extends keyof GameObjectEvents> (
       obj: GameObject, event: T, listener: GameObjectEventListener<T>) {
     if (!this.isActive) {
       console.warn(this, 'must be activated before subscribing to events')
@@ -56,12 +56,12 @@ export class Effect {
     return unsub
   }
 
-  unsubscribe(event: ActiveGameObjectEvent) {
+  unsubscribe (event: ActiveGameObjectEvent) {
     unsubscribeEvent(event)
     deleteElem(this.events!, event)
   }
 
-  activate() {
+  activate () {
     if (this.isActive) {
       return this
     }
@@ -83,7 +83,7 @@ export class Effect {
     return this
   }
 
-  deactivate(destroyedObject = false) {
+  deactivate (destroyedObject = false) {
     if (!this.isActive) {
       return this
     }
@@ -117,12 +117,12 @@ export class Effect {
     return this
   }
 
-  reactivate() {
+  reactivate () {
     this.deactivate().activate()
   }
 }
 
-export function removeEffects(obj: GameObject) {
+export function removeEffects (obj: GameObject) {
   if (obj.effects) {
     for (const effect of obj.effects) {
       effect.deactivate(true)
@@ -133,7 +133,7 @@ export function removeEffects(obj: GameObject) {
 
 export const queuedTickEffects: Effect[] = []
 
-export function iterateQueuedEffects(fn: (effects: Effect) => void) {
+export function iterateQueuedEffects (fn: (effects: Effect) => void) {
   for (const effect of queuedTickEffects) {
     fn(effect)
   }

@@ -15,7 +15,7 @@ const typeZone = makeType({
   isContainer: true,
 })
 
-export function generateDelaunayZones(count: number) {
+export function generateDelaunayZones (count: number) {
   let points = poissonDiskSampling(count)
 
   const edges: number[][] = []

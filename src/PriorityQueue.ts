@@ -5,11 +5,11 @@ export default class PriorityQueue<T> {
   private elements: T[] = []
   private costs: number[] = []
 
-  get length() {
+  get length () {
     return this.elements.length
   }
 
-  set(element: T, cost: number) {
+  set (element: T, cost: number) {
     this.elements.push(element)
     this.costs.push(cost)
 
@@ -28,7 +28,7 @@ export default class PriorityQueue<T> {
     }
   }
 
-  get(): T {
+  get (): T {
     if (this.elements.length === 1) {
       this.costs.pop()
       return this.elements.pop()!
@@ -65,7 +65,7 @@ export default class PriorityQueue<T> {
     }
   }
 
-  clear() {
+  clear () {
     this.elements.length = 0
     this.costs.length = 0
   }

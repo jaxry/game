@@ -1,12 +1,12 @@
-export default function clickOutside(
+export default function clickOutside (
     inner: HTMLElement, callback: () => void, outer = document.body) {
   let clicked = false
 
-  function insideClick() {
+  function insideClick () {
     clicked = true
   }
 
-  function outsideClick() {
+  function outsideClick () {
     if (!clicked) {
       callback()
     }

@@ -25,7 +25,7 @@ export default class MapComponent extends Component {
   private nodeToElem: Map<GameObject, Element> = new Map()
   private edgeToElem: Map<string, Element> = new Map()
 
-  constructor() {
+  constructor () {
     super()
 
     this.svg.setAttribute('width', '100%')
@@ -36,6 +36,7 @@ export default class MapComponent extends Component {
     this.mapG.append(
         this.edgeG,
         this.nodeG)
+
     this.svg.append(this.mapG)
 
     // const panZoom = new PanZoom(this.element, this.transform, () => {
@@ -52,19 +53,17 @@ export default class MapComponent extends Component {
     const nodes = [...graph.nodes]
     const d3Graph = makeD3Graph(graph)
     const sim = d3.forceSimulation()
-    sim.nodes(d3Graph.nodes).
-        force('charge',
-            d3.forceManyBody().
-                distanceMax(5 * renderedConnectionDistance).
-                strength(node => {
-                  return -30 * nodes[node.index!].connections.length
-                })).
-        force('link',
-            d3.forceLink(d3Graph.edges).distance(renderedConnectionDistance)).
-        velocityDecay(0.2).
-        // alphaDecay(0.0075).
-        tick(300).
-        on('end', () => {
+    sim.nodes(d3Graph.nodes)
+        .force('charge', d3.forceManyBody().distanceMax(5 * renderedConnectionDistance)
+            .strength(node => {
+              return -30 * nodes[node.index!].connections.length
+            }))
+        .force('link',
+            d3.forceLink(d3Graph.edges).distance(renderedConnectionDistance))
+        .velocityDecay(0.2)
+        // .alphaDecay(0.0075)
+        .tick(300)
+        .on('end', () => {
           console.log('done')
           this.update(game.player.container)
         })
@@ -72,7 +71,7 @@ export default class MapComponent extends Component {
 
   nodeSize = (node: GameObject) => lerp(1, 6, 5, 20, node.connections.length)
 
-  update(centerZone: GameObject) {
+  update (centerZone: GameObject) {
     const graph = getZoneGraph(centerZone, 2)
 
     this.setBounds(graph)
@@ -133,7 +132,7 @@ export default class MapComponent extends Component {
     }
   }
 
-  private setBounds(graph: ZoneGraph) {
+  private setBounds (graph: ZoneGraph) {
     const bounds = getGraphBounds(graph)
 
     const scale = Math.min(this.element.offsetWidth / bounds.width,
@@ -159,7 +158,7 @@ export default class MapComponent extends Component {
   }
 }
 
-function getGraphBounds(graph: ZoneGraph) {
+function getGraphBounds (graph: ZoneGraph) {
   const bounds = {
     xMin: Infinity,
     xMax: -Infinity,
@@ -186,7 +185,7 @@ function getGraphBounds(graph: ZoneGraph) {
   return bounds
 }
 
-function makeD3Graph(graph: ZoneGraph) {
+function makeD3Graph (graph: ZoneGraph) {
   const edges: d3.SimulationLinkDatum<d3.SimulationNodeDatum>[] = []
 
   const nodes = mapIter(graph.nodes, n => n.position)
@@ -204,7 +203,7 @@ function makeD3Graph(graph: ZoneGraph) {
   }
 }
 
-function transitionIn(elem: Element) {
+function transitionIn (elem: Element) {
   elem.animate({
     transform: ['scale(0)', 'scale(1)'],
   }, {
@@ -212,7 +211,7 @@ function transitionIn(elem: Element) {
   })
 }
 
-function transitionOut(elem: Element) {
+function transitionOut (elem: Element) {
   elem.animate({
     transform: ['scale(1)', 'scale(0)'],
   }, {

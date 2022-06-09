@@ -2,10 +2,10 @@ import { Vertex } from './types'
 import findLargestGraph from './findLargestGraph'
 import makeZones from './makeZones'
 
-export function generateRandomGraph(vertexCount: number) {
+export function generateRandomGraph (vertexCount: number) {
   const chance = 2 / vertexCount
 
-  function tryOnce() {
+  function tryOnce () {
     let vertices: Vertex[] = []
     for (let i = 0; i < vertexCount; i++) {
       vertices.push({ edges: [] })

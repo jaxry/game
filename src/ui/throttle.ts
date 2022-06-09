@@ -1,4 +1,4 @@
-export default function throttle<T extends (...args: any) => any>(fn: T): T {
+export default function throttle<T extends (...args: any) => any> (fn: T): T {
   let next: number | null = null
   let latestArgs: any
 

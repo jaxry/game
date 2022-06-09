@@ -6,7 +6,7 @@ export const outsideElem = document.createElement('div')
 outsideElem.classList.add(style.outsideContainer)
 
 export default class App extends Component {
-  constructor(element: HTMLElement) {
+  constructor (element: HTMLElement) {
     super(element)
 
     this.element.append(

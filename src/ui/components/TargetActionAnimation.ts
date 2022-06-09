@@ -5,7 +5,7 @@ import { outsideElem } from './App'
 import animationDuration from '../animationDuration'
 
 export default class TargetActionAnimation extends Component {
-  constructor(action: Action, from: HTMLElement, to: HTMLElement) {
+  constructor (action: Action, from: HTMLElement, to: HTMLElement) {
     super()
 
     outsideElem.append(this.element)
@@ -24,7 +24,7 @@ export default class TargetActionAnimation extends Component {
   }
 }
 
-function center(elem: HTMLElement) {
+function center (elem: HTMLElement) {
   const r = elem.getBoundingClientRect()
   const x = r.x + r.width / 2
   const y = r.y + r.height / 2

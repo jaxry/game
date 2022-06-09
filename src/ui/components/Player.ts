@@ -4,7 +4,7 @@ import { game } from '../../Game'
 import Inventory from './Inventory'
 
 export default class Player extends Component {
-  constructor() {
+  constructor () {
     super()
 
     this.element.classList.add(style.container)

@@ -5,17 +5,21 @@ import { isAncestor, putInsideContainer } from '../behavior/container'
 export default class TransferAction extends Action {
   override time = 5
 
-  constructor(
+  constructor (
       object: GameObject, public target: GameObject,
       public destination: GameObject, public spot?: number) {
     super(object)
   }
 
-  override get name() { return 'transfer' }
+  override get name () {
+    return 'transfer'
+  }
 
-  override get icon() { return `${this.target.type.icon}🖐${this.destination.type.icon}` }
+  override get icon () {
+    return `${this.target.type.icon}🖐${this.destination.type.icon}`
+  }
 
-  override condition() {
+  override condition () {
     // moving to a different spot
     return this.target.container !== this.destination &&
 
@@ -29,7 +33,7 @@ export default class TransferAction extends Action {
         isAncestor(this.object.container, this.destination)
   }
 
-  override do() {
+  override do () {
     putInsideContainer(this.destination, this.target, this.spot)
   }
 }

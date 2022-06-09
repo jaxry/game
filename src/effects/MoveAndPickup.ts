@@ -4,11 +4,11 @@ import MoveSpotAction from '../actions/MoveSpot'
 import TransferAction from '../actions/Transfer'
 
 export default class MoveAndPickup extends Effect {
-  constructor(object: GameObject, public target: GameObject) {
+  constructor (object: GameObject, public target: GameObject) {
     super(object)
   }
 
-  moveOrPickup() {
+  moveOrPickup () {
     if (this.target.spot === this.object.spot) {
       new TransferAction(this.object, this.target, this.object).activate()
       this.deactivate()
@@ -17,7 +17,7 @@ export default class MoveAndPickup extends Effect {
     }
   }
 
-  override tick() {
+  override tick () {
     if (!this.object.activeAction) {
       this.moveOrPickup()
     }

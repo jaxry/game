@@ -4,7 +4,7 @@ import { deleteElem } from '../util'
 
 export const renderedConnectionDistance = 30
 
-export function connectZones(
+export function connectZones (
     source: GameObject, target: GameObject, autoPosition = true) {
   if (!source.connections) {
     source.connections = []
@@ -22,7 +22,7 @@ export function connectZones(
   target.connections.push(source)
 }
 
-export function positionZone(source: GameObject, target: GameObject) {
+export function positionZone (source: GameObject, target: GameObject) {
   if (!source.position) {
     source.position = { x: 0, y: 0 }
   }
@@ -39,12 +39,12 @@ export function positionZone(source: GameObject, target: GameObject) {
   target.position.y = source.position.y + dy
 }
 
-export function disconnectZones(source: GameObject, target: GameObject) {
+export function disconnectZones (source: GameObject, target: GameObject) {
   deleteElem(source.connections, target)
   deleteElem(target.connections, source)
 }
 
-export function removeConnections(a: GameObject) {
+export function removeConnections (a: GameObject) {
   if (a.connections) {
     for (const b of a.connections) {
       deleteElem(b.connections, a)
@@ -53,7 +53,7 @@ export function removeConnections(a: GameObject) {
   }
 }
 
-export function connectionDistance(a: GameObject, b: GameObject) {
+export function connectionDistance (a: GameObject, b: GameObject) {
   // const dx = a.position.x - b.position.x
   // const dy = a.position.y - b.position.y
   // return Math.sqrt(dx * dx + dy * dy)
@@ -61,21 +61,21 @@ export function connectionDistance(a: GameObject, b: GameObject) {
 }
 
 export interface Edge {
-  source: GameObject,
+  source: GameObject
   target: GameObject
 }
 
 export interface ZoneGraph {
-  nodes: Set<GameObject>,
-  edges: Map<string, Edge>,
+  nodes: Set<GameObject>
+  edges: Map<string, Edge>
 }
 
-export function getZoneGraph(
+export function getZoneGraph (
     startingNode: GameObject, maxDepth = Infinity): ZoneGraph {
   const nodes = new Set<GameObject>()
   const edges = new Map<string, Edge>()
 
-  function traverse(node: GameObject, depth: number) {
+  function traverse (node: GameObject, depth: number) {
     nodes.add(node)
     if (depth >= maxDepth) {
       return
@@ -107,7 +107,7 @@ export function getZoneGraph(
   }
 }
 
-function edgeHash({ source, target }: Edge) {
+function edgeHash ({ source, target }: Edge) {
   if (source.id < target.id) {
     return `${source.id}-${target.id}`
   } else {
@@ -116,7 +116,7 @@ function edgeHash({ source, target }: Edge) {
 }
 
 // A* search
-export function getPath(source: GameObject, destination: GameObject) {
+export function getPath (source: GameObject, destination: GameObject) {
   const cameFrom = new Map<GameObject, GameObject>()
   const costSoFar = new Map<GameObject, number>()
   const frontier = new PriorityQueue<GameObject>()
@@ -149,7 +149,7 @@ export function getPath(source: GameObject, destination: GameObject) {
   }
 }
 
-function reconstructPath(
+function reconstructPath (
     source: GameObject, destination: GameObject,
     cameFrom: Map<GameObject, GameObject>) {
   const path: GameObject[] = []

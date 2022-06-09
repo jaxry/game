@@ -3,11 +3,11 @@ export class StaggerStateChange {
 
   private changes: (() => void)[] = []
 
-  add(fn: () => void) {
+  add (fn: () => void) {
     this.changes.push(fn)
   }
 
-  start() {
+  start () {
     let delay = 0
     let time = this.duration / this.changes.length
     for (const change of this.changes) {

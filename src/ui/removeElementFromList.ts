@@ -1,7 +1,7 @@
 import bBoxDiff from './bBoxDiff'
 import animationDuration from './animationDuration'
 
-export function removeElementFromList(
+export function removeElementFromList (
     elem: HTMLElement,
     callback: (child: Element, oldBBox: DOMRect, newBBox: DOMRect) => void) {
   const parentElement = elem.parentElement!
@@ -24,7 +24,7 @@ export function removeElementFromList(
   }
 }
 
-export function removeElemAndAnimateList(elem: HTMLElement) {
+export function removeElemAndAnimateList (elem: HTMLElement) {
   removeElementFromList(elem, (child, oldBBox, newBBox) => {
     child.animate([
       { transform: bBoxDiff(oldBBox, newBBox) },

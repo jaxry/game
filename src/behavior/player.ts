@@ -10,19 +10,19 @@ import AttackAction from '../actions/Attack'
 import WaitAction from '../actions/Wait'
 import { Effect } from './Effect'
 
-export function isPlayer(object: GameObject) {
+export function isPlayer (object: GameObject) {
   return object === game.player
 }
 
-export function inPlayerBubble(object: GameObject) {
+export function inPlayerBubble (object: GameObject) {
   return isContainedWith(game.player, object)
 }
 
-export function isSelectable(obj: GameObject) {
+export function isSelectable (obj: GameObject) {
   return inPlayerBubble(obj) && !isDestroyed(obj)
 }
 
-export function playerTravelToZone(zone: GameObject) {
+export function playerTravelToZone (zone: GameObject) {
   const playerZone = game.player.container
 
   for (const neighbor of playerZone.connections) {
@@ -32,13 +32,14 @@ export function playerTravelToZone(zone: GameObject) {
   }
 }
 
-export function getPlayerInteractions(player: GameObject) {
+export function getPlayerInteractions (player: GameObject) {
   return [
     new WaitAction(player),
   ]
 }
 
-export function getObjectInteractions(player: GameObject, subject: GameObject) {
+export function getObjectInteractions (
+    player: GameObject, subject: GameObject) {
   const actions: Action[] = [
     new AttackAction(player, subject),
   ].filter(action => action.condition())
@@ -47,18 +48,18 @@ export function getObjectInteractions(player: GameObject, subject: GameObject) {
 }
 
 export class MovePlayerToSpot extends Effect {
-  constructor(object: GameObject, public spot: number) {
+  constructor (object: GameObject, public spot: number) {
     super(object)
     this.move()
   }
 
-  move() {
+  move () {
     if (this.object.spot !== this.spot) {
       new MoveSpotAction(this.object, this.spot).activate()
     }
   }
 
-  tick() {
+  tick () {
     if (this.object.spot === this.spot) {
       this.deactivate()
     } else if (!this.object.activeAction) {

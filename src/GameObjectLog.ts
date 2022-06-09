@@ -3,7 +3,7 @@ import type { GameObject } from './GameObject'
 export default class GameObjectLog {
   log: Map<GameObject, string[]> = new Map()
 
-  write(object: GameObject, message: string) {
+  write (object: GameObject, message: string) {
     let arr = this.log.get(object)
     if (!arr) {
       arr = []
@@ -13,11 +13,11 @@ export default class GameObjectLog {
     arr.push(message)
   }
 
-  get(object: GameObject) {
+  get (object: GameObject) {
     return this.log.get(object)
   }
 
-  clear() {
+  clear () {
     this.log.clear()
   }
 }

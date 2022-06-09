@@ -3,7 +3,7 @@ import { game } from '../../Game'
 import style from './Time.module.css'
 
 export default class TimeComponent extends Component {
-  constructor() {
+  constructor () {
     super()
 
     this.element.classList.add(style.time)

@@ -7,7 +7,7 @@ export default class Window extends Component {
   private posX!: number
   private posY!: number
 
-  constructor(parentBBox: DOMRect) {
+  constructor (parentBBox: DOMRect) {
     super()
 
     this.element.classList.add(style.container)
@@ -37,7 +37,7 @@ export default class Window extends Component {
     })
   }
 
-  private setPos(x: number, y: number) {
+  private setPos (x: number, y: number) {
     this.posX = x
     this.posY = y
     this.element.style.transform = `translate(${x}px, ${y}px)`

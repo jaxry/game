@@ -3,7 +3,7 @@ import type { GameObject } from './GameObject'
 type Phrase = string | GameObject
 
 interface LogEntry {
-  message: Phrase[],
+  message: Phrase[]
 }
 
 export default class GameLog {
@@ -11,27 +11,27 @@ export default class GameLog {
   isFinished = true
   important = false
 
-  get size() {
+  get size () {
     return this.entries.length
   }
 
-  start() {
+  start () {
     this.entries.length = 0
     this.isFinished = false
     this.important = false
   }
 
-  finish() {
+  finish () {
     this.isFinished = true
   }
 
-  write(...message: Phrase[]) {
+  write (...message: Phrase[]) {
     this.entries.push({
       message,
     })
   }
 
-  writeImportant(...message: Phrase[]) {
+  writeImportant (...message: Phrase[]) {
     this.write(...message)
     this.important = true
   }

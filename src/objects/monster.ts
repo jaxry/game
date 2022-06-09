@@ -9,11 +9,11 @@ import { randomElement } from '../util'
 import MoveSpotAction from '../actions/MoveSpot'
 
 class MonsterAttack extends Effect {
-  constructor(object: GameObject, public target: GameObject) {
+  constructor (object: GameObject, public target: GameObject) {
     super(object)
   }
 
-  override tick() {
+  override tick () {
     if (Math.random() > 0.5) {
       return
     }
@@ -37,13 +37,13 @@ class MonsterAttack extends Effect {
 }
 
 class MonsterSearch extends Effect {
-  found() {
+  found () {
     this.object.activeAction?.deactivate()
     this.deactivate()
     new MonsterAttack(this.object, game.player).activate()
   }
 
-  travel() {
+  travel () {
     if (!this.object.container.connections) {
       return
     }
@@ -51,7 +51,7 @@ class MonsterSearch extends Effect {
     new TravelAction(this.object, location).activate()
   }
 
-  override onActivate() {
+  override onActivate () {
     if (isContainedWith(this.object, game.player)) {
       return this.found()
     }
@@ -73,7 +73,7 @@ class MonsterSearch extends Effect {
     })
   }
 
-  override tick() {
+  override tick () {
     if (!this.object.activeAction && Math.random() < 0.5) {
       this.travel()
     }

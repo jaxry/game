@@ -5,7 +5,7 @@ export default class DragAndDrop<T> {
 
   private payload: T | null = null
 
-  drag(elem: HTMLElement, payload: T, image?: HTMLElement) {
+  drag (elem: HTMLElement, payload: T, image?: HTMLElement) {
     elem.draggable = true
 
     elem.addEventListener('dragstart', (e) => {
@@ -25,7 +25,7 @@ export default class DragAndDrop<T> {
     })
   }
 
-  drop(
+  drop (
       elem: HTMLElement, isDroppable: (payload: T) => DropEffect | void,
       onDrop: (payload: T) => void) {
 

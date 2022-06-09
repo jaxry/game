@@ -9,14 +9,14 @@ export default class Action extends Effect {
   // for targeted actions such as attacks
   target?: GameObject
 
-  get icon() {
+  get icon () {
     return '🙾'
   }
 
   // Called after the specified time is elapsed
-  do?(): void
+  do? (): void
 
-  override activate() {
+  override activate () {
     super.activate()
 
     this.object.activeAction?.deactivate()
@@ -27,7 +27,7 @@ export default class Action extends Effect {
     return this
   }
 
-  override deactivate() {
+  override deactivate () {
     super.deactivate()
 
     if (this.object.activeAction === this) {
@@ -37,7 +37,7 @@ export default class Action extends Effect {
     return this
   }
 
-  override tick() {
+  override tick () {
     this.time--
 
     if (this.time <= 0) {
@@ -51,7 +51,7 @@ export default class Action extends Effect {
     }
   }
 
-  condition() {
+  condition () {
     return true
   }
 }

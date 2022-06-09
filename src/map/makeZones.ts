@@ -4,7 +4,7 @@ import { connectZones } from '../behavior/connections'
 import { lerp } from '../util'
 import { Vertex } from './types'
 
-export default function makeZones(vertices: Vertex[]) {
+export default function makeZones (vertices: Vertex[]) {
   const vertexToZone = new Map<Vertex, GameObject>()
 
   for (const vertex of vertices) {

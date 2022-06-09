@@ -5,25 +5,25 @@ import { moveToSpot } from '../behavior/container'
 export default class MoveSpotAction extends Action {
   to: number
 
-  constructor(object: GameObject, to: number) {
+  constructor (object: GameObject, to: number) {
     super(object)
     this.to = this.object.spot + Math.sign(to - this.object.spot)
     this.time = 3
   }
 
-  override get name() {
+  override get name () {
     return `move ${this.direction()}`
   }
 
-  override get icon() {
+  override get icon () {
     return `👣${this.direction()}`
   }
 
-  do() {
+  do () {
     moveToSpot(this.object, this.to)
   }
 
-  private direction() {
+  private direction () {
     if (this.to < this.object.spot) return '⬅'
     if (this.to > this.object.spot) return '➡'
     return ''
