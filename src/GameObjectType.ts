@@ -5,7 +5,7 @@ import type { GameObject } from './GameObject'
 export interface GameObjectType {
   name: string
 
-  icon: string
+  icon: { url: string }
 
   properNoun: boolean
 

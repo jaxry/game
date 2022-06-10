@@ -14,8 +14,9 @@ export default class AttackAction extends Action {
     return `attacking ${this.target.type.name}`
   }
 
+  // override get icon () { return `⚔️${this.target.type.icon}` }
   override get icon () {
-    return `⚔️${this.target.type.icon}`
+    return `⚔️`
   }
 
   override condition () {

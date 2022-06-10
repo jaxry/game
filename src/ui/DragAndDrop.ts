@@ -11,9 +11,9 @@ export default class DragAndDrop<T> {
     elem.addEventListener('dragstart', (e) => {
       e.dataTransfer!.setData('text/plain', (e.target as HTMLElement).innerText)
       if (image) {
-        const x = image.offsetWidth / 2 * window.devicePixelRatio
-        const y = image.offsetHeight / 2 * window.devicePixelRatio
-        e.dataTransfer!.setDragImage(image, x, y)
+        const x = image.offsetWidth / 2
+        const y = image.offsetHeight / 2
+        e.dataTransfer!.setDragImage(getDragImage(image), x, y)
       }
       this.payload = payload
       this.onDrag.emit(this.payload)
@@ -32,7 +32,8 @@ export default class DragAndDrop<T> {
     let dropEffect: DropEffect | null = null
 
     elem.addEventListener('dragenter', (e) => {
-      dropEffect = isDroppable(this.payload!) || null
+      const dropOnParent = e.target === e.currentTarget
+      dropEffect = dropOnParent && isDroppable(this.payload!) || null
       if (dropEffect) {
         e.stopPropagation()
         e.preventDefault()
@@ -53,7 +54,22 @@ export default class DragAndDrop<T> {
       onDrop(this.payload!)
     })
   }
-
 }
 
 export type DropEffect = 'copy' | 'move' | 'link'
+
+function getDragImage(elem: Element) {
+  if (!(elem instanceof HTMLImageElement)) {
+    return elem
+  }
+
+  const canvas = document.createElement('canvas')
+  canvas.width = elem.offsetWidth * window.devicePixelRatio
+  canvas.height = elem.offsetHeight * window.devicePixelRatio
+
+  const ctx = canvas.getContext('2d')!
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(elem, 0, 0, canvas.width, canvas.height)
+
+  return canvas
+}

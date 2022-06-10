@@ -29,9 +29,9 @@ export default class ObjectCard extends Component {
       this.element.classList.add(playerStyle)
     }
 
-    const icon = document.createElement('div')
+    const icon = document.createElement('img')
     icon.classList.add(iconStyle)
-    icon.textContent = object.type.icon
+    icon.src = `/Assets/${object.type.icon.url}`
     this.element.append(icon)
 
     // this.actionContainer = $('div')
@@ -67,10 +67,11 @@ export default class ObjectCard extends Component {
 
           // If player starts a new action,
           // show action immediately even if outside of tick.
-          action.object === game.player && !isTickInProgress() ?
-              self.setAction(action) :
-              staggerStateChange.add(() => self.setAction(action))
-
+          if (action.object === game.player && !isTickInProgress()) {
+            self.setAction(action)
+          } else {
+            staggerStateChange.add(() => self.setAction(action))
+          }
         })
         this.onEvent(object.container, 'itemActionEnd', ({ action }) => {
           if (action.object !== this.object) {
@@ -144,5 +145,6 @@ const playerStyle = makeStyle({
 })
 
 const iconStyle = makeStyle({
-  fontSize: `3rem`,
+  height: `4rem`,
+  imageRendering: `crisp-edges`,
 })
