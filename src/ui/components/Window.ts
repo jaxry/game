@@ -25,15 +25,13 @@ export default class Window extends Component {
     }
 
     this.element.addEventListener('pointerdown', (e) => {
-      this.element.addEventListener('pointermove', drag)
+      window.addEventListener('pointermove', drag)
 
       const stopDragging = () => {
-        this.element.removeEventListener('pointermove', drag)
+        window.removeEventListener('pointermove', drag)
       }
-
-      this.element.addEventListener('pointerup', stopDragging, { once: true })
-      this.element.addEventListener('pointerleave', stopDragging,
-          { once: true })
+      window.addEventListener('pointerup', stopDragging, { once: true })
+      window.addEventListener('pointerleave', stopDragging, { once: true })
     })
   }
 
