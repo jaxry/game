@@ -3,10 +3,6 @@
   transform-origin: center;
 }
 
-.transitionTransform {
-  transition: transform var(--durationSlow);
-}
-
 .edge {
   stroke: #999999;
 }
@@ -22,7 +18,7 @@
   fill: var(--fontColor);
 }
 
-.center {
+.playerZone {
   fill: var(--playerMap);
   filter: drop-shadow(0 0.25rem 0.25rem var(--shadowColor)) drop-shadow(0 0 0.25rem var(--playerMap));
 }

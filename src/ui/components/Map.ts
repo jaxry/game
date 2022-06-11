@@ -2,6 +2,7 @@ import Component from './Component'
 import { game } from '../../Game'
 import createSvg from '../createSvg'
 import {
+  Edge,
   getZoneGraph,
   renderedConnectionDistance,
   ZoneGraph,
@@ -54,7 +55,8 @@ export default class MapComponent extends Component {
     const d3Graph = makeD3Graph(graph)
     const sim = d3.forceSimulation()
     sim.nodes(d3Graph.nodes)
-        .force('charge', d3.forceManyBody().distanceMax(5 * renderedConnectionDistance)
+        .force('charge', d3.forceManyBody()
+            .distanceMax(5 * renderedConnectionDistance)
             .strength(node => {
               return -30 * nodes[node.index!].connections.length
             }))
@@ -69,10 +71,12 @@ export default class MapComponent extends Component {
         })
   }
 
-  nodeSize = (node: GameObject) => lerp(1, 6, 5, 20, node.connections.length)
+  private static nodeSize (node: GameObject) {
+    return lerp(1, 6, 5, 20, node.connections.length)
+  }
 
-  update (centerZone: GameObject) {
-    const graph = getZoneGraph(centerZone, 2)
+  update (playerZone: GameObject) {
+    const graph = getZoneGraph(playerZone, 2)
 
     this.setBounds(graph)
 
@@ -82,6 +86,13 @@ export default class MapComponent extends Component {
         this.nodeToElem.delete(obj)
       }
     }
+
+    for (const node of graph.nodes) {
+      if (!this.nodeToElem.has(node)) {
+        this.makeNodeElem(node)
+      }
+    }
+
     for (const [hash, elem] of this.edgeToElem) {
       if (!graph.edges.has(hash)) {
         transitionOut(elem)
@@ -89,47 +100,47 @@ export default class MapComponent extends Component {
       }
     }
 
-    for (const node of graph.nodes) {
-      if (this.nodeToElem.has(node)) {
-        continue
+    for (const [hash, edge] of graph.edges) {
+      if (!this.edgeToElem.has(hash)) {
+        this.makeEdgeElem(hash, edge)
       }
-
-      const circle = createSvg('circle')
-      circle.classList.add(style.node)
-      circle.setAttribute('cx', node.position.x.toFixed(0))
-      circle.setAttribute('cy', node.position.y.toFixed(0))
-      circle.setAttribute('r', this.nodeSize(node).toFixed(0))
-      circle.onclick = () => this.onZoneClick?.(node)
-      this.nodeG.append(circle)
-      transitionIn(circle)
-
-      this.nodeToElem.set(node, circle)
     }
 
     for (const circle of this.nodeToElem.values()) {
-      circle.classList.remove(style.center, style.canTravel)
+      circle.classList.remove(style.playerZone, style.canTravel)
     }
-    this.nodeToElem.get(centerZone)!.classList.add(style.center)
-    for (const zone of centerZone.connections) {
+
+    this.nodeToElem.get(playerZone)!.classList.add(style.playerZone)
+
+    for (const zone of playerZone.connections) {
       this.nodeToElem.get(zone)!.classList.add(style.canTravel)
     }
+  }
 
-    for (const [hash, edge] of graph.edges) {
-      if (this.edgeToElem.has(hash)) {
-        continue
-      }
+  private makeNodeElem (node: GameObject) {
+    const circle = createSvg('circle')
+    circle.classList.add(style.node)
+    circle.setAttribute('cx', node.position.x.toFixed(0))
+    circle.setAttribute('cy', node.position.y.toFixed(0))
+    circle.setAttribute('r', MapComponent.nodeSize(node).toFixed(0))
+    circle.onclick = () => this.onZoneClick?.(node)
 
-      const line = createSvg('line')
-      line.classList.add(style.edge)
-      line.setAttribute('x1', edge.source.position.x.toFixed(0))
-      line.setAttribute('y1', edge.source.position.y.toFixed(0))
-      line.setAttribute('x2', edge.target.position.x.toFixed(0))
-      line.setAttribute('y2', edge.target.position.y.toFixed(0))
-      this.edgeG.append(line)
-      transitionIn(line)
+    this.nodeG.append(circle)
+    transitionIn(circle)
+    this.nodeToElem.set(node, circle)
+  }
 
-      this.edgeToElem.set(hash, line)
-    }
+  private makeEdgeElem (hash: string, edge: Edge) {
+    const line = createSvg('line')
+    line.classList.add(style.edge)
+    line.setAttribute('x1', edge.source.position.x.toFixed(0))
+    line.setAttribute('y1', edge.source.position.y.toFixed(0))
+    line.setAttribute('x2', edge.target.position.x.toFixed(0))
+    line.setAttribute('y2', edge.target.position.y.toFixed(0))
+
+    this.edgeG.append(line)
+    transitionIn(line)
+    this.edgeToElem.set(hash, line)
   }
 
   private setBounds (graph: ZoneGraph) {
@@ -143,11 +154,6 @@ export default class MapComponent extends Component {
     this.transform.e = -bounds.xMin * scale
     this.transform.f = -bounds.yMin * scale
 
-    // this.mapG.classList.add(style.transitionTransform)
-    // this.mapG.addEventListener('transitionend', () => {
-    //   this.mapG.classList.remove(style.transitionTransform)
-    // }, {once: true})
-    // this.mapG.setAttribute('transform', this.transform.toString())
     this.mapG.animate({
       transform: this.transform.toString(),
     }, {
