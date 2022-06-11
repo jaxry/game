@@ -7,10 +7,10 @@ import Action from '../../behavior/Action'
 import ActionComponent from './ActionComponent'
 import { dragAndDropGameObject, staggerStateChange } from './Game'
 import { game } from '../../Game'
-import animationDuration from '../animationDuration'
 import { Effect } from '../../behavior/Effect'
 import { isTickInProgress } from '../../behavior/core'
 import TargetActionAnimation from './TargetActionAnimation'
+import { duration } from '../theme'
 
 const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
@@ -96,7 +96,7 @@ export default class ObjectCard extends Component {
 
     this.actionComponent.element.animate(
         { opacity: [0, 1] },
-        { duration: animationDuration.fast })
+        { duration: duration.fast })
   }
 
   clearAction () {
@@ -109,7 +109,7 @@ export default class ObjectCard extends Component {
     component.element.animate({
       opacity: 0,
     }, {
-      duration: animationDuration.fast,
+      duration: duration.fast,
     }).onfinish = () => {
       component.remove()
       if (this.actionComponent === component) {

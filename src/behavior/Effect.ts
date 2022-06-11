@@ -1,8 +1,7 @@
 import type { ActiveGameObjectEvent, GameObject } from '../GameObject'
 import { unsubscribeEvent } from '../GameObject'
 import type {
-  GameObjectEventListener,
-  GameObjectEvents,
+  GameObjectEventListener, GameObjectEvents,
 } from '../GameObjectType'
 import { deleteElem } from '../util'
 

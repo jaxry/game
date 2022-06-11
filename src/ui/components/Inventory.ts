@@ -6,9 +6,9 @@ import { dragAndDropGameObject, staggerStateChange } from './Game'
 import TransferAction from '../../actions/Transfer'
 import { GameObject } from '../../GameObject'
 import { Effect } from '../../behavior/Effect'
-import animationDuration from '../animationDuration'
 import { removeElemAndAnimateList } from '../removeElementFromList'
 import { getAndDelete } from '../../util'
+import { duration } from '../theme'
 
 export default class Inventory extends Component {
   private objectToCard: Map<GameObject, ObjectCard> = new Map()
@@ -47,7 +47,7 @@ export default class Inventory extends Component {
         opacity: [0, 1],
         transform: [`translate(0, 100%)`, `translate(0, 0)`],
       }, {
-        duration: animationDuration.normal,
+        duration: duration.normal,
         easing: 'ease-in-out',
       })
     }
@@ -59,7 +59,7 @@ export default class Inventory extends Component {
       opacity: 0,
       transform: `translate(0, 100%)`,
     }, {
-      duration: animationDuration.normal,
+      duration: duration.normal,
       easing: 'ease-in-out',
     }).onfinish = () => {
       removeElemAndAnimateList(card.element)

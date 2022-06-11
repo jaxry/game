@@ -2,7 +2,7 @@ import Component from './Component'
 import Action from '../../behavior/Action'
 import style from './TargetActionAnimation.module.css'
 import { outsideElem } from './App'
-import animationDuration from '../animationDuration'
+import { duration } from '../theme'
 
 export default class TargetActionAnimation extends Component {
   constructor (action: Action, from: HTMLElement, to: HTMLElement) {
@@ -18,7 +18,7 @@ export default class TargetActionAnimation extends Component {
       transform: [center(from), center(to)],
       opacity: [0, 1, 1, 1, 0],
     }, {
-      duration: animationDuration.slow,
+      duration: duration.slow,
       easing: 'cubic-bezier(0.5,0,0,1)',
     }).onfinish = () => this.remove()
   }

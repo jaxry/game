@@ -7,12 +7,12 @@ import { isPlayer, MovePlayerToSpot } from '../../behavior/player'
 import animateWithDelay from '../animateWithDelay'
 import ObjectCard from './ObjectCard'
 import { startPlayerEffect } from '../../behavior/core'
-import animationDuration from '../animationDuration'
 import bBoxDiff from '../bBoxDiff'
 import { removeElemAndAnimateList } from '../removeElementFromList'
 import { getAndDelete } from '../../util'
 import { dragAndDropGameObject, staggerStateChange } from './Game'
 import TransferAction from '../../actions/Transfer'
+import { duration } from '../theme'
 
 export default class Zone extends Component {
   private objectToCard = new Map<GameObject, ObjectCard>()
@@ -109,7 +109,7 @@ export default class Zone extends Component {
       { transform: bBoxDiff(oldBBox, newBBox) },
       { transform: `translate(0, 0)` },
     ], {
-      duration: animationDuration.normal,
+      duration: duration.normal,
       easing: 'ease-in-out',
       composite: 'accumulate',
     })
@@ -122,7 +122,7 @@ export default class Zone extends Component {
       { opacity: 1, transform: `translate(0, 0)` },
     ], {
       easing: 'ease-in-out',
-      duration: animationDuration.normal,
+      duration: duration.normal,
     })
   }
 
@@ -133,7 +133,7 @@ export default class Zone extends Component {
       opacity: 0,
       transform: `translate(0, 200%)`,
     }, {
-      duration: animationDuration.normal,
+      duration: duration.normal,
       easing: 'ease-in-out',
     }).onfinish = () => {
       removeElemAndAnimateList(elem)
@@ -142,7 +142,7 @@ export default class Zone extends Component {
   }
 
   private playerMoveZone () {
-    const fadeTime = animationDuration.normal
+    const fadeTime = duration.normal
 
     for (const [obj, card] of this.objectToCard) {
       if (obj === game.player) {
@@ -182,7 +182,7 @@ export default class Zone extends Component {
           opacity: [0, 1],
         }, {
           duration: fadeTime,
-          delay: animationDuration.fast,
+          delay: duration.fast,
         })
       }
 
@@ -191,7 +191,7 @@ export default class Zone extends Component {
           borderColor: ['transparent', ''],
         }, {
           duration: fadeTime,
-          delay: animationDuration.fast,
+          delay: duration.fast,
         })
       }
 

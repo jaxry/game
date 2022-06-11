@@ -1,7 +1,7 @@
 import Component from './Component'
 import Action from '../../behavior/Action'
 import style from './ActionComponent.module.css'
-import animationDuration from '../animationDuration'
+import { duration } from '../theme'
 
 export default class ActionComponent extends Component {
   private readonly name: HTMLElement
@@ -25,7 +25,7 @@ export default class ActionComponent extends Component {
   update () {
     if (this.action.time <= 0) {
       this.time.animate({ opacity: 0 },
-          { duration: animationDuration.fast, fill: 'forwards' })
+          { duration: duration.fast, fill: 'forwards' })
     } else {
       this.time.textContent = this.action.time.toString()
     }

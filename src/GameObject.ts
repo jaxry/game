@@ -1,8 +1,5 @@
 import type {
-  GameObjectEvent,
-  GameObjectEventListener,
-  GameObjectEvents,
-  GameObjectProps,
+  GameObjectEvent, GameObjectEventListener, GameObjectEvents, GameObjectProps,
   GameObjectType,
 } from './GameObjectType'
 

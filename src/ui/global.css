@@ -12,7 +12,6 @@
 :root {
   color-scheme: dark;
 
-  /*should be set to the same values as animationDuration.ts*/
   --durationFast: 0.25s;
   --durationNormal: 0.5s;
   --durationSlow: 1s;
