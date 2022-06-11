@@ -107,7 +107,7 @@ export default class Zone extends Component {
     const newBBox = elem.getBoundingClientRect()
     elem.animate([
       { transform: bBoxDiff(oldBBox, newBBox) },
-      { transform: `` },
+      { transform: `translate(0, 0)` },
     ], {
       duration: animationDuration.normal,
       easing: 'ease-in-out',
@@ -119,7 +119,7 @@ export default class Zone extends Component {
     const elem = this.makeCard(obj).element
     elem.animate([
       { opacity: 0, transform: `translate(0, 200%)` },
-      { opacity: 1, transform: `` },
+      { opacity: 1, transform: `translate(0, 0)` },
     ], {
       easing: 'ease-in-out',
       duration: animationDuration.normal,
@@ -198,7 +198,7 @@ export default class Zone extends Component {
       playerCard.element.animate({
         transform: [
           bBoxDiff(playerBbox, playerCard.element.getBoundingClientRect()),
-          ''],
+          'translate(0, 0)'],
       }, {
         duration: fadeTime,
         easing: 'ease-in-out',
