@@ -77,7 +77,7 @@ export default class Inventory extends Component {
     })
 
     this.on(dragAndDropGameObject.onDrag, (item) => {
-      const dragging = ['outline-1', 'outline-color-border', 'outline-dashed']
+      const dragging = ['outline-1', 'outline-dashed', 'outline-color-border']
       if (item && draggable(item)) {
         this.element.classList.add(...dragging)
       } else {

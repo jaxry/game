@@ -33,7 +33,8 @@ export default class MapComponent extends Component {
     this.svg.setAttribute('height', '100%')
     this.element.append(this.svg)
 
-    this.mapG.classList.add(style.map)
+    this.mapG.classList.add(
+        'descendant:[transform-box:fill-box]', 'descendant:origin-center')
     this.mapG.append(
         this.edgeG,
         this.nodeG)
@@ -106,20 +107,25 @@ export default class MapComponent extends Component {
       }
     }
 
+    const canTravel = 'fill-emerald-300'
+    const playerZoneStyle = 'fill-yellow-200'
+
     for (const circle of this.nodeToElem.values()) {
-      circle.classList.remove(style.playerZone, style.canTravel)
+      circle.classList.remove(playerZoneStyle, canTravel)
     }
 
-    this.nodeToElem.get(playerZone)!.classList.add(style.playerZone)
+    this.nodeToElem.get(playerZone)!.classList.add(playerZoneStyle)
 
     for (const zone of playerZone.connections) {
-      this.nodeToElem.get(zone)!.classList.add(style.canTravel)
+      console.log(canTravel)
+      this.nodeToElem.get(zone)!.classList.add(canTravel)
     }
   }
 
   private makeNodeElem (node: GameObject) {
     const circle = createSvg('circle')
-    circle.classList.add(style.node)
+    circle.classList.add(
+        'fill-emerald-600', 'cursor-pointer')
     circle.setAttribute('cx', node.position.x.toFixed(0))
     circle.setAttribute('cy', node.position.y.toFixed(0))
     circle.setAttribute('r', MapComponent.nodeSize(node).toFixed(0))
@@ -132,7 +138,7 @@ export default class MapComponent extends Component {
 
   private makeEdgeElem (hash: string, edge: Edge) {
     const line = createSvg('line')
-    line.classList.add(style.edge)
+    line.classList.add('stroke-gray-500')
     line.setAttribute('x1', edge.source.position.x.toFixed(0))
     line.setAttribute('y1', edge.source.position.y.toFixed(0))
     line.setAttribute('x2', edge.target.position.x.toFixed(0))

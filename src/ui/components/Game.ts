@@ -18,7 +18,8 @@ export default class GameComponent extends Component {
   constructor () {
     super()
 
-    this.element.classList.add('h-screen', 'overflow-hidden', 'flex', 'flex-col')
+    this.element.classList.add(
+        'h-screen', 'overflow-hidden', 'flex', 'flex-col')
 
     const zone = this.newComponent(Zone)
     this.element.append(zone.element)

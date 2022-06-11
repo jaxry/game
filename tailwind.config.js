@@ -5,7 +5,12 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'color-border': colors.gray['500'],
+        'color-border': colors.gray['500']
+      },
+      transitionDuration: {
+        fast: '250ms',
+        normal: '500ms',
+        slow:'1000ms'
       }
     },
   },
@@ -13,5 +18,10 @@ module.exports = {
     "./index.html",
     "./src/ui/components/**/*.ts"
   ],
-  plugins: [],
+  plugins: [
+    function ({ addVariant }) {
+      addVariant('descendant', '& *');
+      addVariant('child', '& > *');
+    }
+  ],
 }

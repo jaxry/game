@@ -5,7 +5,7 @@ export default class TimeComponent extends Component {
   constructor () {
     super()
 
-    this.element.classList.add('text-center', 'text-2xl' )
+    this.element.classList.add('text-center', 'text-2xl')
 
     const setTime = () => {
       this.element.textContent = game.time.getTimeOfDay()
