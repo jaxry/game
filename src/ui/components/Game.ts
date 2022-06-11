@@ -1,5 +1,3 @@
-import '../global.css'
-import style from './Game.module.css'
 import Component from './Component'
 import { game } from '../../Game'
 import MapComponent from './Map'
@@ -20,25 +18,31 @@ export default class GameComponent extends Component {
   constructor () {
     super()
 
-    this.element.classList.add(style.container)
-
-    const map = this.createMap()
-    map.element.classList.add(style.map)
-    this.element.append(map.element)
+    this.element.classList.add('h-screen', 'overflow-hidden', 'flex', 'flex-col')
 
     const zone = this.newComponent(Zone)
-    zone.element.classList.add(style.zone)
     this.element.append(zone.element)
 
-    const global = document.createElement('div')
-    global.classList.add(style.global)
-    this.element.append(global)
+    const controls = document.createElement('div')
+    controls.classList.add(
+        'shrink-0', 'basis-[280px]',
+        'border-t', 'border-color-border',
+        'flex')
+    this.element.append(controls)
+
+    const map = this.createMap()
+    map.element.classList.add('shrink-0', 'basis-[280px]')
+    controls.append(map.element)
+
+    const info = document.createElement('div')
+    info.classList.add('flex-1')
+    controls.append(info)
 
     const time = this.newComponent(TimeComponent)
-    global.append(time.element)
+    info.append(time.element)
 
     const player = this.newComponent(Player)
-    global.append(player.element)
+    info.append(player.element)
 
     this.on(game.event.playerTickEnd, () => {
       staggerStateChange.start()

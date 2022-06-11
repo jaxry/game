@@ -1,5 +1,4 @@
 import Component from './Component'
-import style from './Inventory.module.css'
 import ObjectCard from './ObjectCard'
 import { game } from '../../Game'
 import { dragAndDropGameObject, staggerStateChange } from './Game'
@@ -16,7 +15,7 @@ export default class Inventory extends Component {
   constructor (public object: GameObject) {
     super()
 
-    this.element.classList.add(style.container)
+    this.element.classList.add('flex', 'gap-3')
 
     for (const item of object.contains) {
       this.makeCard(item)
@@ -78,10 +77,11 @@ export default class Inventory extends Component {
     })
 
     this.on(dragAndDropGameObject.onDrag, (item) => {
+      const dragging = ['outline-1', 'outline-color-border', 'outline-dashed']
       if (item && draggable(item)) {
-        this.element.classList.add(style.dragging)
+        this.element.classList.add(...dragging)
       } else {
-        this.element.classList.remove(style.dragging)
+        this.element.classList.remove(...dragging)
       }
     })
   }
