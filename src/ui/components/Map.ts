@@ -2,16 +2,14 @@ import Component from './Component'
 import { game } from '../../Game'
 import createSvg from '../createSvg'
 import {
-  Edge,
-  getZoneGraph,
-  renderedConnectionDistance,
-  ZoneGraph,
+  Edge, getZoneGraph, renderedConnectionDistance, ZoneGraph,
 } from '../../behavior/connections'
 import { GameObject } from '../../GameObject'
-import style from './Map.module.css'
 import * as d3 from 'd3-force'
 import { lerp, mapIter } from '../../util'
-import animationDuration from '../animationDuration'
+import { makeStyle } from '../makeStyle'
+import { duration, shadowFilter } from '../theme'
+import colors from '../colors'
 
 export default class MapComponent extends Component {
   onZoneClick?: (zone: GameObject) => void
@@ -33,7 +31,7 @@ export default class MapComponent extends Component {
     this.svg.setAttribute('height', '100%')
     this.element.append(this.svg)
 
-    this.mapG.classList.add(style.map)
+    this.mapG.classList.add(mapStyle)
     this.mapG.append(
         this.edgeG,
         this.nodeG)
@@ -71,10 +69,6 @@ export default class MapComponent extends Component {
         })
   }
 
-  private static nodeSize (node: GameObject) {
-    return lerp(1, 6, 5, 20, node.connections.length)
-  }
-
   update (playerZone: GameObject) {
     const graph = getZoneGraph(playerZone, 2)
 
@@ -107,22 +101,22 @@ export default class MapComponent extends Component {
     }
 
     for (const circle of this.nodeToElem.values()) {
-      circle.classList.remove(style.playerZone, style.canTravel)
+      circle.classList.remove(playerNodeStyle, canTravelStyle)
     }
 
-    this.nodeToElem.get(playerZone)!.classList.add(style.playerZone)
+    this.nodeToElem.get(playerZone)!.classList.add(playerNodeStyle)
 
     for (const zone of playerZone.connections) {
-      this.nodeToElem.get(zone)!.classList.add(style.canTravel)
+      this.nodeToElem.get(zone)!.classList.add(canTravelStyle)
     }
   }
 
   private makeNodeElem (node: GameObject) {
     const circle = createSvg('circle')
-    circle.classList.add(style.node)
+    circle.classList.add(nodeStyle)
     circle.setAttribute('cx', node.position.x.toFixed(0))
     circle.setAttribute('cy', node.position.y.toFixed(0))
-    circle.setAttribute('r', MapComponent.nodeSize(node).toFixed(0))
+    circle.setAttribute('r', nodeSize(node).toFixed(0))
     circle.onclick = () => this.onZoneClick?.(node)
 
     this.nodeG.append(circle)
@@ -132,7 +126,7 @@ export default class MapComponent extends Component {
 
   private makeEdgeElem (hash: string, edge: Edge) {
     const line = createSvg('line')
-    line.classList.add(style.edge)
+    line.classList.add(edgeStyle)
     line.setAttribute('x1', edge.source.position.x.toFixed(0))
     line.setAttribute('y1', edge.source.position.y.toFixed(0))
     line.setAttribute('x2', edge.target.position.x.toFixed(0))
@@ -157,7 +151,7 @@ export default class MapComponent extends Component {
     this.mapG.animate({
       transform: this.transform.toString(),
     }, {
-      duration: animationDuration.slow,
+      duration: duration.slow,
       fill: 'forwards',
       easing: 'ease-in-out',
     }).commitStyles()
@@ -213,7 +207,7 @@ function transitionIn (elem: Element) {
   elem.animate({
     transform: ['scale(0)', 'scale(1)'],
   }, {
-    duration: animationDuration.normal,
+    duration: duration.normal,
   })
 }
 
@@ -221,8 +215,39 @@ function transitionOut (elem: Element) {
   elem.animate({
     transform: ['scale(1)', 'scale(0)'],
   }, {
-    duration: animationDuration.normal,
+    duration: duration.normal,
   }).onfinish = () => {
     elem.remove()
   }
 }
+
+function nodeSize (node: GameObject) {
+  return lerp(1, 6, 5, 20, node.connections.length)
+}
+
+const mapStyle = makeStyle()
+
+makeStyle(`.${mapStyle} *`, {
+  transformBox: `fill-box`,
+  transformOrigin: `center`,
+})
+
+const nodeStyle = makeStyle({
+  fill: colors.slate['700'],
+  filter: shadowFilter,
+  cursor: `pointer`,
+  transition: `all ${duration.fast}ms`,
+})
+
+const canTravelStyle = makeStyle({
+  fill: colors.sky['500'],
+})
+
+const playerNodeStyle = makeStyle({
+  fill: colors.green['400'],
+  filter: `${shadowFilter} drop-shadow(0 0 0.25rem ${colors.green['400']})`,
+})
+
+const edgeStyle = makeStyle({
+  stroke: colors.zinc['500'],
+})

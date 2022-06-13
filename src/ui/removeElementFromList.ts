@@ -1,5 +1,5 @@
 import bBoxDiff from './bBoxDiff'
-import animationDuration from './animationDuration'
+import { duration } from './theme'
 
 export function removeElementFromList (
     elem: HTMLElement,
@@ -30,7 +30,7 @@ export function removeElemAndAnimateList (elem: HTMLElement) {
       { transform: bBoxDiff(oldBBox, newBBox) },
       { transform: `translate(0, 0)` },
     ], {
-      duration: animationDuration.normal,
+      duration: duration.normal,
       easing: 'ease-in-out',
       composite: 'accumulate',
     })

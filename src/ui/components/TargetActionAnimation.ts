@@ -1,8 +1,8 @@
 import Component from './Component'
 import Action from '../../behavior/Action'
-import style from './TargetActionAnimation.module.css'
 import { outsideElem } from './App'
-import animationDuration from '../animationDuration'
+import { duration } from '../theme'
+import { makeStyle } from '../makeStyle'
 
 export default class TargetActionAnimation extends Component {
   constructor (action: Action, from: HTMLElement, to: HTMLElement) {
@@ -10,7 +10,7 @@ export default class TargetActionAnimation extends Component {
 
     outsideElem.append(this.element)
 
-    this.element.classList.add(style.container)
+    this.element.classList.add(containerStyle)
 
     this.element.textContent = action.icon
 
@@ -18,11 +18,17 @@ export default class TargetActionAnimation extends Component {
       transform: [center(from), center(to)],
       opacity: [0, 1, 1, 1, 0],
     }, {
-      duration: animationDuration.slow,
+      duration: duration.slow,
       easing: 'cubic-bezier(0.5,0,0,1)',
     }).onfinish = () => this.remove()
   }
 }
+
+const containerStyle = makeStyle({
+  position: `fixed`,
+  fontSize: `2rem`,
+  pointerEvents: `none`,
+})
 
 function center (elem: HTMLElement) {
   const r = elem.getBoundingClientRect()

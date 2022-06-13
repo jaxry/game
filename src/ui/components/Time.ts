@@ -1,12 +1,12 @@
 import Component from './Component'
 import { game } from '../../Game'
-import style from './Time.module.css'
+import { makeStyle } from '../makeStyle'
 
 export default class TimeComponent extends Component {
   constructor () {
     super()
 
-    this.element.classList.add(style.time)
+    this.element.classList.add(timeStyle)
 
     const setTime = () => {
       this.element.textContent = game.time.getTimeOfDay()
@@ -16,3 +16,8 @@ export default class TimeComponent extends Component {
     setTime()
   }
 }
+
+const timeStyle = makeStyle({
+  fontSize: `2rem`,
+  textAlign: `center`,
+})

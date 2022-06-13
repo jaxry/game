@@ -1,16 +1,17 @@
 import Component from './Component'
 import { GameObject } from '../../GameObject'
-import style from './ObjectCard.module.css'
 import { isPlayer } from '../../behavior/player'
 import ObjectInfo from './ObjectInfo'
 import Action from '../../behavior/Action'
 import ActionComponent from './ActionComponent'
 import { dragAndDropGameObject, staggerStateChange } from './Game'
 import { game } from '../../Game'
-import animationDuration from '../animationDuration'
 import { Effect } from '../../behavior/Effect'
 import { isTickInProgress } from '../../behavior/core'
 import TargetActionAnimation from './TargetActionAnimation'
+import { borderRadius, boxShadow, duration } from '../theme'
+import { makeStyle } from '../makeStyle'
+import colors from '../colors'
 
 const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
@@ -23,13 +24,13 @@ export default class ObjectCard extends Component {
 
     objectToCard.set(object, this)
 
-    this.element.classList.add(style.container)
+    this.element.classList.add(containerStyle)
     if (isPlayer(object)) {
-      this.element.classList.add(style.player)
+      this.element.classList.add(playerStyle)
     }
 
     const icon = document.createElement('div')
-    icon.classList.add(style.icon)
+    icon.classList.add(iconStyle)
     icon.textContent = object.type.icon
     this.element.append(icon)
 
@@ -96,7 +97,7 @@ export default class ObjectCard extends Component {
 
     this.actionComponent.element.animate(
         { opacity: [0, 1] },
-        { duration: animationDuration.fast })
+        { duration: duration.fast })
   }
 
   clearAction () {
@@ -109,7 +110,7 @@ export default class ObjectCard extends Component {
     component.element.animate({
       opacity: 0,
     }, {
-      duration: animationDuration.fast,
+      duration: duration.fast,
     }).onfinish = () => {
       component.remove()
       if (this.actionComponent === component) {
@@ -122,3 +123,26 @@ export default class ObjectCard extends Component {
     this.actionComponent?.update()
   }
 }
+
+const containerStyle = makeStyle({
+  display: `flex`,
+  alignItems: `center`,
+  justifyContent: `space-between`,
+  padding: `0.25rem`,
+  background: colors.cyan['900'],
+  boxShadow,
+  borderRadius,
+  userSelect: `none`,
+})
+
+makeStyle(`.${containerStyle}:hover`, {
+  background: colors.cyan['800'],
+})
+
+const playerStyle = makeStyle({
+  background: colors.green['700'],
+})
+
+const iconStyle = makeStyle({
+  fontSize: `3rem`,
+})

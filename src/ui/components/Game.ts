@@ -1,5 +1,3 @@
-import '../global.css'
-import style from './Game.module.css'
 import Component from './Component'
 import { game } from '../../Game'
 import MapComponent from './Map'
@@ -12,6 +10,8 @@ import DragAndDrop from '../DragAndDrop'
 import { GameObject } from '../../GameObject'
 import Player from './Player'
 import { StaggerStateChange } from '../StaggerStateChange'
+import { makeStyle } from '../makeStyle'
+import { border } from '../theme'
 
 export const dragAndDropGameObject = new DragAndDrop<GameObject>()
 export const staggerStateChange = new StaggerStateChange()
@@ -20,25 +20,25 @@ export default class GameComponent extends Component {
   constructor () {
     super()
 
-    this.element.classList.add(style.container)
+    this.element.classList.add(containerStyle)
 
     const map = this.createMap()
-    map.element.classList.add(style.map)
+    map.element.classList.add(mapStyle)
     this.element.append(map.element)
 
     const zone = this.newComponent(Zone)
-    zone.element.classList.add(style.zone)
+    zone.element.classList.add(zoneStyle)
     this.element.append(zone.element)
 
-    const global = document.createElement('div')
-    global.classList.add(style.global)
-    this.element.append(global)
+    const info = document.createElement('div')
+    info.classList.add(infoStyle)
+    this.element.append(info)
 
     const time = this.newComponent(TimeComponent)
-    global.append(time.element)
+    info.append(time.element)
 
     const player = this.newComponent(Player)
-    global.append(player.element)
+    info.append(player.element)
 
     this.on(game.event.playerTickEnd, () => {
       staggerStateChange.start()
@@ -83,3 +83,26 @@ export default class GameComponent extends Component {
     })
   }
 }
+
+const containerStyle = makeStyle({
+  height: `100vh`,
+  display: `grid`,
+  gridTemplateColumns: `20rem 1fr`,
+  gridTemplateRows: `1fr 20rem`,
+  gridTemplateAreas: `"zone zone" 
+                      "map  info"`,
+})
+
+const zoneStyle = makeStyle({
+  gridArea: `zone`,
+  borderBottom: border,
+})
+
+const mapStyle = makeStyle({
+  gridArea: `map`,
+})
+
+const infoStyle = makeStyle({
+  gridArea: `info`,
+})
+

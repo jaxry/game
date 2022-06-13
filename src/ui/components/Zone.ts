@@ -2,17 +2,17 @@ import Component from './Component'
 import { Effect } from '../../behavior/Effect'
 import { game } from '../../Game'
 import { GameObject } from '../../GameObject'
-import style from './Zone.module.css'
 import { isPlayer, MovePlayerToSpot } from '../../behavior/player'
 import animateWithDelay from '../animateWithDelay'
 import ObjectCard from './ObjectCard'
 import { startPlayerEffect } from '../../behavior/core'
-import animationDuration from '../animationDuration'
 import bBoxDiff from '../bBoxDiff'
 import { removeElemAndAnimateList } from '../removeElementFromList'
 import { getAndDelete } from '../../util'
 import { dragAndDropGameObject, staggerStateChange } from './Game'
 import TransferAction from '../../actions/Transfer'
+import { border, borderColor, duration } from '../theme'
+import { makeStyle } from '../makeStyle'
 
 export default class Zone extends Component {
   private objectToCard = new Map<GameObject, ObjectCard>()
@@ -22,7 +22,7 @@ export default class Zone extends Component {
   constructor () {
     super()
 
-    this.element.classList.add(style.container)
+    this.element.classList.add(containerStyle)
 
     const self = this
 
@@ -58,7 +58,7 @@ export default class Zone extends Component {
     for (let i = 0; i < container.numSpots; i++) {
 
       const spot = document.createElement('div')
-      spot.classList.add(style.spot)
+      spot.classList.add(spotStyle)
 
       spot.addEventListener('click', (e) => {
         // only click if not clicked on a child element
@@ -109,7 +109,7 @@ export default class Zone extends Component {
       { transform: bBoxDiff(oldBBox, newBBox) },
       { transform: `translate(0, 0)` },
     ], {
-      duration: animationDuration.normal,
+      duration: duration.normal,
       easing: 'ease-in-out',
       composite: 'accumulate',
     })
@@ -122,7 +122,7 @@ export default class Zone extends Component {
       { opacity: 1, transform: `translate(0, 0)` },
     ], {
       easing: 'ease-in-out',
-      duration: animationDuration.normal,
+      duration: duration.normal,
     })
   }
 
@@ -133,7 +133,7 @@ export default class Zone extends Component {
       opacity: 0,
       transform: `translate(0, 200%)`,
     }, {
-      duration: animationDuration.normal,
+      duration: duration.normal,
       easing: 'ease-in-out',
     }).onfinish = () => {
       removeElemAndAnimateList(elem)
@@ -142,7 +142,7 @@ export default class Zone extends Component {
   }
 
   private playerMoveZone () {
-    const fadeTime = animationDuration.normal
+    const fadeTime = duration.normal
 
     for (const [obj, card] of this.objectToCard) {
       if (obj === game.player) {
@@ -182,7 +182,7 @@ export default class Zone extends Component {
           opacity: [0, 1],
         }, {
           duration: fadeTime,
-          delay: animationDuration.fast,
+          delay: duration.fast,
         })
       }
 
@@ -191,7 +191,7 @@ export default class Zone extends Component {
           borderColor: ['transparent', ''],
         }, {
           duration: fadeTime,
-          delay: animationDuration.fast,
+          delay: duration.fast,
         })
       }
 
@@ -208,3 +208,31 @@ export default class Zone extends Component {
     setTimeout(animateNewZone, fadeTime)
   }
 }
+
+const containerStyle = makeStyle({
+  display: `grid`,
+  gridAutoColumns: `minmax(10rem, calc(100% / 8))`,
+  gridAutoFlow: `column`,
+  justifyContent: `center`,
+  width: `100%`,
+  height: `100%`,
+  overflow: `auto`,
+})
+
+const spotStyle = makeStyle({
+  display: `flex`,
+  flexDirection: `column`,
+  gap: `1rem`,
+  borderRight: `1px dashed ${borderColor}`,
+  padding: `0.5rem`,
+  cursor: `pointer`,
+})
+makeStyle(`.${spotStyle} > *`, {
+  cursor: `default`,
+})
+makeStyle(`.${spotStyle}:first-child`, {
+  borderLeft: border,
+})
+makeStyle(`.${spotStyle}:last-child`, {
+  borderRight: border,
+})
