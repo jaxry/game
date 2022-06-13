@@ -1,4 +1,3 @@
-let nextId = 1
 const sheet = makeStyleSheet()
 
 function makeStyleSheet () {
@@ -10,11 +9,13 @@ function makeStyleSheet () {
 
 type Style = Partial<CSSStyleDeclaration>
 
+let nextId = 1
+
 function makeStyleClass (style?: Style, name?: string): string {
-  const className = `${name ?? `cs`}-${nextId++}`
-  const index = sheet.insertRule(`.${className} {}`, sheet.cssRules.length)
-  const rule = sheet.cssRules[index] as CSSStyleRule
+  const className = `${name ?? `makeStyle`}-${nextId++}`
   if (style) {
+    const index = sheet.insertRule(`.${className} {}`, sheet.cssRules.length)
+    const rule = sheet.cssRules[index] as CSSStyleRule
     for (const key in style) {
       rule.style[key] = style[key]!
     }

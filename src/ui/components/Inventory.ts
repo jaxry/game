@@ -1,5 +1,4 @@
 import Component from './Component'
-import style from './Inventory.module.css'
 import ObjectCard from './ObjectCard'
 import { game } from '../../Game'
 import { dragAndDropGameObject, staggerStateChange } from './Game'
@@ -8,7 +7,8 @@ import { GameObject } from '../../GameObject'
 import { Effect } from '../../behavior/Effect'
 import { removeElemAndAnimateList } from '../removeElementFromList'
 import { getAndDelete } from '../../util'
-import { duration } from '../theme'
+import { borderColor, duration } from '../theme'
+import { makeStyle } from '../makeStyle'
 
 export default class Inventory extends Component {
   private objectToCard: Map<GameObject, ObjectCard> = new Map()
@@ -16,7 +16,7 @@ export default class Inventory extends Component {
   constructor (public object: GameObject) {
     super()
 
-    this.element.classList.add(style.container)
+    this.element.classList.add(containerStyle)
 
     for (const item of object.contains) {
       this.makeCard(item)
@@ -79,10 +79,20 @@ export default class Inventory extends Component {
 
     this.on(dragAndDropGameObject.onDrag, (item) => {
       if (item && draggable(item)) {
-        this.element.classList.add(style.dragging)
+        this.element.classList.add(draggingStyle)
       } else {
-        this.element.classList.remove(style.dragging)
+        this.element.classList.remove(draggingStyle)
       }
     })
   }
 }
+
+const containerStyle = makeStyle({
+  display: `flex`,
+  gap: `0.5rem`,
+  padding: `0.5rem`,
+})
+
+const draggingStyle = makeStyle({
+  outline: `1px dashed ${borderColor}`,
+})

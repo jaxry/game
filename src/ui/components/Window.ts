@@ -1,7 +1,7 @@
-import style from './Window.module.css'
 import Component from './Component'
 import { outsideElem } from './App'
 import clickOutside from '../clickOutside'
+import { makeStyle } from '../makeStyle'
 
 export default class Window extends Component {
   private posX!: number
@@ -10,7 +10,7 @@ export default class Window extends Component {
   constructor (parentBBox: DOMRect) {
     super()
 
-    this.element.classList.add(style.container)
+    this.element.classList.add(containerStyle)
 
     this.setPos(parentBBox.left, parentBBox.bottom)
 
@@ -41,3 +41,9 @@ export default class Window extends Component {
     this.element.style.transform = `translate(${x}px, ${y}px)`
   }
 }
+
+const containerStyle = makeStyle({
+  position: `fixed`,
+  top: `0`,
+  left: `0`,
+})

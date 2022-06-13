@@ -8,8 +8,8 @@ import { GameObject } from '../../GameObject'
 import * as d3 from 'd3-force'
 import { lerp, mapIter } from '../../util'
 import { makeStyle } from '../makeStyle'
-import { duration, shadowColor } from '../theme'
-import color from '../color'
+import { duration, shadowFilter } from '../theme'
+import colors from '../colors'
 
 export default class MapComponent extends Component {
   onZoneClick?: (zone: GameObject) => void
@@ -226,28 +226,28 @@ function nodeSize (node: GameObject) {
 }
 
 const mapStyle = makeStyle()
+
 makeStyle(`.${mapStyle} *`, {
   transformBox: `fill-box`,
   transformOrigin: `center`,
 })
 
 const nodeStyle = makeStyle({
-  fill: color.emerald['800'],
-  filter: `drop-shadow(0 0.25rem 0.25rem ${shadowColor})`,
+  fill: colors.slate['700'],
+  filter: shadowFilter,
   cursor: `pointer`,
   transition: `all ${duration.fast}ms`,
 })
 
 const canTravelStyle = makeStyle({
-  fill: color.emerald['500'],
+  fill: colors.sky['500'],
 })
 
 const playerNodeStyle = makeStyle({
-  fill: color.yellow['200'],
-  filter: `drop-shadow(0 0.25rem 0.25rem ${shadowColor}) 
-     drop-shadow(0 0 0.25rem ${color.yellow['200']})`,
+  fill: colors.green['400'],
+  filter: `${shadowFilter} drop-shadow(0 0 0.25rem ${colors.green['400']})`,
 })
 
 const edgeStyle = makeStyle({
-  stroke: `#999`,
+  stroke: colors.zinc['500'],
 })
