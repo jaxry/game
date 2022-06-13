@@ -13,8 +13,6 @@
   },
   "dependencies": {
     "@types/d3-force": "^3.0.3",
-    "@types/delaunator": "^5.0.0",
-    "d3-force": "^3.0.0",
-    "delaunator": "^5.0.0"
+    "d3-force": "^3.0.0"
   }
 }
