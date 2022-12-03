@@ -81,7 +81,7 @@ const tabListStyle = makeStyle({
 
 const tabContentStyle = makeStyle({
   flex: `1 1 0`,
-  overflow: `hidden`
+  overflow: `hidden`,
 })
 
 const tabStyle = makeStyle({

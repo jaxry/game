@@ -36,7 +36,7 @@ export default class CardList extends Component {
     this.select(this.inputCards[0])
   }
 
-  private makeCard(permutation: Permutation) {
+  private makeCard (permutation: Permutation) {
     const card = this.newComponent(PermutationCard, permutation)
     this.inputCards.push(card)
 
@@ -47,7 +47,7 @@ export default class CardList extends Component {
     this.list.appendChild(card.element)
   }
 
-  private select(card: PermutationCard) {
+  private select (card: PermutationCard) {
     this.clearProducts()
 
     card.select()
@@ -66,7 +66,7 @@ export default class CardList extends Component {
     }
   }
 
-  private clickedPermutation(permutation: Permutation) {
+  private clickedPermutation (permutation: Permutation) {
     for (const card of this.inputCards) {
       if (card.permutation === permutation) {
         this.select(card)
@@ -75,7 +75,7 @@ export default class CardList extends Component {
     }
   }
 
-  private clearProducts() {
+  private clearProducts () {
     for (const inputCard of this.inputCards) {
       inputCard.select(false)
     }
@@ -92,5 +92,5 @@ const containerStyle = makeStyle({
   justifyContent: `center`,
   textAlign: `center`,
   overflow: `auto`,
-  height: `100%`
+  height: `100%`,
 })

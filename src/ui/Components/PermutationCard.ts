@@ -15,7 +15,7 @@ export default class PermutationCard extends Component {
     this.element.appendChild(text)
   }
 
-  select(selected = true) {
+  select (selected = true) {
     if (selected) {
       this.element.classList.add(selectedStyle)
     } else {
@@ -23,7 +23,6 @@ export default class PermutationCard extends Component {
     }
   }
 }
-
 
 const containerStyle = makeStyle({
   background: colors.green['900'],
