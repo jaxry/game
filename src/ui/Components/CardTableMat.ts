@@ -40,13 +40,13 @@ export default class CardTableMat extends Component {
       onDown: (e) => {
         const rect = this.element.getBoundingClientRect()
         const cardRect = card.element.getBoundingClientRect()
-        const diffX = rect.x + e.clientX - cardRect.x
-        const diffY = rect.y + e.clientY - cardRect.y
+        const diffX = -rect.x + cardRect.x - e.clientX
+        const diffY = -rect.y + cardRect.y - e.clientY
         card.element.style.pointerEvents = `none`
         card.element.parentElement?.append(card.element)
         return (e) => {
-          const x = e.clientX - diffX
-          const y = e.clientY - diffY
+          const x = e.clientX + diffX
+          const y = e.clientY + diffY
           card.element.style.transform =
               `translate(${numToPx(x)}, ${numToPx(y)})`
         }

@@ -80,7 +80,8 @@ const tabListStyle = makeStyle({
 })
 
 const tabContentStyle = makeStyle({
-  flex: `1 1 auto`,
+  flex: `1 1 0`,
+  overflow: `hidden`
 })
 
 const tabStyle = makeStyle({

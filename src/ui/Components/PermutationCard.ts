@@ -14,16 +14,30 @@ export default class PermutationCard extends Component {
 
     this.element.appendChild(text)
   }
+
+  select(selected = true) {
+    if (selected) {
+      this.element.classList.add(selectedStyle)
+    } else {
+      this.element.classList.remove(selectedStyle)
+    }
+  }
 }
+
 
 const containerStyle = makeStyle({
   background: colors.green['900'],
   padding: `1rem`,
   border: `2px solid ${colors.green['600']}`,
   borderRadius,
-})
-
-makeStyle(`.${containerStyle}:hover`, {
-  background: colors.green['800'],
   userSelect: `none`,
 })
+
+const selectedStyle = makeStyle({
+  backgroundColor: colors.lime[600],
+})
+
+makeStyle(`.${containerStyle}:hover:not(.${selectedStyle})`, {
+  background: colors.green['800'],
+})
+
