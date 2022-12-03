@@ -1,5 +1,5 @@
 import { initGame } from './initGame'
-import './ui/components/Game'
+import './ui/components/GameUI'
 import App from './ui/components/App'
 
 initGame()

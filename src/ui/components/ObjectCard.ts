@@ -4,7 +4,7 @@ import { isPlayer } from '../../behavior/player'
 import ObjectInfo from './ObjectInfo'
 import Action from '../../behavior/Action'
 import ActionComponent from './ActionComponent'
-import { dragAndDropGameObject, staggerStateChange } from './Game'
+import { dragAndDropGameObject, staggerStateChange } from './GameUI'
 import { game } from '../../Game'
 import { Effect } from '../../behavior/Effect'
 import { isTickInProgress } from '../../behavior/core'
@@ -12,10 +12,11 @@ import TargetActionAnimation from './TargetActionAnimation'
 import { borderRadius, boxShadow, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
 import colors from '../colors'
+import GameComponent from './GameComponent'
 
 const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
-export default class ObjectCard extends Component {
+export default class ObjectCard extends GameComponent {
   // private readonly actionContainer: HTMLElement
   private actionComponent?: ActionComponent
 

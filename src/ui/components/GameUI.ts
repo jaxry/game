@@ -1,4 +1,3 @@
-import Component from './Component'
 import { game } from '../../Game'
 import MapComponent from './Map'
 import { playerTravelToZone } from '../../behavior/player'
@@ -12,11 +11,12 @@ import Player from './Player'
 import { StaggerStateChange } from '../StaggerStateChange'
 import { makeStyle } from '../makeStyle'
 import { border } from '../theme'
+import GameComponent from './GameComponent'
 
 export const dragAndDropGameObject = new DragAndDrop<GameObject>()
 export const staggerStateChange = new StaggerStateChange()
 
-export default class GameComponent extends Component {
+export default class GameUI extends GameComponent {
   constructor () {
     super()
 
@@ -85,7 +85,7 @@ export default class GameComponent extends Component {
 }
 
 const containerStyle = makeStyle({
-  height: `100vh`,
+  height: `100%`,
   display: `grid`,
   gridTemplateColumns: `20rem 1fr`,
   gridTemplateRows: `1fr 20rem`,

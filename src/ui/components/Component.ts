@@ -1,16 +1,16 @@
-import CustomEvent from '../../CustomEvent'
-import { Effect } from '../../behavior/Effect'
+import Observer from '../../Observer'
 
 type Constructor<T> = { new (...args: any[]): T }
 
 export default class Component {
-  element: HTMLElement
+  element: HTMLElement | SVGGElement
 
   private parentComponent?: Component
   private childComponents = new Set<Component>()
   private destroyCallbacks: Array<() => void> = []
 
-  constructor (element: HTMLElement = document.createElement('div')) {
+  constructor (element: HTMLElement | SVGGElement = document.createElement(
+      'div')) {
     this.element = element
   }
 
@@ -46,18 +46,7 @@ export default class Component {
     }
   }
 
-  on<T> (event: CustomEvent<T>, listener: (data: T) => void) {
+  on<T> (event: Observer<T>, listener: (data: T) => void) {
     this.onRemove(event.on(listener))
-  }
-
-  newEffect<T extends Constructor<Effect>> (
-      constructor: T,
-      ...args: ConstructorParameters<T>) {
-
-    const effect = new constructor(...args).activate()!
-    this.onRemove(() => {
-      effect.deactivate()
-    })
-    return effect
   }
 }

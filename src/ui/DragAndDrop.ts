@@ -1,7 +1,7 @@
-import CustomEvent from '../CustomEvent'
+import Observer from '../Observer'
 
 export default class DragAndDrop<T> {
-  onDrag = new CustomEvent<T | null>()
+  onDrag = new Observer<T | null>()
 
   private payload: T | null = null
 

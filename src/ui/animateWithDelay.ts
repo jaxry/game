@@ -1,5 +1,5 @@
 export default function animateWithDelay (
-    elem: HTMLElement, keyframes: Keyframe[] | PropertyIndexedKeyframes,
+    elem: Element, keyframes: Keyframe[] | PropertyIndexedKeyframes,
     options: KeyframeAnimationOptions) {
 
   const animation = elem.animate(keyframes, {

@@ -9,12 +9,13 @@ import { startPlayerEffect } from '../../behavior/core'
 import bBoxDiff from '../bBoxDiff'
 import { removeElemAndAnimateList } from '../removeElementFromList'
 import { getAndDelete } from '../../util'
-import { dragAndDropGameObject, staggerStateChange } from './Game'
+import { dragAndDropGameObject, staggerStateChange } from './GameUI'
 import TransferAction from '../../actions/Transfer'
 import { border, borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
+import GameComponent from './GameComponent'
 
-export default class Zone extends Component {
+export default class Zone extends GameComponent {
   private objectToCard = new Map<GameObject, ObjectCard>()
   private spots: HTMLElement[] = []
   private zoneEvents: Effect
