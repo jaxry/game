@@ -1,57 +1,40 @@
-import throttle from './throttle'
+import makeDraggable from './makeDraggable'
 
-export default class PanZoom {
-  constructor (
-      public elem: HTMLElement, public transform: DOMMatrix,
-      public onTransform: () => void) {
-    let lastX = 0
-    let lastY = 0
+export default function addPanZoom (
+    element: Element, transform: DOMMatrix,
+    onTransform: () => void
+) {
 
-    this.elem.addEventListener('pointerdown', (e) => {
-      if (e.button == 0) {
-        lastX = e.clientX
-        lastY = e.clientY
-        this.elem.addEventListener('pointermove', pointerMove)
-        window.addEventListener('pointerup', pointerUp, { once: true })
-      }
-    })
-
-    const pointerMove = throttle((e: PointerEvent) => {
-      const mx = e.clientX - lastX
-      const my = e.clientY - lastY
-      lastX = e.clientX
-      lastY = e.clientY
-      const tx = mx / this.transform.a
-      const ty = my / this.transform.d
-      this.transform.translateSelf(tx, ty)
-      this.onTransform()
-    })
-
-    const pointerUp = () => {
-      this.elem.removeEventListener('pointermove', pointerMove)
+  makeDraggable(element, {
+    onDrag: (e, relative, difference) => {
+      const tx = difference.x / transform.a
+      const ty = difference.y / transform.d
+      transform.translateSelf(tx, ty)
+      onTransform()
     }
+  })
 
-    this.elem.addEventListener('wheel', (e) => {
-      e.preventDefault()
+  element.addEventListener('wheel', (e) => {
+    e.preventDefault()
 
-      // const amount = e.deltaMode === 0 ? 1.03 : 1.25
-      const amount = 1.10
+    const { clientX, clientY, deltaY } = e as WheelEvent
 
-      const { top, left, width, height } = this.elem.getBoundingClientRect()
-      const x = (e.clientX - left)
-      const y = (e.clientY - top)
+    const amount = 1.10
 
-      const change = Math.sign(e.deltaY) < 0 ? amount : 1 / amount
+    const { top, left } = element.getBoundingClientRect()
+    const x = clientX - left
+    const y = clientY - top
 
-      // the mouse position should point to the same location in the model before and after the scale
-      // old mouse-model position = new mouse-model position =>
-      // (mouse - oldTranslation) / oldScale = (mouse - newTranslation) / newScale
-      // solve for newTranslation
-      this.transform.e = x - change * (x - this.transform.e)
-      this.transform.f = y - change * (y - this.transform.f)
-      this.transform.scaleSelf(change)
+    const change = Math.sign(deltaY) < 0 ? amount : 1 / amount
 
-      this.onTransform()
-    })
-  }
+    // the mouse position should point to the same location in the model before and after the scale
+    // old mouse-model position = new mouse-model position =>
+    // (mouse - oldTranslation) / oldScale = (mouse - newTranslation) / newScale
+    // solve for newTranslation
+    transform.e = x - change * (x - transform.e)
+    transform.f = y - change * (y - transform.f)
+    transform.scaleSelf(change)
+
+    onTransform()
+  })
 }

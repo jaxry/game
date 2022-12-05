@@ -2,6 +2,7 @@ import Component from './Component'
 import { outsideElem } from './App'
 import clickOutside from '../clickOutside'
 import { makeStyle } from '../makeStyle'
+import { numToPx } from '../../util'
 
 export default class Window extends Component {
   private posX!: number
@@ -38,7 +39,7 @@ export default class Window extends Component {
   private setPos (x: number, y: number) {
     this.posX = x
     this.posY = y
-    this.element.style.transform = `translate(${x}px, ${y}px)`
+    this.element.style.transform = `translate(${numToPx(x)}, ${numToPx(y)})`
   }
 }
 

@@ -68,13 +68,13 @@ export default class Zone extends GameComponent {
         }
       })
 
-      dragAndDropGameObject.drop(spot, (item) => {
-        if (new TransferAction(game.player, item, container, i).condition()) {
-          return 'move'
-        }
-      }, (item) => {
-        startPlayerEffect(new TransferAction(game.player, item, container, i))
-      })
+      // dragAndDropGameObject.drop(spot, (item) => {
+      //   if (new TransferAction(game.player, item, container, i).condition()) {
+      //     return 'move'
+      //   }
+      // }, (item) => {
+      //   startPlayerEffect(new TransferAction(game.player, item, container, i))
+      // })
 
       this.spots.push(spot)
       this.element.append(spot)
