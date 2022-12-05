@@ -1,7 +1,6 @@
-import Component from './Component'
 import ObjectCard from './ObjectCard'
 import { game } from '../../Game'
-import { dragAndDropGameObject, staggerStateChange } from './Game'
+import { dragAndDropGameObject, staggerStateChange } from './GameUI'
 import TransferAction from '../../actions/Transfer'
 import { GameObject } from '../../GameObject'
 import { Effect } from '../../behavior/Effect'
@@ -9,8 +8,9 @@ import { removeElemAndAnimateList } from '../removeElementFromList'
 import { getAndDelete } from '../../util'
 import { borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
+import GameComponent from './GameComponent'
 
-export default class Inventory extends Component {
+export default class Inventory extends GameComponent {
   private objectToCard: Map<GameObject, ObjectCard> = new Map()
 
   constructor (public object: GameObject) {

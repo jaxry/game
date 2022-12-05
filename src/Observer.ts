@@ -1,4 +1,4 @@
-export default class CustomEvent<T> {
+export default class Observer<T> {
   private listeners: Set<(data: T) => void> = new Set()
 
   on (listener: (data: T) => void) {

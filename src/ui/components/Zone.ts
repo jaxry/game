@@ -1,4 +1,3 @@
-import Component from './Component'
 import { Effect } from '../../behavior/Effect'
 import { game } from '../../Game'
 import { GameObject } from '../../GameObject'
@@ -9,12 +8,12 @@ import { startPlayerEffect } from '../../behavior/core'
 import bBoxDiff from '../bBoxDiff'
 import { removeElemAndAnimateList } from '../removeElementFromList'
 import { getAndDelete } from '../../util'
-import { dragAndDropGameObject, staggerStateChange } from './Game'
-import TransferAction from '../../actions/Transfer'
+import { staggerStateChange } from './GameUI'
 import { border, borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
+import GameComponent from './GameComponent'
 
-export default class Zone extends Component {
+export default class Zone extends GameComponent {
   private objectToCard = new Map<GameObject, ObjectCard>()
   private spots: HTMLElement[] = []
   private zoneEvents: Effect
@@ -67,13 +66,13 @@ export default class Zone extends Component {
         }
       })
 
-      dragAndDropGameObject.drop(spot, (item) => {
-        if (new TransferAction(game.player, item, container, i).condition()) {
-          return 'move'
-        }
-      }, (item) => {
-        startPlayerEffect(new TransferAction(game.player, item, container, i))
-      })
+      // dragAndDropGameObject.drop(spot, (item) => {
+      //   if (new TransferAction(game.player, item, container, i).condition()) {
+      //     return 'move'
+      //   }
+      // }, (item) => {
+      //   startPlayerEffect(new TransferAction(game.player, item, container, i))
+      // })
 
       this.spots.push(spot)
       this.element.append(spot)

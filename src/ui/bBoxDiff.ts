@@ -1,3 +1,7 @@
+import { numToPx } from '../util'
+
 export default function bBoxDiff (oldBBox: DOMRect, newBBox: DOMRect) {
-  return `translate(${oldBBox.x - newBBox.x}px, ${oldBBox.y - newBBox.y}px)`
+  const x = oldBBox.x - newBBox.x
+  const y = oldBBox.y - newBBox.y
+  return `translate(${numToPx(x)}}, ${numToPx(y)})`
 }

@@ -1,8 +1,8 @@
 import Component from './Component'
-import GameComponent from './Game'
+import GameUI from './GameUI'
 import { makeStyle } from '../makeStyle'
 import '../preflight.css'
-import colors from '../colors'
+import { backgroundColor } from '../theme'
 
 export const outsideElem = document.createElement('div')
 outsideElem.classList.add(makeStyle({
@@ -14,15 +14,19 @@ export default class App extends Component {
   constructor (element: HTMLElement) {
     super(element)
 
+    this.element.classList.add(containerStyle)
+
     this.element.append(
         outsideElem,
-        this.newComponent(GameComponent).element)
+        this.newComponent(GameUI).element)
   }
 }
 
-makeStyle('body', {
+const containerStyle = makeStyle({
   fontFamily: `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`,
   colorScheme: `dark`,
-  background: colors.zinc[900],
-  color: colors.zinc[200],
+  background: backgroundColor[900],
+  color: backgroundColor[200],
+  height: `100vh`,
+  overflow: `hidden`,
 })

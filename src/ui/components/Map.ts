@@ -8,7 +8,7 @@ import { GameObject } from '../../GameObject'
 import * as d3 from 'd3-force'
 import { lerp, mapIter } from '../../util'
 import { makeStyle } from '../makeStyle'
-import { duration, shadowFilter } from '../theme'
+import { backgroundColor, duration, shadowFilter } from '../theme'
 import colors from '../colors'
 
 export default class MapComponent extends Component {
@@ -38,15 +38,15 @@ export default class MapComponent extends Component {
 
     this.svg.append(this.mapG)
 
-    // const panZoom = new PanZoom(this.element, this.transform, () => {
+    // addPanZoom(this.element, this.transform, () => {
     //   // this.mapG.setAttribute('transform', this.transform.toString())
     //   this.mapG.animate({
     //     transform: this.transform.toString(),
-    //   }, {duration: 0, fill: 'forwards'})
+    //   }, { fill: 'forwards' })
     // })
 
     // temporary place to put this
-    // force simulation should be run outside of MapComponent
+    // force simulation should be run outside MapComponent
     // usually when the map has zones added or removed by the game
     const graph = getZoneGraph(game.player.container)
     const nodes = [...graph.nodes]
@@ -140,8 +140,9 @@ export default class MapComponent extends Component {
   private setBounds (graph: ZoneGraph) {
     const bounds = getGraphBounds(graph)
 
-    const scale = Math.min(this.element.offsetWidth / bounds.width,
-        this.element.offsetHeight / bounds.height)
+    const { width, height } = this.element.getBoundingClientRect()
+
+    const scale = Math.min(width / bounds.width, height / bounds.height)
 
     this.transform.a = scale
     this.transform.d = scale
@@ -249,5 +250,5 @@ const playerNodeStyle = makeStyle({
 })
 
 const edgeStyle = makeStyle({
-  stroke: colors.zinc['500'],
+  stroke: backgroundColor['500'],
 })

@@ -3,6 +3,7 @@ import Action from '../../behavior/Action'
 import { outsideElem } from './App'
 import { duration } from '../theme'
 import { makeStyle } from '../makeStyle'
+import { numToPx } from '../../util'
 
 export default class TargetActionAnimation extends Component {
   constructor (action: Action, from: HTMLElement, to: HTMLElement) {
@@ -34,5 +35,5 @@ function center (elem: HTMLElement) {
   const r = elem.getBoundingClientRect()
   const x = r.x + r.width / 2
   const y = r.y + r.height / 2
-  return `translate(-50%,-50%) translate(${x}px, ${y}px)`
+  return `translate(-50%,-50%) translate(${numToPx(x)}, ${numToPx(y)})`
 }
