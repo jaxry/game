@@ -1,4 +1,3 @@
-import Component from './Component'
 import { GameObject } from '../../GameObject'
 import { isPlayer } from '../../behavior/player'
 import ObjectInfo from './ObjectInfo'

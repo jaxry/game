@@ -10,8 +10,6 @@ import { lerp, mapIter } from '../../util'
 import { makeStyle } from '../makeStyle'
 import { backgroundColor, duration, shadowFilter } from '../theme'
 import colors from '../colors'
-import PanZoom from '../PanZoom'
-import addPanZoom from '../PanZoom'
 
 export default class MapComponent extends Component {
   onZoneClick?: (zone: GameObject) => void

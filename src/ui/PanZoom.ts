@@ -2,7 +2,7 @@ import makeDraggable from './makeDraggable'
 
 export default function addPanZoom (
     element: Element, transform: DOMMatrix,
-    onTransform: () => void
+    onTransform: () => void,
 ) {
 
   makeDraggable(element, {
@@ -11,7 +11,7 @@ export default function addPanZoom (
       const ty = difference.y / transform.d
       transform.translateSelf(tx, ty)
       onTransform()
-    }
+    },
   })
 
   element.addEventListener('wheel', (e) => {

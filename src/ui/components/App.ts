@@ -2,7 +2,6 @@ import Component from './Component'
 import GameUI from './GameUI'
 import { makeStyle } from '../makeStyle'
 import '../preflight.css'
-import colors from '../colors'
 import { backgroundColor } from '../theme'
 
 export const outsideElem = document.createElement('div')
@@ -29,5 +28,5 @@ const containerStyle = makeStyle({
   background: backgroundColor[900],
   color: backgroundColor[200],
   height: `100vh`,
-  overflow: `hidden`
+  overflow: `hidden`,
 })

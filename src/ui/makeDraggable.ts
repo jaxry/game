@@ -3,8 +3,8 @@ import throttle from './throttle'
 interface OnDrag {
   (
       e: MouseEvent,
-      mouseRelative: { x: number, y: number},
-      mouseDifference: { x: number, y: number}
+      mouseRelative: { x: number, y: number },
+      mouseDifference: { x: number, y: number },
   ): void
 }
 
@@ -68,11 +68,11 @@ export default function makeDraggable (
     }
     const relative = {
       x: e.clientX - startX,
-      y: e.clientY - startY
+      y: e.clientY - startY,
     }
     const difference = {
       x: e.clientX - lastX,
-      y: e.clientY - lastY
+      y: e.clientY - lastY,
     }
     lastX = e.clientX
     lastY = e.clientY
