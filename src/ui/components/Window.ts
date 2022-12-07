@@ -3,17 +3,16 @@ import { outsideElem } from './App'
 import clickOutside from '../clickOutside'
 import { makeStyle } from '../makeStyle'
 import { numToPx } from '../../util'
+import makeDraggable from '../makeDraggable'
 
 export default class Window extends Component {
-  private posX!: number
-  private posY!: number
+  private posX: number
+  private posY: number
 
   constructor (parentBBox: DOMRect) {
     super()
 
     this.element.classList.add(containerStyle)
-
-    this.setPos(parentBBox.left, parentBBox.bottom)
 
     this.onRemove(clickOutside(this.element, () => {
       this.remove()
@@ -21,25 +20,23 @@ export default class Window extends Component {
 
     outsideElem.append(this.element)
 
-    const drag = (e: PointerEvent) => {
-      this.setPos(this.posX + e.movementX, this.posY + e.movementY)
-    }
+    this.posX = parentBBox.left
+    this.posY = parentBBox.bottom
 
-    this.element.addEventListener('pointerdown', (e) => {
-      window.addEventListener('pointermove', drag)
+    this.updatePosition()
 
-      const stopDragging = () => {
-        window.removeEventListener('pointermove', drag)
-      }
-      window.addEventListener('pointerup', stopDragging, { once: true })
-      window.addEventListener('pointerleave', stopDragging, { once: true })
+    makeDraggable(this.element, {
+      onDrag: (e, relative, difference) => {
+        this.posX += difference.x
+        this.posY += difference.y
+        this.updatePosition()
+      },
     })
   }
 
-  private setPos (x: number, y: number) {
-    this.posX = x
-    this.posY = y
-    this.element.style.transform = `translate(${numToPx(x)}, ${numToPx(y)})`
+  private updatePosition () {
+    this.element.style.transform =
+        `translate(${numToPx(this.posX)}, ${numToPx(this.posY)})`
   }
 }
 

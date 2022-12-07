@@ -23,6 +23,11 @@ export default class DragAndDrop<T> {
       this.payload = null
       this.onDrag.emit(null)
     })
+
+    // stops dragging and other events on the parent element
+    elem.addEventListener('mousedown', (e) => {
+      e.stopPropagation()
+    })
   }
 
   drop (

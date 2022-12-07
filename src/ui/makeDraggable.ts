@@ -45,6 +45,7 @@ export default function makeDraggable (
     }
 
     e.preventDefault()
+    e.stopPropagation()
 
     if (onDrag) {
       startX = e.clientX
