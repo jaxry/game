@@ -8,17 +8,18 @@ import { startPlayerEffect } from '../../behavior/core'
 import bBoxDiff from '../bBoxDiff'
 import { removeElemAndAnimateList } from '../removeElementFromList'
 import { getAndDelete } from '../../util'
-import { staggerStateChange } from './GameUI'
+import { dragAndDropGameObject, staggerStateChange } from './GameUI'
 import { border, borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
+import TransferAction from '../../actions/Transfer'
 
 export default class Zone extends GameComponent {
   private objectToCard = new Map<GameObject, ObjectCard>()
   private spots: HTMLElement[] = []
   private zoneEvents: Effect
 
-  constructor () {
+  constructor (public following: GameObject = game.player) {
     super()
 
     this.element.classList.add(containerStyle)
@@ -27,34 +28,60 @@ export default class Zone extends GameComponent {
 
     this.zoneEvents = this.newEffect(class extends Effect {
       onActivate () {
-        this.onEvent(this.object.container, 'enter', ({ item }) => {
+        this.onEvent(this.object, 'enter', ({ item }) => {
           if (!isPlayer(item)) {
             staggerStateChange.add(() => self.objectEnter(item))
           }
         })
-        this.onEvent(this.object.container, 'leave', ({ item }) => {
-          if (item === this.object) {
-            staggerStateChange.add(() => self.playerMoveZone())
-            self.zoneEvents.deactivate()
+        this.onEvent(this.object, 'leave', ({ item }) => {
+          if (item === self.following) {
+            this.deactivate()
+            staggerStateChange.add(() => self.followObject(self.following))
           } else {
             staggerStateChange.add(() => self.objectLeave(item))
           }
         })
-        this.onEvent(this.object.container, 'moveSpot',
+        this.onEvent(this.object, 'moveSpot',
             ({ item, from, to }) => {
               staggerStateChange.add(() => self.moveSpot(item, from, to))
             })
       }
-    }, game.player)
+    }, this.following.container)
 
     this.makeZoneSpots()
   }
 
-  private makeZoneSpots () {
-    const container = game.player.container
+  moveZones (zone: GameObject) {
+    this.zoneEvents.setObject(zone)
 
+    this.element.animate({
+      opacity: 0,
+    }, {
+      duration: duration.normal,
+      fill: 'forwards',
+    }).onfinish = () => {
+      this.makeZoneSpots()
+      this.element.animate({
+        opacity: 1,
+      }, {
+        duration: duration.normal,
+        fill: 'forwards',
+      })
+    }
+  }
+
+  private makeZoneSpots () {
+    const zone = this.zoneEvents.object
+
+    for (const card of this.objectToCard.values()) {
+      card.remove()
+    }
+    this.objectToCard.clear()
+
+    this.spots.forEach(spot => spot.remove())
     this.spots.length = 0
-    for (let i = 0; i < container.numSpots; i++) {
+
+    for (let i = 0; i < zone.numSpots; i++) {
 
       const spot = document.createElement('div')
       spot.classList.add(spotStyle)
@@ -66,19 +93,19 @@ export default class Zone extends GameComponent {
         }
       })
 
-      // dragAndDropGameObject.drop(spot, (item) => {
-      //   if (new TransferAction(game.player, item, container, i).condition()) {
-      //     return 'move'
-      //   }
-      // }, (item) => {
-      //   startPlayerEffect(new TransferAction(game.player, item, container, i))
-      // })
+      dragAndDropGameObject.drop(spot, (item) => {
+        if (new TransferAction(game.player, item, zone, i).condition()) {
+          return 'move'
+        }
+      }, (item) => {
+        startPlayerEffect(new TransferAction(game.player, item, zone, i))
+      })
 
       this.spots.push(spot)
       this.element.append(spot)
     }
 
-    for (const obj of container.contains) {
+    for (const obj of zone.contains) {
       this.makeCard(obj)
     }
   }
@@ -140,41 +167,40 @@ export default class Zone extends GameComponent {
     }
   }
 
-  private playerMoveZone () {
+  private followObject (following: GameObject) {
     const fadeTime = duration.normal
 
     for (const [obj, card] of this.objectToCard) {
-      if (obj === game.player) {
+      if (obj === following) {
         continue
       }
       card.element.animate({
         opacity: 0,
       }, {
+        fill: 'forwards',
         duration: fadeTime,
-      }).onfinish = () => {
-        card.remove()
-        this.objectToCard.delete(obj)
-      }
+      })
     }
 
     for (const spot of this.spots) {
       spot.animate({
         borderColor: 'transparent',
       }, {
+        fill: 'forwards',
         duration: fadeTime,
       })
     }
 
-    const playerCard = this.objectToCard.get(game.player)!
-    const playerBbox = playerCard.element.getBoundingClientRect()
+    let followingCard = this.objectToCard.get(following)!
+    const followingBBox = followingCard.element.getBoundingClientRect()
 
     const animateNewZone = () => {
-      this.spots.forEach(spot => spot.remove())
+      this.zoneEvents.setObject(following.container)
       this.makeZoneSpots()
-      this.zoneEvents.reactivate()
 
       for (const card of this.objectToCard.values()) {
-        if (card === playerCard) {
+        if (card.object === followingCard.object) {
+          followingCard = card
           continue
         }
         animateWithDelay(card.element, {
@@ -194,9 +220,10 @@ export default class Zone extends GameComponent {
         })
       }
 
-      playerCard.element.animate({
+      followingCard.element.animate({
         transform: [
-          bBoxDiff(playerBbox, playerCard.element.getBoundingClientRect()),
+          bBoxDiff(followingBBox,
+              followingCard.element.getBoundingClientRect()),
           'translate(0, 0)'],
       }, {
         duration: fadeTime,
@@ -209,16 +236,13 @@ export default class Zone extends GameComponent {
 }
 
 const containerStyle = makeStyle({
-  display: `grid`,
-  gridAutoColumns: `minmax(10rem, calc(100% / 8))`,
-  gridAutoFlow: `column`,
+  display: `flex`,
   justifyContent: `center`,
-  width: `100%`,
-  height: `100%`,
   overflow: `auto`,
 })
 
 const spotStyle = makeStyle({
+  flex: `0 0 max(10rem, calc(100% / 8))`,
   display: `flex`,
   flexDirection: `column`,
   gap: `1rem`,

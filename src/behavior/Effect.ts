@@ -91,22 +91,19 @@ export class Effect {
 
     if (this.tick) {
       const isEffectInGameLoop = effectsCallback.removeEffectFromGameLoop(this)
+
+      // if the effect is deactivated within the same tick it was activated,
+      // it hasn't been added to the game loop yet
       if (!isEffectInGameLoop) {
         deleteElem(queuedTickEffects, this)
       }
     }
 
-    if (!destroyedObject) {
-      // no need to remove effect from object if object is destroyed
-      this.object.effects.delete(this)
-    }
+    this.object.effects.delete(this)
 
     if (this.events) {
       for (const event of this.events) {
-        if (!destroyedObject || event.obj !== this.object) {
-          // no need to unsubscribe if object is destroyed
-          unsubscribeEvent(event)
-        }
+        unsubscribeEvent(event)
       }
       this.events.length = 0
     }
@@ -119,6 +116,12 @@ export class Effect {
   reactivate () {
     this.deactivate().activate()
   }
+
+  setObject (object: GameObject) {
+    this.deactivate()
+    this.object = object
+    this.activate()
+  }
 }
 
 export function removeEffects (obj: GameObject) {
@@ -130,6 +133,7 @@ export function removeEffects (obj: GameObject) {
   }
 }
 
+// effects to be added to the game loop after this tick
 export const queuedTickEffects: Effect[] = []
 
 export function iterateQueuedEffects (fn: (effects: Effect) => void) {

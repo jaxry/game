@@ -58,7 +58,7 @@ export default class GameUI extends GameComponent {
       onActivate () {
         this.onEvent(this.object.container, 'leave', ({ item }) => {
           if (item === this.object) {
-            map.update(this.object.container)
+            map.setCenter(this.object.container)
             this.reactivate()
           }
         })

@@ -65,12 +65,12 @@ export default class MapComponent extends Component {
         .tick(300)
         .on('end', () => {
           console.log('done')
-          this.update(game.player.container)
+          this.setCenter(game.player.container)
         })
   }
 
-  update (playerZone: GameObject) {
-    const graph = getZoneGraph(playerZone, 2)
+  setCenter (centerZone: GameObject) {
+    const graph = getZoneGraph(centerZone, 2)
 
     this.setBounds(graph)
 
@@ -104,9 +104,9 @@ export default class MapComponent extends Component {
       circle.classList.remove(playerNodeStyle, canTravelStyle)
     }
 
-    this.nodeToElem.get(playerZone)!.classList.add(playerNodeStyle)
+    this.nodeToElem.get(centerZone)!.classList.add(playerNodeStyle)
 
-    for (const zone of playerZone.connections) {
+    for (const zone of centerZone.connections) {
       this.nodeToElem.get(zone)!.classList.add(canTravelStyle)
     }
   }

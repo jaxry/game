@@ -40,14 +40,13 @@ export default class Action extends Effect {
   override tick () {
     this.time--
 
-    if (this.time <= 0) {
+    if (!this.condition()) {
       this.deactivate()
       this.object.container.emit('itemActionEnd', { action: this })
-      if (this.condition()) {
-        this.do?.()
-      }
-    } else if (!this.condition()) {
+    } else if (this.time <= 0) {
       this.deactivate()
+      this.object.container.emit('itemActionEnd', { action: this })
+      this.do?.()
     }
   }
 

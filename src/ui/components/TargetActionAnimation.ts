@@ -6,7 +6,7 @@ import { makeStyle } from '../makeStyle'
 import { numToPx } from '../../util'
 
 export default class TargetActionAnimation extends Component {
-  constructor (action: Action, from: HTMLElement, to: HTMLElement) {
+  constructor (action: Action, from: Element, to: Element) {
     super()
 
     outsideElem.append(this.element)
@@ -31,7 +31,7 @@ const containerStyle = makeStyle({
   pointerEvents: `none`,
 })
 
-function center (elem: HTMLElement) {
+function center (elem: Element) {
   const r = elem.getBoundingClientRect()
   const x = r.x + r.width / 2
   const y = r.y + r.height / 2
