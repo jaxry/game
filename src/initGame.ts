@@ -5,6 +5,7 @@ import { makeType } from './GameObject'
 import GameTime from './GameTime'
 import { typeMonster } from './objects/monster'
 import { generateRandomGraph } from './map/generateRandomGraph'
+import { startForceDirectedSimulation } from './map/forceDirectedSim'
 
 export function initGame () {
   game.energyPool = 2 * GameTime.hour
@@ -17,6 +18,8 @@ export function initGame () {
   }
 
   const zone = zones[0]
+
+  startForceDirectedSimulation(zone)
 
   game.player = spawn(typeYou, zone)
 

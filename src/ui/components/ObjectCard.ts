@@ -42,7 +42,7 @@ export default class ObjectCard extends GameComponent {
     }
 
     this.element.addEventListener('click', () => {
-      if (game.player === object) {
+      if (isPlayer(object)) {
         return
       }
       this.newComponent(ObjectInfo, object,
@@ -67,7 +67,7 @@ export default class ObjectCard extends GameComponent {
 
           // If player starts a new action,
           // show action immediately even if outside of tick.
-          action.object === game.player && !isTickInProgress() ?
+          isPlayer(action.object) && !isTickInProgress() ?
               self.setAction(action) :
               staggerStateChange.add(() => self.setAction(action))
 

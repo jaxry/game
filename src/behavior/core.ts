@@ -45,7 +45,6 @@ export function isTickInProgress () {
 }
 
 function playerTick () {
-  game.event.playerTickStart.emit(undefined)
   tick()
   game.event.playerTickEnd.emit(undefined)
   timeout = setTimeout(playerTick, 1000)

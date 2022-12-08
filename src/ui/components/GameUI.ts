@@ -65,6 +65,10 @@ export default class GameUI extends GameComponent {
       }
     }, game.player)
 
+    game.event.mapUpdated.on(() => {
+      map.setCenter(game.player.container)
+    })
+
     return map
   }
 

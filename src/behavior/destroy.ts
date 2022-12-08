@@ -5,10 +5,8 @@ import { removeEffects } from './Effect'
 
 const destroyedSet: WeakSet<GameObject> = new WeakSet()
 
-function destroy (obj: GameObject, isContainerDestroyed = false) {
-  if (!isContainerDestroyed) {
-    removeFromContainer(obj)
-  }
+function destroy (obj: GameObject) {
+  removeFromContainer(obj)
   removeConnections(obj)
   removeEffects(obj)
 
@@ -18,7 +16,7 @@ function destroy (obj: GameObject, isContainerDestroyed = false) {
 
   if (obj.contains) {
     for (const item of obj.contains) {
-      reclaimedEnergy += destroy(item, true)
+      reclaimedEnergy += destroy(item)
     }
   }
   return reclaimedEnergy

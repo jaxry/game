@@ -1,12 +1,10 @@
 import Component from './Component'
-import { game } from '../../Game'
 import createSvg from '../createSvg'
 import {
   Edge, getZoneGraph, renderedConnectionDistance, ZoneGraph,
 } from '../../behavior/connections'
 import { GameObject } from '../../GameObject'
-import * as d3 from 'd3-force'
-import { lerp, mapIter } from '../../util'
+import { lerp } from '../../util'
 import { makeStyle } from '../makeStyle'
 import { backgroundColor, duration, shadowFilter } from '../theme'
 import colors from '../colors'
@@ -44,33 +42,10 @@ export default class MapComponent extends Component {
     //     transform: this.transform.toString(),
     //   }, { fill: 'forwards' })
     // })
-
-    // temporary place to put this
-    // force simulation should be run outside MapComponent
-    // usually when the map has zones added or removed by the game
-    const graph = getZoneGraph(game.player.container)
-    const nodes = [...graph.nodes]
-    const d3Graph = makeD3Graph(graph)
-    const sim = d3.forceSimulation()
-    sim.nodes(d3Graph.nodes)
-        .force('charge', d3.forceManyBody()
-            .distanceMax(5 * renderedConnectionDistance)
-            .strength(node => {
-              return -30 * nodes[node.index!].connections.length
-            }))
-        .force('link',
-            d3.forceLink(d3Graph.edges).distance(renderedConnectionDistance))
-        .velocityDecay(0.2)
-        // .alphaDecay(0.0075)
-        .tick(300)
-        .on('end', () => {
-          console.log('done')
-          this.setCenter(game.player.container)
-        })
   }
 
   setCenter (centerZone: GameObject) {
-    const graph = getZoneGraph(centerZone, 2)
+    const graph = getZoneGraph(centerZone)
 
     this.setBounds(graph)
 
@@ -184,24 +159,6 @@ function getGraphBounds (graph: ZoneGraph) {
   bounds.height = bounds.yMax - bounds.yMin
 
   return bounds
-}
-
-function makeD3Graph (graph: ZoneGraph) {
-  const edges: d3.SimulationLinkDatum<d3.SimulationNodeDatum>[] = []
-
-  const nodes = mapIter(graph.nodes, n => n.position)
-
-  for (const { source, target } of graph.edges.values()) {
-    edges.push({
-      source: source.position,
-      target: target.position,
-    })
-  }
-
-  return {
-    nodes,
-    edges,
-  }
 }
 
 function transitionIn (elem: Element) {
