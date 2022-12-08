@@ -8,6 +8,7 @@ export const game = {
   event: {
     playerTickEnd: new Observer(),
     mapUpdated: new Observer(),
+    playerChange: new Observer<GameObject>(),
   },
   player: {} as GameObject,
   effectsWithTick: [new Set(), new Set()] as Set<Effect>[],

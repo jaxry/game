@@ -27,7 +27,6 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
       })
 }
 
-
 function makeD3Graph (graph: ZoneGraph) {
   const edges: d3.SimulationLinkDatum<d3.SimulationNodeDatum>[] = []
 

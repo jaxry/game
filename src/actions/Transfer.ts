@@ -6,7 +6,7 @@ export default class TransferAction extends Action {
   override time = 5
 
   constructor (
-      object: GameObject, public target: GameObject,
+      object: GameObject, override target: GameObject,
       public destination: GameObject, public spot?: number) {
     super(object)
   }

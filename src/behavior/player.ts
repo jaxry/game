@@ -10,6 +10,11 @@ import AttackAction from '../actions/Attack'
 import WaitAction from '../actions/Wait'
 import { Effect } from './Effect'
 
+export function changePlayer (object: GameObject) {
+  game.player = object
+  game.event.playerChange.emit(object)
+}
+
 export function isPlayer (object: GameObject) {
   return object === game.player
 }
@@ -59,7 +64,7 @@ export class MovePlayerToSpot extends Effect {
     }
   }
 
-  tick () {
+  override tick () {
     if (this.object.spot === this.spot) {
       this.deactivate()
     } else if (!this.object.activeAction) {

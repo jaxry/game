@@ -25,9 +25,17 @@ export default class ObjectCard extends GameComponent {
     objectToCard.set(object, this)
 
     this.element.classList.add(containerStyle)
+
     if (isPlayer(object)) {
       this.element.classList.add(playerStyle)
     }
+    this.on(game.event.playerChange, () => {
+      if (isPlayer(object)) {
+        this.element.classList.add(playerStyle)
+      } else {
+        this.element.classList.remove(playerStyle)
+      }
+    })
 
     const icon = document.createElement('div')
     icon.classList.add(iconStyle)
@@ -54,12 +62,13 @@ export default class ObjectCard extends GameComponent {
     this.on(game.event.playerTickEnd, () => this.update())
 
     this.newEffect(class extends Effect {
-      onActivate () {
+      override onActivate () {
         this.onEvent(object.container, 'leave', ({ item }) => {
           if (item === this.object) {
             this.reactivate()
           }
         })
+
         this.onEvent(object.container, 'itemActionStart', ({ action }) => {
           if (action.object !== this.object) {
             return
@@ -72,6 +81,7 @@ export default class ObjectCard extends GameComponent {
               staggerStateChange.add(() => self.setAction(action))
 
         })
+
         this.onEvent(object.container, 'itemActionEnd', ({ action }) => {
           if (action.object !== this.object) {
             return

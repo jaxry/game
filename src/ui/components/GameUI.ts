@@ -30,6 +30,10 @@ export default class GameUI extends GameComponent {
     zone.element.classList.add(zoneStyle)
     this.element.append(zone.element)
 
+    this.on(game.event.playerChange, () => {
+      zone.following = game.player
+    })
+
     const info = document.createElement('div')
     info.classList.add(infoStyle)
     this.element.append(info)
@@ -54,8 +58,8 @@ export default class GameUI extends GameComponent {
 
     map.onZoneClick = playerTravelToZone
 
-    this.newEffect(class extends Effect {
-      onActivate () {
+    const mapEffect = this.newEffect(class extends Effect {
+      override onActivate () {
         this.onEvent(this.object.container, 'leave', ({ item }) => {
           if (item === this.object) {
             map.setCenter(this.object.container)
@@ -65,7 +69,11 @@ export default class GameUI extends GameComponent {
       }
     }, game.player)
 
-    game.event.mapUpdated.on(() => {
+    this.on(game.event.playerChange, () => {
+      mapEffect.setObject(game.player)
+    })
+
+    this.on(game.event.mapUpdated, () => {
       map.setCenter(game.player.container)
     })
 

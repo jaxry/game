@@ -8,9 +8,16 @@ export default class Player extends Component {
 
     const inventory = document.createElement('div')
     inventory.textContent = 'Inventory'
+    this.element.append(inventory)
 
-    this.element.append(
-        inventory,
-        this.newComponent(Inventory, game.player).element)
+    let inventoryComponent = this.newComponent(Inventory, game.player)
+    this.element.append(inventoryComponent.element)
+
+    this.on(game.event.playerChange, () => {
+      const newInventoryComponent = this.newComponent(Inventory, game.player)
+      inventoryComponent.element.replaceWith(newInventoryComponent.element)
+      inventoryComponent.remove()
+      inventoryComponent = newInventoryComponent
+    })
   }
 }

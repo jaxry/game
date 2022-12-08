@@ -19,7 +19,7 @@ export default class MoveSpotAction extends Action {
     return `👣${this.direction()}`
   }
 
-  do () {
+  override do () {
     moveToSpot(this.object, this.to)
   }
 

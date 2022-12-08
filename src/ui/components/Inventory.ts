@@ -18,14 +18,16 @@ export default class Inventory extends GameComponent {
 
     this.element.classList.add(containerStyle)
 
-    for (const item of object.contains) {
-      this.makeCard(item)
+    if (object.contains) {
+      for (const item of object.contains) {
+        this.makeCard(item)
+      }
     }
 
     const self = this
 
     this.newEffect(class extends Effect {
-      onActivate () {
+      override onActivate () {
         this.onEvent(this.object, 'enter', ({ item }) => {
           staggerStateChange.add(() => self.makeCard(item, true))
         })

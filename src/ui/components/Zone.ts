@@ -27,7 +27,7 @@ export default class Zone extends GameComponent {
     const self = this
 
     this.zoneEvents = this.newEffect(class extends Effect {
-      onActivate () {
+      override onActivate () {
         this.onEvent(this.object, 'enter', ({ item }) => {
           if (!isPlayer(item)) {
             staggerStateChange.add(() => self.objectEnter(item))
@@ -119,6 +119,7 @@ export default class Zone extends GameComponent {
     }
 
     this.spots[obj.spot].append(card.element)
+    
     return card
   }
 
