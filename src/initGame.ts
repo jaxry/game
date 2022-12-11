@@ -12,6 +12,10 @@ export function initGame () {
 
   const world = spawn(typeWorld)
 
+  setTimeout(() => {
+    console.log(game.player.container)
+  }, 1000)
+
   const zones = generateRandomGraph(20)
   for (const zone of zones) {
     putInsideContainer(world, zone)

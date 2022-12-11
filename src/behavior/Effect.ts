@@ -114,7 +114,15 @@ export class Effect {
   }
 
   reactivate () {
-    this.deactivate().activate()
+    if (this.events) {
+      for (const event of this.events) {
+        unsubscribeEvent(event)
+      }
+      this.events.length = 0
+    }
+
+    this.onDeactivate?.()
+    this.onActivate?.()
   }
 
   setObject (object: GameObject) {

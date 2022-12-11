@@ -29,7 +29,7 @@ class GameObjectInstance {
   type: GameObjectType
   id = nextId++
 
-  events?: {
+  private events?: {
     [T in GameObjectEvent]?: Set<GameObjectEventListener<T>>
   }
 
