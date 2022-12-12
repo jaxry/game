@@ -53,10 +53,33 @@ export interface SerializableOptions<T> {
 export function serialize (toSerialize: any) {
   const objectPool = makeObjectPool(toSerialize)
 
-  function recurse (object: any) {
-    const copy: any = Array.isArray(object) ? [] : {}
+  function recurse (value: any, makeSharedReference = true): any {
+    if (typeof value !== 'object' || value === null) {
+      return value
+    }
 
-    if (object.constructor !== Object && object.constructor !== Array) {
+    const object = value
+
+    if (makeSharedReference && objectPool.has(object)) {
+      return `→${objectPool.get(object)}`
+    }
+
+    if (object instanceof Set) {
+      return {
+        '#set': mapIter(object, value => recurse(value)),
+      }
+    } else if (object instanceof Map) {
+      return {
+        '#map': mapIter(object,
+            ([key, value]) => [recurse(key), recurse(value)]),
+      }
+    } else if (Array.isArray(object)) {
+      return object.map(value => recurse(value))
+    }
+
+    const copy: any = {}
+
+    if (object.constructor !== Object) {
       copy['#class'] = constructorToId.get(object.constructor)
     }
 
@@ -66,21 +89,15 @@ export function serialize (toSerialize: any) {
       if (ignoreSet?.has(key)) {
         continue
       }
-      const value = object[key]
-      if (typeof value === 'object' && value !== null) {
-        const id = objectPool.get(value)
-        copy[key] = id !== undefined ? `→${id}` : recurse(value)
-      } else {
-        copy[key] = value
-      }
+      copy[key] = recurse(object[key])
     }
 
     return copy
   }
 
   const serialized = {
-    pool: mapIter(objectPool.keys(), (object) => recurse(object)),
-    object: recurse(toSerialize),
+    pool: mapIter(objectPool.keys(), (object) => recurse(object, false)),
+    object: recurse(toSerialize, true),
   }
 
   return JSON.stringify(serialized)
@@ -93,22 +110,30 @@ export function deserialize (json: string) {
     return instantiateFromTemplate(object)
   })
 
-  function recurse (object: any, copy: any = instantiateFromTemplate(object)) {
-    for (const key in object) {
-      if (key === '#class') {
-        continue
+  function recurse (value: any, copy: any = instantiateFromTemplate(value)) {
+    if (typeof value === 'string' && value[0] === '→') {
+      return dereferencedPool[parseFloat(value.slice(1))]
+    } else if (typeof value !== 'object' || value === null) {
+      return value
+    }
+
+    if (copy instanceof Set) {
+      for (const item of value['#set']) {
+        copy.add(recurse(item))
       }
-      const value = object[key]
-      if (typeof value === 'string' && value[0] === '→') {
-        copy[key] = dereferencedPool[parseFloat(value.slice(1))]
-      } else if (typeof value === 'object' && value !== null) {
-        copy[key] = recurse(value)
-      } else {
-        copy[key] = value
+    } else if (copy instanceof Map) {
+      for (const [key, item] of value['#map']) {
+        copy.set(recurse(key), recurse(item))
+      }
+    } else {
+      for (const key in value) {
+        if (key[0] === '#') {
+          continue
+        }
+        copy[key] = recurse(value[key])
       }
     }
 
-    // TODO: call for parents too
     constructorToAfterDeserialize.get(copy.constructor)?.(copy)
 
     return copy
@@ -120,6 +145,10 @@ export function deserialize (json: string) {
       return new Constructor()
     } else if (Array.isArray(object)) {
       return []
+    } else if (object['#set']) {
+      return new Set()
+    } else if (object['#map']) {
+      return new Map()
     } else {
       return {}
     }
@@ -160,22 +189,37 @@ function makeObjectPool (object: any) {
   const objectSet = new Set<any>()
   const sharedObjects = new Set<any>()
 
-  function findSharedObjects (object: any) {
-    const ignoreSet = constructorToIgnoreSet.get(object.constructor)
+  function findSharedObjects (value: any) {
+    if (typeof value !== 'object' || value === null) {
+      return
+    }
 
-    for (const key in object) {
-      if (ignoreSet?.has(key)) {
-        continue
-      }
-      const value = object[key]
-      if (typeof value !== 'object' || value === null) {
-        continue
-      }
-      if (!objectSet.has(value)) {
-        objectSet.add(value)
+    const object = value
+
+    if (objectSet.has(object)) {
+      sharedObjects.add(object)
+      return
+    }
+
+    objectSet.add(object)
+
+    if (object instanceof Set) {
+      for (const value of object) {
         findSharedObjects(value)
-      } else {
-        sharedObjects.add(value)
+      }
+    } else if (object instanceof Map) {
+      for (const [key, value] of object) {
+        findSharedObjects(key)
+        findSharedObjects(value)
+      }
+    } else {
+      const ignoreSet = constructorToIgnoreSet.get(object.constructor)
+
+      for (const key in object) {
+        if (ignoreSet?.has(key)) {
+          continue
+        }
+        findSharedObjects(object[key])
       }
     }
   }
@@ -192,18 +236,25 @@ function makeObjectPool (object: any) {
 }
 
 const sharey = { iAmShared: true }
-const sharey2: any = {}
-sharey2['iAmShared'] = true
+const sharey2 = { iAmShared: false }
 
 const circ1: any = { name: 'circular1' }
 const circ2: any = { name: 'circular2' }
-
 circ1.r = circ2
 circ2.r = circ1
+
+const setThing = new Set([1, 2, sharey2])
+
+const mapper = new Map<any, any>()
+mapper.set('a', sharey)
+mapper.set(setThing, 'hi hi you you')
+mapper.set({ hey: 'thing' }, 5)
 
 class AClass {
   sharey = sharey
   sharey2 = sharey2
+  setThing1 = setThing
+  mapper = mapper
   aClassIgnore = 'bye'
   d?: AClass
   a!: string
@@ -215,6 +266,7 @@ class AClass {
 
 class BClass extends AClass {
   circular = circ1
+  setThing2 = setThing
   bClassIgnore = 'nothing'
   f = { thing: 'here and there' }
   array = ['does this', sharey]
@@ -234,9 +286,9 @@ class BClass extends AClass {
 
 serializable(AClass, {
   ignore: ['aClassIgnore'],
-  afterDeserialize: (object) => {
-    console.log('base doing', object)
-  },
+  // afterDeserialize: (object) => {
+  //   console.log('base doing', object)
+  // },
 })
 
 serializable(BClass, {
