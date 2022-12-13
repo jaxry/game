@@ -70,7 +70,10 @@ export function mapIter<T, U> (
   const array: U[] = []
   let i = 0
   for (const x of iterable) {
-    array.push(mapFn(x, i++))
+    const fx = mapFn(x, i)
+    if (fx !== undefined) {
+      array.push(mapFn(x, i++))
+    }
   }
   return array
 }

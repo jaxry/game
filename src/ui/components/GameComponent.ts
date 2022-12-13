@@ -1,7 +1,6 @@
 import Component from './Component'
 import { Effect } from '../../behavior/Effect'
-
-type Constructor<T> = { new (...args: any[]): T }
+import { Constructor } from '../../types'
 
 export default class GameComponent extends Component {
   newEffect<T extends Constructor<Effect>> (

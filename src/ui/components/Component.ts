@@ -1,6 +1,5 @@
 import Observer from '../../Observer'
-
-type Constructor<T> = { new (...args: any[]): T }
+import { Constructor } from '../../types'
 
 export default class Component {
   element: HTMLElement | SVGGElement
