@@ -14,7 +14,8 @@ const constructorToDeserializeCallback = new WeakMap<Constructor<any>,
 export interface SerializableOptions<T> {
   ignore?: (keyof T)[]
   transform?: {
-    [prop in keyof T]?: [(value: T[prop]) => any, (value: any) => T[prop]]
+    [prop in keyof T]?: [(value: T[prop]) => any, (value: any) => T[prop]] |
+      [(value: T[prop]) => any]
   }
   afterDeserialize?: (object: T) => void
 }
@@ -107,17 +108,18 @@ export function serialize (toSerialize: any) {
     return copy
   }
 
-  const serialized = {
+  return JSON.stringify({
     shared: mapIter(sharedObjects.keys(), (object) => prepare(object, false)),
     object: prepare(toSerialize, true),
-  }
-
-  return JSON.stringify(serialized)
+  })
 }
 
 export function deserialize (json: string) {
   const { object, shared } = JSON.parse(json)
 
+  // Instantiate all shared objects at once.
+  // This allows for circular references when the instances are
+  // later populated with props.
   const sharedRevived = shared.map((object: any) => {
     return instantiateFromTemplate(object)
   })
@@ -144,7 +146,7 @@ export function deserialize (json: string) {
         }
         const revived = revive(value[key])
         const transform = constructorToTransform.get(copy.constructor)
-        copy[key] = transform?.[key]?.[1](revived) ?? revived
+        copy[key] = transform?.[key]?.[1]?.(revived) ?? revived
       }
     }
 
@@ -177,19 +179,6 @@ function instantiateFromTemplate (object: any) {
   }
 }
 
-function findParentInMap<T> (
-    constructor: Constructor<any>, map: WeakMap<Constructor<any>, T>) {
-
-  let parent = Object.getPrototypeOf(constructor)
-
-  while (parent?.name) {
-    if (map.has(parent)) {
-      return map.get(parent)
-    }
-    parent = Object.getPrototypeOf(parent)
-  }
-}
-
 function addInheritedProperty<T, K> (
     constructor: Constructor<any>,
     constructorToProp: WeakMap<Constructor<any>, K>,
@@ -205,6 +194,20 @@ function addInheritedProperty<T, K> (
   }
 }
 
+function findParentInMap<T> (
+    constructor: Constructor<any>, map: WeakMap<Constructor<any>, T>) {
+
+  let parent = Object.getPrototypeOf(constructor)
+
+  while (parent?.name) {
+    if (map.has(parent)) {
+      return map.get(parent)
+    }
+    parent = Object.getPrototypeOf(parent)
+  }
+}
+
+
 type Args<T> = (...args: T[]) => void
 function combineFunctions<T> (fn1: Args<T>, fn2: Args<T>): Args<T> {
   return (...args) => {
@@ -217,7 +220,7 @@ function getSharedObjects (object: any) {
   const objectSet = new Set<any>()
   const sharedObjects = new Set<any>()
 
-  function findSharedObjects (value: any) {
+  function findShared (value: any) {
     if (typeof value !== 'object' || value === null) {
       return
     }
@@ -233,26 +236,31 @@ function getSharedObjects (object: any) {
 
     if (object instanceof Set) {
       for (const value of object) {
-        findSharedObjects(value)
+        findShared(value)
       }
     } else if (object instanceof Map) {
       for (const [key, value] of object) {
-        findSharedObjects(key)
-        findSharedObjects(value)
+        findShared(key)
+        findShared(value)
       }
     } else {
+      if (object.constructor !== Object &&
+          !constructorToId.has(object.constructor)) {
+        return
+      }
+
       const ignoreSet = constructorToIgnoreSet.get(object.constructor)
 
       for (const key in object) {
         if (ignoreSet?.has(key)) {
           continue
         }
-        findSharedObjects(object[key])
+        findShared(object[key])
       }
     }
   }
 
-  findSharedObjects(object)
+  findShared(object)
 
   const sharedObjectToId = new Map<any, number>()
   let id = 0
@@ -278,6 +286,10 @@ mapper.set('a', sharey)
 mapper.set(setThing, 'hi hi you you')
 mapper.set({ hey: 'thing' }, 5)
 
+class IgnoreMe {
+  prop = 'this class shouldnt be here'
+}
+
 class AClass {
   sharey = sharey
   sharey2 = sharey2
@@ -299,12 +311,14 @@ serializable(AClass, {
   },
 })
 
+const ignoreMe = new IgnoreMe()
+
 class BClass extends AClass {
   circular = circ1
   setThing2 = setThing
   bClassIgnore = 'nothing'
   f = { thing: 'here and there' }
-  array = ['does this', sharey, new IgnoreMe()]
+  array = ['does this', sharey, ignoreMe, ignoreMe]
 
   constructor () {
     super()
@@ -322,17 +336,15 @@ class BClass extends AClass {
 serializable(BClass, {
   ignore: ['bClassIgnore'],
   transform: {
-    'f': [(f) => f.thing, (f => ({ thing: f}))]
+    'f': [
+        (f) => f.thing,
+        (f: any) => ({ thing: f})]
   },
   afterDeserialize: (object) => {
     console.log('done it', object)
   }
 
 })
-
-class IgnoreMe {
-  prop = 'it prop'
-}
 
 const bThing = new BClass()
 bThing.a = 'hihihi'
