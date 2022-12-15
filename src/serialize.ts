@@ -99,7 +99,9 @@ export function serialize (toSerialize: any) {
       }
       const value = object[key]
       const transform = constructorToTransform.get(object.constructor)
-      const prepared = prepare(transform?.[key]?.[0](value) ?? value)
+          ?.[key]?.[0]
+      const transformed = transform ? transform(value) : value
+      const prepared = prepare(transformed)
       if (prepared !== undefined) {
         copy[key] = prepared
       }
@@ -232,22 +234,21 @@ function getSharedObjects (object: any) {
       return
     }
 
-    objectSet.add(object)
-
     if (object instanceof Set) {
+      objectSet.add(object)
       for (const value of object) {
         findShared(value)
       }
     } else if (object instanceof Map) {
+      objectSet.add(object)
       for (const [key, value] of object) {
         findShared(key)
         findShared(value)
       }
-    } else {
-      if (object.constructor !== Object &&
-          !constructorToId.has(object.constructor)) {
-        return
-      }
+    } else if (object.constructor === Object ||
+        constructorToId.has(object.constructor)) {
+
+      objectSet.add(object)
 
       const ignoreSet = constructorToIgnoreSet.get(object.constructor)
 
@@ -319,6 +320,7 @@ class BClass extends AClass {
   bClassIgnore = 'nothing'
   f = { thing: 'here and there' }
   array = ['does this', sharey, ignoreMe, ignoreMe]
+  fn = () => console.log('hi')
 
   constructor () {
     super()
