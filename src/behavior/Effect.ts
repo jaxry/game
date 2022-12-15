@@ -1,5 +1,4 @@
-import type { ActiveGameObjectEvent, GameObject } from '../GameObject'
-import { unsubscribeEvent } from '../GameObject'
+import { GameObject, ActiveGameObjectEvent } from '../GameObject'
 import type {
   GameObjectEventListener, GameObjectEvents,
 } from '../GameObjectType'
@@ -49,14 +48,14 @@ export class Effect {
       this.events = []
     }
 
-    const unsub = obj.on(event, listener)
-    this.events.push(unsub)
+    const activeEvent = obj.on(event, listener)
+    this.events.push(activeEvent)
 
-    return unsub
+    return activeEvent
   }
 
   unsubscribe (event: ActiveGameObjectEvent) {
-    unsubscribeEvent(event)
+    event.unsubscribe()
     deleteElem(this.events!, event)
   }
 
@@ -103,7 +102,7 @@ export class Effect {
 
     if (this.events) {
       for (const event of this.events) {
-        unsubscribeEvent(event)
+        event.unsubscribe()
       }
       this.events.length = 0
     }
@@ -116,7 +115,7 @@ export class Effect {
   reactivate () {
     if (this.events) {
       for (const event of this.events) {
-        unsubscribeEvent(event)
+        event.unsubscribe()
       }
       this.events.length = 0
     }

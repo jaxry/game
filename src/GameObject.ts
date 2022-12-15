@@ -2,6 +2,7 @@ import type {
   GameObjectEvent, GameObjectEventListener, GameObjectEvents, GameObjectProps,
   GameObjectType,
 } from './GameObjectType'
+import { serializable } from './serialize'
 
 export type GameObject = GameObjectInstance & GameObjectProps
 
@@ -13,23 +14,24 @@ export function makeGameObject (type: GameObjectType) {
   return new GameObjectInstance(type) as GameObject
 }
 
-export interface ActiveGameObjectEvent {
-  obj: GameObject
-  listeners: Set<GameObjectEventListener<any>>
-  listener: GameObjectEventListener<any>
-}
+export class ActiveGameObjectEvent {
+  constructor(
+      public listeners: Set<GameObjectEventListener<any>>,
+      public listener: GameObjectEventListener<any>
+  ) {}
 
-export function unsubscribeEvent (ev: ActiveGameObjectEvent) {
-  ev.listeners.delete(ev.listener)
+  unsubscribe() {
+    this.listeners.delete(this.listener)
+  }
 }
 
 let nextId = 1
-
 class GameObjectInstance {
-  type: GameObjectType
   id = nextId++
 
-  private events?: {
+  type: GameObjectType
+
+  events?: {
     [T in GameObjectEvent]?: Set<GameObjectEventListener<T>>
   }
 
@@ -47,29 +49,19 @@ class GameObjectInstance {
     }
     this.events[event]!.add(listener as any)
 
-    return {
-      obj: this as any,
-      listeners: this.events[event]!,
-      listener,
-    }
+    return new ActiveGameObjectEvent(this.events[event]!, listener)
   }
 
   emit<T extends keyof GameObjectEvents> (event: T, data: GameObjectEvents[T]) {
-    let listeners: any
-
-    // listeners = this.type.events?.[event]
-    // if (listeners) {
-    //   for (const listener of listeners) {
-    //     listener(data)
-    //   }
-    // }
-
-    listeners = this.events?.[event]
+    const listeners = this.events?.[event]
     if (listeners) {
       for (const listener of listeners) {
         listener(data)
       }
     }
-
   }
 }
+
+serializable(GameObjectInstance, {
+  ignore: ['id', 'events']
+})
