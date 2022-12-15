@@ -1,4 +1,4 @@
-import { GameObject, ActiveGameObjectEvent } from '../GameObject'
+import { ActiveGameObjectEvent, GameObject } from '../GameObject'
 import type {
   GameObjectEventListener, GameObjectEvents,
 } from '../GameObjectType'

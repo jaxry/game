@@ -9,8 +9,7 @@
     "esModuleInterop": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "noImplicitOverride": true,
-    "experimentalDecorators": true
+    "noImplicitOverride": true
   },
   "include": ["src"]
 }

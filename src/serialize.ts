@@ -52,7 +52,7 @@ export function serialize (toSerialize: any) {
   const sharedObjects = getSharedObjects(toSerialize)
 
   function prepare (value: any, makeSharedReference = true): any {
-    if (typeof value !== 'object' || value === null) {
+    if (isPrimitive(value)) {
       return value
     }
 
@@ -64,11 +64,11 @@ export function serialize (toSerialize: any) {
 
     if (object instanceof Set) {
       return {
-        '$set': mapIter(object, value => prepare(value)),
+        $set: mapIter(object, value => prepare(value)),
       }
     } else if (object instanceof Map) {
       return {
-        '$map': mapIter(object, ([key, value]) => {
+        $map: mapIter(object, ([key, value]) => {
           const pKey = prepare(key)
           const pValue = prepare(value)
           if (pKey !== undefined && pValue !== undefined) {
@@ -78,9 +78,13 @@ export function serialize (toSerialize: any) {
       }
     } else if (Array.isArray(object)) {
       return mapIter(object, value => prepare(value))
+    } else {
+      return prepareKeyedObject(object)
     }
+  }
 
-    const copy: any = {}
+  function prepareKeyedObject (object: any) {
+    let copy: any = {}
 
     if (object.constructor !== Object) {
       const id = constructorToId.get(object.constructor)
@@ -88,7 +92,7 @@ export function serialize (toSerialize: any) {
         // don't save classes that don't have serializable() called on them
         return
       }
-      copy['$class'] = id
+      copy.$class = id
     }
 
     const ignoreSet = constructorToIgnoreSet.get(object.constructor)
@@ -129,16 +133,16 @@ export function deserialize (json: string) {
   function revive (value: any, copy: any = instantiateFromTemplate(value)) {
     if (typeof value === 'string' && value[0] === '→') {
       return sharedRevived[parseFloat(value.slice(1))]
-    } else if (typeof value !== 'object' || value === null) {
+    } else if (isPrimitive(value)) {
       return value
     }
 
     if (copy instanceof Set) {
-      for (const item of value['$set']) {
+      for (const item of value.$set) {
         copy.add(revive(item))
       }
     } else if (copy instanceof Map) {
-      for (const [key, item] of value['$map']) {
+      for (const [key, item] of value.$map) {
         copy.set(revive(key), revive(item))
       }
     } else {
@@ -167,14 +171,14 @@ export function deserialize (json: string) {
 }
 
 function instantiateFromTemplate (object: any) {
-  if (object['$class']) {
-    const Constructor = idToConstructor.get(object['$class'])!
+  if (object.$class) {
+    const Constructor = idToConstructor.get(object.$class)!
     return new Constructor()
   } else if (Array.isArray(object)) {
     return []
-  } else if (object['$set']) {
+  } else if (object.$set) {
     return new Set()
-  } else if (object['$map']) {
+  } else if (object.$map) {
     return new Map()
   } else {
     return {}
@@ -223,7 +227,7 @@ function getSharedObjects (object: any) {
   const sharedObjects = new Set<any>()
 
   function findShared (value: any) {
-    if (typeof value !== 'object' || value === null) {
+    if (isPrimitive(value)) {
       return
     }
 
@@ -270,6 +274,10 @@ function getSharedObjects (object: any) {
   }
 
   return sharedObjectToId
+}
+
+function isPrimitive (value: any) {
+  return value === null || typeof value !== 'object'
 }
 
 const sharey = { iAmShared: true }

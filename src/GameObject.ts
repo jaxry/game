@@ -15,17 +15,19 @@ export function makeGameObject (type: GameObjectType) {
 }
 
 export class ActiveGameObjectEvent {
-  constructor(
+  constructor (
       public listeners: Set<GameObjectEventListener<any>>,
-      public listener: GameObjectEventListener<any>
-  ) {}
+      public listener: GameObjectEventListener<any>,
+  ) {
+  }
 
-  unsubscribe() {
+  unsubscribe () {
     this.listeners.delete(this.listener)
   }
 }
 
 let nextId = 1
+
 class GameObjectInstance {
   id = nextId++
 
@@ -63,5 +65,5 @@ class GameObjectInstance {
 }
 
 serializable(GameObjectInstance, {
-  ignore: ['id', 'events']
+  ignore: ['id', 'events'],
 })
