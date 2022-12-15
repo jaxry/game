@@ -2,17 +2,19 @@ import { mapIter } from './util'
 import { Constructor } from './types'
 
 let nextConstructorId = 1
-const idToConstructor = new Map<number, Constructor<any>>()
-const constructorToId = new Map<Constructor<any>, number>()
+const idToConstructor = new Map<number, Constructor>()
+const constructorToId = new Map<Constructor, number>()
 
-const constructorToIgnoreSet = new WeakMap<Constructor<any>, Set<string>>()
-const constructorToTransform = new WeakMap<Constructor<any>,
+const constructorToIgnoreSet = new WeakMap<Constructor, Set<string>>()
+const constructorToTransform = new WeakMap<Constructor,
     SerializableOptions<any>['transform']>()
-const constructorToDeserializeCallback = new WeakMap<Constructor<any>,
+const constructorToDeserializeCallback = new WeakMap<Constructor,
         SerializableOptions<any>['afterDeserialize']>()
 
 export interface SerializableOptions<T> {
   ignore?: (keyof T)[]
+
+  // transform a key value to a simple, jsonable result
   transform?: {
     [prop in keyof T]?: [(value: T[prop]) => any, (value: any) => T[prop]] |
       [(value: T[prop]) => any]
@@ -20,8 +22,9 @@ export interface SerializableOptions<T> {
   afterDeserialize?: (object: T) => void
 }
 
+export function serializable<T> (constructor: Constructor<T>, options?: SerializableOptions<T>): void;
 export function serializable<T> (
-    constructor: Constructor<T>, options?: SerializableOptions<T>) {
+    constructor: Constructor, options?: SerializableOptions<T>) {
 
   idToConstructor.set(nextConstructorId, constructor)
   constructorToId.set(constructor, nextConstructorId)
@@ -55,7 +58,6 @@ export function serialize (toSerialize: any) {
     if (isPrimitive(value)) {
       return value
     }
-
     const object = value
 
     if (makeSharedReference && sharedObjects.has(object)) {
@@ -114,10 +116,12 @@ export function serialize (toSerialize: any) {
     return copy
   }
 
-  return JSON.stringify({
+  const toStringify = {
     shared: mapIter(sharedObjects.keys(), (object) => prepare(object, false)),
     object: prepare(toSerialize, true),
-  })
+  }
+
+  return JSON.stringify(toStringify)
 }
 
 export function deserialize (json: string) {
@@ -186,8 +190,8 @@ function instantiateFromTemplate (object: any) {
 }
 
 function addInheritedProperty<T, K> (
-    constructor: Constructor<any>,
-    constructorToProp: WeakMap<Constructor<any>, K>,
+    constructor: Constructor,
+    constructorToProp: WeakMap<Constructor, K>,
     transform: (prop: T, parentProp?: K) => K, property?: T) {
 
   const parentProp = findParentInMap(constructor, constructorToProp)
@@ -201,7 +205,7 @@ function addInheritedProperty<T, K> (
 }
 
 function findParentInMap<T> (
-    constructor: Constructor<any>, map: WeakMap<Constructor<any>, T>) {
+    constructor: Constructor, map: WeakMap<Constructor, T>) {
 
   let parent = Object.getPrototypeOf(constructor)
 
@@ -238,7 +242,7 @@ function getSharedObjects (object: any) {
       return
     }
 
-    if (object instanceof Set) {
+    if (object instanceof Set || object instanceof Array) {
       objectSet.add(object)
       for (const value of object) {
         findShared(value)
