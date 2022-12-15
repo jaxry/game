@@ -1,10 +1,9 @@
-import type { GameObject } from '../GameObject'
-import { makeGameObject } from '../GameObject'
+import { GameObject } from '../GameObject'
 import type { GameObjectType } from '../GameObjectType'
 import { putInsideContainer } from './container'
 
 export function spawn (type: GameObjectType, container?: GameObject) {
-  const instance = makeGameObject(type)
+  const instance = new GameObject(type)
 
   if (type.health) {
     instance.health = type.health

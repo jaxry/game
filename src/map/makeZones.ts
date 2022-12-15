@@ -1,8 +1,9 @@
-import { GameObject, makeType } from '../GameObject'
+import { GameObject } from '../GameObject'
 import { spawn } from '../behavior/spawn'
 import { connectZones } from '../behavior/connections'
 import { lerp } from '../util'
 import { Vertex } from './types'
+import { makeType } from '../GameObjectType'
 
 export default function makeZones (vertices: Vertex[]) {
   const vertexToZone = new Map<Vertex, GameObject>()

@@ -7,7 +7,7 @@ export default class GameComponent extends Component {
       constructor: T,
       ...args: ConstructorParameters<T>) {
 
-    const effect = new constructor(...args).activate()!
+    const effect = new constructor(...args).activate()
     this.onRemove(() => {
       effect.deactivate()
     })

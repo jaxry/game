@@ -45,7 +45,7 @@ export default class MapComponent extends Component {
   }
 
   setCenter (centerZone: GameObject) {
-    const graph = getZoneGraph(centerZone)
+    const graph = getZoneGraph(centerZone, 2)
 
     this.setBounds(graph)
 

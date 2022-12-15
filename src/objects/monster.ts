@@ -4,9 +4,9 @@ import { isContainedWith } from '../behavior/container'
 import { Effect } from '../behavior/Effect'
 import { game } from '../Game'
 import type { GameObject } from '../GameObject'
-import { makeType } from '../GameObject'
 import { randomElement } from '../util'
 import MoveSpotAction from '../actions/MoveSpot'
+import { makeType } from '../GameObjectType'
 
 class MonsterAttack extends Effect {
   constructor (object: GameObject, public target: GameObject) {

@@ -1,7 +1,6 @@
-import { ActiveGameObjectEvent, GameObject } from '../GameObject'
-import type {
-  GameObjectEventListener, GameObjectEvents,
-} from '../GameObjectType'
+import {
+  ActiveGameObjectEvent, GameObject, GameObjectEventListener, GameObjectEvents,
+} from '../GameObject'
 import { deleteElem } from '../util'
 
 export class Effect {

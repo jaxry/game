@@ -310,7 +310,7 @@ class AClass {
   mapper = mapper
   aClassIgnore = 'bye'
   d?: AClass
-  a!: string
+  a: string
 
   manOhMan () {
     console.log('man')
