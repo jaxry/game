@@ -1,14 +1,12 @@
 import Action from '../behavior/Action'
-import { connectionDistance } from '../behavior/connections'
 import { putInsideContainer } from '../behavior/container'
 import type { GameObject } from '../GameObject'
+import { serializable } from '../serialize'
 
 export default class TravelAction extends Action {
   constructor (object: GameObject, public location: GameObject) {
     super(object)
-    this.time = Math.round(
-        3 * connectionDistance(object.container, location),
-    )
+    this.time = 3
   }
 
   override get name () {
@@ -23,3 +21,4 @@ export default class TravelAction extends Action {
     putInsideContainer(this.location, this.object)
   }
 }
+serializable(TravelAction)

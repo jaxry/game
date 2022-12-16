@@ -1,3 +1,5 @@
+import { serializable } from './serialize'
+
 export default class GameTime {
   static second = 1
   static minute = 60 * GameTime.second
@@ -31,3 +33,4 @@ export default class GameTime {
         + this.getSecondOfMinute().toString().padStart(2, `0`)
   }
 }
+serializable(GameTime)

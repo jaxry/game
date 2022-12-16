@@ -7,6 +7,7 @@ import type { GameObject } from '../GameObject'
 import { randomElement } from '../util'
 import MoveSpotAction from '../actions/MoveSpot'
 import { makeType } from '../GameObjectType'
+import { serializable } from '../serialize'
 
 class MonsterAttack extends Effect {
   constructor (object: GameObject, public target: GameObject) {
@@ -33,6 +34,8 @@ class MonsterAttack extends Effect {
     }
   }
 }
+
+serializable(MonsterAttack)
 
 class MonsterSearch extends Effect {
   found () {
@@ -74,6 +77,8 @@ class MonsterSearch extends Effect {
     }
   }
 }
+
+serializable(MonsterSearch)
 
 export const typeMonster = makeType({
   name: 'Ogre Magi',

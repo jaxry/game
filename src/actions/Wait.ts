@@ -1,4 +1,5 @@
 import Action from '../behavior/Action'
+import { serializable } from '../serialize'
 
 export default class WaitAction extends Action {
   override time = 1
@@ -11,3 +12,4 @@ export default class WaitAction extends Action {
 
   }
 }
+serializable(WaitAction)

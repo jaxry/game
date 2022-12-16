@@ -17,6 +17,22 @@ export class GameObjectType {
   energy: number
 }
 
+const typeToId = new Map<GameObjectType, number>()
+const idToType = new Map<number, GameObjectType>()
+let nextId = 1
+
 export function makeType (template: Partial<GameObjectType>) {
-  return Object.assign(new GameObjectType(), template)
+  const id = nextId++
+  const type = new GameObjectType()
+  typeToId.set(type, id)
+  idToType.set(id, type)
+  return Object.assign(type, template)
+}
+
+export function getIdFromType (type: GameObjectType) {
+  return typeToId.get(type)!
+}
+
+export function getTypeFromId (id: number) {
+  return idToType.get(id)!
 }

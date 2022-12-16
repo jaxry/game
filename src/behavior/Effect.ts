@@ -2,6 +2,7 @@ import {
   ActiveGameObjectEvent, GameObject, GameObjectEventListener, GameObjectEvents,
 } from '../GameObject'
 import { deleteElem } from '../util'
+import { serializable } from '../serialize'
 
 export class Effect {
   // From 0 to a positive integer.
@@ -13,7 +14,7 @@ export class Effect {
   // When the object is destroyed, the effect is automatically cleaned up.
   object: GameObject
   isActive = false
-  private events?: ActiveGameObjectEvent[]
+  events?: ActiveGameObjectEvent[]
 
   constructor (object: GameObject) {
     this.object = object
@@ -129,6 +130,10 @@ export class Effect {
     this.activate()
   }
 }
+
+serializable(Effect, {
+  ignore: ['object', 'events', 'isActive'],
+})
 
 export function removeEffects (obj: GameObject) {
   if (obj.effects) {

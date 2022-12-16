@@ -1,6 +1,7 @@
 import Action from '../behavior/Action'
 import type { GameObject } from '../GameObject'
 import { isAncestor, putInsideContainer } from '../behavior/container'
+import { serializable } from '../serialize'
 
 export default class TransferAction extends Action {
   override time = 5
@@ -37,3 +38,4 @@ export default class TransferAction extends Action {
     putInsideContainer(this.destination, this.target, this.spot)
   }
 }
+serializable(TransferAction)

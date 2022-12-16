@@ -1,7 +1,9 @@
 import type { GameObjectType } from './GameObjectType'
+import { getIdFromType, getTypeFromId } from './GameObjectType'
 import { Effect } from './behavior/Effect'
 import Action from './behavior/Action'
 import { serializable } from './serialize'
+import { toPrecision } from './util'
 
 let nextId = 1
 
@@ -61,6 +63,21 @@ export class GameObject {
   }
 }
 
+serializable(GameObject, {
+  ignore: ['id', 'events', 'container'],
+  transform: {
+    type: [
+      (type: GameObjectType) => getIdFromType(type),
+      (id: number) => getTypeFromId(id),
+    ],
+    position: [
+      (position: { x: number, y: number }) => ({
+        x: toPrecision(position.x, 1),
+        y: toPrecision(position.y, 1),
+      })],
+  },
+})
+
 export class GameObjectEvents {
   destroy: undefined
 
@@ -99,3 +116,4 @@ export class ActiveGameObjectEvent {
     this.listeners.delete(this.listener)
   }
 }
+

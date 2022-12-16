@@ -1,13 +1,14 @@
 import type { GameObject } from '../GameObject'
 import Action from '../behavior/Action'
 import { moveToSpot } from '../behavior/container'
+import { serializable } from '../serialize'
 
 export default class MoveSpotAction extends Action {
   to: number
 
   constructor (object: GameObject, to: number) {
     super(object)
-    this.to = this.object.spot + Math.sign(to - this.object.spot)
+    this.to = to
     this.time = 3
   }
 
@@ -19,6 +20,10 @@ export default class MoveSpotAction extends Action {
     return `👣${this.direction()}`
   }
 
+  override onActivate () {
+    this.to = this.object.spot + Math.sign(this.to - this.object.spot)
+  }
+
   override do () {
     moveToSpot(this.object, this.to)
   }
@@ -28,5 +33,5 @@ export default class MoveSpotAction extends Action {
     if (this.to > this.object.spot) return '➡'
     return ''
   }
-
 }
+serializable(MoveSpotAction)

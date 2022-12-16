@@ -22,9 +22,8 @@ export interface SerializableOptions<T> {
   afterDeserialize?: (object: T) => void
 }
 
-export function serializable<T> (constructor: Constructor<T>, options?: SerializableOptions<T>): void;
 export function serializable<T> (
-    constructor: Constructor, options?: SerializableOptions<T>) {
+    constructor: Constructor<T>, options?: SerializableOptions<T>) {
 
   idToConstructor.set(nextConstructorId, constructor)
   constructorToId.set(constructor, nextConstructorId)
@@ -66,11 +65,11 @@ export function serialize (toSerialize: any) {
 
     if (object instanceof Set) {
       return {
-        $set: mapIter(object, value => prepare(value)),
+        $s: mapIter(object, value => prepare(value)),
       }
     } else if (object instanceof Map) {
       return {
-        $map: mapIter(object, ([key, value]) => {
+        $m: mapIter(object, ([key, value]) => {
           const pKey = prepare(key)
           const pValue = prepare(value)
           if (pKey !== undefined && pValue !== undefined) {
@@ -92,9 +91,10 @@ export function serialize (toSerialize: any) {
       const id = constructorToId.get(object.constructor)
       if (!id) {
         // don't save classes that don't have serializable() called on them
+        console.warn('Cannot save', object)
         return
       }
-      copy.$class = id
+      copy.$c = id
     }
 
     const ignoreSet = constructorToIgnoreSet.get(object.constructor)
@@ -106,7 +106,7 @@ export function serialize (toSerialize: any) {
       const value = object[key]
       const transform = constructorToTransform.get(object.constructor)
           ?.[key]?.[0]
-      const transformed = transform ? transform(value) : value
+      const transformed = transform && value ? transform(value) : value
       const prepared = prepare(transformed)
       if (prepared !== undefined) {
         copy[key] = prepared
@@ -142,11 +142,11 @@ export function deserialize (json: string) {
     }
 
     if (copy instanceof Set) {
-      for (const item of value.$set) {
+      for (const item of value.$s) {
         copy.add(revive(item))
       }
     } else if (copy instanceof Map) {
-      for (const [key, item] of value.$map) {
+      for (const [key, item] of value.$m) {
         copy.set(revive(key), revive(item))
       }
     } else {
@@ -175,14 +175,16 @@ export function deserialize (json: string) {
 }
 
 function instantiateFromTemplate (object: any) {
-  if (object.$class) {
-    const Constructor = idToConstructor.get(object.$class)!
+  if (isPrimitive(object)) {
+    return
+  } else if (object.$c) {
+    const Constructor = idToConstructor.get(object.$c)!
     return new Constructor()
   } else if (Array.isArray(object)) {
     return []
-  } else if (object.$set) {
+  } else if (object.$s) {
     return new Set()
-  } else if (object.$map) {
+  } else if (object.$m) {
     return new Map()
   } else {
     return {}
@@ -283,94 +285,3 @@ function getSharedObjects (object: any) {
 function isPrimitive (value: any) {
   return value === null || typeof value !== 'object'
 }
-
-const sharey = { iAmShared: true }
-const sharey2 = { iAmShared: false }
-
-const circ1: any = { name: 'circular1' }
-const circ2: any = { name: 'circular2' }
-circ1.r = circ2
-circ2.r = circ1
-
-const setThing = new Set([1, 2, sharey2])
-
-const mapper = new Map<any, any>()
-mapper.set('a', sharey)
-mapper.set(setThing, 'hi hi you you')
-mapper.set({ hey: 'thing' }, 5)
-
-class IgnoreMe {
-  prop = 'this class shouldnt be here'
-}
-
-class AClass {
-  sharey = sharey
-  sharey2 = sharey2
-  setThing1 = setThing
-  mapper = mapper
-  aClassIgnore = 'bye'
-  d?: AClass
-  a: string
-
-  manOhMan () {
-    console.log('man')
-  }
-}
-
-serializable(AClass, {
-  ignore: ['aClassIgnore'],
-  afterDeserialize: (object) => {
-    console.log('base doing', object)
-  },
-})
-
-const ignoreMe = new IgnoreMe()
-
-class BClass extends AClass {
-  circular = circ1
-  setThing2 = setThing
-  bClassIgnore = 'nothing'
-  f = { thing: 'here and there' }
-  array = ['does this', sharey, ignoreMe, ignoreMe]
-  fn = () => console.log('hi')
-
-  constructor () {
-    super()
-
-    // const a = new AClass()
-    // a.d = this
-    // this.d = a
-  }
-
-  thingDude () {
-    console.log('thing')
-  }
-}
-
-serializable(BClass, {
-  ignore: ['bClassIgnore'],
-  transform: {
-    'f': [
-        (f) => f.thing,
-        (f: any) => ({ thing: f})]
-  },
-  afterDeserialize: (object) => {
-    console.log('done it', object)
-  }
-
-})
-
-const bThing = new BClass()
-bThing.a = 'hihihi'
-bThing.f = { thing: 'another guy' }
-
-const before = { thing: bThing }
-
-const json = serialize(before)
-console.log(json)
-const after = deserialize(json)
-
-// setTimeout(() => {
-console.log(before, after)
-// }, 10000)
-

@@ -2,6 +2,7 @@ import Action from '../behavior/Action'
 import { markDestroy } from '../behavior/destroy'
 import type { GameObject } from '../GameObject'
 import { isAncestor } from '../behavior/container'
+import { serializable } from '../serialize'
 
 export default class AttackAction extends Action {
   override time = 3
@@ -33,3 +34,4 @@ export default class AttackAction extends Action {
     }
   }
 }
+serializable(AttackAction)

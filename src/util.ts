@@ -19,6 +19,10 @@ export function lerpClamped (
   return clamp(Math.min(y0, y1), Math.max(y0, y1), lerp(x0, x1, y0, y1, x))
 }
 
+export function toPrecision (x: number, numDecimals = 0) {
+  return Math.round(x * 10 ** numDecimals) / 10 ** numDecimals
+}
+
 // ---------------
 // array functions
 // ---------------
