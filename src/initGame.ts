@@ -1,20 +1,20 @@
 import { putInsideContainer } from './behavior/container'
 import { spawn } from './behavior/spawn'
 import { game } from './Game'
-import { makeType } from './GameObject'
 import GameTime from './GameTime'
 import { typeMonster } from './objects/monster'
 import { generateRandomGraph } from './map/generateRandomGraph'
 import { startForceDirectedSimulation } from './map/forceDirectedSim'
+import { makeType } from './GameObjectType'
 
 export function initGame () {
   game.energyPool = 2 * GameTime.hour
 
-  const world = spawn(typeWorld)
+  game.world = spawn(typeWorld)
 
   const zones = generateRandomGraph(20)
   for (const zone of zones) {
-    putInsideContainer(world, zone)
+    putInsideContainer(game.world, zone)
   }
 
   const zone = zones[0]
@@ -47,7 +47,7 @@ const typeYou = makeType({
   icon: `😭`,
   properNoun: true,
   isContainer: true,
-  health: Infinity,
+  health: 99999,
 })
 
 const typeChest = makeType({

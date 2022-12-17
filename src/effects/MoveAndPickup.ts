@@ -2,6 +2,7 @@ import { Effect } from '../behavior/Effect'
 import type { GameObject } from '../GameObject'
 import MoveSpotAction from '../actions/MoveSpot'
 import TransferAction from '../actions/Transfer'
+import { serializable } from '../serialize'
 
 export default class MoveAndPickup extends Effect {
   constructor (object: GameObject, public target: GameObject) {
@@ -23,3 +24,4 @@ export default class MoveAndPickup extends Effect {
     }
   }
 }
+serializable(MoveAndPickup)

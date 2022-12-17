@@ -11,8 +11,8 @@ outsideElem.classList.add(makeStyle({
 }))
 
 export default class App extends Component {
-  constructor (element: HTMLElement) {
-    super(element)
+  constructor () {
+    super()
 
     this.element.classList.add(containerStyle)
 

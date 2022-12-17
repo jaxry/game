@@ -62,10 +62,10 @@ export default class ObjectCard extends GameComponent {
     this.on(game.event.playerTickEnd, () => this.update())
 
     this.newEffect(class extends Effect {
-      override onActivate () {
+      override registerEvents () {
         this.onEvent(object.container, 'leave', ({ item }) => {
           if (item === this.object) {
-            this.reactivate()
+            this.reregisterEvents()
           }
         })
 

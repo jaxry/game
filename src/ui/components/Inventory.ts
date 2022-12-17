@@ -27,7 +27,7 @@ export default class Inventory extends GameComponent {
     const self = this
 
     this.newEffect(class extends Effect {
-      override onActivate () {
+      override registerEvents () {
         this.onEvent(this.object, 'enter', ({ item }) => {
           staggerStateChange.add(() => self.makeCard(item, true))
         })

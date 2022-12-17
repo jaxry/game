@@ -1,5 +1,5 @@
 import type { GameObject } from '../GameObject'
-import { ContainedAs } from '../GameObjectType'
+import { ContainedAs } from '../GameObject'
 
 export function moveTo (
     container: GameObject, object: GameObject, containedAs: ContainedAs,

@@ -19,6 +19,10 @@ export function lerpClamped (
   return clamp(Math.min(y0, y1), Math.max(y0, y1), lerp(x0, x1, y0, y1, x))
 }
 
+export function toPrecision (x: number, numDecimals = 0) {
+  return Math.round(x * 10 ** numDecimals) / 10 ** numDecimals
+}
+
 // ---------------
 // array functions
 // ---------------
@@ -70,7 +74,10 @@ export function mapIter<T, U> (
   const array: U[] = []
   let i = 0
   for (const x of iterable) {
-    array.push(mapFn(x, i++))
+    const fx = mapFn(x, i)
+    if (fx !== undefined) {
+      array.push(mapFn(x, i++))
+    }
   }
   return array
 }

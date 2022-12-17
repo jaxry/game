@@ -4,9 +4,10 @@ import { isContainedWith } from '../behavior/container'
 import { Effect } from '../behavior/Effect'
 import { game } from '../Game'
 import type { GameObject } from '../GameObject'
-import { makeType } from '../GameObject'
 import { randomElement } from '../util'
 import MoveSpotAction from '../actions/MoveSpot'
+import { makeType } from '../GameObjectType'
+import { serializable } from '../serialize'
 
 class MonsterAttack extends Effect {
   constructor (object: GameObject, public target: GameObject) {
@@ -34,6 +35,8 @@ class MonsterAttack extends Effect {
   }
 }
 
+serializable(MonsterAttack)
+
 class MonsterSearch extends Effect {
   found () {
     this.object.activeAction?.deactivate()
@@ -49,11 +52,7 @@ class MonsterSearch extends Effect {
     new TravelAction(this.object, location).activate()
   }
 
-  override onActivate () {
-    if (isContainedWith(this.object, game.player)) {
-      return this.found()
-    }
-
+  override registerEvents () {
     // this.onEvent(this.object.container, 'enter', ({ item }) => {
     //   if (isPlayer(item)) {
     //     this.found()
@@ -68,12 +67,20 @@ class MonsterSearch extends Effect {
     })
   }
 
+  override onActivate () {
+    if (isContainedWith(this.object, game.player)) {
+      return this.found()
+    }
+  }
+
   override tick () {
     if (!this.object.activeAction && Math.random() < 0.5) {
       this.travel()
     }
   }
 }
+
+serializable(MonsterSearch)
 
 export const typeMonster = makeType({
   name: 'Ogre Magi',
