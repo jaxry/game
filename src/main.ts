@@ -1,9 +1,8 @@
-import { initGame } from './initGame'
 import './ui/components/GameUI'
 import App from './ui/components/App'
+import { loadGame } from './Game'
 
-initGame()
+loadGame()
 
-const app = new App(document.getElementById('app')!)
-
-export default app
+let app = new App()
+document.body.append(app.element)

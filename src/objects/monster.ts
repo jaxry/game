@@ -52,11 +52,7 @@ class MonsterSearch extends Effect {
     new TravelAction(this.object, location).activate()
   }
 
-  override onActivate () {
-    if (isContainedWith(this.object, game.player)) {
-      return this.found()
-    }
-
+  override registerEvents () {
     // this.onEvent(this.object.container, 'enter', ({ item }) => {
     //   if (isPlayer(item)) {
     //     this.found()
@@ -69,6 +65,12 @@ class MonsterSearch extends Effect {
       }
       this.reactivate()
     })
+  }
+
+  override onActivate () {
+    if (isContainedWith(this.object, game.player)) {
+      return this.found()
+    }
   }
 
   override tick () {

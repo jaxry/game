@@ -9,6 +9,7 @@ import MoveSpotAction from '../actions/MoveSpot'
 import AttackAction from '../actions/Attack'
 import WaitAction from '../actions/Wait'
 import { Effect } from './Effect'
+import { serializable } from '../serialize'
 
 export function changePlayer (object: GameObject) {
   game.player = object
@@ -55,7 +56,6 @@ export function getObjectInteractions (
 export class MovePlayerToSpot extends Effect {
   constructor (object: GameObject, public spot: number) {
     super(object)
-    this.move()
   }
 
   move () {
@@ -72,4 +72,9 @@ export class MovePlayerToSpot extends Effect {
     }
   }
 
+  override onActivate () {
+    this.move()
+  }
 }
+
+serializable(MovePlayerToSpot)

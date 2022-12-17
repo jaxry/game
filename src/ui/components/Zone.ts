@@ -27,7 +27,7 @@ export default class Zone extends GameComponent {
     const self = this
 
     this.zoneEvents = this.newEffect(class extends Effect {
-      override onActivate () {
+      override registerEvents () {
         this.onEvent(this.object, 'enter', ({ item }) => {
           if (!isPlayer(item)) {
             staggerStateChange.add(() => self.objectEnter(item))

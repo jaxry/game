@@ -31,6 +31,8 @@ export class Effect {
   // called once every game loop (every second)
   tick? (): void
 
+  registerEvents? (): void
+
   onActivate? (): void
 
   onDeactivate? (): void
@@ -54,21 +56,22 @@ export class Effect {
     return activeEvent
   }
 
-  unsubscribe (event: ActiveGameObjectEvent) {
-    event.unsubscribe()
-    deleteElem(this.events!, event)
-  }
-
-  activate () {
-    if (this.isActive) {
-      return this
-    }
-
+  passiveActivation () {
     this.isActive = true
 
     if (this.tick) {
       queuedTickEffects.push(this)
     }
+
+    this.registerEvents?.()
+  }
+
+  activate (reviveOnly = false) {
+    if (this.isActive) {
+      return this
+    }
+
+    this.passiveActivation()
 
     if (!this.object.effects) {
       this.object.effects = new Set()
@@ -81,7 +84,7 @@ export class Effect {
     return this
   }
 
-  deactivate (destroyedObject = false) {
+  deactivate () {
     if (!this.isActive) {
       return this
     }
@@ -112,7 +115,7 @@ export class Effect {
     return this
   }
 
-  reactivate () {
+  reregisterEvents () {
     if (this.events) {
       for (const event of this.events) {
         event.unsubscribe()
@@ -120,7 +123,11 @@ export class Effect {
       this.events.length = 0
     }
 
-    this.onDeactivate?.()
+    this.registerEvents?.()
+  }
+
+  reactivate () {
+    this.reregisterEvents()
     this.onActivate?.()
   }
 
@@ -133,12 +140,13 @@ export class Effect {
 
 serializable(Effect, {
   ignore: ['object', 'events', 'isActive'],
+  // object is added back in Game class
 })
 
 export function removeEffects (obj: GameObject) {
   if (obj.effects) {
     for (const effect of obj.effects) {
-      effect.deactivate(true)
+      effect.deactivate()
     }
     obj.effects.clear()
   }

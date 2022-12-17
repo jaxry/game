@@ -59,11 +59,11 @@ export default class GameUI extends GameComponent {
     map.onZoneClick = playerTravelToZone
 
     const mapEffect = this.newEffect(class extends Effect {
-      override onActivate () {
+      override registerEvents () {
         this.onEvent(this.object.container, 'leave', ({ item }) => {
           if (item === this.object) {
             map.setCenter(this.object.container)
-            this.reactivate()
+            this.reregisterEvents()
           }
         })
       }
@@ -74,6 +74,11 @@ export default class GameUI extends GameComponent {
     })
 
     this.on(game.event.mapUpdated, () => {
+      map.setCenter(game.player.container)
+    })
+
+    // map needs a frame to render before animations work
+    setTimeout(() => {
       map.setCenter(game.player.container)
     })
 

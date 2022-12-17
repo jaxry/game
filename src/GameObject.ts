@@ -65,6 +65,8 @@ export class GameObject {
 
 serializable(GameObject, {
   ignore: ['id', 'events', 'container'],
+  // container is added back in Game class
+
   transform: {
     type: [
       (type: GameObjectType) => getIdFromType(type),

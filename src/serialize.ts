@@ -90,8 +90,9 @@ export function serialize (toSerialize: any) {
     if (object.constructor !== Object) {
       const id = constructorToId.get(object.constructor)
       if (!id) {
-        // don't save classes that don't have serializable() called on them
-        console.warn('Cannot save', object)
+        if (object.constructor.name) {
+          console.warn(`To save, call 'serializable' on `, object)
+        }
         return
       }
       copy.$c = id

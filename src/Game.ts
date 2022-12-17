@@ -2,7 +2,8 @@ import GameTime from './GameTime'
 import type { GameObject } from './GameObject'
 import type { Effect } from './behavior/Effect'
 import Observer from './Observer'
-import { serializable } from './serialize'
+import { deserialize, serializable } from './serialize'
+import { initGame } from './initGame'
 
 class Game {
   time = new GameTime()
@@ -28,7 +29,7 @@ function rehydrateObject (object: GameObject) {
   if (object.effects) {
     for (const effect of object.effects) {
       effect.object = object
-      effect.activate()
+      effect.passiveActivation()
     }
   }
 
@@ -40,4 +41,13 @@ function rehydrateObject (object: GameObject) {
   }
 }
 
-export const game = new Game
+export let game: Game
+
+export function loadGame (saveData?: string) {
+  if (saveData) {
+    game = deserialize(saveData)
+  } else {
+    game = new Game()
+    initGame()
+  }
+}
