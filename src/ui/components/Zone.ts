@@ -119,7 +119,7 @@ export default class Zone extends GameComponent {
     }
 
     this.spots[obj.spot].append(card.element)
-    
+
     return card
   }
 

@@ -6,12 +6,11 @@ export default class GameTime {
   static minute = 60 * GameTime.second
   static hour = 60 * GameTime.minute
   static day = 24 * GameTime.hour
+  current = 0
 
   static displaySeconds (time: number) {
     return (time / GameTime.second).toFixed(1)
   }
-
-  current = 0
 
   getSecondOfMinute (): number {
     return Math.floor(this.current / GameTime.second) % 60
