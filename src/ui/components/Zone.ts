@@ -4,7 +4,7 @@ import { GameObject } from '../../GameObject'
 import { isPlayer, MovePlayerToSpot } from '../../behavior/player'
 import animateWithDelay from '../animateWithDelay'
 import ObjectCard from './ObjectCard'
-import { startPlayerEffect } from '../../behavior/core'
+import { setPlayerEffect } from '../../behavior/core'
 import bBoxDiff from '../bBoxDiff'
 import { removeElemAndAnimateList } from '../removeElementFromList'
 import { getAndDelete } from '../../util'
@@ -89,7 +89,7 @@ export default class Zone extends GameComponent {
       spot.addEventListener('click', (e) => {
         // only click if not clicked on a child element
         if (e.target === e.currentTarget) {
-          startPlayerEffect(new MovePlayerToSpot(game.player, i))
+          setPlayerEffect(new MovePlayerToSpot(game.player, i))
         }
       })
 
@@ -98,7 +98,7 @@ export default class Zone extends GameComponent {
           return 'move'
         }
       }, (item) => {
-        startPlayerEffect(new TransferAction(game.player, item, zone, i))
+        setPlayerEffect(new TransferAction(game.player, item, zone, i))
       })
 
       this.spots.push(spot)

@@ -8,7 +8,7 @@ import { initGame } from './initGame'
 class Game {
   time = new GameTime()
   event = {
-    playerTickEnd: new Observer(),
+    tickEnd: new Observer(),
     mapUpdated: new Observer(),
     playerChange: new Observer<GameObject>(),
   }

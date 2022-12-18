@@ -12,7 +12,7 @@ export default class TimeComponent extends Component {
       this.element.textContent = game.time.getTimeOfDay()
     }
 
-    this.on(game.event.playerTickEnd, () => setTime())
+    this.on(game.event.tickEnd, () => setTime())
     setTime()
   }
 }
