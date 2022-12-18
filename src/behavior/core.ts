@@ -2,6 +2,7 @@ import { game } from '../Game'
 import { destroyMarked } from './destroy'
 import Effect from './Effect'
 import { deleteElem } from '../util'
+import GameTime from '../GameTime'
 
 let tickInProgress = false
 let queuedTickEffects: Effect[] = []
@@ -31,7 +32,7 @@ let timeout: number | null = null
 
 function gameLoop () {
   tick()
-  timeout = setTimeout(gameLoop, 100)
+  timeout = setTimeout(gameLoop, GameTime.tickTime * 1000)
 }
 
 export function addEffectToGameLoop (effect: Effect) {
@@ -47,7 +48,7 @@ export function removeEffectFromGameLoop (effect: Effect) {
 
 export function startGameLoop () {
   if (!timeout) {
-    timeout = setTimeout(gameLoop, 100)
+    timeout = setTimeout(gameLoop, GameTime.tickTime * 1000)
   }
 }
 

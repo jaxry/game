@@ -17,7 +17,8 @@ export default class StaggerStateChange {
   private next = () => {
     if (this.changes.length) {
       this.changes.shift()!()
-      this.timeout = setTimeout(this.next, this.wait)
+      this.timeout = setTimeout(this.next,
+          this.wait * 0.5 ** this.changes.length)
     } else {
       this.timeout = undefined
     }
