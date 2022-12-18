@@ -1,6 +1,6 @@
 import { game } from '../Game'
 import { destroyMarked } from './destroy'
-import { Effect } from './Effect'
+import Effect from './Effect'
 import { deleteElem } from '../util'
 
 let tickInProgress = false

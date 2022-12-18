@@ -1,4 +1,4 @@
-import { GameObject } from '../../GameObject'
+import GameObject from '../../GameObject'
 import Window from './Window'
 import Inventory from './Inventory'
 import { makeStyle } from '../makeStyle'

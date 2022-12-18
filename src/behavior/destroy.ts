@@ -1,4 +1,4 @@
-import type { GameObject } from '../GameObject'
+import type GameObject from '../GameObject'
 import { removeConnections } from './connections'
 import { removeFromContainer } from './container'
 import { removeEffects } from './Effect'

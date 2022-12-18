@@ -1,6 +1,6 @@
 import Action from '../behavior/Action'
 import { putInsideContainer } from '../behavior/container'
-import type { GameObject } from '../GameObject'
+import type GameObject from '../GameObject'
 import { serializable } from '../serialize'
 
 export default class TravelAction extends Action {

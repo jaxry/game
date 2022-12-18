@@ -1,4 +1,4 @@
-import { GameObject } from '../GameObject'
+import GameObject from '../GameObject'
 import { spawn } from '../behavior/spawn'
 import { connectZones } from '../behavior/connections'
 import { lerp } from '../util'

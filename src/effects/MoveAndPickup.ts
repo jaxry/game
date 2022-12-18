@@ -1,5 +1,5 @@
-import { Effect } from '../behavior/Effect'
-import type { GameObject } from '../GameObject'
+import Effect from '../behavior/Effect'
+import type GameObject from '../GameObject'
 import MoveSpotAction from '../actions/MoveSpot'
 import TransferAction from '../actions/Transfer'
 import { serializable } from '../serialize'

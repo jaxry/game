@@ -1,5 +1,5 @@
-import { Effect } from './Effect'
-import type { GameObject } from '../GameObject'
+import Effect from './Effect'
+import type GameObject from '../GameObject'
 
 export default class Action extends Effect {
   static override tickPriority = 0

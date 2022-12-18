@@ -1,4 +1,4 @@
-import type { GameObject } from './GameObject'
+import type GameObject from './GameObject'
 
 type Phrase = string | GameObject
 

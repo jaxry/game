@@ -4,7 +4,7 @@ import {
 import { serializable } from '../serialize'
 import { addEffectToGameLoop, removeEffectFromGameLoop } from './core'
 
-export class Effect {
+export default class Effect {
   // From 0 to a positive integer.
   // The lower the number, the sooner the effect's tick method
   // is called in the game loop.

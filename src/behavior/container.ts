@@ -1,4 +1,4 @@
-import type { GameObject } from '../GameObject'
+import type GameObject from '../GameObject'
 import { ContainedAs } from '../GameObject'
 
 export function moveTo (

@@ -1,4 +1,4 @@
-import type { GameObject } from '../GameObject'
+import type GameObject from '../GameObject'
 import PriorityQueue from '../PriorityQueue'
 import { deleteElem } from '../util'
 

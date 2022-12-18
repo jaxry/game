@@ -1,5 +1,5 @@
 import Component from './Component'
-import { Effect } from '../../behavior/Effect'
+import Effect from '../../behavior/Effect'
 import { Constructor } from '../../types'
 
 export default class GameComponent extends Component {

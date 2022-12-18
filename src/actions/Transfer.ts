@@ -1,5 +1,5 @@
 import Action from '../behavior/Action'
-import type { GameObject } from '../GameObject'
+import type GameObject from '../GameObject'
 import { isAncestor, putInsideContainer } from '../behavior/container'
 import { serializable } from '../serialize'
 

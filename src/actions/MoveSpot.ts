@@ -1,4 +1,4 @@
-import type { GameObject } from '../GameObject'
+import type GameObject from '../GameObject'
 import Action from '../behavior/Action'
 import { moveToSpot } from '../behavior/container'
 import { serializable } from '../serialize'

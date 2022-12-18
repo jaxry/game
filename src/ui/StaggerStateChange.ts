@@ -1,4 +1,4 @@
-export class StaggerStateChange {
+export default class StaggerStateChange {
   public duration = 1000
 
   private changes: (() => void)[] = []

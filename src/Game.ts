@@ -1,6 +1,6 @@
 import GameTime from './GameTime'
-import type { GameObject } from './GameObject'
-import type { Effect } from './behavior/Effect'
+import type GameObject from './GameObject'
+import type Effect from './behavior/Effect'
 import Observer from './Observer'
 import { deserialize, serializable } from './serialize'
 import { initGame } from './initGame'
