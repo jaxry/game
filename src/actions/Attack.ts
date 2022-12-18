@@ -3,9 +3,10 @@ import { markDestroy } from '../behavior/destroy'
 import type GameObject from '../GameObject'
 import { isAncestor } from '../behavior/container'
 import { serializable } from '../serialize'
+import GameTime from '../GameTime'
 
 export default class AttackAction extends Action {
-  override time = 3
+  override time = 3 * GameTime.second
 
   constructor (attacker: GameObject, public override target: GameObject) {
     super(attacker)

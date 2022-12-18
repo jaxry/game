@@ -1,19 +1,25 @@
 export default class StaggerStateChange {
-  public duration = 1000
+  public wait = 200
 
   private changes: (() => void)[] = []
 
+  private timeout?: number
+
   add (fn: () => void) {
-    this.changes.push(fn)
+    if (!this.timeout) {
+      fn()
+      this.timeout = setTimeout(this.next, this.wait)
+    } else {
+      this.changes.push(fn)
+    }
   }
 
-  start () {
-    let delay = 0
-    let time = this.duration / this.changes.length
-    for (const change of this.changes) {
-      setTimeout(change, delay)
-      delay += time
+  private next = () => {
+    if (this.changes.length) {
+      this.changes.shift()!()
+      this.timeout = setTimeout(this.next, this.wait)
+    } else {
+      this.timeout = undefined
     }
-    this.changes.length = 0
   }
 }

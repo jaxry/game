@@ -44,10 +44,6 @@ export default class GameUI extends GameComponent {
     const player = this.newComponent(Player)
     info.append(player.element)
 
-    this.on(game.event.tickEnd, () => {
-      staggerStateChange.start()
-    })
-
     this.setupWindowVisibility()
 
     startGameLoop()

@@ -1,10 +1,11 @@
 import Effect from './Effect'
 import type GameObject from '../GameObject'
+import GameTime from '../GameTime'
 
 export default class Action extends Effect {
   static override tickPriority = 0
 
-  time = 1
+  time = 1 * GameTime.second
 
   // for targeted actions such as attacks
   target?: GameObject
@@ -40,7 +41,7 @@ export default class Action extends Effect {
   override tick () {
     this.time--
 
-    if (!this.condition()) {
+    if (this.time % GameTime.second === 0 && !this.condition()) {
       this.deactivate()
       this.object.container.emit('itemActionEnd', { action: this })
     } else if (this.time <= 0) {

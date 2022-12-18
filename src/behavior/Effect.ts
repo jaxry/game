@@ -1,5 +1,5 @@
-import {
-  ActiveGameObjectEvent, GameObject, GameObjectEventListener, GameObjectEvents,
+import GameObject, {
+  ActiveGameObjectEvent, GameObjectEventListener, GameObjectEvents,
 } from '../GameObject'
 import { serializable } from '../serialize'
 import { addEffectToGameLoop, removeEffectFromGameLoop } from './core'
