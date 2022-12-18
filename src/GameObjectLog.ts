@@ -1,4 +1,4 @@
-import type { GameObject } from './GameObject'
+import type GameObject from './GameObject'
 
 export default class GameObjectLog {
   log: Map<GameObject, string[]> = new Map()

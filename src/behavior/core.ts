@@ -1,6 +1,6 @@
 import { game } from '../Game'
 import { destroyMarked } from './destroy'
-import { Effect, effectsCallback, iterateQueuedEffects } from './Effect'
+import Effect, { effectsCallback, iterateQueuedEffects } from './Effect'
 
 let tickInProgress = false
 

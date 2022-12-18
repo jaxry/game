@@ -1,13 +1,13 @@
-import type { GameObjectType } from './GameObjectType'
+import type GameObjectType from './GameObjectType'
 import { getIdFromType, getTypeFromId } from './GameObjectType'
-import { Effect } from './behavior/Effect'
+import Effect from './behavior/Effect'
 import Action from './behavior/Action'
 import { serializable } from './serialize'
 import { toPrecision } from './util'
 
 let nextId = 1
 
-export class GameObject {
+export default class GameObject {
   id = nextId++
 
   type: GameObjectType

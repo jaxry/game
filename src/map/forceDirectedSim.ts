@@ -3,7 +3,7 @@ import {
 } from '../behavior/connections'
 import { game } from '../Game'
 import * as d3 from 'd3-force'
-import { GameObject } from '../GameObject'
+import GameObject from '../GameObject'
 import { mapIter } from '../util'
 
 export function startForceDirectedSimulation (startingNode: GameObject) {

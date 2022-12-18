@@ -1,6 +1,6 @@
 import TravelAction from '../actions/Travel'
 import { game } from '../Game'
-import type { GameObject } from '../GameObject'
+import type GameObject from '../GameObject'
 import type Action from './Action'
 import { startPlayerEffect } from './core'
 import { isContainedWith } from './container'
@@ -8,7 +8,7 @@ import { isDestroyed } from './destroy'
 import MoveSpotAction from '../actions/MoveSpot'
 import AttackAction from '../actions/Attack'
 import WaitAction from '../actions/Wait'
-import { Effect } from './Effect'
+import Effect from './Effect'
 import { serializable } from '../serialize'
 
 export function changePlayer (object: GameObject) {

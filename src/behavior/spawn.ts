@@ -1,5 +1,5 @@
-import { GameObject } from '../GameObject'
-import type { GameObjectType } from '../GameObjectType'
+import GameObject from '../GameObject'
+import type GameObjectType from '../GameObjectType'
 import { putInsideContainer } from './container'
 
 export function spawn (type: GameObjectType, container?: GameObject) {

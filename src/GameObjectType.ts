@@ -1,6 +1,6 @@
-import type { Effect } from './behavior/Effect'
+import type Effect from './behavior/Effect'
 
-export class GameObjectType {
+export default class GameObjectType {
   name: string
 
   icon: string

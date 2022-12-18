@@ -1,6 +1,6 @@
-import { Effect } from '../../behavior/Effect'
+import Effect from '../../behavior/Effect'
 import { game } from '../../Game'
-import { GameObject } from '../../GameObject'
+import GameObject from '../../GameObject'
 import { isPlayer, MovePlayerToSpot } from '../../behavior/player'
 import animateWithDelay from '../animateWithDelay'
 import ObjectCard from './ObjectCard'

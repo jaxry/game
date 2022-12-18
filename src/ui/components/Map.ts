@@ -3,7 +3,7 @@ import createSvg from '../createSvg'
 import {
   Edge, getZoneGraph, renderedConnectionDistance, ZoneGraph,
 } from '../../behavior/connections'
-import { GameObject } from '../../GameObject'
+import GameObject from '../../GameObject'
 import { lerp } from '../../util'
 import { makeStyle } from '../makeStyle'
 import { backgroundColor, duration, shadowFilter } from '../theme'
