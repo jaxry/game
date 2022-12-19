@@ -6,7 +6,6 @@ import ActionComponent from './ActionComponent'
 import { dragAndDropGameObject, staggerStateChange } from './GameUI'
 import { game } from '../../Game'
 import Effect from '../../behavior/Effect'
-import { isTickInProgress } from '../../behavior/core'
 import TargetActionAnimation from './TargetActionAnimation'
 import { borderRadius, boxShadow, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
@@ -59,7 +58,7 @@ export default class ObjectCard extends GameComponent {
 
     dragAndDropGameObject.drag(this.element as HTMLElement, object, icon)
 
-    this.on(game.event.playerTickEnd, () => this.update())
+    this.on(game.event.tickEnd, () => this.update())
 
     this.newEffect(class extends Effect {
       override registerEvents () {
@@ -74,23 +73,21 @@ export default class ObjectCard extends GameComponent {
             return
           }
 
-          // If player starts a new action,
-          // show action immediately even if outside of tick.
-          isPlayer(action.object) && !isTickInProgress() ?
-              self.setAction(action) :
-              staggerStateChange.add(() => self.setAction(action))
-
+          staggerStateChange.add(() => self.setAction(action))
         })
 
         this.onEvent(object.container, 'itemActionEnd', ({ action }) => {
           if (action.object !== this.object) {
             return
           }
-          staggerStateChange.add(() => self.clearAction())
-          if (action.target && objectToCard.has(action.target)) {
-            const to = objectToCard.get(action.target)!.element
-            self.newComponent(TargetActionAnimation, action, self.element, to)
-          }
+
+          staggerStateChange.add(() => {
+            self.clearAction()
+            if (action.target && objectToCard.has(action.target)) {
+              const to = objectToCard.get(action.target)!.element
+              self.newComponent(TargetActionAnimation, action, self.element, to)
+            }
+          })
         })
       }
     }, object)

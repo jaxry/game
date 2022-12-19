@@ -3,6 +3,7 @@ import Action from '../../behavior/Action'
 import { borderRadius, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
 import colors from '../colors'
+import GameTime from '../../GameTime'
 
 export default class ActionComponent extends Component {
   private readonly name: HTMLElement
@@ -28,7 +29,7 @@ export default class ActionComponent extends Component {
       this.time.animate({ opacity: 0 },
           { duration: duration.fast, fill: 'forwards' })
     } else {
-      this.time.textContent = this.action.time.toString()
+      this.time.textContent = GameTime.displaySeconds(this.action.time)
     }
   }
 }

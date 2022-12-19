@@ -1,8 +1,8 @@
-import {
-  ActiveGameObjectEvent, GameObject, GameObjectEventListener, GameObjectEvents,
+import GameObject, {
+  ActiveGameObjectEvent, GameObjectEventListener, GameObjectEvents,
 } from '../GameObject'
-import { deleteElem } from '../util'
 import { serializable } from '../serialize'
+import { addEffectToGameLoop, removeEffectFromGameLoop } from './core'
 
 export default class Effect {
   // From 0 to a positive integer.
@@ -60,7 +60,7 @@ export default class Effect {
     this.isActive = true
 
     if (this.tick) {
-      queuedTickEffects.push(this)
+      addEffectToGameLoop(this)
     }
 
     this.registerEvents?.()
@@ -92,13 +92,7 @@ export default class Effect {
     this.isActive = false
 
     if (this.tick) {
-      const isEffectInGameLoop = effectsCallback.removeEffectFromGameLoop(this)
-
-      // if the effect is deactivated within the same tick it was activated,
-      // it hasn't been added to the game loop yet
-      if (!isEffectInGameLoop) {
-        deleteElem(queuedTickEffects, this)
-      }
+      removeEffectFromGameLoop(this)
     }
 
     this.object.effects.delete(this)
@@ -150,19 +144,4 @@ export function removeEffects (obj: GameObject) {
     }
     obj.effects.clear()
   }
-}
-
-// effects to be added to the game loop after this tick
-export const queuedTickEffects: Effect[] = []
-
-export function iterateQueuedEffects (fn: (effects: Effect) => void) {
-  for (const effect of queuedTickEffects) {
-    fn(effect)
-  }
-  queuedTickEffects.length = 0
-}
-
-// set outside this module
-export const effectsCallback = {
-  removeEffectFromGameLoop: (effect: Effect) => false,
 }

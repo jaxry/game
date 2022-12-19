@@ -1,18 +1,19 @@
 import { serializable } from './serialize'
 
 export default class GameTime {
-  static second = 1
+  static tickTime = 0.1
+  static second = 1 / GameTime.tickTime
   static minute = 60 * GameTime.second
   static hour = 60 * GameTime.minute
   static day = 24 * GameTime.hour
-  static week = 7 * GameTime.day
-  static month = 30 * GameTime.week
-  static year = 365 * GameTime.month
-
   current = 0
 
+  static displaySeconds (time: number) {
+    return (time / GameTime.second).toFixed(1)
+  }
+
   getSecondOfMinute (): number {
-    return this.current % 60
+    return Math.floor(this.current / GameTime.second) % 60
   }
 
   getMinuteOfHour (): number {
@@ -21,10 +22,6 @@ export default class GameTime {
 
   getHourOfDay (): number {
     return Math.floor(this.current / GameTime.hour) % 24
-  }
-
-  getDayOfWeek (): number {
-    return Math.floor(this.current / GameTime.day) % 7
   }
 
   getTimeOfDay () {

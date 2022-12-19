@@ -3,7 +3,7 @@ import MapComponent from './Map'
 import { playerTravelToZone } from '../../behavior/player'
 import Effect from '../../behavior/Effect'
 import Zone from './Zone'
-import { interruptPlayerLoop, startGameLoop } from '../../behavior/core'
+import { pauseGameLoop, startGameLoop } from '../../behavior/core'
 import TimeComponent from './Time'
 import DragAndDrop from '../DragAndDrop'
 import GameObject from '../../GameObject'
@@ -43,10 +43,6 @@ export default class GameUI extends GameComponent {
 
     const player = this.newComponent(Player)
     info.append(player.element)
-
-    this.on(game.event.playerTickEnd, () => {
-      staggerStateChange.start()
-    })
 
     this.setupWindowVisibility()
 
@@ -88,7 +84,7 @@ export default class GameUI extends GameComponent {
   private setupWindowVisibility () {
     function visibilityChange () {
       if (document.hidden) {
-        interruptPlayerLoop()
+        pauseGameLoop()
       } else {
         startGameLoop()
       }

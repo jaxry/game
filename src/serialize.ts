@@ -9,7 +9,7 @@ const constructorToIgnoreSet = new WeakMap<Constructor, Set<string>>()
 const constructorToTransform = new WeakMap<Constructor,
     SerializableOptions<any>['transform']>()
 const constructorToDeserializeCallback = new WeakMap<Constructor,
-        SerializableOptions<any>['afterDeserialize']>()
+    SerializableOptions<any>['afterDeserialize']>()
 
 export interface SerializableOptions<T> {
   ignore?: (keyof T)[]
@@ -46,7 +46,8 @@ export function serializable<T> (
 
   addInheritedProperty(constructor, constructorToTransform,
       (transform, parentTransform) => {
-        return parentTransform ? {...parentTransform, ...transform} : transform
+        return parentTransform ? { ...parentTransform, ...transform } :
+            transform
       }, options?.transform)
 }
 
@@ -220,8 +221,8 @@ function findParentInMap<T> (
   }
 }
 
-
 type Args<T> = (...args: T[]) => void
+
 function combineFunctions<T> (fn1: Args<T>, fn2: Args<T>): Args<T> {
   return (...args) => {
     fn1(...args)

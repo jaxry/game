@@ -101,7 +101,6 @@ export enum ContainedAs {
   wearing
 }
 
-
 export type GameObjectEvent = keyof GameObjectEvents
 
 export interface GameObjectEventListener<T extends GameObjectEvent> {

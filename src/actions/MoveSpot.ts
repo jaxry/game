@@ -2,14 +2,13 @@ import type GameObject from '../GameObject'
 import Action from '../behavior/Action'
 import { moveToSpot } from '../behavior/container'
 import { serializable } from '../serialize'
+import GameTime from '../GameTime'
 
 export default class MoveSpotAction extends Action {
-  to: number
+  override time = 3 * GameTime.second
 
-  constructor (object: GameObject, to: number) {
+  constructor (object: GameObject, public to: number) {
     super(object)
-    this.to = to
-    this.time = 3
   }
 
   override get name () {

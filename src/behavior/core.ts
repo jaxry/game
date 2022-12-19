@@ -1,13 +1,19 @@
 import { game } from '../Game'
 import { destroyMarked } from './destroy'
-import Effect, { effectsCallback, iterateQueuedEffects } from './Effect'
+import Effect from './Effect'
+import { deleteElem } from '../util'
+import GameTime from '../GameTime'
 
 let tickInProgress = false
+let queuedTickEffects: Effect[] = []
 
 function tick () {
-  iterateQueuedEffects(addEffectToGameLoop)
+  for (const effect of queuedTickEffects) {
+    game.effectsWithTick[effect.tickPriority].add(effect)
+  }
+  queuedTickEffects.length = 0
 
-  game.time.current += 1
+  game.time.current++
 
   tickInProgress = true
   for (const set of game.effectsWithTick) {
@@ -18,42 +24,48 @@ function tick () {
   tickInProgress = false
 
   game.energyPool += destroyMarked()
+
+  game.event.tickEnd.emit(undefined)
 }
 
 let timeout: number | null = null
-let playerEffect: Effect | null = null
 
-export function interruptPlayerLoop () {
-  clearTimeout(timeout!)
-  timeout = null
+function gameLoop () {
+  tick()
+  timeout = setTimeout(gameLoop, GameTime.tickTime * 1000)
+}
+
+export function addEffectToGameLoop (effect: Effect) {
+  queuedTickEffects.push(effect)
+}
+
+export function removeEffectFromGameLoop (effect: Effect) {
+  const deleted = game.effectsWithTick[effect.tickPriority].delete(effect)
+  if (!deleted) {
+    deleteElem(queuedTickEffects, effect)
+  }
 }
 
 export function startGameLoop () {
   if (!timeout) {
-    timeout = setTimeout(playerTick, 1000)
+    timeout = setTimeout(gameLoop, GameTime.tickTime * 1000)
   }
 }
 
-export function startPlayerEffect (effect: Effect) {
-  playerEffect?.deactivate()
-  playerEffect = effect
-  playerEffect.activate()
+export function pauseGameLoop () {
+  clearTimeout(timeout!)
+  timeout = null
 }
 
 export function isTickInProgress () {
   return tickInProgress
 }
 
-function playerTick () {
-  tick()
-  game.event.playerTickEnd.emit(undefined)
-  timeout = setTimeout(playerTick, 1000)
+let playerEffect: Effect | null = null
+
+export function setPlayerEffect (effect: Effect) {
+  playerEffect?.deactivate()
+  playerEffect = effect
+  playerEffect.activate()
 }
 
-function addEffectToGameLoop (effect: Effect) {
-  game.effectsWithTick[effect.tickPriority].add(effect)
-}
-
-effectsCallback.removeEffectFromGameLoop = (effect: Effect) => {
-  return game.effectsWithTick[effect.tickPriority].delete(effect)
-}
