@@ -81,7 +81,7 @@ export default class ObjectCard extends GameComponent {
             return
           }
 
-          staggerStateChange.add(() => {
+          staggerStateChange.addToFront(() => {
             self.clearAction()
             if (action.target && objectToCard.has(action.target)) {
               const to = objectToCard.get(action.target)!.element

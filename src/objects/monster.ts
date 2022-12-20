@@ -68,9 +68,9 @@ class MonsterSearch extends Effect {
   }
 
   override onActivate () {
-    if (isContainedWith(this.object, game.player)) {
-      return this.found()
-    }
+    // if (isContainedWith(this.object, game.player)) {
+    //   return this.found()
+    // }
   }
 
   override tick () {

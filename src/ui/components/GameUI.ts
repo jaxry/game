@@ -34,6 +34,10 @@ export default class GameUI extends GameComponent {
       zone.following = game.player
     })
 
+    this.on(game.event.tickEnd, () => {
+      staggerStateChange.start()
+    })
+
     const info = document.createElement('div')
     info.classList.add(infoStyle)
     this.element.append(info)
