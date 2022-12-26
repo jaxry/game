@@ -1,16 +1,11 @@
 import { game } from '../../Game'
 import MapComponent from './Map'
-import { playerTravelToZone } from '../../behavior/player'
 import Effect from '../../behavior/Effect'
-import Zone from './Zone'
 import { pauseGameLoop, startGameLoop } from '../../behavior/core'
-import TimeComponent from './Time'
 import DragAndDrop from '../DragAndDrop'
 import GameObject from '../../GameObject'
-import Player from './Player'
 import StaggerStateChange from '../StaggerStateChange'
 import { makeStyle } from '../makeStyle'
-import { border } from '../theme'
 import GameComponent from './GameComponent'
 
 export const dragAndDropGameObject = new DragAndDrop<GameObject>()
@@ -25,7 +20,6 @@ export default class GameUI extends GameComponent {
     const map = this.createMap()
     map.element.classList.add(mapStyle)
     this.element.append(map.element)
-
 
     this.on(game.event.tickEnd, () => {
       staggerStateChange.start()

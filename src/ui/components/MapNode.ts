@@ -25,9 +25,9 @@ export default class MapNode extends Component {
     g.append(this.circle)
 
     const fo = createSvg('foreignObject')
-    fo.setAttribute('width', '50')
-    fo.setAttribute('height', '50')
-    fo.setAttribute('transform', 'translate(-25 -25)')
+    fo.setAttribute('width', '100')
+    fo.setAttribute('height', '100')
+    fo.setAttribute('transform', 'translate(-50 -50)')
     fo.style.pointerEvents = 'none'
     g.append(fo)
 
@@ -53,7 +53,7 @@ export default class MapNode extends Component {
 }
 
 function nodeSize (zone: GameObject) {
-  return lerp(1, 6, 5, 20, zone.connections.length)
+  return lerp(1, 6, 20, 80, zone.connections.length)
 }
 
 const nodeStyle = makeStyle({
@@ -73,7 +73,6 @@ const centerStyle = makeStyle({
 })
 
 const contentsStyle = makeStyle({
-  fontSize: '0.25rem',
   display: 'flex',
   height: '100%',
   flexDirection: 'column',

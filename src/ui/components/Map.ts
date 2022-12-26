@@ -7,6 +7,8 @@ import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import { backgroundColor, duration } from '../theme'
 import MapNode from './MapNode'
+import addPanZoom from '../PanZoom'
+import { numToPixel, numToPx } from '../../util'
 
 export default class MapComponent extends Component {
   onZoneClick?: (zone: GameObject) => void
@@ -16,10 +18,14 @@ export default class MapComponent extends Component {
   private edgeG = createSvg('g')
   private nodeG = createSvg('g')
 
-  private transform = new DOMMatrix()
+  private transform = {
+    x: 0,
+    y: 0,
+    scale: 1,
+  }
 
   private zoneToComponent: Map<GameObject, MapNode> = new Map()
-  private edgeToElem: Map<string, Element> = new Map()
+  private edgeToElem: Map<string, { line: Element, edge: Edge }> = new Map()
 
   constructor () {
     super()
@@ -35,18 +41,18 @@ export default class MapComponent extends Component {
 
     this.svg.append(this.mapG)
 
-    // addPanZoom(this.element, this.transform, () => {
-    //   // this.mapG.setAttribute('transform', this.transform.toString())
-    //   this.mapG.animate({
-    //     transform: this.transform.toString(),
-    //   }, { fill: 'forwards' })
-    // })
+    addPanZoom(this.element, this.transform, (updatedScale) => {
+      updatedScale && this.updateScale()
+      this.updateTranslation()
+      // this.mapG.setAttribute('transform', this.transform.toString())
+      // this.mapG.animate({
+      //   transform: this.transform.toString(),
+      // }, { fill: 'forwards' })
+    })
   }
 
   setCenter (centerZone: GameObject) {
-    const graph = getZoneGraph(centerZone, 2)
-
-    this.setBounds(graph)
+    const graph = getZoneGraph(centerZone)
 
     for (const [obj, component] of this.zoneToComponent) {
       if (!graph.nodes.has(obj)) {
@@ -62,9 +68,9 @@ export default class MapComponent extends Component {
       }
     }
 
-    for (const [hash, elem] of this.edgeToElem) {
+    for (const [hash, { line }] of this.edgeToElem) {
       if (!graph.edges.has(hash)) {
-        transitionOut(elem)
+        transitionOut(line)
         this.edgeToElem.delete(hash)
       }
     }
@@ -75,14 +81,20 @@ export default class MapComponent extends Component {
       }
     }
 
+    // set node colors
     for (const node of this.zoneToComponent.values()) {
       node.center(false)
       node.neighbor(false)
     }
+
     this.zoneToComponent.get(centerZone)!.center(true)
+
     for (const zone of centerZone.connections) {
       this.zoneToComponent.get(zone)!.neighbor(true)
     }
+
+    // make graph fit to screen
+    this.setTransformToGraphBounds(graph)
   }
 
   private makeNodeElem (zone: GameObject) {
@@ -94,35 +106,53 @@ export default class MapComponent extends Component {
   private makeEdgeElem (hash: string, edge: Edge) {
     const line = createSvg('line')
     line.classList.add(edgeStyle)
-    line.setAttribute('x1', edge.source.position.x.toFixed(0))
-    line.setAttribute('y1', edge.source.position.y.toFixed(0))
-    line.setAttribute('x2', edge.target.position.x.toFixed(0))
-    line.setAttribute('y2', edge.target.position.y.toFixed(0))
-
     this.edgeG.append(line)
     transitionIn(line)
-    this.edgeToElem.set(hash, line)
+    this.edgeToElem.set(hash, { line, edge })
   }
 
-  private setBounds (graph: ZoneGraph) {
+  private setTransformToGraphBounds (graph: ZoneGraph) {
     const bounds = getGraphBounds(graph)
 
     const { width, height } = this.element.getBoundingClientRect()
 
-    const scale = Math.min(width / bounds.width, height / bounds.height)
+    this.transform.x = -bounds.xMin * this.transform.scale
+    this.transform.y = -bounds.yMin * this.transform.scale
+    this.transform.scale =
+        Math.min(width / bounds.width, height / bounds.height)
+    this.updateScale()
+    this.updateTranslation()
+  }
 
-    this.transform.a = scale
-    this.transform.d = scale
-    this.transform.e = -bounds.xMin * scale
-    this.transform.f = -bounds.yMin * scale
+  private updateScale () {
+    for (const [zone, component] of this.zoneToComponent) {
+      const x = zone.position.x * this.transform.scale
+      const y = zone.position.y * this.transform.scale
+      component.element.style.transform =
+          `translate(${numToPx(x)},${numToPx(y)})`
+    }
+    for (const { edge, line } of this.edgeToElem.values()) {
+      const x1 = edge.source.position.x * this.transform.scale
+      const y1 = edge.source.position.y * this.transform.scale
+      const x2 = edge.target.position.x * this.transform.scale
+      const y2 = edge.target.position.y * this.transform.scale
+      line.setAttribute('x1', numToPixel(x1))
+      line.setAttribute('y1', numToPixel(y1))
+      line.setAttribute('x2', numToPixel(x2))
+      line.setAttribute('y2', numToPixel(y2))
+    }
+  }
 
-    this.mapG.animate({
-      transform: this.transform.toString(),
-    }, {
-      duration: duration.slow,
-      fill: 'forwards',
-      easing: 'ease-in-out',
-    }).commitStyles()
+  private updateTranslation () {
+    this.mapG.style.transform =
+        `translate(${this.transform.x}px,${this.transform.y}px)`
+    // this.mapG.animate({
+    //   transform: `translate(${this.transform.x}px,${this.transform.y}px)`,
+    // }, {
+    //   duration: duration.slow,
+    //   fill: 'forwards',
+    //   easing: 'ease-in-out',
+    // }).commitStyles()
   }
 }
 
@@ -180,4 +210,5 @@ makeStyle(`.${mapStyle} *`, {
 
 const edgeStyle = makeStyle({
   stroke: backgroundColor['500'],
+  strokeWidth: `2`,
 })

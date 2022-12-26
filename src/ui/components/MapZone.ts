@@ -11,6 +11,4 @@ export default class MapZone extends Component {
   }
 }
 
-const containerStyle = makeStyle({
-
-})
+const containerStyle = makeStyle({})

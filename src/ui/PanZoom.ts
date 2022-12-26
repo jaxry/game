@@ -1,16 +1,21 @@
 import makeDraggable from './makeDraggable'
 
+interface Transform {
+  x: number
+  y: number
+  scale: number
+}
+
 export default function addPanZoom (
-    element: Element, transform: DOMMatrix,
-    onTransform: () => void,
+    element: Element, transform: Transform,
+    onTransform: (scale: boolean) => void,
 ) {
 
   makeDraggable(element, {
     onDrag: (e, relative, difference) => {
-      const tx = difference.x / transform.a
-      const ty = difference.y / transform.d
-      transform.translateSelf(tx, ty)
-      onTransform()
+      transform.x += difference.x
+      transform.y += difference.y
+      onTransform(false)
     },
   })
 
@@ -31,10 +36,10 @@ export default function addPanZoom (
     // old mouse-model position = new mouse-model position =>
     // (mouse - oldTranslation) / oldScale = (mouse - newTranslation) / newScale
     // solve for newTranslation
-    transform.e = x - change * (x - transform.e)
-    transform.f = y - change * (y - transform.f)
-    transform.scaleSelf(change)
+    transform.x = x - change * (x - transform.x)
+    transform.y = y - change * (y - transform.y)
+    transform.scale *= change
 
-    onTransform()
+    onTransform(true)
   })
 }
