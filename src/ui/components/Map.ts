@@ -4,10 +4,9 @@ import {
   Edge, getZoneGraph, renderedConnectionDistance, ZoneGraph,
 } from '../../behavior/connections'
 import GameObject from '../../GameObject'
-import { lerp } from '../../util'
 import { makeStyle } from '../makeStyle'
-import { backgroundColor, duration, shadowFilter } from '../theme'
-import colors from '../colors'
+import { backgroundColor, duration } from '../theme'
+import MapNode from './MapNode'
 
 export default class MapComponent extends Component {
   onZoneClick?: (zone: GameObject) => void
@@ -19,7 +18,7 @@ export default class MapComponent extends Component {
 
   private transform = new DOMMatrix()
 
-  private nodeToElem: Map<GameObject, Element> = new Map()
+  private zoneToComponent: Map<GameObject, MapNode> = new Map()
   private edgeToElem: Map<string, Element> = new Map()
 
   constructor () {
@@ -49,15 +48,16 @@ export default class MapComponent extends Component {
 
     this.setBounds(graph)
 
-    for (const [obj, elem] of this.nodeToElem) {
+    for (const [obj, component] of this.zoneToComponent) {
       if (!graph.nodes.has(obj)) {
-        transitionOut(elem)
-        this.nodeToElem.delete(obj)
+        // transitionOut(elem)
+        component.remove()
+        this.zoneToComponent.delete(obj)
       }
     }
 
     for (const node of graph.nodes) {
-      if (!this.nodeToElem.has(node)) {
+      if (!this.zoneToComponent.has(node)) {
         this.makeNodeElem(node)
       }
     }
@@ -75,28 +75,20 @@ export default class MapComponent extends Component {
       }
     }
 
-    for (const circle of this.nodeToElem.values()) {
-      circle.classList.remove(playerNodeStyle, canTravelStyle)
+    for (const node of this.zoneToComponent.values()) {
+      node.center(false)
+      node.neighbor(false)
     }
-
-    this.nodeToElem.get(centerZone)!.classList.add(playerNodeStyle)
-
+    this.zoneToComponent.get(centerZone)!.center(true)
     for (const zone of centerZone.connections) {
-      this.nodeToElem.get(zone)!.classList.add(canTravelStyle)
+      this.zoneToComponent.get(zone)!.neighbor(true)
     }
   }
 
-  private makeNodeElem (node: GameObject) {
-    const circle = createSvg('circle')
-    circle.classList.add(nodeStyle)
-    circle.setAttribute('cx', node.position.x.toFixed(0))
-    circle.setAttribute('cy', node.position.y.toFixed(0))
-    circle.setAttribute('r', nodeSize(node).toFixed(0))
-    circle.onclick = () => this.onZoneClick?.(node)
-
-    this.nodeG.append(circle)
-    transitionIn(circle)
-    this.nodeToElem.set(node, circle)
+  private makeNodeElem (zone: GameObject) {
+    const node = this.newComponent(MapNode, zone)
+    this.nodeG.append(node.element)
+    this.zoneToComponent.set(zone, node)
   }
 
   private makeEdgeElem (hash: string, edge: Edge) {
@@ -179,31 +171,11 @@ function transitionOut (elem: Element) {
   }
 }
 
-function nodeSize (node: GameObject) {
-  return lerp(1, 6, 5, 20, node.connections.length)
-}
-
 const mapStyle = makeStyle()
 
 makeStyle(`.${mapStyle} *`, {
   transformBox: `fill-box`,
   transformOrigin: `center`,
-})
-
-const nodeStyle = makeStyle({
-  fill: colors.slate['700'],
-  filter: shadowFilter,
-  cursor: `pointer`,
-  transition: `all ${duration.fast}ms`,
-})
-
-const canTravelStyle = makeStyle({
-  fill: colors.sky['500'],
-})
-
-const playerNodeStyle = makeStyle({
-  fill: colors.green['400'],
-  filter: `${shadowFilter} drop-shadow(0 0 0.25rem ${colors.green['400']})`,
 })
 
 const edgeStyle = makeStyle({

@@ -26,27 +26,10 @@ export default class GameUI extends GameComponent {
     map.element.classList.add(mapStyle)
     this.element.append(map.element)
 
-    const zone = this.newComponent(Zone)
-    zone.element.classList.add(zoneStyle)
-    this.element.append(zone.element)
-
-    this.on(game.event.playerChange, () => {
-      zone.following = game.player
-    })
 
     this.on(game.event.tickEnd, () => {
       staggerStateChange.start()
     })
-
-    const info = document.createElement('div')
-    info.classList.add(infoStyle)
-    this.element.append(info)
-
-    const time = this.newComponent(TimeComponent)
-    info.append(time.element)
-
-    const player = this.newComponent(Player)
-    info.append(player.element)
 
     this.setupWindowVisibility()
 
@@ -55,8 +38,6 @@ export default class GameUI extends GameComponent {
 
   private createMap () {
     const map = this.newComponent(MapComponent)
-
-    map.onZoneClick = playerTravelToZone
 
     const mapEffect = this.newEffect(class extends Effect {
       override registerEvents () {
@@ -103,23 +84,16 @@ export default class GameUI extends GameComponent {
 
 const containerStyle = makeStyle({
   height: `100%`,
-  display: `grid`,
-  gridTemplateColumns: `20rem 1fr`,
-  gridTemplateRows: `1fr 20rem`,
-  gridTemplateAreas: `"zone zone" 
-                      "map  info"`,
-})
-
-const zoneStyle = makeStyle({
-  gridArea: `zone`,
-  borderBottom: border,
+  display: `flex`,
+  flexDirection: `column`,
 })
 
 const mapStyle = makeStyle({
-  gridArea: `map`,
+  flex: `1 1 0`,
 })
 
-const infoStyle = makeStyle({
-  gridArea: `info`,
+const zoneStyle = makeStyle({
+  flex: `1 1 0`,
 })
+
 
