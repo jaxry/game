@@ -1,54 +1,37 @@
 import GameObject from '../../GameObject'
 import Component from './Component'
-import createSvg from '../createSvg'
 import { makeStyle } from '../makeStyle'
 import colors from '../colors'
 import { duration, shadowFilter } from '../theme'
 import { lerp } from '../../util'
-import { playerTravelToZone } from '../../behavior/player'
 
 export default class MapNode extends Component {
 
-  private circle = createSvg('circle')
-
   constructor (public zone: GameObject) {
-    super(createSvg('g'))
+    super()
 
-    const g = this.element as SVGGElement
+    this.element.classList.add(containerStyle)
 
-    g.setAttribute('transform',
-        `translate(${zone.position.x} ${zone.position.y})`)
+    // g.addEventListener('wheel', (e) => {
+    //   e.stopPropagation()
+    // })
 
-    this.circle.classList.add(nodeStyle)
-    this.circle.setAttribute('r', nodeSize(zone).toFixed(0))
-    this.circle.onclick = () => playerTravelToZone(zone)
-    g.append(this.circle)
-
-    const fo = createSvg('foreignObject')
-    fo.setAttribute('width', '100')
-    fo.setAttribute('height', '100')
-    fo.setAttribute('transform', 'translate(-50 -50)')
-    fo.style.pointerEvents = 'none'
-    g.append(fo)
-
-    const contents = document.createElement('div')
-    contents.classList.add(contentsStyle)
+    // this.circle.onclick = () => playerTravelToZone(zone)
 
     for (const item of zone.contains) {
       const div = document.createElement('div')
       div.textContent = item.type.name
-      contents.append(div)
+      this.element.append(div)
     }
-    fo.append(contents)
     // transitionIn(circle)
   }
 
   center (b: boolean) {
-    this.circle.classList.toggle(centerStyle, b)
+    // this.circle.classList.toggle(centerStyle, b)
   }
 
   neighbor (b: boolean) {
-    this.circle.classList.toggle(neighborStyle, b)
+    // this.circle.classList.toggle(neighborStyle, b)
   }
 }
 
@@ -72,9 +55,14 @@ const centerStyle = makeStyle({
   filter: `${shadowFilter} drop-shadow(0 0 0.25rem ${colors.green['400']})`,
 })
 
-const contentsStyle = makeStyle({
+const containerStyle = makeStyle({
+  position: `absolute`,
+  height: '10rem',
+  width: '10rem',
+  overflow: 'auto',
+  background: colors.slate['700'],
+  borderRadius: '1rem',
   display: 'flex',
-  height: '100%',
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',

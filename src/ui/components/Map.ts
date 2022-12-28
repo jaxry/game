@@ -14,9 +14,8 @@ export default class MapComponent extends Component {
   onZoneClick?: (zone: GameObject) => void
 
   private svg = createSvg('svg')
-  private mapG = createSvg('g')
   private edgeG = createSvg('g')
-  private nodeG = createSvg('g')
+  private nodeContainer = document.createElement('div')
 
   private transform = {
     x: 0,
@@ -30,24 +29,22 @@ export default class MapComponent extends Component {
   constructor () {
     super()
 
+    this.element.classList.add(containerStyle)
+
+    this.svg.classList.add(svgStyle)
     this.svg.setAttribute('width', '100%')
     this.svg.setAttribute('height', '100%')
     this.element.append(this.svg)
 
-    this.mapG.classList.add(mapStyle)
-    this.mapG.append(
-        this.edgeG,
-        this.nodeG)
+    this.svg.append(this.edgeG)
 
-    this.svg.append(this.mapG)
+    this.nodeContainer.classList.add(nodeContainerStyle)
+
+    this.element.append(this.nodeContainer)
 
     addPanZoom(this.element, this.transform, (updatedScale) => {
       updatedScale && this.updateScale()
       this.updateTranslation()
-      // this.mapG.setAttribute('transform', this.transform.toString())
-      // this.mapG.animate({
-      //   transform: this.transform.toString(),
-      // }, { fill: 'forwards' })
     })
   }
 
@@ -99,7 +96,7 @@ export default class MapComponent extends Component {
 
   private makeNodeElem (zone: GameObject) {
     const node = this.newComponent(MapNode, zone)
-    this.nodeG.append(node.element)
+    this.nodeContainer.append(node.element)
     this.zoneToComponent.set(zone, node)
   }
 
@@ -129,7 +126,7 @@ export default class MapComponent extends Component {
       const x = zone.position.x * this.transform.scale
       const y = zone.position.y * this.transform.scale
       component.element.style.transform =
-          `translate(${numToPx(x)},${numToPx(y)})`
+          `translate(${numToPx(x)},${numToPx(y)}) translate(-50%,-50%)`
     }
     for (const { edge, line } of this.edgeToElem.values()) {
       const x1 = edge.source.position.x * this.transform.scale
@@ -144,8 +141,9 @@ export default class MapComponent extends Component {
   }
 
   private updateTranslation () {
-    this.mapG.style.transform =
-        `translate(${this.transform.x}px,${this.transform.y}px)`
+    const transform = `translate(${this.transform.x}px,${this.transform.y}px)`
+    this.edgeG.style.transform = transform
+    this.nodeContainer.style.transform = transform
     // this.mapG.animate({
     //   transform: `translate(${this.transform.x}px,${this.transform.y}px)`,
     // }, {
@@ -201,11 +199,20 @@ function transitionOut (elem: Element) {
   }
 }
 
-const mapStyle = makeStyle()
+const containerStyle = makeStyle({
+  position: 'relative',
+})
 
-makeStyle(`.${mapStyle} *`, {
+const svgStyle = makeStyle()
+
+makeStyle(`.${svgStyle} *`, {
   transformBox: `fill-box`,
   transformOrigin: `center`,
+})
+
+const nodeContainerStyle = makeStyle({
+  position: `absolute`,
+  inset: `0`,
 })
 
 const edgeStyle = makeStyle({
