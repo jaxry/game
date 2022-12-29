@@ -9,7 +9,7 @@ import bBoxDiff from '../bBoxDiff'
 import { removeElemAndAnimateList } from '../removeElementFromList'
 import { getAndDelete } from '../../util'
 import { dragAndDropGameObject, staggerStateChange } from './GameUI'
-import { border, borderColor, duration } from '../theme'
+import { borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
@@ -19,7 +19,7 @@ export default class Zone extends GameComponent {
   private spots: HTMLElement[] = []
   private zoneEvents: Effect
 
-  constructor (public following: GameObject = game.player) {
+  constructor (public zone: GameObject, public following?: GameObject) {
     super()
 
     this.element.classList.add(containerStyle)
@@ -36,7 +36,7 @@ export default class Zone extends GameComponent {
         this.onEvent(this.object, 'leave', ({ item }) => {
           if (item === self.following) {
             this.deactivate()
-            staggerStateChange.add(() => self.followObject(self.following))
+            staggerStateChange.add(() => self.followObject(self.following!))
           } else {
             staggerStateChange.add(() => self.objectLeave(item))
           }
@@ -46,7 +46,7 @@ export default class Zone extends GameComponent {
               staggerStateChange.add(() => self.moveSpot(item, from, to))
             })
       }
-    }, this.following.container)
+    }, zone)
 
     this.makeZoneSpots()
   }
@@ -238,12 +238,13 @@ export default class Zone extends GameComponent {
 
 const containerStyle = makeStyle({
   display: `flex`,
-  justifyContent: `center`,
-  overflow: `auto`,
+  // justifyContent: `center`,
+  // overflow: `auto`,
+  minHeight: `10rem`,
 })
 
 const spotStyle = makeStyle({
-  flex: `0 0 max(10rem, calc(100% / 8))`,
+  width: `8rem`,
   display: `flex`,
   flexDirection: `column`,
   gap: `1rem`,
@@ -254,9 +255,6 @@ const spotStyle = makeStyle({
 makeStyle(`.${spotStyle} > *`, {
   cursor: `default`,
 })
-makeStyle(`.${spotStyle}:first-child`, {
-  borderLeft: border,
-})
 makeStyle(`.${spotStyle}:last-child`, {
-  borderRight: border,
+  borderRight: `none`,
 })

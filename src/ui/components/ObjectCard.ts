@@ -95,7 +95,7 @@ export default class ObjectCard extends GameComponent {
     const self = this
   }
 
-  setAction (action: Action) {
+  private setAction (action: Action) {
     if (this.actionComponent) {
       this.actionComponent.remove()
     }
@@ -107,7 +107,7 @@ export default class ObjectCard extends GameComponent {
         { duration: duration.fast })
   }
 
-  clearAction () {
+  private clearAction () {
     if (!this.actionComponent) {
       return
     }
@@ -126,7 +126,7 @@ export default class ObjectCard extends GameComponent {
     }
   }
 
-  update () {
+  private update () {
     this.actionComponent?.update()
   }
 }
@@ -151,5 +151,5 @@ const playerStyle = makeStyle({
 })
 
 const iconStyle = makeStyle({
-  fontSize: `3rem`,
+  fontSize: `2rem`,
 })

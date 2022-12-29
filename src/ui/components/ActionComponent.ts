@@ -35,7 +35,7 @@ export default class ActionComponent extends Component {
 }
 
 const containerStyle = makeStyle({
-  fontSize: `1.5rem`,
+  fontSize: `1rem`,
   textAlign: `center`,
   color: colors.yellow['400'],
   background: colors.yellow['400'] + '44',

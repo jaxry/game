@@ -49,7 +49,7 @@ export default class MapComponent extends Component {
   }
 
   setCenter (centerZone: GameObject) {
-    const graph = getZoneGraph(centerZone)
+    const graph = getZoneGraph(centerZone, 2)
 
     for (const [obj, component] of this.zoneToComponent) {
       if (!graph.nodes.has(obj)) {

@@ -4,6 +4,7 @@ import { makeStyle } from '../makeStyle'
 import colors from '../colors'
 import { duration, shadowFilter } from '../theme'
 import { lerp } from '../../util'
+import Zone from './Zone'
 
 export default class MapNode extends Component {
 
@@ -18,12 +19,9 @@ export default class MapNode extends Component {
 
     // this.circle.onclick = () => playerTravelToZone(zone)
 
-    for (const item of zone.contains) {
-      const div = document.createElement('div')
-      div.textContent = item.type.name
-      this.element.append(div)
-    }
     // transitionIn(circle)
+    const zoneComponent = this.newComponent(Zone, this.zone)
+    this.element.append(zoneComponent.element)
   }
 
   center (b: boolean) {
@@ -57,14 +55,8 @@ const centerStyle = makeStyle({
 
 const containerStyle = makeStyle({
   position: `absolute`,
-  height: '10rem',
-  width: '10rem',
-  overflow: 'auto',
+  // overflow: 'auto',
   background: colors.slate['700'],
   borderRadius: '1rem',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  alignItems: 'center',
 })
 
