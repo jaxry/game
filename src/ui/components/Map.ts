@@ -9,13 +9,19 @@ import { backgroundColor, duration } from '../theme'
 import MapNode from './MapNode'
 import addPanZoom from '../PanZoom'
 import { numToPixel, numToPx } from '../../util'
+import { TravelAnimation } from '../gameFunctions/TravelAnimation'
 
 export default class MapComponent extends Component {
   onZoneClick?: (zone: GameObject) => void
 
   private svg = createSvg('svg')
   private edgeG = createSvg('g')
+  private map = document.createElement('div')
+
+  private travelIcons = document.createElement('div')
   private nodeContainer = document.createElement('div')
+
+  private travelAnimation = new TravelAnimation(this.travelIcons)
 
   private transform = {
     x: 0,
@@ -38,9 +44,11 @@ export default class MapComponent extends Component {
 
     this.svg.append(this.edgeG)
 
-    this.nodeContainer.classList.add(nodeContainerStyle)
+    this.map.classList.add(mapStyle)
+    this.map.append(this.travelIcons)
+    this.map.append(this.nodeContainer)
 
-    this.element.append(this.nodeContainer)
+    this.element.append(this.map)
 
     addPanZoom(this.element, this.transform, (updatedScale) => {
       updatedScale && this.updateScale()
@@ -79,23 +87,23 @@ export default class MapComponent extends Component {
     }
 
     // set node colors
-    for (const node of this.zoneToComponent.values()) {
-      node.center(false)
-      node.neighbor(false)
-    }
-
-    this.zoneToComponent.get(centerZone)!.center(true)
-
-    for (const zone of centerZone.connections) {
-      this.zoneToComponent.get(zone)!.neighbor(true)
-    }
+    // for (const node of this.zoneToComponent.values()) {
+    // node.center(false)
+    //   node.neighbor(false)
+    // }
+    //
+    // this.zoneToComponent.get(centerZone)!.center(true)
+    //
+    // for (const zone of centerZone.connections) {
+    //   this.zoneToComponent.get(zone)!.neighbor(true)
+    // }
 
     // make graph fit to screen
     this.setTransformToGraphBounds(graph)
   }
 
   private makeNodeElem (zone: GameObject) {
-    const node = this.newComponent(MapNode, zone)
+    const node = this.newComponent(MapNode, zone, this.travelAnimation)
     this.nodeContainer.append(node.element)
     this.zoneToComponent.set(zone, node)
   }
@@ -125,8 +133,7 @@ export default class MapComponent extends Component {
     for (const [zone, component] of this.zoneToComponent) {
       const x = zone.position.x * this.transform.scale
       const y = zone.position.y * this.transform.scale
-      component.element.style.transform =
-          `translate(${numToPx(x)},${numToPx(y)}) translate(-50%,-50%)`
+      component.setPosition(x, y)
     }
 
     for (const { edge, line } of this.edgeToElem.values()) {
@@ -142,9 +149,10 @@ export default class MapComponent extends Component {
   }
 
   private updateTranslation () {
-    const transform = `translate(${this.transform.x}px,${this.transform.y}px)`
+    const transform =
+        `translate(${numToPx(this.transform.x)},${numToPx(this.transform.y)})`
     this.edgeG.style.transform = transform
-    this.nodeContainer.style.transform = transform
+    this.map.style.transform = transform
     // this.mapG.animate({
     //   transform: `translate(${this.transform.x}px,${this.transform.y}px)`,
     // }, {
@@ -204,16 +212,15 @@ const containerStyle = makeStyle({
   position: 'relative',
 })
 
-const svgStyle = makeStyle()
+const mapStyle = makeStyle({
+  position: `absolute`,
+  inset: `0`,
+})
 
+const svgStyle = makeStyle()
 makeStyle(`.${svgStyle} *`, {
   transformBox: `fill-box`,
   transformOrigin: `center`,
-})
-
-const nodeContainerStyle = makeStyle({
-  position: `absolute`,
-  inset: `0`,
 })
 
 const edgeStyle = makeStyle({

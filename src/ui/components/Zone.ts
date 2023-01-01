@@ -5,7 +5,7 @@ import { MovePlayerToSpot } from '../../behavior/player'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/core'
 import { getAndDelete, numToPx } from '../../util'
-import { dragAndDropGameObject, staggerStateChange } from './GameUI'
+import { dragAndDropGameObject } from './GameUI'
 import { borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
@@ -33,10 +33,9 @@ export default class Zone extends GameComponent {
         this.onEvent(this.object, 'leave', ({ item }) => {
           self.objectLeave(item)
         })
-        this.onEvent(this.object, 'moveSpot',
-            ({ item, from, to }) => {
-              self.moveSpot(item, from, to)
-            })
+        this.onEvent(this.object, 'moveSpot', ({ item, from, to }) => {
+          self.moveSpot(item, from, to)
+        })
       }
     }, zone)
 
@@ -105,12 +104,8 @@ export default class Zone extends GameComponent {
     return card
   }
 
-  private addCardToSpot (card: Element, spotIndex: number, animate = true) {
+  private addCardToSpot (card: Element, spotIndex: number) {
     this.spots[spotIndex].append(card)
-
-    if (!animate) {
-      return
-    }
 
     const { width, height, margin } = getComputedStyle(card)
 

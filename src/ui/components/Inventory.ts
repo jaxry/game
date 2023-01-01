@@ -1,6 +1,6 @@
 import ObjectCard from './ObjectCard'
 import { game } from '../../Game'
-import { dragAndDropGameObject, staggerStateChange } from './GameUI'
+import { dragAndDropGameObject } from './GameUI'
 import TransferAction from '../../actions/Transfer'
 import GameObject from '../../GameObject'
 import Effect from '../../behavior/Effect'

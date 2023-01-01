@@ -5,9 +5,9 @@ import { serializable } from '../serialize'
 import GameTime from '../GameTime'
 
 export default class TravelAction extends Action {
-  override time = 3 * GameTime.second
+  override time = 5 * GameTime.second
 
-  constructor (object: GameObject, public location: GameObject) {
+  constructor (object: GameObject, override target: GameObject) {
     super(object)
   }
 
@@ -20,7 +20,7 @@ export default class TravelAction extends Action {
   }
 
   override do () {
-    putInsideContainer(this.location, this.object)
+    putInsideContainer(this.target, this.object)
   }
 }
 serializable(TravelAction)

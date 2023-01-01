@@ -4,12 +4,10 @@ import Effect from '../../behavior/Effect'
 import { pauseGameLoop, startGameLoop } from '../../behavior/core'
 import DragAndDrop from '../DragAndDrop'
 import GameObject from '../../GameObject'
-import StaggerStateChange from '../StaggerStateChange'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 
 export const dragAndDropGameObject = new DragAndDrop<GameObject>()
-export const staggerStateChange = new StaggerStateChange()
 
 export default class GameUI extends GameComponent {
   constructor () {
@@ -20,10 +18,6 @@ export default class GameUI extends GameComponent {
     const map = this.createMap()
     map.element.classList.add(mapStyle)
     this.element.append(map.element)
-
-    this.on(game.event.tickEnd, () => {
-      staggerStateChange.start()
-    })
 
     this.setupWindowVisibility()
 
