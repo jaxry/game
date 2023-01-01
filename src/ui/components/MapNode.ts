@@ -2,7 +2,7 @@ import GameObject from '../../GameObject'
 import Component from './Component'
 import { makeStyle } from '../makeStyle'
 import colors from '../colors'
-import { duration, shadowFilter } from '../theme'
+import { border, borderRadius, duration, shadowFilter } from '../theme'
 import { lerp } from '../../util'
 import Zone from './Zone'
 
@@ -57,6 +57,7 @@ const containerStyle = makeStyle({
   position: `absolute`,
   // overflow: 'auto',
   background: colors.slate['700'],
-  borderRadius: '1rem',
+  border,
+  borderRadius,
 })
 

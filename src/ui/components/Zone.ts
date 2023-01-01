@@ -1,13 +1,12 @@
 import Effect from '../../behavior/Effect'
 import { game } from '../../Game'
 import GameObject from '../../GameObject'
-import { isPlayer, MovePlayerToSpot } from '../../behavior/player'
-import animateWithDelay from '../animateWithDelay'
+import { MovePlayerToSpot } from '../../behavior/player'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/core'
 import bBoxDiff from '../bBoxDiff'
 import { removeElemAndAnimateList } from '../removeElementFromList'
-import { getAndDelete } from '../../util'
+import { getAndDelete, numToPx } from '../../util'
 import { dragAndDropGameObject, staggerStateChange } from './GameUI'
 import { borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
@@ -29,17 +28,10 @@ export default class Zone extends GameComponent {
     this.zoneEvents = this.newEffect(class extends Effect {
       override registerEvents () {
         this.onEvent(this.object, 'enter', ({ item }) => {
-          if (!isPlayer(item)) {
-            staggerStateChange.add(() => self.objectEnter(item))
-          }
+          staggerStateChange.add(() => self.objectEnter(item))
         })
         this.onEvent(this.object, 'leave', ({ item }) => {
-          if (item === self.following) {
-            this.deactivate()
-            staggerStateChange.add(() => self.followObject(self.following!))
-          } else {
-            staggerStateChange.add(() => self.objectLeave(item))
-          }
+          staggerStateChange.add(() => self.objectLeave(item))
         })
         this.onEvent(this.object, 'moveSpot',
             ({ item, from, to }) => {
@@ -48,31 +40,22 @@ export default class Zone extends GameComponent {
       }
     }, zone)
 
-    this.makeZoneSpots()
+    this.populateZone()
   }
 
-  moveZones (zone: GameObject) {
-    this.zoneEvents.setObject(zone)
+  private populateZone () {
+    this.clearZone()
 
-    this.element.animate({
-      opacity: 0,
-    }, {
-      duration: duration.normal,
-      fill: 'forwards',
-    }).onfinish = () => {
-      this.makeZoneSpots()
-      this.element.animate({
-        opacity: 1,
-      }, {
-        duration: duration.normal,
-        fill: 'forwards',
-      })
+    for (let i = 0; i < this.zone.numSpots; i++) {
+      this.makeSpot(i)
+    }
+
+    for (const obj of this.zone.contains) {
+      this.makeCard(obj)
     }
   }
 
-  private makeZoneSpots () {
-    const zone = this.zoneEvents.object
-
+  private clearZone () {
     for (const card of this.objectToCard.values()) {
       card.remove()
     }
@@ -80,34 +63,29 @@ export default class Zone extends GameComponent {
 
     this.spots.forEach(spot => spot.remove())
     this.spots.length = 0
+  }
 
-    for (let i = 0; i < zone.numSpots; i++) {
+  private makeSpot (i: number) {
+    const spot = document.createElement('div')
+    spot.classList.add(spotStyle)
 
-      const spot = document.createElement('div')
-      spot.classList.add(spotStyle)
+    spot.addEventListener('click', (e) => {
+      // only click if not clicked on a child element
+      if (e.target === e.currentTarget) {
+        setPlayerEffect(new MovePlayerToSpot(game.player, i))
+      }
+    })
 
-      spot.addEventListener('click', (e) => {
-        // only click if not clicked on a child element
-        if (e.target === e.currentTarget) {
-          setPlayerEffect(new MovePlayerToSpot(game.player, i))
-        }
-      })
+    dragAndDropGameObject.drop(spot, (item) => {
+      if (new TransferAction(game.player, item, this.zone, i).condition()) {
+        return 'move'
+      }
+    }, (item) => {
+      setPlayerEffect(new TransferAction(game.player, item, this.zone, i))
+    })
 
-      dragAndDropGameObject.drop(spot, (item) => {
-        if (new TransferAction(game.player, item, zone, i).condition()) {
-          return 'move'
-        }
-      }, (item) => {
-        setPlayerEffect(new TransferAction(game.player, item, zone, i))
-      })
-
-      this.spots.push(spot)
-      this.element.append(spot)
-    }
-
-    for (const obj of zone.contains) {
-      this.makeCard(obj)
-    }
+    this.spots.push(spot)
+    this.element.append(spot)
   }
 
   private makeCard (obj: GameObject) {
@@ -118,9 +96,41 @@ export default class Zone extends GameComponent {
       this.objectToCard.set(obj, card)
     }
 
-    this.spots[obj.spot].append(card.element)
+    this.addCardToSpot(card.element, obj.spot)
 
     return card
+  }
+
+  // todo: Animate container height
+  // possibly abstract old to new animation code
+  private addCardToSpot (card: Element, spotIndex: number) {
+    const spot = this.spots[spotIndex]
+    const oldWidth = spot.getBoundingClientRect().width
+    spot.append(card)
+    const newWidth = spot.getBoundingClientRect().width
+    if (oldWidth !== newWidth) {
+      spot.animate({
+        width: [numToPx(oldWidth), numToPx(newWidth)],
+      }, {
+        duration: duration.fast,
+        easing: 'ease-in-out',
+      })
+    }
+  }
+
+  private removeCardFromSpot (card: Element) {
+    const spot = card.parentElement!
+    const oldWidth = spot.getBoundingClientRect().width
+    removeElemAndAnimateList(card)
+    const newWidth = spot.getBoundingClientRect().width
+    if (oldWidth !== newWidth) {
+      spot.animate({
+        width: [numToPx(oldWidth), numToPx(newWidth)],
+      }, {
+        duration: duration.fast,
+        easing: 'ease-in-out',
+      })
+    }
   }
 
   private moveSpot (obj: GameObject, from: number, to: number) {
@@ -128,9 +138,9 @@ export default class Zone extends GameComponent {
 
     const oldBBox = elem.getBoundingClientRect()
 
-    removeElemAndAnimateList(elem)
+    this.removeCardFromSpot(elem)
+    this.addCardToSpot(elem, to)
 
-    this.spots[to].append(elem)
     const newBBox = elem.getBoundingClientRect()
     elem.animate([
       { transform: bBoxDiff(oldBBox, newBBox) },
@@ -163,76 +173,9 @@ export default class Zone extends GameComponent {
       duration: duration.normal,
       easing: 'ease-in-out',
     }).onfinish = () => {
-      removeElemAndAnimateList(elem)
+      this.removeCardFromSpot(elem)
       card.remove()
     }
-  }
-
-  private followObject (following: GameObject) {
-    const fadeTime = duration.normal
-
-    for (const [obj, card] of this.objectToCard) {
-      if (obj === following) {
-        continue
-      }
-      card.element.animate({
-        opacity: 0,
-      }, {
-        fill: 'forwards',
-        duration: fadeTime,
-      })
-    }
-
-    for (const spot of this.spots) {
-      spot.animate({
-        borderColor: 'transparent',
-      }, {
-        fill: 'forwards',
-        duration: fadeTime,
-      })
-    }
-
-    let followingCard = this.objectToCard.get(following)!
-    const followingBBox = followingCard.element.getBoundingClientRect()
-
-    const animateNewZone = () => {
-      this.zoneEvents.setObject(following.container)
-      this.makeZoneSpots()
-
-      for (const card of this.objectToCard.values()) {
-        if (card.object === followingCard.object) {
-          followingCard = card
-          continue
-        }
-        animateWithDelay(card.element, {
-          opacity: [0, 1],
-        }, {
-          duration: fadeTime,
-          delay: duration.fast,
-        })
-      }
-
-      for (const spot of this.spots) {
-        animateWithDelay(spot, {
-          borderColor: ['transparent', ''],
-        }, {
-          duration: fadeTime,
-          delay: duration.fast,
-        })
-      }
-
-      followingCard.element.animate({
-        transform: [
-          bBoxDiff(followingBBox,
-              followingCard.element.getBoundingClientRect()),
-          'translate(0, 0)'],
-      }, {
-        duration: fadeTime,
-        easing: 'ease-in-out',
-      })
-    }
-
-    setTimeout(animateNewZone, fadeTime)
   }
 }
 
@@ -240,17 +183,22 @@ const containerStyle = makeStyle({
   display: `flex`,
   // justifyContent: `center`,
   // overflow: `auto`,
-  minHeight: `10rem`,
 })
 
 const spotStyle = makeStyle({
-  width: `8rem`,
+  minWidth: `1.5rem`,
   display: `flex`,
   flexDirection: `column`,
   gap: `1rem`,
   borderRight: `1px dashed ${borderColor}`,
   padding: `0.5rem`,
+  paddingBottom: `1rem`,
   cursor: `pointer`,
+  transition: `width ${duration.normal}ms ease-in-out`,
+})
+
+makeStyle(`.${spotStyle} > *`, {
+  width: `8rem`,
 })
 makeStyle(`.${spotStyle} > *`, {
   cursor: `default`,
