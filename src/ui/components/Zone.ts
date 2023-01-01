@@ -4,14 +4,13 @@ import GameObject from '../../GameObject'
 import { MovePlayerToSpot } from '../../behavior/player'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/core'
-import bBoxDiff from '../bBoxDiff'
-import { removeElemAndAnimateList } from '../removeElementFromList'
 import { getAndDelete, numToPx } from '../../util'
 import { dragAndDropGameObject, staggerStateChange } from './GameUI'
 import { borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
+import { outsideElem } from './App'
 
 export default class Zone extends GameComponent {
   private objectToCard = new Map<GameObject, ObjectCard>()
@@ -52,7 +51,7 @@ export default class Zone extends GameComponent {
     }
 
     for (const obj of this.zone.contains) {
-      this.makeCard(obj)
+      this.makeCard(obj, false)
     }
   }
 
@@ -89,7 +88,7 @@ export default class Zone extends GameComponent {
     this.element.append(spot)
   }
 
-  private makeCard (obj: GameObject) {
+  private makeCard (obj: GameObject, animate = true) {
     let card = this.objectToCard.get(obj)
 
     if (!card) {
@@ -97,72 +96,107 @@ export default class Zone extends GameComponent {
       this.objectToCard.set(obj, card)
     }
 
-    this.addCardToSpot(card.element, obj.spot)
+    if (animate) {
+      this.addCardToSpot(card.element, obj.spot)
+    } else {
+      this.spots[obj.spot].append(card.element)
+    }
 
     return card
   }
 
-  private modifySpot (spot: HTMLElement,
-      modifier: (spot: HTMLElement) => void | (() => void)) {
-    const oldWidth = spot.scrollWidth
-    const oldHeight = this.element.scrollHeight
+  private addCardToSpot (card: Element, spotIndex: number, animate = true) {
+    this.spots[spotIndex].append(card)
 
-    const modifierFinish = modifier(spot)
+    if (!animate) {
+      return
+    }
 
-    const newWidth = spot.scrollWidth
-    const newHeight = this.element.scrollHeight
+    const { width, height, margin } = getComputedStyle(card)
 
-    const options: KeyframeAnimationOptions = {
+    const empty = document.createElement('div')
+    card.replaceWith(empty)
+
+    empty.animate({
+      height: [`0`, height],
+      width: [`0`, width],
+      margin: [`0`, margin],
+    }, {
       duration: duration.normal,
       easing: 'ease-in-out',
-      // composite: 'accumulate',
+    }).onfinish = () => {
+      empty.replaceWith(card)
     }
-
-    if (oldWidth !== newWidth) {
-      spot.animate({
-        width: [numToPx(oldWidth), numToPx(newWidth)],
-      }, options)
-    }
-    if (oldHeight !== newHeight) {
-      this.element.animate({
-        height: [numToPx(oldHeight), numToPx(newHeight)],
-      }, options)
-    }
-
-    modifierFinish?.()
-  }
-
-  private addCardToSpot (card: Element, spotIndex: number) {
-    this.modifySpot(this.spots[spotIndex], spot => {
-      spot.append(card)
-    })
-    // this.spots[spotIndex].append(card)
   }
 
   private removeCardFromSpot (card: Element) {
-    this.modifySpot(card.parentElement!, () => {
-      return removeElemAndAnimateList(card)
-    })
-    // removeElemAndAnimateList(card)()
+    const { width, height, margin } = getComputedStyle(card)
+    const empty = document.createElement('div')
+    card.replaceWith(empty)
+    empty.animate({
+      height: [height, `0`],
+      width: [width, `0`],
+      margin: [margin, `0`],
+    }, {
+      duration: duration.normal,
+      easing: 'ease-in-out',
+    }).onfinish = () => {
+      empty.remove()
+    }
   }
 
   private moveSpot (obj: GameObject, from: number, to: number) {
     const elem = this.objectToCard.get(obj)!.element
 
-    const oldBBox = elem.getBoundingClientRect()
+    const { width, height, margin } = getComputedStyle(elem)
+    const fromBBox = elem.getBoundingClientRect()
 
-    this.removeCardFromSpot(elem)
-    this.addCardToSpot(elem, to)
+    const emptyFrom = document.createElement('div')
+    elem.replaceWith(emptyFrom)
 
-    const newBBox = elem.getBoundingClientRect()
-    elem.animate([
-      { transform: bBoxDiff(oldBBox, newBBox) },
-      { transform: `translate(0, 0)` },
-    ], {
+    const emptyTo = document.createElement('div')
+    this.spots[to].append(emptyTo)
+
+    emptyFrom.style.margin = `0`
+    emptyTo.style.width = width
+    emptyTo.style.height = height
+    emptyTo.style.margin = margin
+
+    const toBBox = emptyTo.getBoundingClientRect()
+
+    emptyFrom.animate({
+      height: [height, `0`],
+      width: [width, `0`],
+      margin: [margin, `0`],
+    }, {
       duration: duration.normal,
       easing: 'ease-in-out',
-      composite: 'add',
+    }).onfinish = () => {
+      emptyFrom.remove()
+    }
+
+    emptyTo.animate({
+      height: [`0`, height],
+      width: [`0`, width],
+      margin: [`0`, margin],
+    }, {
+      duration: duration.fast,
+      easing: 'ease-in-out',
+      fill: 'forwards',
     })
+
+    outsideElem.append(elem)
+    elem.animate({
+      transform: [
+          `translate(${numToPx(fromBBox.x)}, ${numToPx(fromBBox.y)}`,
+          `translate(${numToPx(toBBox.x)}, ${numToPx(toBBox.y)})`,
+      ],
+    }, {
+      duration: duration.normal,
+      easing: 'ease-in-out',
+    }).onfinish = () => {
+      emptyTo.replaceWith(elem)
+    }
   }
 
   private objectEnter (obj: GameObject) {
@@ -202,7 +236,6 @@ const spotStyle = makeStyle({
   minWidth: `1.5rem`,
   display: `flex`,
   flexDirection: `column`,
-  gap: `1rem`,
   borderRight: `1px dashed ${borderColor}`,
   padding: `0.5rem`,
   paddingBottom: `1rem`,
@@ -211,7 +244,7 @@ const spotStyle = makeStyle({
 })
 
 makeStyle(`.${spotStyle} > *`, {
-  width: `8rem`,
+  margin: `0.25rem 0`,
 })
 makeStyle(`.${spotStyle} > *`, {
   cursor: `default`,

@@ -130,6 +130,7 @@ export default class ObjectCard extends GameComponent {
 }
 
 const containerStyle = makeStyle({
+  width: `8rem`,
   display: `flex`,
   alignItems: `center`,
   justifyContent: `space-between`,

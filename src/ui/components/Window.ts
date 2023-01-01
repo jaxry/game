@@ -41,7 +41,6 @@ export default class Window extends Component {
 }
 
 const containerStyle = makeStyle({
-  position: `fixed`,
   top: `0`,
   left: `0`,
 })

@@ -26,7 +26,6 @@ export default class TargetActionAnimation extends Component {
 }
 
 const containerStyle = makeStyle({
-  position: `fixed`,
   fontSize: `2rem`,
   pointerEvents: `none`,
 })
