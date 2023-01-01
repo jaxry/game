@@ -29,10 +29,10 @@ export default class Inventory extends GameComponent {
     this.newEffect(class extends Effect {
       override registerEvents () {
         this.onEvent(this.object, 'enter', ({ item }) => {
-          staggerStateChange.add(() => self.makeCard(item, true))
+          self.makeCard(item, true)
         })
         this.onEvent(this.object, 'leave', ({ item }) => {
-          staggerStateChange.add(() => self.removeCard(item))
+          self.removeCard(item)
         })
       }
     }, object)

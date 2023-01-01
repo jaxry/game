@@ -18,6 +18,7 @@ export function initGame () {
   }
 
   const zone = zones[0]
+  zone.numSpots = 1
 
   startForceDirectedSimulation(zone)
 
@@ -27,10 +28,16 @@ export function initGame () {
     spawn(typeApple, game.player)
   }
 
-  for (let i = 0; i < 25; i++) {
-    spawn(Math.random() > 0.5 ? typeMonster : typeApple,
-        zones.at(Math.random() * zones.length))
-  }
+  spawn(typeMonster, zone)
+  spawn(typeMonster, zone)
+  // spawn(typeMonster, zone)
+  // spawn(typeMonster, zone)
+  // spawn(typeMonster, zone)
+
+  // for (let i = 0; i < 25; i++) {
+  //   spawn(Math.random() > 0.2 ? typeMonster : typeApple,
+  //       zones.at(Math.random() * zones.length))
+  // }
 
   const chest = spawn(typeChest, zone)
   spawn(typeApple, chest)

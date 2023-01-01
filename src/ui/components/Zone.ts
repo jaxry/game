@@ -12,13 +12,12 @@ import { borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
-import Component from './Component'
-import createSvg from '../createSvg'
 
 export default class Zone extends GameComponent {
   private objectToCard = new Map<GameObject, ObjectCard>()
   private spots: HTMLElement[] = []
   private zoneEvents: Effect
+
 
   constructor (public zone: GameObject, public following?: GameObject) {
     super()
@@ -30,14 +29,14 @@ export default class Zone extends GameComponent {
     this.zoneEvents = this.newEffect(class extends Effect {
       override registerEvents () {
         this.onEvent(this.object, 'enter', ({ item }) => {
-          staggerStateChange.add(() => self.objectEnter(item))
+          self.objectEnter(item)
         })
         this.onEvent(this.object, 'leave', ({ item }) => {
-          staggerStateChange.add(() => self.objectLeave(item))
+          self.objectLeave(item)
         })
         this.onEvent(this.object, 'moveSpot',
             ({ item, from, to }) => {
-              staggerStateChange.add(() => self.moveSpot(item, from, to))
+              self.moveSpot(item, from, to)
             })
       }
     }, zone)
@@ -103,36 +102,48 @@ export default class Zone extends GameComponent {
     return card
   }
 
-  // todo: Animate container height
-  // possibly abstract old to new animation code
-  private addCardToSpot (card: Element, spotIndex: number) {
-    const spot = this.spots[spotIndex]
-    const oldWidth = spot.offsetWidth
-    spot.append(card)
-    const newWidth = spot.offsetWidth
+  private modifySpot (spot: HTMLElement,
+      modifier: (spot: HTMLElement) => void | (() => void)) {
+    const oldWidth = spot.scrollWidth
+    const oldHeight = this.element.scrollHeight
+
+    const modifierFinish = modifier(spot)
+
+    const newWidth = spot.scrollWidth
+    const newHeight = this.element.scrollHeight
+
+    const options: KeyframeAnimationOptions = {
+      duration: duration.normal,
+      easing: 'ease-in-out',
+      // composite: 'accumulate',
+    }
+
     if (oldWidth !== newWidth) {
       spot.animate({
         width: [numToPx(oldWidth), numToPx(newWidth)],
-      }, {
-        duration: duration.fast,
-        easing: 'ease-in-out',
-      })
+      }, options)
     }
+    if (oldHeight !== newHeight) {
+      this.element.animate({
+        height: [numToPx(oldHeight), numToPx(newHeight)],
+      }, options)
+    }
+
+    modifierFinish?.()
+  }
+
+  private addCardToSpot (card: Element, spotIndex: number) {
+    this.modifySpot(this.spots[spotIndex], spot => {
+      spot.append(card)
+    })
+    // this.spots[spotIndex].append(card)
   }
 
   private removeCardFromSpot (card: Element) {
-    const spot = card.parentElement!
-    const oldWidth = spot.offsetWidth
-    removeElemAndAnimateList(card)
-    const newWidth = spot.offsetWidth
-    if (oldWidth !== newWidth) {
-      spot.animate({
-        width: [numToPx(oldWidth), numToPx(newWidth)],
-      }, {
-        duration: duration.fast,
-        easing: 'ease-in-out',
-      })
-    }
+    this.modifySpot(card.parentElement!, () => {
+      return removeElemAndAnimateList(card)
+    })
+    // removeElemAndAnimateList(card)()
   }
 
   private moveSpot (obj: GameObject, from: number, to: number) {
@@ -150,7 +161,7 @@ export default class Zone extends GameComponent {
     ], {
       duration: duration.normal,
       easing: 'ease-in-out',
-      composite: 'accumulate',
+      composite: 'add',
     })
   }
 

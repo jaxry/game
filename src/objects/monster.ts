@@ -74,7 +74,7 @@ class MonsterSearch extends Effect {
   }
 
   override tick () {
-    if (!this.object.activeAction && Math.random() < 0.03) {
+    if (!this.object.activeAction && Math.random() < 1) {
       this.travel()
     }
   }

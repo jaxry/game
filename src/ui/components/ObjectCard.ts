@@ -73,7 +73,7 @@ export default class ObjectCard extends GameComponent {
             return
           }
 
-          staggerStateChange.add(() => self.setAction(action))
+          self.setAction(action)
         })
 
         this.onEvent(object.container, 'itemActionEnd', ({ action }) => {
@@ -81,13 +81,11 @@ export default class ObjectCard extends GameComponent {
             return
           }
 
-          staggerStateChange.addToFront(() => {
-            self.clearAction()
-            if (action.target && objectToCard.has(action.target)) {
-              const to = objectToCard.get(action.target)!.element
-              self.newComponent(TargetActionAnimation, action, self.element, to)
-            }
-          })
+          self.clearAction()
+          if (action.target && objectToCard.has(action.target)) {
+            const to = objectToCard.get(action.target)!.element
+            self.newComponent(TargetActionAnimation, action, self.element, to)
+          }
         })
       }
     }, object)

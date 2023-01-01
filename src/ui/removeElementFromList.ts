@@ -17,15 +17,17 @@ export function removeElementFromList (
 
   elem.remove()
 
-  for (let i = 0; i < parentElement.children.length; i++) {
-    const child = parentElement.children[i]
-    const newBBox = child.getBoundingClientRect()
-    callback(child, bBoxes[i], newBBox)
+  return () => {
+    for (let i = 0; i < parentElement.children.length; i++) {
+      const child = parentElement.children[i]
+      const newBBox = child.getBoundingClientRect()
+      callback(child, bBoxes[i], newBBox)
+    }
   }
 }
 
 export function removeElemAndAnimateList (elem: Element) {
-  removeElementFromList(elem, (child, oldBBox, newBBox) => {
+  return removeElementFromList(elem, (child, oldBBox, newBBox) => {
     child.animate([
       { transform: bBoxDiff(oldBBox, newBBox) },
       { transform: `translate(0, 0)` },
