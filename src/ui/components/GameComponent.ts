@@ -2,7 +2,8 @@ import Component from './Component'
 import Effect from '../../behavior/Effect'
 import { Constructor } from '../../types'
 
-export default class GameComponent extends Component {
+export default class GameComponent<T extends Element = HTMLElement>
+    extends Component {
   newEffect<T extends Constructor<Effect>> (
       constructor: T,
       ...args: ConstructorParameters<T>) {

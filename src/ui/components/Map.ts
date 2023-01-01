@@ -49,7 +49,7 @@ export default class MapComponent extends Component {
   }
 
   setCenter (centerZone: GameObject) {
-    const graph = getZoneGraph(centerZone, 2)
+    const graph = getZoneGraph(centerZone)
 
     for (const [obj, component] of this.zoneToComponent) {
       if (!graph.nodes.has(obj)) {
@@ -128,6 +128,7 @@ export default class MapComponent extends Component {
       component.element.style.transform =
           `translate(${numToPx(x)},${numToPx(y)}) translate(-50%,-50%)`
     }
+
     for (const { edge, line } of this.edgeToElem.values()) {
       const x1 = edge.source.position.x * this.transform.scale
       const y1 = edge.source.position.y * this.transform.scale

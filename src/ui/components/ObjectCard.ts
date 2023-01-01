@@ -56,7 +56,7 @@ export default class ObjectCard extends GameComponent {
           this.element.getBoundingClientRect())
     })
 
-    dragAndDropGameObject.drag(this.element as HTMLElement, object, icon)
+    dragAndDropGameObject.drag(this.element, object, icon)
 
     this.on(game.event.tickEnd, () => this.update())
 

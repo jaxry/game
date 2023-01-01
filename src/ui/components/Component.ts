@@ -1,15 +1,14 @@
 import Observer from '../../Observer'
 import { Constructor } from '../../types'
 
-export default class Component {
-  element: HTMLElement | SVGGElement
+export default class Component<T extends Element = HTMLElement> {
+  element: T
 
-  private parentComponent?: Component
-  private childComponents = new Set<Component>()
+  private parentComponent?: Component<Element>
+  private childComponents = new Set<Component<Element>>()
   private destroyCallbacks: Array<() => void> = []
 
-  constructor (element: HTMLElement | SVGGElement = document.createElement(
-      'div')) {
+  constructor (element: T = document.createElement('div') as any) {
     this.element = element
   }
 

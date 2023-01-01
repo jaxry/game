@@ -12,6 +12,8 @@ import { borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
+import Component from './Component'
+import createSvg from '../createSvg'
 
 export default class Zone extends GameComponent {
   private objectToCard = new Map<GameObject, ObjectCard>()
@@ -105,9 +107,9 @@ export default class Zone extends GameComponent {
   // possibly abstract old to new animation code
   private addCardToSpot (card: Element, spotIndex: number) {
     const spot = this.spots[spotIndex]
-    const oldWidth = spot.getBoundingClientRect().width
+    const oldWidth = spot.offsetWidth
     spot.append(card)
-    const newWidth = spot.getBoundingClientRect().width
+    const newWidth = spot.offsetWidth
     if (oldWidth !== newWidth) {
       spot.animate({
         width: [numToPx(oldWidth), numToPx(newWidth)],
@@ -120,9 +122,9 @@ export default class Zone extends GameComponent {
 
   private removeCardFromSpot (card: Element) {
     const spot = card.parentElement!
-    const oldWidth = spot.getBoundingClientRect().width
+    const oldWidth = spot.offsetWidth
     removeElemAndAnimateList(card)
-    const newWidth = spot.getBoundingClientRect().width
+    const newWidth = spot.offsetWidth
     if (oldWidth !== newWidth) {
       spot.animate({
         width: [numToPx(oldWidth), numToPx(newWidth)],

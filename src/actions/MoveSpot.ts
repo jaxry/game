@@ -16,7 +16,7 @@ export default class MoveSpotAction extends Action {
   }
 
   override get icon () {
-    return `👣${this.direction()}`
+    return `${this.direction()}`
   }
 
   override onActivate () {

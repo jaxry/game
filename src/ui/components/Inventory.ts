@@ -75,7 +75,7 @@ export default class Inventory extends GameComponent {
         return 'move'
       }
     }
-    dragAndDropGameObject.drop(this.element as HTMLElement, draggable,
+    dragAndDropGameObject.drop(this.element, draggable,
         (item) => {
           new TransferAction(game.player, item, this.object).activate()
         })
