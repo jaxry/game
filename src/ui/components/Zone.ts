@@ -11,6 +11,7 @@ import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
 import { outsideElem } from './App'
+import DummyElement from '../DummyElement'
 
 export default class Zone extends GameComponent {
   private objectToCard = new Map<GameObject, ObjectCard>()
@@ -101,43 +102,18 @@ export default class Zone extends GameComponent {
 
   private moveSpot (obj: GameObject, from: number, to: number) {
     const elem = this.objectToCard.get(obj)!.element
-
-    const { width, height, margin } = getComputedStyle(elem)
     const fromBBox = elem.getBoundingClientRect()
+    const dummyFrom = new DummyElement(elem)
 
-    const emptyFrom = document.createElement('div')
-    elem.replaceWith(emptyFrom)
+    this.spots[to].append(elem)
+    const toBBox = elem.getBoundingClientRect()
+    const dummyTo = new DummyElement(elem)
 
-    const emptyTo = document.createElement('div')
-    this.spots[to].append(emptyTo)
-
-    emptyFrom.style.margin = `0`
-    emptyTo.style.width = width
-    emptyTo.style.height = height
-    emptyTo.style.margin = margin
-
-    const toBBox = emptyTo.getBoundingClientRect()
-
-    emptyFrom.animate({
-      height: [height, `0`],
-      width: [width, `0`],
-      margin: [margin, `0`],
-    }, {
+    dummyFrom.shrink({
       duration: duration.slow,
-      easing: 'ease-in-out',
-    }).onfinish = () => {
-      emptyFrom.remove()
-    }
-
-    emptyTo.animate({
-      height: [`0`, height],
-      width: [`0`, width],
-      margin: [`0`, margin],
-    }, {
-      duration: duration.normal,
-      easing: 'ease-in-out',
-      fill: 'forwards',
     })
+
+    dummyTo.grow()
 
     outsideElem.append(elem)
     elem.animate({
@@ -147,7 +123,7 @@ export default class Zone extends GameComponent {
       duration: duration.slow,
       easing: 'ease-in-out',
     }).onfinish = () => {
-      emptyTo.replaceWith(elem)
+      dummyTo.element.replaceWith(elem)
     }
   }
 
@@ -155,21 +131,10 @@ export default class Zone extends GameComponent {
 
     const card = this.makeCard(obj)
 
-    const { width, height, margin } = getComputedStyle(card.element)
     const bbox = card.element.getBoundingClientRect()
 
-    const empty = document.createElement('div')
-
-    card.element.replaceWith(empty)
-    empty.animate({
-      height: [`0`, height],
-      width: [`0`, width],
-      margin: [`0`, margin],
-    }, {
-      duration: duration.normal,
-      easing: 'ease-in-out',
-      fill: 'forwards',
-    })
+    const dummy = new DummyElement(card.element)
+    dummy.grow()
 
     outsideElem.append(card.element)
     card.element.animate([
@@ -179,28 +144,17 @@ export default class Zone extends GameComponent {
       easing: 'ease-in-out',
       duration: duration.slow,
     }).onfinish = () => {
-      empty.replaceWith(card.element)
+      dummy.element.replaceWith(card.element)
     }
   }
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
 
-    const { width, height, margin } = getComputedStyle(card.element)
     const bbox = card.element.getBoundingClientRect()
 
-    const empty = document.createElement('div')
-    card.element.replaceWith(empty)
-    empty.animate({
-      height: [height, `0`],
-      width: [width, `0`],
-      margin: [margin, `0`],
-    }, {
-      easing: 'ease-in-out',
-      duration: duration.normal,
-    }).onfinish = () => {
-      empty.remove()
-    }
+    const dummy = new DummyElement(card.element)
+    dummy.shrink()
 
     outsideElem.append(card.element)
     card.element.animate([
