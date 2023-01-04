@@ -1,5 +1,5 @@
-import bBoxDiff from './bBoxDiff'
 import { duration } from './theme'
+import bBoxDiff from '../util'
 
 export function removeElementFromList (
     elem: Element,
@@ -17,17 +17,15 @@ export function removeElementFromList (
 
   elem.remove()
 
-  return () => {
-    for (let i = 0; i < parentElement.children.length; i++) {
-      const child = parentElement.children[i]
-      const newBBox = child.getBoundingClientRect()
-      callback(child, bBoxes[i], newBBox)
-    }
+  for (let i = 0; i < parentElement.children.length; i++) {
+    const child = parentElement.children[i]
+    const newBBox = child.getBoundingClientRect()
+    callback(child, bBoxes[i], newBBox)
   }
 }
 
 export function removeElemAndAnimateList (elem: Element) {
-  return removeElementFromList(elem, (child, oldBBox, newBBox) => {
+  removeElementFromList(elem, (child, oldBBox, newBBox) => {
     child.animate([
       { transform: bBoxDiff(oldBBox, newBBox) },
       { transform: `translate(0, 0)` },

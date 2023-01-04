@@ -4,7 +4,7 @@ import colors from '../colors'
 import {
   border, borderRadius, boxShadow, duration, shadowFilter,
 } from '../theme'
-import { numToPx } from '../../util'
+import { translate } from '../../util'
 import Zone from './Zone'
 import GameComponent from './GameComponent'
 import Effect from '../../behavior/Effect'
@@ -54,8 +54,7 @@ export default class MapNode extends GameComponent {
   setPosition (x: number, y: number) {
     this.x = x
     this.y = y
-    this.element.style.transform =
-        `translate(${numToPx(x)},${numToPx(y)}) translate(-50%,-50%)`
+    this.element.style.transform = `${translate(x, y)} translate(-50%,-50%)`
   }
 
   center (b: boolean) {

@@ -8,7 +8,7 @@ import { makeStyle } from '../makeStyle'
 import { backgroundColor, duration } from '../theme'
 import MapNode from './MapNode'
 import addPanZoom from '../PanZoom'
-import { numToPixel, numToPx } from '../../util'
+import { numToPixel, translate } from '../../util'
 import { TravelAnimation } from '../gameFunctions/TravelAnimation'
 
 export default class MapComponent extends Component {
@@ -149,8 +149,7 @@ export default class MapComponent extends Component {
   }
 
   private updateTranslation () {
-    const transform =
-        `translate(${numToPx(this.transform.x)},${numToPx(this.transform.y)})`
+    const transform = translate(this.transform.x, this.transform.y)
     this.edgeG.style.transform = transform
     this.map.style.transform = transform
     // this.mapG.animate({

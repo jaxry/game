@@ -107,14 +107,8 @@ export function copy<T> (source: T): T {
 }
 
 // ---------------
-// other functions
+// DOM functions
 // ---------------
-export function getAndDelete<T, U> (map: Map<T, U>, key: T): U | undefined {
-  const value = map.get(key)
-  map.delete(key)
-  return value
-}
-
 export function removeChildren (node: Node) {
   while (node.firstChild) {
     node.removeChild(node.firstChild)
@@ -133,4 +127,23 @@ export function numToPixel (num: number) {
 
 export function numToPx (num: number) {
   return numToPixel(num) + 'px'
+}
+
+export function translate (x: number, y: number) {
+  return `translate(${numToPx(x)}, ${numToPx(y)})`
+}
+
+export default function bBoxDiff (oldBBox: DOMRect, newBBox: DOMRect) {
+  const x = oldBBox.x - newBBox.x
+  const y = oldBBox.y - newBBox.y
+  return `translate(${numToPx(x)}, ${numToPx(y)})`
+}
+
+// ---------------
+// other functions
+// ---------------
+export function getAndDelete<T, U> (map: Map<T, U>, key: T): U | undefined {
+  const value = map.get(key)
+  map.delete(key)
+  return value
 }

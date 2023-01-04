@@ -4,7 +4,7 @@ import GameObject from '../../GameObject'
 import { MovePlayerToSpot } from '../../behavior/player'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/core'
-import { getAndDelete, numToPx } from '../../util'
+import { getAndDelete, translate } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
@@ -16,7 +16,6 @@ export default class Zone extends GameComponent {
   private objectToCard = new Map<GameObject, ObjectCard>()
   private spots: HTMLElement[] = []
   private zoneEvents: Effect
-
 
   constructor (public zone: GameObject, public following?: GameObject) {
     super()
@@ -50,7 +49,7 @@ export default class Zone extends GameComponent {
     }
 
     for (const obj of this.zone.contains) {
-      this.makeCard(obj, false)
+      this.makeCard(obj)
     }
   }
 
@@ -87,7 +86,7 @@ export default class Zone extends GameComponent {
     this.element.append(spot)
   }
 
-  private makeCard (obj: GameObject, animate = true) {
+  private makeCard (obj: GameObject) {
     let card = this.objectToCard.get(obj)
 
     if (!card) {
@@ -95,49 +94,9 @@ export default class Zone extends GameComponent {
       this.objectToCard.set(obj, card)
     }
 
-    if (animate) {
-      this.addCardToSpot(card.element, obj.spot)
-    } else {
-      this.spots[obj.spot].append(card.element)
-    }
+    this.spots[obj.spot].append(card.element)
 
     return card
-  }
-
-  private addCardToSpot (card: Element, spotIndex: number) {
-    this.spots[spotIndex].append(card)
-
-    const { width, height, margin } = getComputedStyle(card)
-
-    const empty = document.createElement('div')
-    card.replaceWith(empty)
-
-    empty.animate({
-      height: [`0`, height],
-      width: [`0`, width],
-      margin: [`0`, margin],
-    }, {
-      duration: duration.normal,
-      easing: 'ease-in-out',
-    }).onfinish = () => {
-      empty.replaceWith(card)
-    }
-  }
-
-  private removeCardFromSpot (card: Element) {
-    const { width, height, margin } = getComputedStyle(card)
-    const empty = document.createElement('div')
-    card.replaceWith(empty)
-    empty.animate({
-      height: [height, `0`],
-      width: [width, `0`],
-      margin: [margin, `0`],
-    }, {
-      duration: duration.normal,
-      easing: 'ease-in-out',
-    }).onfinish = () => {
-      empty.remove()
-    }
   }
 
   private moveSpot (obj: GameObject, from: number, to: number) {
@@ -164,7 +123,7 @@ export default class Zone extends GameComponent {
       width: [width, `0`],
       margin: [margin, `0`],
     }, {
-      duration: duration.normal,
+      duration: duration.slow,
       easing: 'ease-in-out',
     }).onfinish = () => {
       emptyFrom.remove()
@@ -175,7 +134,7 @@ export default class Zone extends GameComponent {
       width: [`0`, width],
       margin: [`0`, margin],
     }, {
-      duration: duration.fast,
+      duration: duration.normal,
       easing: 'ease-in-out',
       fill: 'forwards',
     })
@@ -183,11 +142,9 @@ export default class Zone extends GameComponent {
     outsideElem.append(elem)
     elem.animate({
       transform: [
-          `translate(${numToPx(fromBBox.x)}, ${numToPx(fromBBox.y)}`,
-          `translate(${numToPx(toBBox.x)}, ${numToPx(toBBox.y)})`,
-      ],
+        translate(fromBBox.x, fromBBox.y), translate(toBBox.x, toBBox.y)],
     }, {
-      duration: duration.normal,
+      duration: duration.slow,
       easing: 'ease-in-out',
     }).onfinish = () => {
       emptyTo.replaceWith(elem)
@@ -195,27 +152,64 @@ export default class Zone extends GameComponent {
   }
 
   private objectEnter (obj: GameObject) {
-    const elem = this.makeCard(obj).element
-    elem.animate([
-      { opacity: 0, transform: `translate(0, 200%)` },
-      { opacity: 1, transform: `translate(0, 0)` },
+
+    const card = this.makeCard(obj)
+
+    const { width, height, margin } = getComputedStyle(card.element)
+    const bbox = card.element.getBoundingClientRect()
+
+    const empty = document.createElement('div')
+
+    card.element.replaceWith(empty)
+    empty.animate({
+      height: [`0`, height],
+      width: [`0`, width],
+      margin: [`0`, margin],
+    }, {
+      duration: duration.normal,
+      easing: 'ease-in-out',
+      fill: 'forwards',
+    })
+
+    outsideElem.append(card.element)
+    card.element.animate([
+      { opacity: 0, transform: translate(bbox.x, bbox.y + bbox.height) },
+      { opacity: 1, transform: translate(bbox.x, bbox.y) },
     ], {
       easing: 'ease-in-out',
-      duration: duration.normal,
-    })
+      duration: duration.slow,
+    }).onfinish = () => {
+      empty.replaceWith(card.element)
+    }
   }
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
-    const elem = card.element
-    elem.animate({
-      opacity: 0,
-      transform: `translate(0, 200%)`,
+
+    const { width, height, margin } = getComputedStyle(card.element)
+    const bbox = card.element.getBoundingClientRect()
+
+    const empty = document.createElement('div')
+    card.element.replaceWith(empty)
+    empty.animate({
+      height: [height, `0`],
+      width: [width, `0`],
+      margin: [margin, `0`],
     }, {
-      duration: duration.normal,
       easing: 'ease-in-out',
+      duration: duration.normal,
     }).onfinish = () => {
-      this.removeCardFromSpot(elem)
+      empty.remove()
+    }
+
+    outsideElem.append(card.element)
+    card.element.animate([
+      { opacity: 1, transform: translate(bbox.x, bbox.y) },
+      { opacity: 0, transform: translate(bbox.x, bbox.y + bbox.height) },
+    ], {
+      easing: 'ease-in-out',
+      duration: duration.slow,
+    }).onfinish = () => {
       card.remove()
     }
   }

@@ -1,6 +1,6 @@
 import TravelAction from '../../actions/Travel'
 import MapNode from '../components/MapNode'
-import { numToPx } from '../../util'
+import { translate } from '../../util'
 import GameTime from '../../GameTime'
 import { makeStyle } from '../makeStyle'
 
@@ -18,8 +18,8 @@ export class TravelAnimation {
 
     icon.animate({
       transform: [
-          `translate(${numToPx(from.x)}, ${numToPx(from.y)}) translate(-50%, -50%)`,
-          `translate(${numToPx(to.x)}, ${numToPx(to.y)}) translate(-50%, -50%)`,
+        `${translate(from.x, from.y)} translate(-50%, -50%)`,
+        `${translate(to.x, to.y)} translate(-50%, -50%)`,
       ]
     }, {
       duration: 1000 * GameTime.seconds(action.time),
