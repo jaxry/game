@@ -7,13 +7,20 @@ export default class DummyElement {
   width: string
   height: string
 
-  constructor (original: Element) {
+  constructor (original: Element, replace = true) {
     const { width, height, margin } = getComputedStyle(original)
     this.width = width
     this.height = height
     this.margin = margin
-    this.element.style.margin = `0`
-    original.replaceWith(this.element)
+
+    this.element.style.width = this.width
+    this.element.style.height = this.height
+    this.element.style.margin = this.margin
+    this.element.style.pointerEvents = 'none'
+
+    if (replace) {
+      original.replaceWith(this.element)
+    }
   }
 
   grow (options: KeyframeAnimationOptions = {}) {

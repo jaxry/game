@@ -4,13 +4,12 @@ import GameObject from '../../GameObject'
 import { MovePlayerToSpot } from '../../behavior/player'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/core'
-import { getAndDelete, translate } from '../../util'
+import bBoxDiff, { getAndDelete, translate } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
-import { outsideElem } from './App'
 import DummyElement from '../DummyElement'
 
 export default class Zone extends GameComponent {
@@ -102,68 +101,54 @@ export default class Zone extends GameComponent {
 
   private moveSpot (obj: GameObject, from: number, to: number) {
     const elem = this.objectToCard.get(obj)!.element
-    const fromBBox = elem.getBoundingClientRect()
-    const dummyFrom = new DummyElement(elem)
 
-    this.spots[to].append(elem)
-    const toBBox = elem.getBoundingClientRect()
-    const dummyTo = new DummyElement(elem)
+    const dummyTo = new DummyElement(elem, false)
+    this.spots[to].append(dummyTo.element)
 
-    dummyFrom.shrink({
-      duration: duration.slow,
-    })
+    const bboxFrom = elem.getBoundingClientRect()
+    const bboxTo = dummyTo.element.getBoundingClientRect()
 
     dummyTo.grow()
 
-    outsideElem.append(elem)
     elem.animate({
-      transform: [
-        translate(fromBBox.x, fromBBox.y), translate(toBBox.x, toBBox.y)],
+      transform: [bBoxDiff(bboxTo, bboxFrom)],
     }, {
-      duration: duration.slow,
+      duration: duration.normal,
       easing: 'ease-in-out',
     }).onfinish = () => {
+      const dummyFrom = new DummyElement(elem)
       dummyTo.element.replaceWith(elem)
+      dummyFrom.shrink()
     }
   }
 
   private objectEnter (obj: GameObject) {
-
     const card = this.makeCard(obj)
 
-    const bbox = card.element.getBoundingClientRect()
-
     const dummy = new DummyElement(card.element)
-    dummy.grow()
-
-    outsideElem.append(card.element)
-    card.element.animate([
-      { opacity: 0, transform: translate(bbox.x, bbox.y + bbox.height) },
-      { opacity: 1, transform: translate(bbox.x, bbox.y) },
-    ], {
-      easing: 'ease-in-out',
-      duration: duration.slow,
-    }).onfinish = () => {
+    dummy.grow().onfinish = () => {
       dummy.element.replaceWith(card.element)
+      card.element.animate([
+        { opacity: 0, transform: translate(0, card.element.offsetHeight) },
+        { opacity: 1, transform: translate(0, 0) },
+      ], {
+        easing: 'ease-in-out',
+        duration: duration.normal,
+      })
     }
   }
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
 
-    const bbox = card.element.getBoundingClientRect()
-
-    const dummy = new DummyElement(card.element)
-    dummy.shrink()
-
-    outsideElem.append(card.element)
     card.element.animate([
-      { opacity: 1, transform: translate(bbox.x, bbox.y) },
-      { opacity: 0, transform: translate(bbox.x, bbox.y + bbox.height) },
+      { opacity: 1, transform: translate(0, 0) },
+      { opacity: 0, transform: translate(0, card.element.offsetHeight) },
     ], {
       easing: 'ease-in-out',
-      duration: duration.slow,
+      duration: duration.normal,
     }).onfinish = () => {
+      new DummyElement(card.element).shrink()
       card.remove()
     }
   }
@@ -171,19 +156,16 @@ export default class Zone extends GameComponent {
 
 const containerStyle = makeStyle({
   display: `flex`,
-  // justifyContent: `center`,
-  // overflow: `auto`,
 })
 
 const spotStyle = makeStyle({
-  minWidth: `1.5rem`,
+  minWidth: `2rem`,
   display: `flex`,
   flexDirection: `column`,
   borderRight: `1px dashed ${borderColor}`,
   padding: `0.5rem`,
   paddingBottom: `1rem`,
   cursor: `pointer`,
-  transition: `width ${duration.normal}ms ease-in-out`,
 })
 
 makeStyle(`.${spotStyle} > *`, {
