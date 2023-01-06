@@ -1,8 +1,6 @@
 import Component from './Component'
 import createSvg from '../createSvg'
-import {
-  Edge, getZoneGraph, renderedConnectionDistance, ZoneGraph,
-} from '../../behavior/connections'
+import { Edge, getZoneGraph, ZoneGraph } from '../../behavior/connections'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import { backgroundColor, duration } from '../theme'
@@ -10,6 +8,7 @@ import MapNode from './MapNode'
 import addPanZoom from '../PanZoom'
 import { numToPixel, translate } from '../../util'
 import { TravelAnimation } from '../gameFunctions/TravelAnimation'
+import { renderedConnectionDistance } from '../../map/forceDirectedSim'
 
 export default class MapComponent extends Component {
   onZoneClick?: (zone: GameObject) => void
@@ -137,14 +136,14 @@ export default class MapComponent extends Component {
     }
 
     for (const { edge, line } of this.edgeToElem.values()) {
-      const x1 = edge.source.position.x * this.transform.scale
-      const y1 = edge.source.position.y * this.transform.scale
-      const x2 = edge.target.position.x * this.transform.scale
-      const y2 = edge.target.position.y * this.transform.scale
-      line.setAttribute('x1', numToPixel(x1))
-      line.setAttribute('y1', numToPixel(y1))
-      line.setAttribute('x2', numToPixel(x2))
-      line.setAttribute('y2', numToPixel(y2))
+      line.setAttribute('x1',
+          numToPixel(edge.source.position.x * this.transform.scale))
+      line.setAttribute('y1',
+          numToPixel(edge.source.position.y * this.transform.scale))
+      line.setAttribute('x2',
+          numToPixel(edge.target.position.x * this.transform.scale))
+      line.setAttribute('y2',
+          numToPixel(edge.target.position.y * this.transform.scale))
     }
 
     this.travelAnimation.updateScale(this.transform.scale)
