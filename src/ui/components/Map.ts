@@ -18,10 +18,10 @@ export default class MapComponent extends Component {
   private edgeG = createSvg('g')
   private map = document.createElement('div')
 
-  private travelIcons = document.createElement('div')
   private nodeContainer = document.createElement('div')
+  private travelIcons = document.createElement('div')
 
-  private travelAnimation = new TravelAnimation(this.travelIcons)
+  travelAnimation = new TravelAnimation(this.travelIcons)
 
   private transform = {
     x: 0,
@@ -45,8 +45,8 @@ export default class MapComponent extends Component {
     this.svg.append(this.edgeG)
 
     this.map.classList.add(mapStyle)
-    this.map.append(this.travelIcons)
     this.map.append(this.nodeContainer)
+    this.map.append(this.travelIcons)
 
     this.element.append(this.map)
 
@@ -103,7 +103,7 @@ export default class MapComponent extends Component {
   }
 
   private makeNodeElem (zone: GameObject) {
-    const node = this.newComponent(MapNode, zone, this.travelAnimation)
+    const node = this.newComponent(MapNode, zone, this)
     this.nodeContainer.append(node.element)
     this.zoneToComponent.set(zone, node)
   }
@@ -146,6 +146,8 @@ export default class MapComponent extends Component {
       line.setAttribute('x2', numToPixel(x2))
       line.setAttribute('y2', numToPixel(y2))
     }
+
+    this.travelAnimation.updateScale(this.transform.scale)
   }
 
   private updateTranslation () {

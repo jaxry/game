@@ -9,18 +9,14 @@ import Zone from './Zone'
 import GameComponent from './GameComponent'
 import Effect from '../../behavior/Effect'
 import TravelAction from '../../actions/Travel'
-import { TravelAnimation } from '../gameFunctions/TravelAnimation'
-
-const zoneToNode = new WeakMap<GameObject, MapNode>()
+import MapComponent from './Map'
 
 export default class MapNode extends GameComponent {
   x: number
   y: number
 
-  constructor (public zone: GameObject, travelAnimation: TravelAnimation) {
+  constructor (public zone: GameObject, map: MapComponent) {
     super()
-
-    zoneToNode.set(zone, this)
 
     this.element.classList.add(containerStyle)
 
@@ -40,9 +36,7 @@ export default class MapNode extends GameComponent {
           if (!(action instanceof TravelAction)) {
             return
           }
-          const from = zoneToNode.get(action.object.container)!
-          const to = zoneToNode.get(action.target)!
-          travelAnimation.start(action, from, to)
+          map.travelAnimation.start(action)
         })
         // this.onEvent(this.object, 'itemActionEnd', ({ item }) => {
         //

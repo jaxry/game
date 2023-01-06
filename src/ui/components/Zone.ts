@@ -4,7 +4,7 @@ import GameObject from '../../GameObject'
 import { MovePlayerToSpot } from '../../behavior/player'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/core'
-import bBoxDiff, { getAndDelete, translate } from '../../util'
+import { getAndDelete, makeOrGet, translate } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
@@ -87,12 +87,9 @@ export default class Zone extends GameComponent {
   }
 
   private makeCard (obj: GameObject) {
-    let card = this.objectToCard.get(obj)
-
-    if (!card) {
-      card = this.newComponent(ObjectCard, obj)
-      this.objectToCard.set(obj, card)
-    }
+    const card = makeOrGet(this.objectToCard, obj, () => {
+      return this.newComponent(ObjectCard, obj)
+    })
 
     this.spots[obj.spot].append(card.element)
 
@@ -111,7 +108,7 @@ export default class Zone extends GameComponent {
     dummyTo.grow()
 
     elem.animate({
-      transform: [bBoxDiff(bboxTo, bboxFrom)],
+      transform: [translate(bboxTo.x - bboxFrom.x, bboxTo.y - bboxFrom.y)],
     }, {
       duration: duration.normal,
       easing: 'ease-in-out',
@@ -132,7 +129,7 @@ export default class Zone extends GameComponent {
         { opacity: 0, transform: translate(0, card.element.offsetHeight) },
         { opacity: 1, transform: translate(0, 0) },
       ], {
-        easing: 'ease-in-out',
+        easing: 'ease-out',
         duration: duration.normal,
       })
     }
@@ -145,7 +142,7 @@ export default class Zone extends GameComponent {
       { opacity: 1, transform: translate(0, 0) },
       { opacity: 0, transform: translate(0, card.element.offsetHeight) },
     ], {
-      easing: 'ease-in-out',
+      easing: 'ease-in',
       duration: duration.normal,
     }).onfinish = () => {
       new DummyElement(card.element).shrink()
