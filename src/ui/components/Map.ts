@@ -7,7 +7,7 @@ import { backgroundColor, duration } from '../theme'
 import MapNode from './MapNode'
 import addPanZoom from '../PanZoom'
 import { numToPixel, translate } from '../../util'
-import { TravelAnimation } from '../gameFunctions/TravelAnimation'
+import { TravelAnimation } from '../game/TravelAnimation'
 import { renderedConnectionDistance } from '../../map/forceDirectedSim'
 
 export default class MapComponent extends Component {
@@ -129,24 +129,20 @@ export default class MapComponent extends Component {
   }
 
   private updateScale () {
+    const s = this.transform.scale
+
     for (const [zone, component] of this.zoneToComponent) {
-      const x = zone.position.x * this.transform.scale
-      const y = zone.position.y * this.transform.scale
-      component.setPosition(x, y)
+      component.setPosition(zone.position.x * s, zone.position.y * s)
     }
 
     for (const { edge, line } of this.edgeToElem.values()) {
-      line.setAttribute('x1',
-          numToPixel(edge.source.position.x * this.transform.scale))
-      line.setAttribute('y1',
-          numToPixel(edge.source.position.y * this.transform.scale))
-      line.setAttribute('x2',
-          numToPixel(edge.target.position.x * this.transform.scale))
-      line.setAttribute('y2',
-          numToPixel(edge.target.position.y * this.transform.scale))
+      line.setAttribute('x1', numToPixel(edge.source.position.x * s))
+      line.setAttribute('y1', numToPixel(edge.source.position.y * s))
+      line.setAttribute('x2', numToPixel(edge.target.position.x * s))
+      line.setAttribute('y2', numToPixel(edge.target.position.y * s))
     }
 
-    this.travelAnimation.updateScale(this.transform.scale)
+    this.travelAnimation.updateScale(s)
   }
 
   private updateTranslation () {
