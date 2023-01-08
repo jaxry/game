@@ -27,7 +27,6 @@ export class TravelAnimation {
       duration: actionDuration,
       easing: 'ease-in-out',
     })
-    this.setKeyframes(action, animation)
 
     const animationState = { animation, action }
     this.animationState.add(animationState)
@@ -40,7 +39,7 @@ export class TravelAnimation {
     this.setKeyframes(action, animation)
 
     // fade animation
-    const fadeDuration = duration.fast / actionDuration
+    const fadeDuration = duration.normal / actionDuration
     icon.animate({
       opacity: [0, 1, 1, 0],
       offset: [0, fadeDuration, 1 - fadeDuration],

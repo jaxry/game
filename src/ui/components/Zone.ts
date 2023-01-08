@@ -11,6 +11,7 @@ import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
 import DummyElement from '../DummyElement'
+import { isAncestor } from '../../behavior/container'
 
 export default class Zone extends GameComponent {
   private objectToCard = new Map<GameObject, ObjectCard>()
@@ -69,7 +70,10 @@ export default class Zone extends GameComponent {
 
     spot.addEventListener('click', (e) => {
       // only click if not clicked on a child element
-      if (e.target === e.currentTarget) {
+      if (e.target !== spot) {
+        return
+      }
+      if (isAncestor(this.zone, game.player)) {
         setPlayerEffect(new MovePlayerToSpot(game.player, i))
       }
     })

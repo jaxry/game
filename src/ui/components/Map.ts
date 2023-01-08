@@ -1,6 +1,6 @@
 import Component from './Component'
 import createSvg from '../createSvg'
-import { Edge, getZoneGraph, ZoneGraph } from '../../behavior/connections'
+import { Edge, getZoneGraph } from '../../behavior/connections'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import { backgroundColor, duration } from '../theme'
@@ -8,16 +8,13 @@ import MapNode from './MapNode'
 import addPanZoom from '../PanZoom'
 import { numToPixel, translate } from '../../util'
 import { TravelAnimation } from '../game/TravelAnimation'
-import { renderedConnectionDistance } from '../../map/forceDirectedSim'
 
 export default class MapComponent extends Component {
-  onZoneClick?: (zone: GameObject) => void
-
   private svg = createSvg('svg')
   private edgeG = createSvg('g')
   private map = document.createElement('div')
 
-  private nodeContainer = document.createElement('div')
+  private zoneContainer = document.createElement('div')
   private travelIcons = document.createElement('div')
 
   travelAnimation = new TravelAnimation(this.travelIcons)
@@ -25,7 +22,7 @@ export default class MapComponent extends Component {
   private transform = {
     x: 0,
     y: 0,
-    scale: 1,
+    scale: 8,
   }
 
   private zoneToComponent: Map<GameObject, MapNode> = new Map()
@@ -44,31 +41,29 @@ export default class MapComponent extends Component {
     this.svg.append(this.edgeG)
 
     this.map.classList.add(mapStyle)
-    this.map.append(this.nodeContainer)
+    this.map.append(this.zoneContainer)
     this.map.append(this.travelIcons)
 
     this.element.append(this.map)
 
     addPanZoom(this.element, this.transform, (updatedScale) => {
       updatedScale && this.updateScale()
-      this.updateTranslation()
+      this.updateTranslation(false)
     })
   }
 
   setCenter (centerZone: GameObject) {
-    const graph = getZoneGraph(centerZone)
+    const graph = getZoneGraph(centerZone, 2)
 
-    for (const [obj, component] of this.zoneToComponent) {
-      if (!graph.nodes.has(obj)) {
-        // transitionOut(elem)
-        component.remove()
-        this.zoneToComponent.delete(obj)
+    for (const [zone, component] of this.zoneToComponent) {
+      if (!graph.nodes.has(zone)) {
+        this.removeZone(zone, component)
       }
     }
 
     for (const node of graph.nodes) {
       if (!this.zoneToComponent.has(node)) {
-        this.makeNodeElem(node)
+        this.makeZone(node)
       }
     }
 
@@ -81,7 +76,7 @@ export default class MapComponent extends Component {
 
     for (const [hash, edge] of graph.edges) {
       if (!this.edgeToElem.has(hash)) {
-        this.makeEdgeElem(hash, edge)
+        this.makeEdge(hash, edge)
       }
     }
 
@@ -97,17 +92,35 @@ export default class MapComponent extends Component {
     //   this.zoneToComponent.get(zone)!.neighbor(true)
     // }
 
-    // make graph fit to screen
-    this.setTransformToGraphBounds(graph)
+    this.centerOnZone(centerZone)
   }
 
-  private makeNodeElem (zone: GameObject) {
-    const node = this.newComponent(MapNode, zone, this)
-    this.nodeContainer.append(node.element)
-    this.zoneToComponent.set(zone, node)
+  private makeZone (zone: GameObject) {
+    const component = this.newComponent(MapNode, zone, this)
+    this.zoneContainer.append(component.element)
+    this.zoneToComponent.set(zone, component)
+    component.element.animate({
+      transform: ['scale(0)', 'scale(1)'],
+    }, {
+      duration: duration.slow,
+      composite: 'add',
+    })
+
   }
 
-  private makeEdgeElem (hash: string, edge: Edge) {
+  private removeZone (zone: GameObject, component: MapNode) {
+    component.element.animate({
+      transform: `scale(0)`,
+    }, {
+      duration: duration.slow,
+      composite: 'add',
+    }).onfinish = () => {
+      component.remove()
+    }
+    this.zoneToComponent.delete(zone)
+  }
+
+  private makeEdge (hash: string, edge: Edge) {
     const line = createSvg('line')
     line.classList.add(edgeStyle)
     this.edgeG.append(line)
@@ -115,15 +128,12 @@ export default class MapComponent extends Component {
     this.edgeToElem.set(hash, { line, edge })
   }
 
-  private setTransformToGraphBounds (graph: ZoneGraph) {
-    const bounds = getGraphBounds(graph)
+  private centerOnZone (zone: GameObject) {
+    this.transform.x = -zone.position.x * this.transform.scale
+        + this.element.offsetWidth / 2
+    this.transform.y = -zone.position.y * this.transform.scale +
+        +this.element.offsetHeight / 2
 
-    const { width, height } = this.element.getBoundingClientRect()
-
-    this.transform.x = -bounds.xMin * this.transform.scale
-    this.transform.y = -bounds.yMin * this.transform.scale
-    this.transform.scale =
-        Math.min(width / bounds.width, height / bounds.height)
     this.updateScale()
     this.updateTranslation()
   }
@@ -132,7 +142,10 @@ export default class MapComponent extends Component {
     const s = this.transform.scale
 
     for (const [zone, component] of this.zoneToComponent) {
-      component.setPosition(zone.position.x * s, zone.position.y * s)
+      const x = zone.position.x * s
+      const y = zone.position.y * s
+      component.element.style.transform =
+          `${translate(x, y)} translate(-50%, -50%)`
     }
 
     for (const { edge, line } of this.edgeToElem.values()) {
@@ -145,45 +158,16 @@ export default class MapComponent extends Component {
     this.travelAnimation.updateScale(s)
   }
 
-  private updateTranslation () {
+  private updateTranslation (animate = true) {
     const transform = translate(this.transform.x, this.transform.y)
-    this.edgeG.style.transform = transform
-    this.map.style.transform = transform
-    // this.mapG.animate({
-    //   transform: `translate(${this.transform.x}px,${this.transform.y}px)`,
-    // }, {
-    //   duration: duration.slow,
-    //   fill: 'forwards',
-    //   easing: 'ease-in-out',
-    // }).commitStyles()
+    const options: KeyframeAnimationOptions = {
+      duration: animate ? duration.slow : 0,
+      fill: 'forwards',
+      easing: 'ease-in-out',
+    }
+    this.map.animate({ transform }, options).commitStyles()
+    this.edgeG.animate({ transform }, options).commitStyles()
   }
-}
-
-function getGraphBounds (graph: ZoneGraph) {
-  const bounds = {
-    xMin: Infinity,
-    xMax: -Infinity,
-    yMin: Infinity,
-    yMax: -Infinity,
-    width: Infinity,
-    height: Infinity,
-  }
-
-  for (const node of graph.nodes) {
-    bounds.xMin = Math.min(bounds.xMin, node.position.x)
-    bounds.xMax = Math.max(bounds.xMax, node.position.x)
-    bounds.yMin = Math.min(bounds.yMin, node.position.y)
-    bounds.yMax = Math.max(bounds.yMax, node.position.y)
-  }
-
-  bounds.xMin -= renderedConnectionDistance
-  bounds.xMax += renderedConnectionDistance
-  bounds.yMin -= renderedConnectionDistance
-  bounds.yMax += renderedConnectionDistance
-  bounds.width = bounds.xMax - bounds.xMin
-  bounds.height = bounds.yMax - bounds.yMin
-
-  return bounds
 }
 
 function transitionIn (elem: Element) {
