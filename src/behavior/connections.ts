@@ -1,8 +1,7 @@
 import type GameObject from '../GameObject'
 import PriorityQueue from '../PriorityQueue'
 import { deleteElem } from '../util'
-
-export const renderedConnectionDistance = 30
+import { renderedConnectionDistance } from '../map/forceDirectedSim'
 
 export function connectZones (
     source: GameObject, target: GameObject, autoPosition = true) {

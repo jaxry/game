@@ -2,7 +2,7 @@ import Component from './Component'
 import { outsideElem } from './App'
 import clickOutside from '../clickOutside'
 import { makeStyle } from '../makeStyle'
-import { numToPx } from '../../util'
+import { translate } from '../../util'
 import makeDraggable from '../makeDraggable'
 
 export default class Window extends Component {
@@ -35,13 +35,11 @@ export default class Window extends Component {
   }
 
   private updatePosition () {
-    this.element.style.transform =
-        `translate(${numToPx(this.posX)}, ${numToPx(this.posY)})`
+    this.element.style.transform = translate(this.posX, this.posY)
   }
 }
 
 const containerStyle = makeStyle({
-  position: `fixed`,
   top: `0`,
   left: `0`,
 })

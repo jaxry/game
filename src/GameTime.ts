@@ -8,8 +8,12 @@ export default class GameTime {
   static day = 24 * GameTime.hour
   current = 0
 
+  static seconds (time: number) {
+    return time / GameTime.second
+  }
+
   static displaySeconds (time: number) {
-    return (time / GameTime.second).toFixed(1)
+    return GameTime.seconds(time).toFixed(1)
   }
 
   getSecondOfMinute (): number {

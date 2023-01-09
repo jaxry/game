@@ -83,6 +83,22 @@ export function mapIter<T, U> (
 }
 
 // ---------------
+// Map functions
+// ---------------
+export function getAndDelete<T, U> (map: Map<T, U>, key: T): U | undefined {
+  const value = map.get(key)
+  map.delete(key)
+  return value
+}
+
+export function makeOrGet<T, U> (map: Map<T, U>, key: T, makeFn: () => U) {
+  if (!map.has(key)) {
+    map.set(key, makeFn())
+  }
+  return map.get(key)!
+}
+
+// ---------------
 // object functions
 // ---------------
 export function swap<T> (obj: T, i: keyof T, j: keyof T) {
@@ -107,14 +123,8 @@ export function copy<T> (source: T): T {
 }
 
 // ---------------
-// other functions
+// DOM functions
 // ---------------
-export function getAndDelete<T, U> (map: Map<T, U>, key: T): U | undefined {
-  const value = map.get(key)
-  map.delete(key)
-  return value
-}
-
 export function removeChildren (node: Node) {
   while (node.firstChild) {
     node.removeChild(node.firstChild)
@@ -132,5 +142,14 @@ export function numToPixel (num: number) {
 }
 
 export function numToPx (num: number) {
-  return numToPixel(num) + 'px'
+  return `${numToPixel(num)}px`
+}
+
+export function translate (x: number, y: number) {
+  return `translate(${numToPx(x)}, ${numToPx(y)})`
+}
+
+// TODO: Remove after deleting removeElementFromList
+export default function bBoxDiff (oldBBox: DOMRect, newBBox: DOMRect) {
+  return translate(oldBBox.x - newBBox.x, oldBBox.y - newBBox.y)
 }

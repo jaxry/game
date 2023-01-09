@@ -8,6 +8,7 @@ import { randomElement } from '../util'
 import MoveSpotAction from '../actions/MoveSpot'
 import { makeType } from '../GameObjectType'
 import { serializable } from '../serialize'
+import { isPlayer } from '../behavior/player'
 
 class MonsterAttack extends Effect {
   constructor (object: GameObject, public target: GameObject) {
@@ -53,11 +54,11 @@ class MonsterSearch extends Effect {
   }
 
   override registerEvents () {
-    // this.onEvent(this.object.container, 'enter', ({ item }) => {
-    //   if (isPlayer(item)) {
-    //     this.found()
-    //   }
-    // })
+    this.onEvent(this.object.container, 'enter', ({ item }) => {
+      if (isPlayer(item)) {
+        this.found()
+      }
+    })
 
     this.onEvent(this.object.container, 'leave', ({ item }) => {
       if (item !== this.object) {
@@ -68,9 +69,9 @@ class MonsterSearch extends Effect {
   }
 
   override onActivate () {
-    // if (isContainedWith(this.object, game.player)) {
-    //   return this.found()
-    // }
+    if (isContainedWith(this.object, game.player)) {
+      return this.found()
+    }
   }
 
   override tick () {

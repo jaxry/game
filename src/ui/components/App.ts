@@ -4,12 +4,6 @@ import { makeStyle } from '../makeStyle'
 import '../preflight.css'
 import { backgroundColor } from '../theme'
 
-export const outsideElem = document.createElement('div')
-outsideElem.classList.add(makeStyle({
-  position: `fixed`,
-  zIndex: `99`,
-}))
-
 export default class App extends Component {
   constructor () {
     super()
@@ -29,3 +23,15 @@ const containerStyle = makeStyle({
   height: `100vh`,
   overflow: `hidden`,
 })
+
+const outsideElemStyle = makeStyle({
+  position: `fixed`,
+  zIndex: `99`,
+})
+
+makeStyle(`.${outsideElemStyle} > *`, {
+  position: `fixed`,
+})
+
+export const outsideElem = document.createElement('div')
+outsideElem.classList.add(outsideElemStyle)

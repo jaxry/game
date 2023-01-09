@@ -1,164 +1,173 @@
 import Component from './Component'
 import createSvg from '../createSvg'
-import {
-  Edge, getZoneGraph, renderedConnectionDistance, ZoneGraph,
-} from '../../behavior/connections'
+import { Edge, getZoneGraph } from '../../behavior/connections'
 import GameObject from '../../GameObject'
-import { lerp } from '../../util'
 import { makeStyle } from '../makeStyle'
-import { backgroundColor, duration, shadowFilter } from '../theme'
-import colors from '../colors'
+import { backgroundColor, duration } from '../theme'
+import MapNode from './MapNode'
+import addPanZoom from '../PanZoom'
+import { numToPixel, translate } from '../../util'
+import { TravelAnimation } from '../game/TravelAnimation'
 
 export default class MapComponent extends Component {
-  onZoneClick?: (zone: GameObject) => void
-
   private svg = createSvg('svg')
-  private mapG = createSvg('g')
   private edgeG = createSvg('g')
-  private nodeG = createSvg('g')
+  private map = document.createElement('div')
 
-  private transform = new DOMMatrix()
+  private zoneContainer = document.createElement('div')
+  private travelIcons = document.createElement('div')
 
-  private nodeToElem: Map<GameObject, Element> = new Map()
-  private edgeToElem: Map<string, Element> = new Map()
+  travelAnimation = new TravelAnimation(this.travelIcons)
+
+  private transform = {
+    x: 0,
+    y: 0,
+    scale: 8,
+  }
+
+  private zoneToComponent: Map<GameObject, MapNode> = new Map()
+  private edgeToElem: Map<string, { line: Element, edge: Edge }> = new Map()
 
   constructor () {
     super()
 
+    this.element.classList.add(containerStyle)
+
+    this.svg.classList.add(svgStyle)
     this.svg.setAttribute('width', '100%')
     this.svg.setAttribute('height', '100%')
     this.element.append(this.svg)
 
-    this.mapG.classList.add(mapStyle)
-    this.mapG.append(
-        this.edgeG,
-        this.nodeG)
+    this.svg.append(this.edgeG)
 
-    this.svg.append(this.mapG)
+    this.map.classList.add(mapStyle)
+    this.map.append(this.zoneContainer)
+    this.map.append(this.travelIcons)
 
-    // addPanZoom(this.element, this.transform, () => {
-    //   // this.mapG.setAttribute('transform', this.transform.toString())
-    //   this.mapG.animate({
-    //     transform: this.transform.toString(),
-    //   }, { fill: 'forwards' })
-    // })
+    this.element.append(this.map)
+
+    addPanZoom(this.element, this.transform, (updatedScale) => {
+      updatedScale && this.updateScale()
+      this.updateTranslation(false)
+    })
   }
 
   setCenter (centerZone: GameObject) {
     const graph = getZoneGraph(centerZone, 2)
 
-    this.setBounds(graph)
-
-    for (const [obj, elem] of this.nodeToElem) {
-      if (!graph.nodes.has(obj)) {
-        transitionOut(elem)
-        this.nodeToElem.delete(obj)
+    for (const [zone, component] of this.zoneToComponent) {
+      if (!graph.nodes.has(zone)) {
+        this.removeZone(zone, component)
       }
     }
 
     for (const node of graph.nodes) {
-      if (!this.nodeToElem.has(node)) {
-        this.makeNodeElem(node)
+      if (!this.zoneToComponent.has(node)) {
+        this.makeZone(node)
       }
     }
 
-    for (const [hash, elem] of this.edgeToElem) {
+    for (const [hash, { line }] of this.edgeToElem) {
       if (!graph.edges.has(hash)) {
-        transitionOut(elem)
+        transitionOut(line)
         this.edgeToElem.delete(hash)
       }
     }
 
     for (const [hash, edge] of graph.edges) {
       if (!this.edgeToElem.has(hash)) {
-        this.makeEdgeElem(hash, edge)
+        this.makeEdge(hash, edge)
       }
     }
 
-    for (const circle of this.nodeToElem.values()) {
-      circle.classList.remove(playerNodeStyle, canTravelStyle)
-    }
+    // set node colors
+    // for (const node of this.zoneToComponent.values()) {
+    // node.center(false)
+    //   node.neighbor(false)
+    // }
+    //
+    // this.zoneToComponent.get(centerZone)!.center(true)
+    //
+    // for (const zone of centerZone.connections) {
+    //   this.zoneToComponent.get(zone)!.neighbor(true)
+    // }
 
-    this.nodeToElem.get(centerZone)!.classList.add(playerNodeStyle)
-
-    for (const zone of centerZone.connections) {
-      this.nodeToElem.get(zone)!.classList.add(canTravelStyle)
-    }
+    this.centerOnZone(centerZone)
   }
 
-  private makeNodeElem (node: GameObject) {
-    const circle = createSvg('circle')
-    circle.classList.add(nodeStyle)
-    circle.setAttribute('cx', node.position.x.toFixed(0))
-    circle.setAttribute('cy', node.position.y.toFixed(0))
-    circle.setAttribute('r', nodeSize(node).toFixed(0))
-    circle.onclick = () => this.onZoneClick?.(node)
-
-    this.nodeG.append(circle)
-    transitionIn(circle)
-    this.nodeToElem.set(node, circle)
-  }
-
-  private makeEdgeElem (hash: string, edge: Edge) {
-    const line = createSvg('line')
-    line.classList.add(edgeStyle)
-    line.setAttribute('x1', edge.source.position.x.toFixed(0))
-    line.setAttribute('y1', edge.source.position.y.toFixed(0))
-    line.setAttribute('x2', edge.target.position.x.toFixed(0))
-    line.setAttribute('y2', edge.target.position.y.toFixed(0))
-
-    this.edgeG.append(line)
-    transitionIn(line)
-    this.edgeToElem.set(hash, line)
-  }
-
-  private setBounds (graph: ZoneGraph) {
-    const bounds = getGraphBounds(graph)
-
-    const { width, height } = this.element.getBoundingClientRect()
-
-    const scale = Math.min(width / bounds.width, height / bounds.height)
-
-    this.transform.a = scale
-    this.transform.d = scale
-    this.transform.e = -bounds.xMin * scale
-    this.transform.f = -bounds.yMin * scale
-
-    this.mapG.animate({
-      transform: this.transform.toString(),
+  private makeZone (zone: GameObject) {
+    const component = this.newComponent(MapNode, zone, this)
+    this.zoneContainer.append(component.element)
+    this.zoneToComponent.set(zone, component)
+    component.element.animate({
+      transform: ['scale(0)', 'scale(1)'],
     }, {
       duration: duration.slow,
+      composite: 'add',
+    })
+
+  }
+
+  private removeZone (zone: GameObject, component: MapNode) {
+    component.element.animate({
+      transform: `scale(0)`,
+    }, {
+      duration: duration.slow,
+      composite: 'add',
+    }).onfinish = () => {
+      component.remove()
+    }
+    this.zoneToComponent.delete(zone)
+  }
+
+  private makeEdge (hash: string, edge: Edge) {
+    const line = createSvg('line')
+    line.classList.add(edgeStyle)
+    this.edgeG.append(line)
+    transitionIn(line)
+    this.edgeToElem.set(hash, { line, edge })
+  }
+
+  private centerOnZone (zone: GameObject) {
+    this.transform.x = -zone.position.x * this.transform.scale
+        + this.element.offsetWidth / 2
+    this.transform.y = -zone.position.y * this.transform.scale +
+        +this.element.offsetHeight / 2
+
+    this.updateScale()
+    this.updateTranslation()
+  }
+
+  private updateScale () {
+    const s = this.transform.scale
+
+    for (const [zone, component] of this.zoneToComponent) {
+      const x = zone.position.x * s
+      const y = zone.position.y * s
+      component.element.style.transform =
+          `${translate(x, y)} translate(-50%, -50%)`
+    }
+
+    for (const { edge, line } of this.edgeToElem.values()) {
+      line.setAttribute('x1', numToPixel(edge.source.position.x * s))
+      line.setAttribute('y1', numToPixel(edge.source.position.y * s))
+      line.setAttribute('x2', numToPixel(edge.target.position.x * s))
+      line.setAttribute('y2', numToPixel(edge.target.position.y * s))
+    }
+
+    this.travelAnimation.updateScale(s)
+  }
+
+  private updateTranslation (animate = true) {
+    const transform = translate(this.transform.x, this.transform.y)
+    const options: KeyframeAnimationOptions = {
+      duration: animate ? duration.slow : 0,
       fill: 'forwards',
       easing: 'ease-in-out',
-    }).commitStyles()
+    }
+    this.map.animate({ transform }, options).commitStyles()
+    this.edgeG.animate({ transform }, options).commitStyles()
   }
-}
-
-function getGraphBounds (graph: ZoneGraph) {
-  const bounds = {
-    xMin: Infinity,
-    xMax: -Infinity,
-    yMin: Infinity,
-    yMax: -Infinity,
-    width: Infinity,
-    height: Infinity,
-  }
-
-  for (const node of graph.nodes) {
-    bounds.xMin = Math.min(bounds.xMin, node.position.x)
-    bounds.xMax = Math.max(bounds.xMax, node.position.x)
-    bounds.yMin = Math.min(bounds.yMin, node.position.y)
-    bounds.yMax = Math.max(bounds.yMax, node.position.y)
-  }
-
-  bounds.xMin -= renderedConnectionDistance
-  bounds.xMax += renderedConnectionDistance
-  bounds.yMin -= renderedConnectionDistance
-  bounds.yMax += renderedConnectionDistance
-  bounds.width = bounds.xMax - bounds.xMin
-  bounds.height = bounds.yMax - bounds.yMin
-
-  return bounds
 }
 
 function transitionIn (elem: Element) {
@@ -179,33 +188,23 @@ function transitionOut (elem: Element) {
   }
 }
 
-function nodeSize (node: GameObject) {
-  return lerp(1, 6, 5, 20, node.connections.length)
-}
+const containerStyle = makeStyle({
+  position: 'relative',
+  overflow: `hidden`,
+})
 
-const mapStyle = makeStyle()
+const mapStyle = makeStyle({
+  position: `absolute`,
+  inset: `0`,
+})
 
-makeStyle(`.${mapStyle} *`, {
+const svgStyle = makeStyle()
+makeStyle(`.${svgStyle} *`, {
   transformBox: `fill-box`,
   transformOrigin: `center`,
 })
 
-const nodeStyle = makeStyle({
-  fill: colors.slate['700'],
-  filter: shadowFilter,
-  cursor: `pointer`,
-  transition: `all ${duration.fast}ms`,
-})
-
-const canTravelStyle = makeStyle({
-  fill: colors.sky['500'],
-})
-
-const playerNodeStyle = makeStyle({
-  fill: colors.green['400'],
-  filter: `${shadowFilter} drop-shadow(0 0 0.25rem ${colors.green['400']})`,
-})
-
 const edgeStyle = makeStyle({
   stroke: backgroundColor['500'],
+  strokeWidth: `2`,
 })

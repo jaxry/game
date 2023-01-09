@@ -3,7 +3,7 @@ import Action from '../../behavior/Action'
 import { outsideElem } from './App'
 import { duration } from '../theme'
 import { makeStyle } from '../makeStyle'
-import { numToPx } from '../../util'
+import { translate } from '../../util'
 
 export default class TargetActionAnimation extends Component {
   constructor (action: Action, from: Element, to: Element) {
@@ -26,7 +26,6 @@ export default class TargetActionAnimation extends Component {
 }
 
 const containerStyle = makeStyle({
-  position: `fixed`,
   fontSize: `2rem`,
   pointerEvents: `none`,
 })
@@ -35,5 +34,5 @@ function center (elem: Element) {
   const r = elem.getBoundingClientRect()
   const x = r.x + r.width / 2
   const y = r.y + r.height / 2
-  return `translate(-50%,-50%) translate(${numToPx(x)}, ${numToPx(y)})`
+  return `translate(-50%,-50%) ${translate(x, y)}`
 }

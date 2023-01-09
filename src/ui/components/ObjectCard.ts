@@ -3,7 +3,7 @@ import { isPlayer } from '../../behavior/player'
 import ObjectInfo from './ObjectInfo'
 import Action from '../../behavior/Action'
 import ActionComponent from './ActionComponent'
-import { dragAndDropGameObject, staggerStateChange } from './GameUI'
+import { dragAndDropGameObject } from './GameUI'
 import { game } from '../../Game'
 import Effect from '../../behavior/Effect'
 import TargetActionAnimation from './TargetActionAnimation'
@@ -56,7 +56,7 @@ export default class ObjectCard extends GameComponent {
           this.element.getBoundingClientRect())
     })
 
-    dragAndDropGameObject.drag(this.element as HTMLElement, object, icon)
+    dragAndDropGameObject.drag(this.element, object, icon)
 
     this.on(game.event.tickEnd, () => this.update())
 
@@ -73,7 +73,7 @@ export default class ObjectCard extends GameComponent {
             return
           }
 
-          staggerStateChange.add(() => self.setAction(action))
+          self.setAction(action)
         })
 
         this.onEvent(object.container, 'itemActionEnd', ({ action }) => {
@@ -81,13 +81,11 @@ export default class ObjectCard extends GameComponent {
             return
           }
 
-          staggerStateChange.addToFront(() => {
-            self.clearAction()
-            if (action.target && objectToCard.has(action.target)) {
-              const to = objectToCard.get(action.target)!.element
-              self.newComponent(TargetActionAnimation, action, self.element, to)
-            }
-          })
+          self.clearAction()
+          if (action.target && objectToCard.has(action.target)) {
+            const to = objectToCard.get(action.target)!.element
+            self.newComponent(TargetActionAnimation, action, self.element, to)
+          }
         })
       }
     }, object)
@@ -95,7 +93,7 @@ export default class ObjectCard extends GameComponent {
     const self = this
   }
 
-  setAction (action: Action) {
+  private setAction (action: Action) {
     if (this.actionComponent) {
       this.actionComponent.remove()
     }
@@ -107,7 +105,7 @@ export default class ObjectCard extends GameComponent {
         { duration: duration.fast })
   }
 
-  clearAction () {
+  private clearAction () {
     if (!this.actionComponent) {
       return
     }
@@ -126,12 +124,13 @@ export default class ObjectCard extends GameComponent {
     }
   }
 
-  update () {
+  private update () {
     this.actionComponent?.update()
   }
 }
 
 const containerStyle = makeStyle({
+  width: `8rem`,
   display: `flex`,
   alignItems: `center`,
   justifyContent: `space-between`,
@@ -151,5 +150,5 @@ const playerStyle = makeStyle({
 })
 
 const iconStyle = makeStyle({
-  fontSize: `3rem`,
+  fontSize: `2rem`,
 })

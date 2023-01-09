@@ -1,10 +1,11 @@
-import {
-  getZoneGraph, renderedConnectionDistance, ZoneGraph,
-} from '../behavior/connections'
+import { getZoneGraph, ZoneGraph } from '../behavior/connections'
 import { game } from '../Game'
 import * as d3 from 'd3-force'
 import GameObject from '../GameObject'
 import { mapIter } from '../util'
+
+// gets the default d3 node distance
+export const renderedConnectionDistance = (d3.forceLink().distance() as any)()
 
 export function startForceDirectedSimulation (startingNode: GameObject) {
   const graph = getZoneGraph(startingNode)
@@ -15,10 +16,10 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
       .force('charge', d3.forceManyBody()
           .distanceMax(5 * renderedConnectionDistance)
           .strength(node => {
-            return -30 * nodes[node.index!].connections.length
+            return -renderedConnectionDistance *
+                nodes[node.index!].connections.length
           }))
-      .force('link',
-          d3.forceLink(d3Graph.edges).distance(renderedConnectionDistance))
+      .force('link', d3.forceLink(d3Graph.edges))
       .velocityDecay(0.2)
       // .alphaDecay(0.0075)
       .tick(300)

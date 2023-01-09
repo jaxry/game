@@ -1,20 +1,15 @@
 import { game } from '../../Game'
 import MapComponent from './Map'
-import { playerTravelToZone } from '../../behavior/player'
 import Effect from '../../behavior/Effect'
-import Zone from './Zone'
 import { pauseGameLoop, startGameLoop } from '../../behavior/core'
-import TimeComponent from './Time'
 import DragAndDrop from '../DragAndDrop'
 import GameObject from '../../GameObject'
-import Player from './Player'
-import StaggerStateChange from '../StaggerStateChange'
 import { makeStyle } from '../makeStyle'
-import { border } from '../theme'
 import GameComponent from './GameComponent'
+import GameSidebar from './GameSidebar'
+import { backgroundColor, border } from '../theme'
 
 export const dragAndDropGameObject = new DragAndDrop<GameObject>()
-export const staggerStateChange = new StaggerStateChange()
 
 export default class GameUI extends GameComponent {
   constructor () {
@@ -22,41 +17,20 @@ export default class GameUI extends GameComponent {
 
     this.element.classList.add(containerStyle)
 
+    const sidebar = this.newComponent(GameSidebar)
+    sidebar.element.classList.add(sidebarStyle)
+    this.element.append(sidebar.element)
+
     const map = this.createMap()
     map.element.classList.add(mapStyle)
     this.element.append(map.element)
 
-    const zone = this.newComponent(Zone)
-    zone.element.classList.add(zoneStyle)
-    this.element.append(zone.element)
-
-    this.on(game.event.playerChange, () => {
-      zone.following = game.player
-    })
-
-    this.on(game.event.tickEnd, () => {
-      staggerStateChange.start()
-    })
-
-    const info = document.createElement('div')
-    info.classList.add(infoStyle)
-    this.element.append(info)
-
-    const time = this.newComponent(TimeComponent)
-    info.append(time.element)
-
-    const player = this.newComponent(Player)
-    info.append(player.element)
-
     this.setupWindowVisibility()
-
     startGameLoop()
   }
 
   private createMap () {
     const map = this.newComponent(MapComponent)
-
-    map.onZoneClick = playerTravelToZone
 
     const mapEffect = this.newEffect(class extends Effect {
       override registerEvents () {
@@ -103,23 +77,17 @@ export default class GameUI extends GameComponent {
 
 const containerStyle = makeStyle({
   height: `100%`,
-  display: `grid`,
-  gridTemplateColumns: `20rem 1fr`,
-  gridTemplateRows: `1fr 20rem`,
-  gridTemplateAreas: `"zone zone" 
-                      "map  info"`,
+  display: `flex`,
 })
 
-const zoneStyle = makeStyle({
-  gridArea: `zone`,
-  borderBottom: border,
+const sidebarStyle = makeStyle({
+  flex: `0 0 25rem`,
+  borderRight: border,
+  background: backgroundColor[800],
 })
 
 const mapStyle = makeStyle({
-  gridArea: `map`,
+  flex: `1 1 0`,
 })
 
-const infoStyle = makeStyle({
-  gridArea: `info`,
-})
 

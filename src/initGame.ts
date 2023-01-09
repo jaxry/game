@@ -12,7 +12,7 @@ export function initGame () {
 
   game.world = spawn(typeWorld)
 
-  const zones = generateRandomGraph(20)
+  const zones = generateRandomGraph(30)
   for (const zone of zones) {
     putInsideContainer(game.world, zone)
   }
@@ -28,7 +28,7 @@ export function initGame () {
   }
 
   for (let i = 0; i < 25; i++) {
-    spawn(Math.random() > 0.5 ? typeMonster : typeApple,
+    spawn(Math.random() > 0.2 ? typeMonster : typeApple,
         zones.at(Math.random() * zones.length))
   }
 
