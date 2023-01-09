@@ -12,13 +12,12 @@ export function initGame () {
 
   game.world = spawn(typeWorld)
 
-  const zones = generateRandomGraph(20)
+  const zones = generateRandomGraph(30)
   for (const zone of zones) {
     putInsideContainer(game.world, zone)
   }
 
   const zone = zones[0]
-  zone.numSpots = 1
 
   startForceDirectedSimulation(zone)
 
@@ -28,16 +27,10 @@ export function initGame () {
     spawn(typeApple, game.player)
   }
 
-  spawn(typeMonster, zone)
-  spawn(typeMonster, zone)
-  // spawn(typeMonster, zone)
-  // spawn(typeMonster, zone)
-  // spawn(typeMonster, zone)
-
-  // for (let i = 0; i < 25; i++) {
-  //   spawn(Math.random() > 0.2 ? typeMonster : typeApple,
-  //       zones.at(Math.random() * zones.length))
-  // }
+  for (let i = 0; i < 25; i++) {
+    spawn(Math.random() > 0.2 ? typeMonster : typeApple,
+        zones.at(Math.random() * zones.length))
+  }
 
   const chest = spawn(typeChest, zone)
   spawn(typeApple, chest)
