@@ -18,7 +18,7 @@ export default class Zone extends GameComponent {
   private spots: HTMLElement[] = []
   private zoneEvents: Effect
 
-  constructor (public zone: GameObject, public following?: GameObject) {
+  constructor (public zone: GameObject) {
     super()
 
     this.element.classList.add(containerStyle)
@@ -129,10 +129,10 @@ export default class Zone extends GameComponent {
     const dummy = new DummyElement(card.element)
     dummy.grow().onfinish = () => {
       dummy.element.replaceWith(card.element)
-      card.element.animate([
-        { opacity: 0, transform: translate(0, card.element.offsetHeight) },
-        { opacity: 1, transform: translate(0, 0) },
-      ], {
+      card.element.animate({
+        opacity: [0, 1],
+        transform: [`translate(0,100%)`, `translate(0,0)`],
+      }, {
         easing: 'ease-out',
         duration: duration.normal,
       })
@@ -142,10 +142,10 @@ export default class Zone extends GameComponent {
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
 
-    card.element.animate([
-      { opacity: 1, transform: translate(0, 0) },
-      { opacity: 0, transform: translate(0, card.element.offsetHeight) },
-    ], {
+    card.element.animate({
+      opacity: 0,
+      transform: `translate(0,100%)`,
+    }, {
       easing: 'ease-in',
       duration: duration.normal,
     }).onfinish = () => {

@@ -15,13 +15,6 @@ export default class MapNode extends GameComponent {
 
     this.element.classList.add(containerStyle)
 
-    // g.addEventListener('wheel', (e) => {
-    //   e.stopPropagation()
-    // })
-
-    // this.circle.onclick = () => playerTravelToZone(zone)
-
-    // transitionIn(circle)
     const zoneComponent = this.newComponent(Zone, this.zone)
     this.element.append(zoneComponent.element)
 
@@ -41,14 +34,6 @@ export default class MapNode extends GameComponent {
     this.element.addEventListener('click', () => {
       playerTravelToZone(this.zone)
     })
-  }
-
-  center (b: boolean) {
-    // this.circle.classList.toggle(centerStyle, b)
-  }
-
-  neighbor (b: boolean) {
-    // this.circle.classList.toggle(neighborStyle, b)
   }
 }
 

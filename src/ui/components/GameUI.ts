@@ -6,6 +6,8 @@ import DragAndDrop from '../DragAndDrop'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
+import GameSidebar from './GameSidebar'
+import { backgroundColor, border } from '../theme'
 
 export const dragAndDropGameObject = new DragAndDrop<GameObject>()
 
@@ -15,12 +17,15 @@ export default class GameUI extends GameComponent {
 
     this.element.classList.add(containerStyle)
 
+    const sidebar = this.newComponent(GameSidebar)
+    sidebar.element.classList.add(sidebarStyle)
+    this.element.append(sidebar.element)
+
     const map = this.createMap()
     map.element.classList.add(mapStyle)
     this.element.append(map.element)
 
     this.setupWindowVisibility()
-
     startGameLoop()
   }
 
@@ -73,14 +78,15 @@ export default class GameUI extends GameComponent {
 const containerStyle = makeStyle({
   height: `100%`,
   display: `flex`,
-  flexDirection: `column`,
+})
+
+const sidebarStyle = makeStyle({
+  flex: `0 0 25rem`,
+  borderRight: border,
+  background: backgroundColor[800],
 })
 
 const mapStyle = makeStyle({
-  flex: `1 1 0`,
-})
-
-const zoneStyle = makeStyle({
   flex: `1 1 0`,
 })
 

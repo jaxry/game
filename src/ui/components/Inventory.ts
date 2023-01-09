@@ -4,11 +4,11 @@ import { dragAndDropGameObject } from './GameUI'
 import TransferAction from '../../actions/Transfer'
 import GameObject from '../../GameObject'
 import Effect from '../../behavior/Effect'
-import { removeElemAndAnimateList } from '../removeElementFromList'
 import { getAndDelete } from '../../util'
 import { borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
+import DummyElement from '../DummyElement'
 
 export default class Inventory extends GameComponent {
   private objectToCard: Map<GameObject, ObjectCard> = new Map()
@@ -20,7 +20,7 @@ export default class Inventory extends GameComponent {
 
     if (object.contains) {
       for (const item of object.contains) {
-        this.makeCard(item)
+        this.makeCard(item, false)
       }
     }
 
@@ -29,7 +29,7 @@ export default class Inventory extends GameComponent {
     this.newEffect(class extends Effect {
       override registerEvents () {
         this.onEvent(this.object, 'enter', ({ item }) => {
-          self.makeCard(item, true)
+          self.makeCard(item)
         })
         this.onEvent(this.object, 'leave', ({ item }) => {
           self.removeCard(item)
@@ -40,14 +40,20 @@ export default class Inventory extends GameComponent {
     this.addDragAndDrop()
   }
 
-  private makeCard (object: GameObject, animate = false) {
+  private makeCard (object: GameObject, animate = true) {
     const card = this.newComponent(ObjectCard, object)
     this.element.appendChild(card.element)
     this.objectToCard.set(object, card)
-    if (animate) {
+
+    if (!animate) {
+      return
+    }
+    const dummy = new DummyElement(card.element)
+    dummy.grow().onfinish = () => {
+      dummy.element.replaceWith(card.element)
       card.element.animate({
         opacity: [0, 1],
-        transform: [`translate(0, 100%)`, `translate(0, 0)`],
+        transform: [`translate(0,100%)`, `translate(0,0)`],
       }, {
         duration: duration.normal,
         easing: 'ease-in-out',
@@ -59,12 +65,12 @@ export default class Inventory extends GameComponent {
     const card = getAndDelete(this.objectToCard, object)!
     card.element.animate({
       opacity: 0,
-      transform: `translate(0, 100%)`,
+      transform: `translate(0,100%)`,
     }, {
       duration: duration.normal,
       easing: 'ease-in-out',
     }).onfinish = () => {
-      removeElemAndAnimateList(card.element)
+      new DummyElement(card.element).shrink()
       card.remove()
     }
   }
@@ -92,6 +98,7 @@ export default class Inventory extends GameComponent {
 
 const containerStyle = makeStyle({
   display: `flex`,
+  flexWrap: `wrap`,
   gap: `0.5rem`,
   padding: `0.5rem`,
 })

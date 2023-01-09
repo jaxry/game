@@ -30,7 +30,7 @@ const outsideElemStyle = makeStyle({
 })
 
 makeStyle(`.${outsideElemStyle} > *`, {
-  position: `fixed`
+  position: `fixed`,
 })
 
 export const outsideElem = document.createElement('div')

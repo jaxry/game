@@ -190,6 +190,7 @@ function transitionOut (elem: Element) {
 
 const containerStyle = makeStyle({
   position: 'relative',
+  overflow: `hidden`,
 })
 
 const mapStyle = makeStyle({
