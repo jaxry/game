@@ -48,31 +48,31 @@ export default class Inventory extends GameComponent {
     if (!animate) {
       return
     }
-    const dummy = new DummyElement(card.element)
-    dummy.grow().onfinish = () => {
-      dummy.element.replaceWith(card.element)
-      card.element.animate({
-        opacity: [0, 1],
-        transform: [`translate(0,100%)`, `translate(0,0)`],
-      }, {
-        duration: duration.normal,
-        easing: 'ease-in-out',
-      })
-    }
+
+    new DummyElement(card.element).grow()
+
+    card.element.animate({
+      opacity: [0, 1],
+      transform: [`translate(0,100%)`, `translate(0,0)`],
+    }, {
+      duration: duration.normal,
+      easing: 'ease-in-out',
+    })
+
   }
 
   private removeCard (object: GameObject) {
     const card = getAndDelete(this.objectToCard, object)!
+
+    new DummyElement(card.element).shrink()
+
     card.element.animate({
       opacity: 0,
       transform: `translate(0,100%)`,
     }, {
       duration: duration.normal,
       easing: 'ease-in-out',
-    }).onfinish = () => {
-      new DummyElement(card.element).shrink()
-      card.remove()
-    }
+    })
   }
 
   private addDragAndDrop () {
@@ -99,8 +99,11 @@ export default class Inventory extends GameComponent {
 const containerStyle = makeStyle({
   display: `flex`,
   flexWrap: `wrap`,
-  gap: `0.5rem`,
   padding: `0.5rem`,
+})
+
+makeStyle(`.${containerStyle} > *`, {
+  margin: `0.25rem`,
 })
 
 const draggingStyle = makeStyle({

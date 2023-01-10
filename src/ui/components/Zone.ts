@@ -103,44 +103,55 @@ export default class Zone extends GameComponent {
   private moveSpot (obj: GameObject, from: number, to: number) {
     const elem = this.objectToCard.get(obj)!.element
 
+    const bboxFrom = elem.getBoundingClientRect()
+
     const dummyTo = new DummyElement(elem, false)
     this.spots[to].append(dummyTo.element)
 
-    const bboxFrom = elem.getBoundingClientRect()
     const bboxTo = dummyTo.element.getBoundingClientRect()
 
+    new DummyElement(elem).shrink({
+      duration: duration.slow,
+    })
+
+    dummyTo.element.append(elem)
     dummyTo.grow()
 
+    // prevent container from shrinking while simply moving a card
+    if (this.objectToCard.size === 1) {
+      this.element.style.minHeight = `${this.element.offsetHeight}px`
+    }
+
     elem.animate({
-      transform: [translate(bboxTo.x - bboxFrom.x, bboxTo.y - bboxFrom.y)],
+      transform: [
+        translate(bboxFrom.x - bboxTo.x, bboxFrom.y - bboxTo.y),
+        translate(0, 0)],
     }, {
       duration: duration.normal,
       easing: 'ease-in-out',
     }).onfinish = () => {
-      const dummyFrom = new DummyElement(elem)
-      dummyTo.element.replaceWith(elem)
-      dummyFrom.shrink()
+      this.element.style.minHeight = ''
     }
   }
 
   private objectEnter (obj: GameObject) {
     const card = this.makeCard(obj)
 
-    const dummy = new DummyElement(card.element)
-    dummy.grow().onfinish = () => {
-      dummy.element.replaceWith(card.element)
-      card.element.animate({
-        opacity: [0, 1],
-        transform: [`translate(0,100%)`, `translate(0,0)`],
-      }, {
-        easing: 'ease-out',
-        duration: duration.normal,
-      })
-    }
+    new DummyElement(card.element).grow()
+
+    card.element.animate({
+      opacity: [0, 1],
+      transform: [`translate(0,100%)`, `translate(0,0)`],
+    }, {
+      easing: 'ease-out',
+      duration: duration.normal,
+    })
   }
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
+
+    new DummyElement(card.element).shrink()
 
     card.element.animate({
       opacity: 0,
@@ -149,7 +160,6 @@ export default class Zone extends GameComponent {
       easing: 'ease-in',
       duration: duration.normal,
     }).onfinish = () => {
-      new DummyElement(card.element).shrink()
       card.remove()
     }
   }

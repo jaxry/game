@@ -103,6 +103,7 @@ export default class MapComponent extends Component {
       transform: ['scale(0)', 'scale(1)'],
     }, {
       duration: duration.slow,
+      easing: 'ease-in-out',
       composite: 'add',
     })
 
@@ -113,6 +114,7 @@ export default class MapComponent extends Component {
       transform: `scale(0)`,
     }, {
       duration: duration.slow,
+      easing: 'ease-in-out',
       composite: 'add',
     }).onfinish = () => {
       component.remove()

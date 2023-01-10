@@ -7,28 +7,40 @@ export default class DummyElement {
   width: string
   height: string
 
-  constructor (original: Element, replace = true) {
+  constructor (public original: Element, replace = true) {
     const { width, height, margin } = getComputedStyle(original)
     this.width = width
     this.height = height
     this.margin = margin
 
-    this.element.style.width = this.width
-    this.element.style.height = this.height
-    this.element.style.margin = this.margin
+    this.element.style.margin = '0'
     this.element.style.pointerEvents = 'none'
 
     if (replace) {
       original.replaceWith(this.element)
+      this.element.append(original)
     }
   }
 
+  full () {
+    this.element.style.width = this.width
+    this.element.style.height = this.height
+    this.element.style.margin = this.margin
+    return this
+  }
+
   grow (options: KeyframeAnimationOptions = {}) {
-    return this.element.animate({
+    const animation = this.element.animate({
       height: [`0`, this.height],
       width: [`0`, this.width],
       margin: [`0`, this.margin],
     }, { ...defaultOptions, ...options })
+
+    animation.onfinish = () => {
+      this.element.replaceWith(this.original)
+    }
+
+    return animation
   }
 
   shrink (options: KeyframeAnimationOptions = {}) {

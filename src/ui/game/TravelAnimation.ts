@@ -52,13 +52,11 @@ export class TravelAnimation {
     const s = this.scale
 
     const effect = animation.effect as KeyframeEffect
-    effect.setKeyframes([
-      {
-        transform: `${translate(from.x * s, from.y * s)} translate(-50%, -50%)`,
-      }, {
-        transform: `${translate(to.x * s, to.y * s)} translate(-50%, -50%)`,
-      },
-    ])
+    effect.setKeyframes({
+      transform: [
+        `${translate(from.x * s, from.y * s)} translate(-50%, -50%)`,
+        `${translate(to.x * s, to.y * s)} translate(-50%, -50%)`],
+    })
   }
 
   updateScale (newScale: number) {
