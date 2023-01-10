@@ -14,7 +14,7 @@ export default class Effect {
   // When the object is destroyed, the effect is automatically cleaned up.
   object: GameObject
   isActive = false
-  events?: ActiveGameObjectEvent[]
+  eventList?: ActiveGameObjectEvent[]
 
   constructor (object: GameObject) {
     this.object = object
@@ -31,7 +31,7 @@ export default class Effect {
   // called once every game loop (every second)
   tick? (): void
 
-  registerEvents? (): void
+  events? (): void
 
   onActivate? (): void
 
@@ -39,19 +39,14 @@ export default class Effect {
 
   // Adds a GameObject event that is automatically cleaned up when the effect
   // is deactivated
-  onEvent<T extends keyof GameObjectEvents> (
+  on<T extends keyof GameObjectEvents> (
       obj: GameObject, event: T, listener: GameObjectEventListener<T>) {
-    if (!this.isActive) {
-      console.warn(this, 'must be activated before subscribing to events')
-      return undefined as never
-    }
-
-    if (!this.events) {
-      this.events = []
+    if (!this.eventList) {
+      this.eventList = []
     }
 
     const activeEvent = obj.on(event, listener)
-    this.events.push(activeEvent)
+    this.eventList.push(activeEvent)
 
     return activeEvent
   }
@@ -63,7 +58,7 @@ export default class Effect {
       addEffectToGameLoop(this)
     }
 
-    this.registerEvents?.()
+    this.events?.()
   }
 
   activate (reviveOnly = false) {
@@ -97,11 +92,11 @@ export default class Effect {
 
     this.object.effects.delete(this)
 
-    if (this.events) {
-      for (const event of this.events) {
+    if (this.eventList) {
+      for (const event of this.eventList) {
         event.unsubscribe()
       }
-      this.events.length = 0
+      this.eventList.length = 0
     }
 
     this.onDeactivate?.()
@@ -110,14 +105,14 @@ export default class Effect {
   }
 
   reregisterEvents () {
-    if (this.events) {
-      for (const event of this.events) {
+    if (this.eventList) {
+      for (const event of this.eventList) {
         event.unsubscribe()
       }
-      this.events.length = 0
+      this.eventList.length = 0
     }
 
-    this.registerEvents?.()
+    this.events?.()
   }
 
   reactivate () {
@@ -133,7 +128,7 @@ export default class Effect {
 }
 
 serializable(Effect, {
-  ignore: ['object', 'events', 'isActive'],
+  ignore: ['object', 'eventList', 'isActive'],
   // object is added back in Game class
 })
 

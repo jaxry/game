@@ -53,14 +53,14 @@ class MonsterSearch extends Effect {
     new TravelAction(this.object, location).activate()
   }
 
-  override registerEvents () {
-    this.onEvent(this.object.container, 'enter', ({ item }) => {
+  override events () {
+    this.on(this.object.container, 'enter', ({ item }) => {
       if (isPlayer(item)) {
         this.found()
       }
     })
 
-    this.onEvent(this.object.container, 'leave', ({ item }) => {
+    this.on(this.object.container, 'leave', ({ item }) => {
       if (item !== this.object) {
         return
       }

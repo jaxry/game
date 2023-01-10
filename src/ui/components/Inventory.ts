@@ -27,11 +27,11 @@ export default class Inventory extends GameComponent {
     const self = this
 
     this.newEffect(class extends Effect {
-      override registerEvents () {
-        this.onEvent(this.object, 'enter', ({ item }) => {
+      override events () {
+        this.on(this.object, 'enter', ({ item }) => {
           self.makeCard(item)
         })
-        this.onEvent(this.object, 'leave', ({ item }) => {
+        this.on(this.object, 'leave', ({ item }) => {
           self.removeCard(item)
         })
       }

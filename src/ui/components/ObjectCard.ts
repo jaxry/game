@@ -61,14 +61,14 @@ export default class ObjectCard extends GameComponent {
     this.on(game.event.tickEnd, () => this.update())
 
     this.newEffect(class extends Effect {
-      override registerEvents () {
-        this.onEvent(object.container, 'leave', ({ item }) => {
+      override events () {
+        this.on(object.container, 'leave', ({ item }) => {
           if (item === this.object) {
             this.reregisterEvents()
           }
         })
 
-        this.onEvent(object.container, 'itemActionStart', ({ action }) => {
+        this.on(object.container, 'itemActionStart', ({ action }) => {
           if (action.object !== this.object) {
             return
           }
@@ -76,7 +76,7 @@ export default class ObjectCard extends GameComponent {
           self.setAction(action)
         })
 
-        this.onEvent(object.container, 'itemActionEnd', ({ action }) => {
+        this.on(object.container, 'itemActionEnd', ({ action }) => {
           if (action.object !== this.object) {
             return
           }

@@ -19,8 +19,8 @@ export default class MapNode extends GameComponent {
     this.element.append(zoneComponent.element)
 
     this.newEffect(class extends Effect {
-      override registerEvents () {
-        this.onEvent(this.object, 'itemActionStart', ({ action }) => {
+      override events () {
+        this.on(this.object, 'itemActionStart', ({ action }) => {
           if (action instanceof TravelAction) {
             map.travelAnimation.start(action)
           }

@@ -33,8 +33,8 @@ export default class GameUI extends GameComponent {
     const map = this.newComponent(MapComponent)
 
     const mapEffect = this.newEffect(class extends Effect {
-      override registerEvents () {
-        this.onEvent(this.object.container, 'leave', ({ item }) => {
+      override events () {
+        this.on(this.object.container, 'leave', ({ item }) => {
           if (item === this.object) {
             map.setCenter(this.object.container)
             this.reregisterEvents()

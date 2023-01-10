@@ -26,14 +26,14 @@ export default class Zone extends GameComponent {
     const self = this
 
     this.zoneEvents = this.newEffect(class extends Effect {
-      override registerEvents () {
-        this.onEvent(this.object, 'enter', ({ item }) => {
+      override events () {
+        this.on(this.object, 'enter', ({ item }) => {
           self.objectEnter(item)
         })
-        this.onEvent(this.object, 'leave', ({ item }) => {
+        this.on(this.object, 'leave', ({ item }) => {
           self.objectLeave(item)
         })
-        this.onEvent(this.object, 'moveSpot', ({ item, from, to }) => {
+        this.on(this.object, 'moveSpot', ({ item, from, to }) => {
           self.moveSpot(item, from, to)
         })
       }
