@@ -11,6 +11,8 @@ import { borderRadius, boxShadow, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
 import colors from '../colors'
 import GameComponent from './GameComponent'
+import DummyElement from '../DummyElement'
+import animateWithDelay from '../animateWithDelay'
 
 const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
@@ -126,6 +128,33 @@ export default class ObjectCard extends GameComponent {
 
   private update () {
     this.actionComponent?.update()
+  }
+
+  enter () {
+    new DummyElement(this.element).growWidthFirst()
+
+    animateWithDelay(this.element, {
+      opacity: [0, 1],
+      transform: [`translate(0,100%)`, `translate(0,0)`],
+    }, {
+      easing: 'ease-out',
+      duration: duration.normal,
+      delay: duration.normal,
+    })
+  }
+
+  exit () {
+    new DummyElement(this.element).shrinkHeightFirst()
+
+    this.element.animate({
+      opacity: 0,
+      transform: `translate(0,100%)`,
+    }, {
+      easing: 'ease-in',
+      duration: duration.normal,
+    }).onfinish = () => {
+      this.remove()
+    }
   }
 }
 

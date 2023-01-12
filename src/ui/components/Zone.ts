@@ -110,17 +110,10 @@ export default class Zone extends GameComponent {
 
     const bboxTo = dummyTo.element.getBoundingClientRect()
 
-    new DummyElement(elem).shrink({
-      duration: duration.slow,
-    })
+    new DummyElement(elem).shrink()
 
     dummyTo.element.append(elem)
     dummyTo.grow()
-
-    // prevent container from shrinking while simply moving a card
-    if (this.objectToCard.size === 1) {
-      this.element.style.minHeight = `${this.element.offsetHeight}px`
-    }
 
     elem.animate({
       transform: [
@@ -129,39 +122,17 @@ export default class Zone extends GameComponent {
     }, {
       duration: duration.normal,
       easing: 'ease-in-out',
-    }).onfinish = () => {
-      this.element.style.minHeight = ''
-    }
+    })
   }
 
   private objectEnter (obj: GameObject) {
     const card = this.makeCard(obj)
-
-    new DummyElement(card.element).grow()
-
-    card.element.animate({
-      opacity: [0, 1],
-      transform: [`translate(0,100%)`, `translate(0,0)`],
-    }, {
-      easing: 'ease-out',
-      duration: duration.normal,
-    })
+    card.enter()
   }
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
-
-    new DummyElement(card.element).shrink()
-
-    card.element.animate({
-      opacity: 0,
-      transform: `translate(0,100%)`,
-    }, {
-      easing: 'ease-in',
-      duration: duration.normal,
-    }).onfinish = () => {
-      card.remove()
-    }
+    card.exit()
   }
 }
 
