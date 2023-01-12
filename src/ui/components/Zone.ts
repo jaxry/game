@@ -43,8 +43,6 @@ export default class Zone extends GameComponent {
   }
 
   private populateZone () {
-    this.clearZone()
-
     for (let i = 0; i < this.zone.numSpots; i++) {
       this.makeSpot(i)
     }
@@ -52,16 +50,6 @@ export default class Zone extends GameComponent {
     for (const obj of this.zone.contains) {
       this.makeCard(obj)
     }
-  }
-
-  private clearZone () {
-    for (const card of this.objectToCard.values()) {
-      card.remove()
-    }
-    this.objectToCard.clear()
-
-    this.spots.forEach(spot => spot.remove())
-    this.spots.length = 0
   }
 
   private makeSpot (i: number) {
@@ -91,9 +79,8 @@ export default class Zone extends GameComponent {
   }
 
   private makeCard (obj: GameObject) {
-    const card = makeOrGet(this.objectToCard, obj, () => {
-      return this.newComponent(ObjectCard, obj)
-    })
+    const card = makeOrGet(this.objectToCard, obj, () =>
+        this.newComponent(ObjectCard, obj))
 
     this.spots[obj.spot].append(card.element)
 

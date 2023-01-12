@@ -4,7 +4,7 @@ import { dragAndDropGameObject } from './GameUI'
 import TransferAction from '../../actions/Transfer'
 import GameObject from '../../GameObject'
 import Effect from '../../behavior/Effect'
-import { getAndDelete } from '../../util'
+import { getAndDelete, makeOrGet } from '../../util'
 import { borderColor } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
@@ -40,9 +40,10 @@ export default class Inventory extends GameComponent {
   }
 
   private makeCard (object: GameObject, animate = true) {
-    const card = this.newComponent(ObjectCard, object)
+    const card = makeOrGet(this.objectToCard, object, () =>
+      this.newComponent(ObjectCard, object))
+
     this.element.appendChild(card.element)
-    this.objectToCard.set(object, card)
 
     if (!animate) {
       return

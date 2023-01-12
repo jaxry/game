@@ -149,7 +149,6 @@ export function translate (x: number, y: number) {
   return `translate(${numToPx(x)}, ${numToPx(y)})`
 }
 
-// TODO: Remove after deleting removeElementFromList
 export default function bBoxDiff (oldBBox: DOMRect, newBBox: DOMRect) {
   return translate(oldBBox.x - newBBox.x, oldBBox.y - newBBox.y)
 }
