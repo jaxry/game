@@ -102,6 +102,11 @@ export default class Zone extends GameComponent {
     dummyTo.element.append(elem)
     dummyTo.grow()
 
+    // prevents zone from shrinking when there's only a single element
+    if (this.objectToCard.size === 1) {
+      this.element.style.minHeight = getComputedStyle(this.element).height
+    }
+
     elem.animate({
       transform: [
         translate(bboxFrom.x - bboxTo.x, bboxFrom.y - bboxTo.y),
@@ -109,7 +114,9 @@ export default class Zone extends GameComponent {
     }, {
       duration: duration.normal,
       easing: 'ease-in-out',
-    })
+    }).onfinish = () => {
+      this.element.style.minHeight = ''
+    }
   }
 
   private objectEnter (obj: GameObject) {

@@ -3,15 +3,18 @@ import { duration } from './theme'
 export default class DummyElement {
   element = document.createElement('div')
 
-  margin: string
+  marginInline: string
+  marginBlock: string
   width: string
   height: string
 
   constructor (public original: Element, replace = true) {
-    const { width, height, margin } = getComputedStyle(original)
+    const { width, height, marginInline, marginBlock } = getComputedStyle(
+        original)
     this.width = width
     this.height = height
-    this.margin = margin
+    this.marginInline = marginInline // left-right
+    this.marginBlock = marginBlock // top-bottom
 
     this.element.style.margin = `0`
     this.element.style.width = `0`
@@ -28,7 +31,8 @@ export default class DummyElement {
     this.element.animate({
       width: [`0`, this.width],
       height: [`0`, this.height],
-      margin: [`0`, this.margin],
+      marginInline: [`0`, this.marginInline],
+      marginBlock: [`0`, this.marginBlock],
     }, options).onfinish = () => {
       this.element.replaceWith(this.original)
     }
@@ -37,10 +41,11 @@ export default class DummyElement {
   growWidthFirst () {
     this.element.animate({
       width: [`0`, this.width],
+      marginInline: [`0`, this.marginInline],
     }, options).onfinish = () => {
       this.element.animate({
         height: this.height,
-        margin: this.margin,
+        marginBlock: this.marginBlock,
       }, options).onfinish = () => {
         this.element.replaceWith(this.original)
       }
@@ -51,7 +56,8 @@ export default class DummyElement {
     this.element.animate({
       height: [this.height, `0`],
       width: [this.width, `0`],
-      margin: [this.margin, `0`],
+      marginInline: [this.marginInline, `0`],
+      marginBlock: [this.marginBlock, `0`],
     }, { ...options, duration: duration.slow }).onfinish = () => {
       this.element.remove()
     }
@@ -61,10 +67,12 @@ export default class DummyElement {
     this.element.animate({
       height: [this.height, `0`],
       width: [this.width, this.width],
-      margin: [this.margin, `0`],
+      marginBlock: [this.marginBlock, `0`],
+      marginInline: [this.marginInline, this.marginInline],
     }, options).onfinish = () => {
       this.element.animate({
         width: [this.width, `0`],
+        marginInline: [this.marginInline, `0`],
       }, options).onfinish = () => {
         this.element.remove()
       }

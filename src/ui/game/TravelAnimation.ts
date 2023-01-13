@@ -46,7 +46,7 @@ export class TravelAnimation {
     }, { duration: actionDuration })
   }
 
-  setKeyframes (action: TravelAction, animation: Animation) {
+  private setKeyframes (action: TravelAction, animation: Animation) {
     const from = action.object.container.position
     const to = action.target.position
     const s = this.scale

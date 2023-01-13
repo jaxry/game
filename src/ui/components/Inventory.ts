@@ -41,7 +41,7 @@ export default class Inventory extends GameComponent {
 
   private makeCard (object: GameObject, animate = true) {
     const card = makeOrGet(this.objectToCard, object, () =>
-      this.newComponent(ObjectCard, object))
+        this.newComponent(ObjectCard, object))
 
     this.element.appendChild(card.element)
 
