@@ -39,7 +39,4 @@ export default class Window extends Component {
   }
 }
 
-const containerStyle = makeStyle({
-  top: `0`,
-  left: `0`,
-})
+const containerStyle = makeStyle({})

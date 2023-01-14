@@ -26,6 +26,7 @@ export class TravelAnimation {
     const animation = icon.animate([], {
       duration: actionDuration,
       easing: 'ease-in-out',
+      composite: 'accumulate',
     })
 
     const animationState = { animation, action }
@@ -54,8 +55,8 @@ export class TravelAnimation {
     const effect = animation.effect as KeyframeEffect
     effect.setKeyframes({
       transform: [
-        `${translate(from.x * s, from.y * s)} translate(-50%, -50%)`,
-        `${translate(to.x * s, to.y * s)} translate(-50%, -50%)`],
+        `${translate(from.x * s, from.y * s)}`,
+        `${translate(to.x * s, to.y * s)}`],
     })
   }
 
@@ -70,4 +71,5 @@ export class TravelAnimation {
 const iconStyle = makeStyle({
   position: `absolute`,
   pointerEvents: 'none',
+  transform: `translate(-50%, -50%)`,
 })

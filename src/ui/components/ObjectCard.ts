@@ -17,8 +17,8 @@ import animateWithDelay from '../animateWithDelay'
 const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
 export default class ObjectCard extends GameComponent {
-  // private readonly actionContainer: HTMLElement
   private actionComponent?: ActionComponent
+  private targetActionAnimation?: TargetActionAnimation
 
   constructor (public object: GameObject) {
     super()
@@ -43,9 +43,6 @@ export default class ObjectCard extends GameComponent {
     icon.textContent = object.type.icon
     this.element.append(icon)
 
-    // this.actionContainer = $('div')
-    // this.element.append(this.actionContainer)
-
     if (object.activeAction) {
       this.setAction(object.activeAction)
     }
@@ -64,15 +61,16 @@ export default class ObjectCard extends GameComponent {
 
     this.newEffect(class extends Effect {
       override events () {
-        this.on(object.container, 'leave', ({ item }) => {
-          if (item === this.object) {
-            this.reregisterEvents()
-          }
-        })
-
         this.on(object.container, 'itemActionStart', ({ action }) => {
           if (action.object !== this.object) {
             return
+          }
+
+          if (action.target && objectToCard.has(action.target)) {
+            self.targetActionAnimation?.exit()
+            const to = objectToCard.get(action.target)!
+            self.targetActionAnimation = self.newComponent(
+                TargetActionAnimation, action, self.element, to.element)
           }
 
           self.setAction(action)
@@ -84,9 +82,11 @@ export default class ObjectCard extends GameComponent {
           }
 
           self.clearAction()
-          if (action.target && objectToCard.has(action.target)) {
-            const to = objectToCard.get(action.target)!.element
-            self.newComponent(TargetActionAnimation, action, self.element, to)
+        })
+
+        this.on(object.container, 'leave', ({ item }) => {
+          if (item === this.object) {
+            this.reregisterEvents()
           }
         })
       }
@@ -101,29 +101,10 @@ export default class ObjectCard extends GameComponent {
     }
     this.actionComponent = this.newComponent(ActionComponent, action)
     this.element.append(this.actionComponent.element)
-
-    this.actionComponent.element.animate(
-        { opacity: [0, 1] },
-        { duration: duration.fast })
   }
 
   private clearAction () {
-    if (!this.actionComponent) {
-      return
-    }
-
-    const component = this.actionComponent
-
-    component.element.animate({
-      opacity: 0,
-    }, {
-      duration: duration.fast,
-    }).onfinish = () => {
-      component.remove()
-      if (this.actionComponent === component) {
-        this.actionComponent = undefined
-      }
-    }
+    this.actionComponent?.exit()
   }
 
   private update () {
