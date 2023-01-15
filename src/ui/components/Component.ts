@@ -33,6 +33,9 @@ export default class Component<T extends Element = HTMLElement> {
 
     if (this.parentComponent) {
       this.parentComponent.childComponents.delete(this)
+      this.parentComponent = undefined
+    } else {
+      return
     }
 
     for (const callback of this.destroyCallbacks) {

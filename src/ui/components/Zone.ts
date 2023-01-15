@@ -43,8 +43,6 @@ export default class Zone extends GameComponent {
   }
 
   private populateZone () {
-    this.clearZone()
-
     for (let i = 0; i < this.zone.numSpots; i++) {
       this.makeSpot(i)
     }
@@ -52,16 +50,6 @@ export default class Zone extends GameComponent {
     for (const obj of this.zone.contains) {
       this.makeCard(obj)
     }
-  }
-
-  private clearZone () {
-    for (const card of this.objectToCard.values()) {
-      card.remove()
-    }
-    this.objectToCard.clear()
-
-    this.spots.forEach(spot => spot.remove())
-    this.spots.length = 0
   }
 
   private makeSpot (i: number) {
@@ -91,9 +79,8 @@ export default class Zone extends GameComponent {
   }
 
   private makeCard (obj: GameObject) {
-    const card = makeOrGet(this.objectToCard, obj, () => {
-      return this.newComponent(ObjectCard, obj)
-    })
+    const card = makeOrGet(this.objectToCard, obj, () =>
+        this.newComponent(ObjectCard, obj))
 
     this.spots[obj.spot].append(card.element)
 
@@ -110,16 +97,14 @@ export default class Zone extends GameComponent {
 
     const bboxTo = dummyTo.element.getBoundingClientRect()
 
-    new DummyElement(elem).shrink({
-      duration: duration.slow,
-    })
+    new DummyElement(elem).shrink()
 
     dummyTo.element.append(elem)
     dummyTo.grow()
 
-    // prevent container from shrinking while simply moving a card
+    // prevents zone from shrinking when there's only a single element
     if (this.objectToCard.size === 1) {
-      this.element.style.minHeight = `${this.element.offsetHeight}px`
+      this.element.style.minHeight = getComputedStyle(this.element).height
     }
 
     elem.animate({
@@ -136,32 +121,12 @@ export default class Zone extends GameComponent {
 
   private objectEnter (obj: GameObject) {
     const card = this.makeCard(obj)
-
-    new DummyElement(card.element).grow()
-
-    card.element.animate({
-      opacity: [0, 1],
-      transform: [`translate(0,100%)`, `translate(0,0)`],
-    }, {
-      easing: 'ease-out',
-      duration: duration.normal,
-    })
+    card.enter()
   }
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
-
-    new DummyElement(card.element).shrink()
-
-    card.element.animate({
-      opacity: 0,
-      transform: `translate(0,100%)`,
-    }, {
-      easing: 'ease-in',
-      duration: duration.normal,
-    }).onfinish = () => {
-      card.remove()
-    }
+    card.exit()
   }
 }
 

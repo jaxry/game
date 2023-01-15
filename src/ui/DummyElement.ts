@@ -3,18 +3,23 @@ import { duration } from './theme'
 export default class DummyElement {
   element = document.createElement('div')
 
-  margin: string
+  marginInline: string
+  marginBlock: string
   width: string
   height: string
 
   constructor (public original: Element, replace = true) {
-    const { width, height, margin } = getComputedStyle(original)
+    const { width, height, marginInline, marginBlock } = getComputedStyle(
+        original)
     this.width = width
     this.height = height
-    this.margin = margin
+    this.marginInline = marginInline // left-right
+    this.marginBlock = marginBlock // top-bottom
 
-    this.element.style.margin = '0'
-    this.element.style.pointerEvents = 'none'
+    this.element.style.margin = `0`
+    this.element.style.width = `0`
+    this.element.style.height = `0`
+    this.element.style.pointerEvents = `none`
 
     if (replace) {
       original.replaceWith(this.element)
@@ -22,41 +27,60 @@ export default class DummyElement {
     }
   }
 
-  full () {
-    this.element.style.width = this.width
-    this.element.style.height = this.height
-    this.element.style.margin = this.margin
-    return this
-  }
-
-  grow (options: KeyframeAnimationOptions = {}) {
-    const animation = this.element.animate({
-      height: [`0`, this.height],
+  grow () {
+    this.element.animate({
       width: [`0`, this.width],
-      margin: [`0`, this.margin],
-    }, { ...defaultOptions, ...options })
-
-    animation.onfinish = () => {
+      height: [`0`, this.height],
+      marginInline: [`0`, this.marginInline],
+      marginBlock: [`0`, this.marginBlock],
+    }, options).onfinish = () => {
       this.element.replaceWith(this.original)
     }
-
-    return animation
   }
 
-  shrink (options: KeyframeAnimationOptions = {}) {
-    const animation = this.element.animate({
+  growWidthFirst () {
+    this.element.animate({
+      width: [`0`, this.width],
+      marginInline: [`0`, this.marginInline],
+    }, options).onfinish = () => {
+      this.element.animate({
+        height: this.height,
+        marginBlock: this.marginBlock,
+      }, options).onfinish = () => {
+        this.element.replaceWith(this.original)
+      }
+    }
+  }
+
+  shrink () {
+    this.element.animate({
       height: [this.height, `0`],
       width: [this.width, `0`],
-      margin: [this.margin, `0`],
-    }, { ...defaultOptions, ...options })
-
-    animation.onfinish = () => {
+      marginInline: [this.marginInline, `0`],
+      marginBlock: [this.marginBlock, `0`],
+    }, { ...options, duration: duration.slow }).onfinish = () => {
       this.element.remove()
+    }
+  }
+
+  shrinkHeightFirst () {
+    this.element.animate({
+      height: [this.height, `0`],
+      width: [this.width, this.width],
+      marginBlock: [this.marginBlock, `0`],
+      marginInline: [this.marginInline, this.marginInline],
+    }, options).onfinish = () => {
+      this.element.animate({
+        width: [this.width, `0`],
+        marginInline: [this.marginInline, `0`],
+      }, options).onfinish = () => {
+        this.element.remove()
+      }
     }
   }
 }
 
-const defaultOptions: KeyframeAnimationOptions = {
+const options: KeyframeAnimationOptions = {
   duration: duration.normal,
   easing: 'ease-in-out',
   fill: 'forwards',

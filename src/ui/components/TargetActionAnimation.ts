@@ -1,38 +1,56 @@
 import Component from './Component'
 import Action from '../../behavior/Action'
-import { outsideElem } from './App'
 import { duration } from '../theme'
 import { makeStyle } from '../makeStyle'
-import { translate } from '../../util'
+import bBoxDiff from '../../util'
+import GameTime from '../../GameTime'
 
 export default class TargetActionAnimation extends Component {
   constructor (action: Action, from: Element, to: Element) {
     super()
 
-    outsideElem.append(this.element)
+    to.append(this.element)
 
     this.element.classList.add(containerStyle)
 
     this.element.textContent = action.icon
 
     this.element.animate({
-      transform: [center(from), center(to)],
-      opacity: [0, 1, 1, 1, 0],
+      opacity: [0, 1],
     }, {
-      duration: duration.slow,
-      easing: 'cubic-bezier(0.5,0,0,1)',
-    }).onfinish = () => this.remove()
+      duration: duration.fast,
+    })
+
+    const fromTranslate = bBoxDiff(
+        from.getBoundingClientRect(), to.getBoundingClientRect())
+
+    const translation = this.element.animate({
+      transform: [`${fromTranslate} scale(0.5)`, `translate(0, 0) scale(1) `],
+    }, {
+      duration: 1000 * GameTime.seconds(action.time),
+      composite: 'accumulate',
+      easing: 'ease-in',
+    })
+
+    translation.onfinish = () => {
+      this.exit()
+    }
+  }
+
+  exit () {
+    this.element.animate({
+      opacity: 0,
+    }, {
+      duration: duration.fast,
+    }).onfinish = () => {
+      this.remove()
+    }
   }
 }
 
 const containerStyle = makeStyle({
-  fontSize: `2rem`,
+  position: 'absolute',
+  fontSize: `1.5rem`,
   pointerEvents: `none`,
+  zIndex: `999`,
 })
-
-function center (elem: Element) {
-  const r = elem.getBoundingClientRect()
-  const x = r.x + r.width / 2
-  const y = r.y + r.height / 2
-  return `translate(-50%,-50%) ${translate(x, y)}`
-}

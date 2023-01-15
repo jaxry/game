@@ -4,11 +4,10 @@ import { dragAndDropGameObject } from './GameUI'
 import TransferAction from '../../actions/Transfer'
 import GameObject from '../../GameObject'
 import Effect from '../../behavior/Effect'
-import { getAndDelete } from '../../util'
-import { borderColor, duration } from '../theme'
+import { getAndDelete, makeOrGet } from '../../util'
+import { borderColor } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
-import DummyElement from '../DummyElement'
 
 export default class Inventory extends GameComponent {
   private objectToCard: Map<GameObject, ObjectCard> = new Map()
@@ -41,38 +40,21 @@ export default class Inventory extends GameComponent {
   }
 
   private makeCard (object: GameObject, animate = true) {
-    const card = this.newComponent(ObjectCard, object)
+    const card = makeOrGet(this.objectToCard, object, () =>
+        this.newComponent(ObjectCard, object))
+
     this.element.appendChild(card.element)
-    this.objectToCard.set(object, card)
 
     if (!animate) {
       return
     }
 
-    new DummyElement(card.element).grow()
-
-    card.element.animate({
-      opacity: [0, 1],
-      transform: [`translate(0,100%)`, `translate(0,0)`],
-    }, {
-      duration: duration.normal,
-      easing: 'ease-in-out',
-    })
-
+    card.enter()
   }
 
   private removeCard (object: GameObject) {
     const card = getAndDelete(this.objectToCard, object)!
-
-    new DummyElement(card.element).shrink()
-
-    card.element.animate({
-      opacity: 0,
-      transform: `translate(0,100%)`,
-    }, {
-      duration: duration.normal,
-      easing: 'ease-in-out',
-    })
+    card.exit()
   }
 
   private addDragAndDrop () {

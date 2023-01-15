@@ -6,7 +6,7 @@ import { makeStyle } from '../makeStyle'
 import { backgroundColor, duration } from '../theme'
 import MapNode from './MapNode'
 import addPanZoom from '../PanZoom'
-import { numToPixel, translate } from '../../util'
+import { makeOrGet, numToPixel, translate } from '../../util'
 import { TravelAnimation } from '../game/TravelAnimation'
 
 export default class MapComponent extends Component {
@@ -96,9 +96,9 @@ export default class MapComponent extends Component {
   }
 
   private makeZone (zone: GameObject) {
-    const component = this.newComponent(MapNode, zone, this)
+    const component = makeOrGet(this.zoneToComponent, zone, () =>
+        this.newComponent(MapNode, zone, this))
     this.zoneContainer.append(component.element)
-    this.zoneToComponent.set(zone, component)
     component.element.animate({
       transform: ['scale(0)', 'scale(1)'],
     }, {

@@ -5,7 +5,7 @@ import GameTime from '../GameTime'
 export default class Action extends Effect {
   static override tickPriority = 0
 
-  time = 1 * GameTime.second
+  time = GameTime.second
 
   // for targeted actions such as attacks
   target?: GameObject

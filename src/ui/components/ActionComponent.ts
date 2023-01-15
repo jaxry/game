@@ -21,15 +21,33 @@ export default class ActionComponent extends Component {
     this.time = document.createElement('div')
     this.element.append(this.time)
 
+    this.element.animate(
+        { opacity: [0, 1] },
+        { duration: duration.fast })
+
     this.update()
   }
 
   update () {
     if (this.action.time <= 0) {
-      this.time.animate({ opacity: 0 },
-          { duration: duration.fast, fill: 'forwards' })
+      this.time.animate({
+        opacity: 0,
+      }, {
+        duration:
+        duration.fast, fill: 'forwards',
+      })
     } else {
       this.time.textContent = GameTime.displaySeconds(this.action.time)
+    }
+  }
+
+  exit () {
+    this.element.animate({
+      opacity: 0,
+    }, {
+      duration: duration.fast,
+    }).onfinish = () => {
+      this.remove()
     }
   }
 }
