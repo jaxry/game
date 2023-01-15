@@ -80,7 +80,7 @@ export default class ObjectCard extends GameComponent {
           if (action.object !== this.object) {
             return
           }
-
+          self.targetActionAnimation?.exit()
           self.clearAction()
         })
 
