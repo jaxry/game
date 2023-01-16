@@ -82,7 +82,6 @@ const containerStyle = makeStyle({
 const sidebarStyle = makeStyle({
   flex: `0 0 25rem`,
   borderRight: border,
-  background: backgroundColor[800],
 })
 
 const mapStyle = makeStyle({

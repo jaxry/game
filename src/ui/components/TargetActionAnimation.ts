@@ -13,7 +13,7 @@ export default class TargetActionAnimation extends Component {
 
     this.element.classList.add(containerStyle)
 
-    this.element.textContent = action.icon
+    this.element.textContent = action.name
 
     this.element.animate({
       opacity: [0, 1],
@@ -50,7 +50,6 @@ export default class TargetActionAnimation extends Component {
 
 const containerStyle = makeStyle({
   position: 'absolute',
-  fontSize: `1.5rem`,
   pointerEvents: `none`,
   zIndex: `999`,
 })

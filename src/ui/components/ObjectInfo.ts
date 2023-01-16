@@ -21,6 +21,4 @@ export default class ObjectInfo extends Window {
   }
 }
 
-const containerStyle = makeStyle({
-  background: colors.slate['700'],
-})
+const containerStyle = makeStyle({})

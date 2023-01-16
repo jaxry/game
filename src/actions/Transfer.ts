@@ -14,11 +14,11 @@ export default class TransferAction extends Action {
   }
 
   override get name () {
-    return 'transfer'
+    return `pick up`
   }
 
-  override get icon () {
-    return `${this.target.type.icon}🖐${this.destination.type.icon}`
+  override get nameActive () {
+    return `picking up`
   }
 
   override condition () {

@@ -1,12 +1,15 @@
 import Component from './Component'
 import Action from '../../behavior/Action'
-import { borderRadius, duration } from '../theme'
+import {
+  actionColor, actionTargetColor, actionTimeColor, border, borderRadius,
+  duration,
+  fontColor,
+} from '../theme'
 import { makeStyle } from '../makeStyle'
 import colors from '../colors'
 import GameTime from '../../GameTime'
 
 export default class ActionComponent extends Component {
-  private readonly name: HTMLElement
   private readonly time: HTMLElement
 
   constructor (public action: Action) {
@@ -14,18 +17,26 @@ export default class ActionComponent extends Component {
 
     this.element.classList.add(containerStyle)
 
-    this.name = document.createElement('div')
-    this.name.textContent = action.icon
-    this.element.append(this.name)
+    const nameTarget = document.createElement('div')
+    this.element.append(nameTarget)
+
+    const name = document.createElement('div')
+    name.classList.add(nameStyle)
+    name.textContent = action.nameActive
+    nameTarget.append(name)
+
+    const target = document.createElement('div')
+    target.classList.add(targetStyle)
+    target.textContent = action.target?.type.name ?? ''
+    nameTarget.append(target)
 
     this.time = document.createElement('div')
+    this.time.classList.add(timeStyle)
     this.element.append(this.time)
 
-    this.element.animate(
-        { opacity: [0, 1] },
-        { duration: duration.fast })
-
     this.update()
+
+    this.element.animate({ opacity: [0, 1] }, { duration: duration.fast })
   }
 
   update () {
@@ -53,9 +64,19 @@ export default class ActionComponent extends Component {
 }
 
 const containerStyle = makeStyle({
-  fontSize: `1rem`,
+  gap: `1rem`,
+  display: `flex`,
+  alignItems: `center`,
   textAlign: `center`,
-  color: colors.yellow['400'],
-  background: colors.yellow['400'] + '44',
-  borderRadius,
+})
+
+const nameStyle = makeStyle({
+  color: actionColor
+})
+
+const targetStyle = makeStyle({
+})
+
+const timeStyle = makeStyle({
+  color: actionTimeColor
 })

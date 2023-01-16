@@ -2,7 +2,8 @@ import Component from './Component'
 import GameUI from './GameUI'
 import { makeStyle } from '../makeStyle'
 import '../preflight.css'
-import { backgroundColor } from '../theme'
+import { backgroundColor, fontColor } from '../theme'
+import colors from '../colors'
 
 export default class App extends Component {
   constructor () {
@@ -19,7 +20,7 @@ const containerStyle = makeStyle({
   fontFamily: `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`,
   colorScheme: `dark`,
   background: backgroundColor[900],
-  color: backgroundColor[200],
+  color: fontColor,
   height: `100vh`,
   overflow: `hidden`,
 })

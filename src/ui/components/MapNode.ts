@@ -1,7 +1,9 @@
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import colors from '../colors'
-import { border, borderRadius, boxShadow } from '../theme'
+import {
+  backgroundColor, border, borderRadius, boxShadow, mapNodeColor,
+} from '../theme'
 import Zone from './Zone'
 import GameComponent from './GameComponent'
 import Effect from '../../behavior/Effect'
@@ -39,7 +41,7 @@ export default class MapNode extends GameComponent {
 
 const containerStyle = makeStyle({
   position: `absolute`,
-  background: colors.slate['700'],
+  background: mapNodeColor,
   border,
   borderRadius,
   boxShadow,

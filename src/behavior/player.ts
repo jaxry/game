@@ -7,7 +7,6 @@ import { isContainedWith } from './container'
 import { isDestroyed } from './destroy'
 import MoveSpotAction from '../actions/MoveSpot'
 import AttackAction from '../actions/Attack'
-import WaitAction from '../actions/Wait'
 import Effect from './Effect'
 import { serializable } from '../serialize'
 
@@ -36,12 +35,6 @@ export function playerTravelToZone (zone: GameObject) {
       setPlayerEffect(new TravelAction(game.player, neighbor))
     }
   }
-}
-
-export function getPlayerInteractions (player: GameObject) {
-  return [
-    new WaitAction(player),
-  ]
 }
 
 export function getObjectInteractions (

@@ -43,7 +43,7 @@ const typeWorld = makeType({
 })
 
 const typeYou = makeType({
-  name: `Soyboy Jack`,
+  name: `Boof Nasty`,
   icon: `😭`,
   properNoun: true,
   isContainer: true,

@@ -7,7 +7,11 @@ import { dragAndDropGameObject } from './GameUI'
 import { game } from '../../Game'
 import Effect from '../../behavior/Effect'
 import TargetActionAnimation from './TargetActionAnimation'
-import { borderRadius, boxShadow, duration } from '../theme'
+import {
+  border, borderColor, borderRadius, boxShadow, duration, fontColor,
+  objectCardColor, objectCardNameBorderColor,
+  objectCardPlayerColor,
+} from '../theme'
 import { makeStyle } from '../makeStyle'
 import colors from '../colors'
 import GameComponent from './GameComponent'
@@ -38,10 +42,10 @@ export default class ObjectCard extends GameComponent {
       }
     })
 
-    const icon = document.createElement('div')
-    icon.classList.add(iconStyle)
-    icon.textContent = object.type.icon
-    this.element.append(icon)
+    const name = document.createElement('div')
+    name.classList.add(nameStyle)
+    name.textContent = object.type.name
+    this.element.append(name)
 
     if (object.activeAction) {
       this.setAction(object.activeAction)
@@ -55,7 +59,7 @@ export default class ObjectCard extends GameComponent {
           this.element.getBoundingClientRect())
     })
 
-    dragAndDropGameObject.drag(this.element, object, icon)
+    dragAndDropGameObject.drag(this.element, object, name)
 
     this.on(game.event.tickEnd, () => this.update())
 
@@ -101,6 +105,7 @@ export default class ObjectCard extends GameComponent {
     }
     this.actionComponent = this.newComponent(ActionComponent, action)
     this.element.append(this.actionComponent.element)
+    this.element.style.minHeight = getComputedStyle(this.element).height
   }
 
   private clearAction () {
@@ -140,25 +145,25 @@ export default class ObjectCard extends GameComponent {
 }
 
 const containerStyle = makeStyle({
-  width: `8rem`,
+  width: `10rem`,
   display: `flex`,
+  flexDirection: `column`,
   alignItems: `center`,
-  justifyContent: `space-between`,
   padding: `0.25rem`,
-  background: colors.cyan['900'],
+  background: objectCardColor,
   boxShadow,
   borderRadius,
   userSelect: `none`,
+  textTransform: `capitalize`
 })
 
-makeStyle(`.${containerStyle}:hover`, {
-  background: colors.cyan['800'],
+
+const nameStyle = makeStyle({
+  width: `100%`,
+  textAlign: `center`,
+  borderBottom: `2px solid ${objectCardNameBorderColor}`
 })
 
 const playerStyle = makeStyle({
-  background: colors.green['700'],
-})
-
-const iconStyle = makeStyle({
-  fontSize: `2rem`,
+  background: objectCardPlayerColor,
 })

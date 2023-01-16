@@ -13,11 +13,11 @@ export default class AttackAction extends Action {
   }
 
   override get name () {
-    return `attacking ${this.target.type.name}`
+    return `slash`
   }
 
-  override get icon () {
-    return `⚔️${this.target.type.icon}`
+  override get nameActive () {
+    return `slashing`
   }
 
   override condition () {
