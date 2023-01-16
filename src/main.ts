@@ -1,8 +1,15 @@
 import './ui/components/GameUI'
 import App from './ui/components/App'
-import { loadGame } from './Game'
+import { loadGame } from './saveLoad'
 
-loadGame()
+let app: App
 
-let app = new App()
-document.body.append(app.element)
+export function restartGame () {
+  loadGame().then(() => {
+    app?.remove()
+    app = new App()
+    document.body.append(app.element)
+  })
+}
+
+restartGame()

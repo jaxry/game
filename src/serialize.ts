@@ -16,8 +16,7 @@ export interface SerializableOptions<T> {
 
   // transform a key value to a simple, jsonable result
   transform?: {
-    [prop in keyof T]?: [(value: T[prop]) => any, (value: any) => T[prop]] |
-      [(value: T[prop]) => any]
+    [prop in keyof T]?: [(value: T[prop]) => any, ((value: any) => T[prop])?]
   }
   afterDeserialize?: (object: T) => void
 }
@@ -25,9 +24,9 @@ export interface SerializableOptions<T> {
 export function serializable<T> (
     constructor: Constructor<T>, options?: SerializableOptions<T>) {
 
-  idToConstructor.set(nextConstructorId, constructor)
-  constructorToId.set(constructor, nextConstructorId)
-  nextConstructorId++
+  const id = nextConstructorId++
+  idToConstructor.set(id, constructor)
+  constructorToId.set(constructor, id)
 
   addInheritedProperty(constructor, constructorToIgnoreSet,
       (ignore, parentSet) => {
@@ -92,7 +91,7 @@ export function serialize (toSerialize: any) {
       const id = constructorToId.get(object.constructor)
       if (!id) {
         if (object.constructor.name) {
-          console.warn(`To save, call 'serializable' on `, object)
+          console.warn(`To serialize`, object, `pass class to 'serializable'`)
         }
         return
       }

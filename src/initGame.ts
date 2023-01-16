@@ -1,13 +1,13 @@
 import { putInsideContainer } from './behavior/container'
 import { spawn } from './behavior/spawn'
-import { game } from './Game'
 import GameTime from './GameTime'
 import { typeMonster } from './objects/monster'
 import { generateRandomGraph } from './map/generateRandomGraph'
 import { startForceDirectedSimulation } from './map/forceDirectedSim'
 import { makeType } from './GameObjectType'
+import Game from './Game'
 
-export function initGame () {
+export function initGame (game: Game) {
   game.energyPool = 2 * GameTime.hour
 
   game.world = spawn(typeWorld)

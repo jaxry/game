@@ -31,20 +31,18 @@ export default class Component<T extends Element = HTMLElement> {
   remove () {
     this.element.remove()
 
-    if (this.parentComponent) {
-      this.parentComponent.childComponents.delete(this)
-      this.parentComponent = undefined
-    } else {
-      return
-    }
+    this.parentComponent?.childComponents.delete(this)
+    this.parentComponent = undefined
 
     for (const callback of this.destroyCallbacks) {
       callback()
     }
+    this.destroyCallbacks.length = 0
 
     for (const component of this.childComponents) {
       component.remove()
     }
+    this.childComponents.clear()
   }
 
   on<T> (event: Observer<T>, listener: (data: T) => void) {

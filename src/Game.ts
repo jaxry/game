@@ -2,10 +2,9 @@ import GameTime from './GameTime'
 import type GameObject from './GameObject'
 import type Effect from './behavior/Effect'
 import Observer from './Observer'
-import { deserialize, serializable } from './serialize'
-import { initGame } from './initGame'
+import { serializable } from './serialize'
 
-class Game {
+export default class Game {
   time = new GameTime()
   event = {
     tickEnd: new Observer(),
@@ -43,11 +42,6 @@ function rehydrateObject (object: GameObject) {
 
 export let game: Game
 
-export function loadGame (saveData?: string) {
-  if (saveData) {
-    game = deserialize(saveData)
-  } else {
-    game = new Game()
-    initGame()
-  }
+export function setGameInstance (instance: Game) {
+  game = instance
 }

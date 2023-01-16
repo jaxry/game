@@ -67,7 +67,6 @@ export default class GameUI extends GameComponent {
         startGameLoop()
       }
     }
-
     document.addEventListener('visibilitychange', visibilityChange)
     this.onRemove(() => {
       document.removeEventListener('visibilitychange', visibilityChange)
