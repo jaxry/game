@@ -1,12 +1,7 @@
 import Component from './Component'
 import Action from '../../behavior/Action'
-import {
-  actionColor, actionTargetColor, actionTimeColor, border, borderRadius,
-  duration,
-  fontColor,
-} from '../theme'
+import { actionColor, actionTimeColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
-import colors from '../colors'
 import GameTime from '../../GameTime'
 
 export default class ActionComponent extends Component {
@@ -71,12 +66,11 @@ const containerStyle = makeStyle({
 })
 
 const nameStyle = makeStyle({
-  color: actionColor
+  color: actionColor,
 })
 
-const targetStyle = makeStyle({
-})
+const targetStyle = makeStyle({})
 
 const timeStyle = makeStyle({
-  color: actionTimeColor
+  color: actionTimeColor,
 })

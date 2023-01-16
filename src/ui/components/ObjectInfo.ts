@@ -2,7 +2,6 @@ import GameObject from '../../GameObject'
 import Window from './Window'
 import Inventory from './Inventory'
 import { makeStyle } from '../makeStyle'
-import colors from '../colors'
 
 export default class ObjectInfo extends Window {
   constructor (object: GameObject, parentBBox: DOMRect) {

@@ -8,12 +8,10 @@ import { game } from '../../Game'
 import Effect from '../../behavior/Effect'
 import TargetActionAnimation from './TargetActionAnimation'
 import {
-  border, borderColor, borderRadius, boxShadow, duration, fontColor,
-  objectCardColor, objectCardNameBorderColor,
+  borderRadius, boxShadow, duration, objectCardColor, objectCardNameBorderColor,
   objectCardPlayerColor,
 } from '../theme'
 import { makeStyle } from '../makeStyle'
-import colors from '../colors'
 import GameComponent from './GameComponent'
 import DummyElement from '../DummyElement'
 import animateWithDelay from '../animateWithDelay'
@@ -99,23 +97,6 @@ export default class ObjectCard extends GameComponent {
     const self = this
   }
 
-  private setAction (action: Action) {
-    if (this.actionComponent) {
-      this.actionComponent.remove()
-    }
-    this.actionComponent = this.newComponent(ActionComponent, action)
-    this.element.append(this.actionComponent.element)
-    this.element.style.minHeight = getComputedStyle(this.element).height
-  }
-
-  private clearAction () {
-    this.actionComponent?.exit()
-  }
-
-  private update () {
-    this.actionComponent?.update()
-  }
-
   enter () {
     new DummyElement(this.element).growWidthFirst()
 
@@ -142,6 +123,23 @@ export default class ObjectCard extends GameComponent {
       this.remove()
     }
   }
+
+  private setAction (action: Action) {
+    if (this.actionComponent) {
+      this.actionComponent.remove()
+    }
+    this.actionComponent = this.newComponent(ActionComponent, action)
+    this.element.append(this.actionComponent.element)
+    this.element.style.minHeight = getComputedStyle(this.element).height
+  }
+
+  private clearAction () {
+    this.actionComponent?.exit()
+  }
+
+  private update () {
+    this.actionComponent?.update()
+  }
 }
 
 const containerStyle = makeStyle({
@@ -154,14 +152,13 @@ const containerStyle = makeStyle({
   boxShadow,
   borderRadius,
   userSelect: `none`,
-  textTransform: `capitalize`
+  textTransform: `capitalize`,
 })
-
 
 const nameStyle = makeStyle({
   width: `100%`,
   textAlign: `center`,
-  borderBottom: `2px solid ${objectCardNameBorderColor}`
+  borderBottom: `2px solid ${objectCardNameBorderColor}`,
 })
 
 const playerStyle = makeStyle({

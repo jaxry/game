@@ -41,5 +41,5 @@ export default class Window extends Component {
 }
 
 const containerStyle = makeStyle({
-  background: windowColor
+  background: windowColor,
 })

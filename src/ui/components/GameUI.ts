@@ -7,7 +7,7 @@ import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import GameSidebar from './GameSidebar'
-import { backgroundColor, border } from '../theme'
+import { border } from '../theme'
 
 export const dragAndDropGameObject = new DragAndDrop<GameObject>()
 
@@ -67,6 +67,7 @@ export default class GameUI extends GameComponent {
         startGameLoop()
       }
     }
+
     document.addEventListener('visibilitychange', visibilityChange)
     this.onRemove(() => {
       document.removeEventListener('visibilitychange', visibilityChange)

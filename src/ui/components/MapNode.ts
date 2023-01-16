@@ -1,9 +1,6 @@
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
-import colors from '../colors'
-import {
-  backgroundColor, border, borderRadius, boxShadow, mapNodeColor,
-} from '../theme'
+import { border, borderRadius, boxShadow, mapNodeColor } from '../theme'
 import Zone from './Zone'
 import GameComponent from './GameComponent'
 import Effect from '../../behavior/Effect'

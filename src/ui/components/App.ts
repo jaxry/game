@@ -3,7 +3,6 @@ import GameUI from './GameUI'
 import { makeStyle } from '../makeStyle'
 import '../preflight.css'
 import { backgroundColor, fontColor } from '../theme'
-import colors from '../colors'
 
 export default class App extends Component {
   constructor () {
