@@ -17,10 +17,6 @@ export default class TransferAction extends Action {
     return `pick up`
   }
 
-  override get nameActive () {
-    return `picking up`
-  }
-
   override condition () {
     // moving to a different spot
     return this.target.container !== this.destination &&

@@ -15,10 +15,6 @@ export default class TravelAction extends Action {
     return `travel`
   }
 
-  override get nameActive () {
-    return `travelling`
-  }
-
   override do () {
     putInsideContainer(this.target, this.object)
   }

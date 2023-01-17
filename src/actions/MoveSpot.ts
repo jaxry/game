@@ -15,10 +15,6 @@ export default class MoveSpotAction extends Action {
     return `move ${this.direction()}`
   }
 
-  override get nameActive () {
-    return `moving ${this.direction()}`
-  }
-
   override onActivate () {
     this.to = this.object.spot + Math.sign(this.to - this.object.spot)
   }

@@ -95,17 +95,14 @@ export default class Zone extends GameComponent {
     const dummyTo = new DummyElement(elem, false)
     this.spots[to].append(dummyTo.element)
 
+    dummyTo.element.style.margin = `0`
+
     const bboxTo = dummyTo.element.getBoundingClientRect()
 
     new DummyElement(elem).shrink()
 
     dummyTo.element.append(elem)
     dummyTo.grow()
-
-    // prevents zone from shrinking when there's only a single element
-    if (this.objectToCard.size === 1) {
-      this.element.style.minHeight = getComputedStyle(this.element).height
-    }
 
     elem.animate({
       transform: [
@@ -114,9 +111,7 @@ export default class Zone extends GameComponent {
     }, {
       duration: duration.normal,
       easing: 'ease-in-out',
-    }).onfinish = () => {
-      this.element.style.minHeight = ''
-    }
+    })
   }
 
   private objectEnter (obj: GameObject) {

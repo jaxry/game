@@ -16,10 +16,6 @@ export default class AttackAction extends Action {
     return `slash`
   }
 
-  override get nameActive () {
-    return `slashing`
-  }
-
   override condition () {
     return this.target.health > 0 &&
         isAncestor(this.object.container, this.target) &&

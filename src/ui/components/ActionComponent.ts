@@ -3,6 +3,7 @@ import Action from '../../behavior/Action'
 import { actionColor, actionTimeColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameTime from '../../GameTime'
+import DummyElement from '../DummyElement'
 
 export default class ActionComponent extends Component {
   private readonly time: HTMLElement
@@ -17,7 +18,7 @@ export default class ActionComponent extends Component {
 
     const name = document.createElement('div')
     name.classList.add(nameStyle)
-    name.textContent = action.nameActive
+    name.textContent = action.name
     nameTarget.append(name)
 
     const target = document.createElement('div')
@@ -30,31 +31,10 @@ export default class ActionComponent extends Component {
     this.element.append(this.time)
 
     this.update()
-
-    this.element.animate({ opacity: [0, 1] }, { duration: duration.fast })
   }
 
   update () {
-    if (this.action.time <= 0) {
-      this.time.animate({
-        opacity: 0,
-      }, {
-        duration:
-        duration.fast, fill: 'forwards',
-      })
-    } else {
-      this.time.textContent = GameTime.displaySeconds(this.action.time)
-    }
-  }
-
-  exit () {
-    this.element.animate({
-      opacity: 0,
-    }, {
-      duration: duration.fast,
-    }).onfinish = () => {
-      this.remove()
-    }
+    this.time.textContent = GameTime.displaySeconds(this.action.time)
   }
 }
 

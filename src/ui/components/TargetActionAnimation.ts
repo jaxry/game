@@ -1,6 +1,6 @@
 import Component from './Component'
 import Action from '../../behavior/Action'
-import { duration } from '../theme'
+import { actionColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
 import bBoxDiff from '../../util'
 import GameTime from '../../GameTime'
@@ -16,9 +16,10 @@ export default class TargetActionAnimation extends Component {
     this.element.textContent = action.name
 
     this.element.animate({
-      opacity: [0, 1],
+      opacity: [0, 0.8],
     }, {
       duration: duration.fast,
+      fill: 'forwards',
     })
 
     const fromTranslate = bBoxDiff(
@@ -52,4 +53,5 @@ const containerStyle = makeStyle({
   position: 'absolute',
   pointerEvents: `none`,
   zIndex: `999`,
+  color: actionColor
 })

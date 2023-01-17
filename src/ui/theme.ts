@@ -20,11 +20,10 @@ export const mapNodeColor = colors.sky[900]
 export const sidebarColor = backgroundColor[800]
 export const windowColor = backgroundColor[700]
 
-export const objectCardColor = colors.teal[800]
-export const objectCardNameBorderColor = colors.teal[600]
+export const objectCardColor = colors.teal[700]
 export const objectCardPlayerColor = colors.green[700]
+export const objectCardNameBorderColor = `#fff4`
 
 export const actionColor = colors.yellow[400]
-export const actionTargetColor = colors.pink[400]
 export const actionTimeColor = colors.red[400]
 

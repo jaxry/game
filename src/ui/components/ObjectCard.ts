@@ -125,16 +125,30 @@ export default class ObjectCard extends GameComponent {
   }
 
   private setAction (action: Action) {
-    if (this.actionComponent) {
-      this.actionComponent.remove()
-    }
-    this.actionComponent = this.newComponent(ActionComponent, action)
-    this.element.append(this.actionComponent.element)
-    this.element.style.minHeight = getComputedStyle(this.element).height
+    this.clearAction()
+    const component = this.newComponent(ActionComponent, action)
+    this.actionComponent = component
+    this.element.append(component.element)
+
+    new DummyElement(component.element).growHeightOnly()
   }
 
   private clearAction () {
-    this.actionComponent?.exit()
+    if (!this.actionComponent) {
+      return
+    }
+    const component = this.actionComponent
+    this.actionComponent = undefined
+
+    // component.remove()
+    new DummyElement(component.element).shrinkHeightOnly()
+    component.element.animate({
+      opacity: 0,
+    }, {
+      duration: duration.fast,
+    }).onfinish = () => {
+      component.remove()
+    }
   }
 
   private update () {
@@ -143,6 +157,7 @@ export default class ObjectCard extends GameComponent {
 }
 
 const containerStyle = makeStyle({
+  overflow: `hidden`,
   width: `10rem`,
   display: `flex`,
   flexDirection: `column`,

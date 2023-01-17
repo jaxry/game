@@ -10,10 +10,6 @@ export default class Action extends Effect {
   // for targeted actions such as attacks
   target?: GameObject
 
-  get nameActive () {
-    return this.name
-  }
-
   // Called after the specified time is elapsed
   do? (): void
 
