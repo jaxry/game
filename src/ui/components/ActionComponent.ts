@@ -1,9 +1,8 @@
 import Component from './Component'
 import Action from '../../behavior/Action'
-import { actionColor, actionTimeColor, duration } from '../theme'
+import { actionColor, actionTimeColor } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameTime from '../../GameTime'
-import DummyElement from '../DummyElement'
 
 export default class ActionComponent extends Component {
   private readonly time: HTMLElement

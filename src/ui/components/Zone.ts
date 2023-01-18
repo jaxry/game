@@ -90,23 +90,24 @@ export default class Zone extends GameComponent {
   private moveSpot (obj: GameObject, from: number, to: number) {
     const elem = this.objectToCard.get(obj)!.element
 
-    const bboxFrom = elem.getBoundingClientRect()
+    const oldContainerHeight = this.element.scrollHeight
 
-    const dummyTo = new DummyElement(elem, false)
-    this.spots[to].append(dummyTo.element)
+    const dummyFrom = new DummyElement(elem).shrink()
 
-    dummyTo.element.style.margin = `0`
+    this.spots[to].append(elem)
+    const dummyTo = new DummyElement(elem)
 
-    const bboxTo = dummyTo.element.getBoundingClientRect()
+    const newContainerHeight = this.element.scrollHeight
 
-    new DummyElement(elem).shrink()
+    oldContainerHeight < newContainerHeight ?
+        dummyTo.growSmart() : dummyTo.growWidthOnly()
 
-    dummyTo.element.append(elem)
-    dummyTo.grow()
+    const dx = dummyFrom.element.offsetLeft - dummyTo.element.offsetLeft
+    const dy = dummyFrom.element.offsetTop - dummyTo.element.offsetTop
 
     elem.animate({
       transform: [
-        translate(bboxFrom.x - bboxTo.x, bboxFrom.y - bboxTo.y),
+        translate(dx, dy),
         translate(0, 0)],
     }, {
       duration: duration.normal,

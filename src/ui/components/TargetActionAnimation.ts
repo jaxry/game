@@ -53,5 +53,5 @@ const containerStyle = makeStyle({
   position: 'absolute',
   pointerEvents: `none`,
   zIndex: `999`,
-  color: actionColor
+  color: actionColor,
 })
