@@ -15,6 +15,7 @@ import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import DummyElement from '../DummyElement'
 import animateWithDelay from '../animateWithDelay'
+import GameTime from '../../GameTime'
 
 const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
@@ -61,18 +62,25 @@ export default class ObjectCard extends GameComponent {
 
     this.on(game.event.tickEnd, () => this.update())
 
+    const self = this
     this.newEffect(class extends Effect {
+      override tick () {
+        const action = this.object.activeAction
+        const startAnimation = action?.target
+            && GameTime.seconds(action.time) === 1
+            && objectToCard.has(action.target)
+        if (startAnimation) {
+          self.targetActionAnimation?.exit()
+          const to = objectToCard.get(action.target!)!
+          self.targetActionAnimation = self.newComponent(
+              TargetActionAnimation, action, self.element, to.element)
+        }
+      }
+
       override events () {
         this.on(object.container, 'itemActionStart', ({ action }) => {
           if (action.object !== this.object) {
             return
-          }
-
-          if (action.target && objectToCard.has(action.target)) {
-            self.targetActionAnimation?.exit()
-            const to = objectToCard.get(action.target)!
-            self.targetActionAnimation = self.newComponent(
-                TargetActionAnimation, action, self.element, to.element)
           }
 
           self.setAction(action)
@@ -93,8 +101,6 @@ export default class ObjectCard extends GameComponent {
         })
       }
     }, object)
-
-    const self = this
   }
 
   enter () {
@@ -140,7 +146,6 @@ export default class ObjectCard extends GameComponent {
     const component = this.actionComponent
     this.actionComponent = undefined
 
-    // component.remove()
     new DummyElement(component.element).shrinkHeightOnly()
     component.element.animate({
       opacity: 0,

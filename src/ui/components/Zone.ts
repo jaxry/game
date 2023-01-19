@@ -4,7 +4,7 @@ import GameObject from '../../GameObject'
 import { MovePlayerToSpot } from '../../behavior/player'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/core'
-import { getAndDelete, makeOrGet, translate } from '../../util'
+import { bBoxDiff, getAndDelete, makeOrGet, translate } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
@@ -97,17 +97,15 @@ export default class Zone extends GameComponent {
     this.spots[to].append(elem)
     const dummyTo = new DummyElement(elem)
 
-    const newContainerHeight = this.element.scrollHeight
-
-    oldContainerHeight < newContainerHeight ?
+    // Only grow height if container is larger to prevent unnecessary
+    // height fluctuations as the new card grows and the old spot shrinks
+    oldContainerHeight < this.element.scrollHeight ?
         dummyTo.growSmart() : dummyTo.growWidthOnly()
-
-    const dx = dummyFrom.element.offsetLeft - dummyTo.element.offsetLeft
-    const dy = dummyFrom.element.offsetTop - dummyTo.element.offsetTop
 
     elem.animate({
       transform: [
-        translate(dx, dy),
+        bBoxDiff(dummyFrom.element.getBoundingClientRect(),
+            dummyTo.element.getBoundingClientRect()),
         translate(0, 0)],
     }, {
       duration: duration.normal,

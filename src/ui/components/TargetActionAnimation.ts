@@ -2,8 +2,8 @@ import Component from './Component'
 import Action from '../../behavior/Action'
 import { actionColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
-import bBoxDiff from '../../util'
 import GameTime from '../../GameTime'
+import { bBoxDiff } from '../../util'
 
 export default class TargetActionAnimation extends Component {
   constructor (action: Action, from: Element, to: Element) {
@@ -16,7 +16,7 @@ export default class TargetActionAnimation extends Component {
     this.element.textContent = action.name
 
     this.element.animate({
-      opacity: [0, 0.8],
+      opacity: [`0`, `1`],
     }, {
       duration: duration.fast,
       fill: 'forwards',
@@ -26,11 +26,11 @@ export default class TargetActionAnimation extends Component {
         from.getBoundingClientRect(), to.getBoundingClientRect())
 
     const translation = this.element.animate({
-      transform: [`${fromTranslate} scale(0.5)`, `translate(0, 0) scale(1) `],
+      transform: [`${fromTranslate}`, `translate(0, 0)`],
     }, {
       duration: 1000 * GameTime.seconds(action.time),
       composite: 'accumulate',
-      easing: 'ease-in',
+      easing: 'ease-in-out',
     })
 
     translation.onfinish = () => {

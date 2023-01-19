@@ -7,13 +7,11 @@ export default class DummyElement {
 
   style = getComputedStyle(this.element)
 
-  constructor (public original: HTMLElement, replace = true) {
+  constructor (public original: HTMLElement) {
     this.element.classList.add(dummyStyle)
 
-    if (replace) {
-      original.replaceWith(this.element)
-      this.element.append(original)
-    }
+    original.replaceWith(this.element)
+    this.element.append(original)
   }
 
   growSmart () {

@@ -149,6 +149,6 @@ export function translate (x: number, y: number) {
   return `translate(${numToPx(x)}, ${numToPx(y)})`
 }
 
-export default function bBoxDiff (oldBBox: DOMRect, newBBox: DOMRect) {
+export function bBoxDiff (oldBBox: DOMRect, newBBox: DOMRect) {
   return translate(oldBBox.x - newBBox.x, oldBBox.y - newBBox.y)
 }
