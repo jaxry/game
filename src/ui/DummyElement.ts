@@ -1,82 +1,109 @@
 import { duration } from './theme'
+import animateManual from './animateManual'
+import { makeStyle } from './makeStyle'
 
 export default class DummyElement {
   element = document.createElement('div')
 
-  marginInline: string
-  marginBlock: string
-  width: string
-  height: string
+  style = getComputedStyle(this.element)
 
-  constructor (public original: Element, replace = true) {
-    const { width, height, marginInline, marginBlock } = getComputedStyle(
-        original)
-    this.width = width
-    this.height = height
-    this.marginInline = marginInline // left-right
-    this.marginBlock = marginBlock // top-bottom
+  constructor (public original: HTMLElement) {
+    this.element.classList.add(dummyStyle)
 
-    this.element.style.margin = `0`
-    this.element.style.width = `0`
-    this.element.style.height = `0`
-    this.element.style.pointerEvents = `none`
-
-    if (replace) {
-      original.replaceWith(this.element)
-      this.element.append(original)
-    }
+    original.replaceWith(this.element)
+    this.element.append(original)
   }
 
-  grow () {
-    this.element.animate({
-      width: [`0`, this.width],
-      height: [`0`, this.height],
-      marginInline: [`0`, this.marginInline],
-      marginBlock: [`0`, this.marginBlock],
-    }, options).onfinish = () => {
+  growSmart () {
+    const animation = this.element.animate({
+      margin: [`0`, this.style.margin],
+    }, options)
+
+    animateManual(this.element, options.duration as number, (t) => {
+      this.element.style.width = `${t * this.original.offsetWidth}px`
+      this.element.style.height = `${t * this.original.offsetHeight}px`
+    })
+
+    animation.onfinish = () => {
       this.element.replaceWith(this.original)
     }
+
+    return this
   }
 
   growWidthFirst () {
+    this.element.style.height = `0`
+    this.element.style.marginBlock = `0`
     this.element.animate({
-      width: [`0`, this.width],
-      marginInline: [`0`, this.marginInline],
+      width: [`0`, this.style.width],
+      marginInline: [`0`, this.style.marginInline],
     }, options).onfinish = () => {
+      this.element.style.height = ``
+      this.element.style.marginBlock = ``
       this.element.animate({
-        height: this.height,
-        marginBlock: this.marginBlock,
+        height: [`0`, this.style.height],
+        marginBlock: [`0`, this.style.marginBlock],
       }, options).onfinish = () => {
         this.element.replaceWith(this.original)
       }
     }
+    return this
+  }
+
+  growWidthOnly () {
+    this.element.animate({
+      width: [`0`, this.style.width],
+      marginInline: [`0`, this.style.marginInline],
+    }, options).onfinish = () => {
+      this.element.replaceWith(this.original)
+    }
+    return this
+  }
+
+  growHeightOnly () {
+    this.element.animate({
+      height: [`0`, this.style.height],
+      marginBlock: [`0`, this.style.marginBlock],
+    }, options).onfinish = () => {
+      this.element.replaceWith(this.original)
+    }
+    return this
   }
 
   shrink () {
     this.element.animate({
-      height: [this.height, `0`],
-      width: [this.width, `0`],
-      marginInline: [this.marginInline, `0`],
-      marginBlock: [this.marginBlock, `0`],
+      height: [this.style.height, `0`],
+      width: [this.style.width, `0`],
+      margin: [this.style.margin, `0`],
     }, { ...options, duration: duration.slow }).onfinish = () => {
       this.element.remove()
     }
+    return this
   }
 
   shrinkHeightFirst () {
     this.element.animate({
-      height: [this.height, `0`],
-      width: [this.width, this.width],
-      marginBlock: [this.marginBlock, `0`],
-      marginInline: [this.marginInline, this.marginInline],
+      height: [this.style.height, `0`],
+      marginBlock: [this.style.marginBlock, `0`],
     }, options).onfinish = () => {
       this.element.animate({
-        width: [this.width, `0`],
-        marginInline: [this.marginInline, `0`],
+        width: [this.style.width, `0`],
+        marginInline: [this.style.marginInline, `0`],
       }, options).onfinish = () => {
         this.element.remove()
       }
     }
+    return this
+  }
+
+  shrinkHeightOnly () {
+    this.element.animate({
+      height: [this.style.height, `0`],
+      marginBlock: [this.style.marginBlock, `0`],
+    }, options).onfinish = () => {
+      this.element.remove()
+    }
+    return this
   }
 }
 
@@ -85,3 +112,7 @@ const options: KeyframeAnimationOptions = {
   easing: 'ease-in-out',
   fill: 'forwards',
 }
+
+const dummyStyle = makeStyle({
+  pointerEvents: `none`,
+})

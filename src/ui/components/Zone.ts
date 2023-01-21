@@ -4,7 +4,7 @@ import GameObject from '../../GameObject'
 import { MovePlayerToSpot } from '../../behavior/player'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/core'
-import { getAndDelete, makeOrGet, translate } from '../../util'
+import { translateDiff, getAndDelete, makeOrGet, translate } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
@@ -90,33 +90,26 @@ export default class Zone extends GameComponent {
   private moveSpot (obj: GameObject, from: number, to: number) {
     const elem = this.objectToCard.get(obj)!.element
 
-    const bboxFrom = elem.getBoundingClientRect()
+    const oldContainerHeight = this.element.scrollHeight
 
-    const dummyTo = new DummyElement(elem, false)
-    this.spots[to].append(dummyTo.element)
+    const dummyFrom = new DummyElement(elem).shrink()
 
-    const bboxTo = dummyTo.element.getBoundingClientRect()
+    this.spots[to].append(elem)
+    const dummyTo = new DummyElement(elem)
 
-    new DummyElement(elem).shrink()
-
-    dummyTo.element.append(elem)
-    dummyTo.grow()
-
-    // prevents zone from shrinking when there's only a single element
-    if (this.objectToCard.size === 1) {
-      this.element.style.minHeight = getComputedStyle(this.element).height
-    }
+    // Only grow height if container is larger to prevent unnecessary
+    // height fluctuations as the new card grows and the old spot shrinks
+    oldContainerHeight < this.element.scrollHeight ?
+        dummyTo.growSmart() : dummyTo.growWidthOnly()
 
     elem.animate({
       transform: [
-        translate(bboxFrom.x - bboxTo.x, bboxFrom.y - bboxTo.y),
+        translateDiff(dummyFrom.element, dummyTo.element),
         translate(0, 0)],
     }, {
       duration: duration.normal,
       easing: 'ease-in-out',
-    }).onfinish = () => {
-      this.element.style.minHeight = ''
-    }
+    })
   }
 
   private objectEnter (obj: GameObject) {

@@ -3,7 +3,7 @@ import createSvg from '../createSvg'
 import { Edge, getZoneGraph } from '../../behavior/connections'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
-import { backgroundColor, duration } from '../theme'
+import { backgroundColor, duration, mapEdgeColor } from '../theme'
 import MapNode from './MapNode'
 import addPanZoom from '../PanZoom'
 import { makeOrGet, numToPixel, translate } from '../../util'
@@ -207,6 +207,6 @@ makeStyle(`.${svgStyle} *`, {
 })
 
 const edgeStyle = makeStyle({
-  stroke: backgroundColor['500'],
+  stroke: mapEdgeColor,
   strokeWidth: `2`,
 })

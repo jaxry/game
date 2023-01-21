@@ -27,7 +27,7 @@ export function initGame (game: Game) {
     spawn(typeApple, game.player)
   }
 
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < 15; i++) {
     spawn(Math.random() > 0.2 ? typeMonster : typeApple,
         zones.at(Math.random() * zones.length))
   }
@@ -43,7 +43,7 @@ const typeWorld = makeType({
 })
 
 const typeYou = makeType({
-  name: `Soyboy Jack`,
+  name: `Boof Nasty`,
   icon: `😭`,
   properNoun: true,
   isContainer: true,

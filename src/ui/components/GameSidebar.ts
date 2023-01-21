@@ -5,6 +5,7 @@ import { game } from '../../Game'
 import { makeStyle } from '../makeStyle'
 import { deleteSaveFile, saveGameToFile } from '../../saveLoad'
 import { restartGame } from '../../main'
+import { sidebarColor } from '../theme'
 
 export default class GameSidebar extends Component {
   constructor () {
@@ -41,6 +42,7 @@ export default class GameSidebar extends Component {
 }
 
 const containerStyle = makeStyle({
+  background: sidebarColor,
   display: 'flex',
   flexDirection: 'column',
 })

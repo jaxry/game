@@ -47,6 +47,13 @@ export class TravelAnimation {
     }, { duration: actionDuration })
   }
 
+  updateScale (newScale: number) {
+    this.scale = newScale
+    for (const { action, animation } of this.animationState) {
+      this.setKeyframes(action, animation)
+    }
+  }
+
   private setKeyframes (action: TravelAction, animation: Animation) {
     const from = action.object.container.position
     const to = action.target.position
@@ -58,13 +65,6 @@ export class TravelAnimation {
         `${translate(from.x * s, from.y * s)}`,
         `${translate(to.x * s, to.y * s)}`],
     })
-  }
-
-  updateScale (newScale: number) {
-    this.scale = newScale
-    for (const { action, animation } of this.animationState) {
-      this.setKeyframes(action, animation)
-    }
   }
 }
 

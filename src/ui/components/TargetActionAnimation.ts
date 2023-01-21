@@ -1,9 +1,9 @@
 import Component from './Component'
 import Action from '../../behavior/Action'
-import { duration } from '../theme'
+import { actionColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
-import bBoxDiff from '../../util'
 import GameTime from '../../GameTime'
+import { translateDiff } from '../../util'
 
 export default class TargetActionAnimation extends Component {
   constructor (action: Action, from: Element, to: Element) {
@@ -13,23 +13,21 @@ export default class TargetActionAnimation extends Component {
 
     this.element.classList.add(containerStyle)
 
-    this.element.textContent = action.icon
+    this.element.textContent = action.name
 
     this.element.animate({
-      opacity: [0, 1],
+      opacity: [`0`, `1`],
     }, {
       duration: duration.fast,
+      fill: 'forwards',
     })
 
-    const fromTranslate = bBoxDiff(
-        from.getBoundingClientRect(), to.getBoundingClientRect())
-
     const translation = this.element.animate({
-      transform: [`${fromTranslate} scale(0.5)`, `translate(0, 0) scale(1) `],
+      transform: [translateDiff(from, to), `translate(0, 0)`],
     }, {
       duration: 1000 * GameTime.seconds(action.time),
       composite: 'accumulate',
-      easing: 'ease-in',
+      easing: 'ease-in-out',
     })
 
     translation.onfinish = () => {
@@ -50,7 +48,7 @@ export default class TargetActionAnimation extends Component {
 
 const containerStyle = makeStyle({
   position: 'absolute',
-  fontSize: `1.5rem`,
   pointerEvents: `none`,
   zIndex: `999`,
+  color: actionColor,
 })

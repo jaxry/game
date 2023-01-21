@@ -10,10 +10,6 @@ export default class Action extends Effect {
   // for targeted actions such as attacks
   target?: GameObject
 
-  get icon () {
-    return '🙾'
-  }
-
   // Called after the specified time is elapsed
   do? (): void
 

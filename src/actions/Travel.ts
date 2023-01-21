@@ -12,11 +12,7 @@ export default class TravelAction extends Action {
   }
 
   override get name () {
-    return 'travel'
-  }
-
-  override get icon () {
-    return '🥾'
+    return `travel`
   }
 
   override do () {
