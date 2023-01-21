@@ -15,7 +15,6 @@ import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import DummyElement from '../DummyElement'
 import animateWithDelay from '../animateWithDelay'
-import GameTime from '../../GameTime'
 
 const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
@@ -67,7 +66,7 @@ export default class ObjectCard extends GameComponent {
       override tick () {
         const action = this.object.activeAction
         const startAnimation = action?.target
-            && GameTime.seconds(action.time) === 1
+            && action.seconds === 1
             && objectToCard.has(action.target)
         if (startAnimation) {
           self.targetActionAnimation?.exit()

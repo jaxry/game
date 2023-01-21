@@ -1,6 +1,5 @@
 import TravelAction from '../../actions/Travel'
 import { translate } from '../../util'
-import GameTime from '../../GameTime'
 import { makeStyle } from '../makeStyle'
 import { duration } from '../theme'
 
@@ -21,7 +20,7 @@ export class TravelAnimation {
     icon.textContent = action.object.type.name
     this.container.append(icon)
 
-    const actionDuration = 1000 * GameTime.seconds(action.time)
+    const actionDuration = action.milliseconds
 
     const animation = icon.animate([], {
       duration: actionDuration,

@@ -2,7 +2,6 @@ import Component from './Component'
 import Action from '../../behavior/Action'
 import { actionColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
-import GameTime from '../../GameTime'
 import { translateDiff } from '../../util'
 
 export default class TargetActionAnimation extends Component {
@@ -25,7 +24,7 @@ export default class TargetActionAnimation extends Component {
     const translation = this.element.animate({
       transform: [translateDiff(from, to), `translate(0, 0)`],
     }, {
-      duration: 1000 * GameTime.seconds(action.time),
+      duration: action.milliseconds,
       composite: 'accumulate',
       easing: 'ease-in-out',
     })

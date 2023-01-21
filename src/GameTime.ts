@@ -12,6 +12,10 @@ export default class GameTime {
     return time / GameTime.second
   }
 
+  static milliseconds (time: number) {
+    return GameTime.seconds(time) * 1000
+  }
+
   static displaySeconds (time: number) {
     return GameTime.seconds(time).toFixed(1)
   }

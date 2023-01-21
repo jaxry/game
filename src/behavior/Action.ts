@@ -50,4 +50,12 @@ export default class Action extends Effect {
   condition () {
     return true
   }
+
+  get seconds () {
+    return GameTime.seconds(this.time)
+  }
+
+  get milliseconds () {
+    return GameTime.milliseconds(this.time)
+  }
 }
