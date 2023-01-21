@@ -3,7 +3,7 @@ import Action from '../../behavior/Action'
 import { actionColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameTime from '../../GameTime'
-import { bBoxDiff } from '../../util'
+import { translateDiff } from '../../util'
 
 export default class TargetActionAnimation extends Component {
   constructor (action: Action, from: Element, to: Element) {
@@ -22,11 +22,8 @@ export default class TargetActionAnimation extends Component {
       fill: 'forwards',
     })
 
-    const fromTranslate = bBoxDiff(
-        from.getBoundingClientRect(), to.getBoundingClientRect())
-
     const translation = this.element.animate({
-      transform: [`${fromTranslate}`, `translate(0, 0)`],
+      transform: [translateDiff(from, to), `translate(0, 0)`],
     }, {
       duration: 1000 * GameTime.seconds(action.time),
       composite: 'accumulate',

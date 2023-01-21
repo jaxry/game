@@ -4,7 +4,7 @@ import GameObject from '../../GameObject'
 import { MovePlayerToSpot } from '../../behavior/player'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/core'
-import { bBoxDiff, getAndDelete, makeOrGet, translate } from '../../util'
+import { translateDiff, getAndDelete, makeOrGet, translate } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { borderColor, duration } from '../theme'
 import { makeStyle } from '../makeStyle'
@@ -104,8 +104,7 @@ export default class Zone extends GameComponent {
 
     elem.animate({
       transform: [
-        bBoxDiff(dummyFrom.element.getBoundingClientRect(),
-            dummyTo.element.getBoundingClientRect()),
+        translateDiff(dummyFrom.element, dummyTo.element),
         translate(0, 0)],
     }, {
       duration: duration.normal,

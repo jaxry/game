@@ -7,20 +7,24 @@ export const duration = {
   slow: baseSpeed * 2,
 }
 
-export const backgroundColor = colors.slate
+const backgroundHue = colors.slate
+
+export const backgroundColor = backgroundHue[900]
 export const fontColor = colors.green[100]
 
-export const borderColor = backgroundColor[500]
+export const borderColor = backgroundHue[500]
 export const border = `1px solid ${borderColor}`
 export const borderRadius = '0.25rem'
 
 export const boxShadow = `0 0.3rem 0.6rem #0004`
 
-export const mapNodeColor = colors.sky[900]
-export const sidebarColor = backgroundColor[800]
-export const windowColor = backgroundColor[700]
+export const sidebarColor = backgroundHue[800]
+export const windowColor = backgroundHue[700]
 
-export const objectCardColor = colors.teal[700]
+export const mapNodeColor = backgroundHue[700]
+export const mapEdgeColor = backgroundHue[500]
+
+export const objectCardColor = colors.sky[700]
 export const objectCardPlayerColor = colors.green[700]
 export const objectCardNameBorderColor = `#fff4`
 
