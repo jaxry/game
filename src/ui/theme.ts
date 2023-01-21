@@ -16,7 +16,8 @@ export const borderColor = backgroundHue[500]
 export const border = `1px solid ${borderColor}`
 export const borderRadius = '0.25rem'
 
-export const boxShadow = `0 0.3rem 0.6rem #0004`
+export const boxShadow = `0 0.25rem 0.5rem #0003`
+export const boxShadowLarge = `0 0.5rem 1rem #0006`
 
 export const sidebarColor = backgroundHue[800]
 export const windowColor = backgroundHue[700]

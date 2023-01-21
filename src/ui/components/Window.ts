@@ -4,7 +4,7 @@ import clickOutside from '../clickOutside'
 import { makeStyle } from '../makeStyle'
 import { translate } from '../../util'
 import makeDraggable from '../makeDraggable'
-import { windowColor } from '../theme'
+import { boxShadowLarge, windowColor } from '../theme'
 
 export default class Window extends Component {
   private posX: number
@@ -42,4 +42,5 @@ export default class Window extends Component {
 
 const containerStyle = makeStyle({
   background: windowColor,
+  boxShadow: boxShadowLarge,
 })
