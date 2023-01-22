@@ -75,12 +75,15 @@ export function getZoneGraph (
   const edges = new Map<string, Edge>()
 
   function traverse (node: GameObject, depth: number) {
-    nodes.set(node, depth)
-    if (depth >= maxDepth) {
+    if (nodes.has(node)) {
+      nodes.set(node, Math.min(nodes.get(node)!, depth))
       return
     }
-    for (const neighbor of node.connections) {
-      if (!nodes.has(neighbor)) {
+
+    nodes.set(node, depth)
+
+    if (depth < maxDepth) {
+      for (const neighbor of node.connections) {
         traverse(neighbor, depth + 1)
       }
     }

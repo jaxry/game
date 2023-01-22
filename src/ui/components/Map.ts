@@ -25,10 +25,11 @@ export default class MapComponent extends Component {
     scale: 8,
   }
 
-  private zoneToComponent: Map<GameObject, MapNode> = new Map()
-  private edgeToElem: Map<string, { line: Element, edge: Edge }> = new Map()
+  private zoneToComponent = new Map<GameObject, MapNode>()
+  private zoneToDepth = new WeakMap<GameObject, number>()
+  private edgeToElem = new Map<string, { line: Element, edge: Edge }>()
 
-  private elementScaleThreshold = 6
+  private elementScaleThreshold = 5
 
   constructor () {
     super()
@@ -63,10 +64,12 @@ export default class MapComponent extends Component {
       }
     }
 
-    for (const node of graph.nodes.keys()) {
-      if (!this.zoneToComponent.has(node)) {
-        this.makeZone(node)
-      }
+    for (const [zone, depth] of graph.nodes) {
+      const component = makeOrGet(this.zoneToComponent, zone, () => {
+        return this.makeZone(zone)
+      })
+      this.zoneToDepth.set(zone, depth)
+      depth <= 1 ? component.setComplex() : component.setSimple()
     }
 
     for (const [hash, { line }] of this.edgeToElem) {
@@ -77,30 +80,18 @@ export default class MapComponent extends Component {
     }
 
     for (const [hash, edge] of graph.edges) {
-      if (!this.edgeToElem.has(hash)) {
-        this.makeEdge(hash, edge)
-      }
+      makeOrGet(this.edgeToElem, hash, () => {
+        return this.makeEdge(edge)
+      })
     }
-
-    // set node colors
-    // for (const node of this.zoneToComponent.values()) {
-    // node.center(false)
-    //   node.neighbor(false)
-    // }
-    //
-    // this.zoneToComponent.get(centerZone)!.center(true)
-    //
-    // for (const zone of centerZone.connections) {
-    //   this.zoneToComponent.get(zone)!.neighbor(true)
-    // }
 
     this.centerOnZone(centerZone)
   }
 
   private makeZone (zone: GameObject) {
-    const component = makeOrGet(this.zoneToComponent, zone, () =>
-        this.newComponent(MapNode, zone, this))
+    const component = this.newComponent(MapNode, zone, this)
     this.zoneContainer.append(component.element)
+
     component.element.animate({
       transform: ['scale(0)', 'scale(1)'],
     }, {
@@ -109,6 +100,7 @@ export default class MapComponent extends Component {
       composite: 'add',
     })
 
+    return component
   }
 
   private removeZone (zone: GameObject, component: MapNode) {
@@ -124,7 +116,7 @@ export default class MapComponent extends Component {
     this.zoneToComponent.delete(zone)
   }
 
-  private makeEdge (hash: string, edge: Edge) {
+  private makeEdge (edge: Edge) {
     const line = createSvg('line')
     line.classList.add(edgeStyle)
 
@@ -135,7 +127,8 @@ export default class MapComponent extends Component {
 
     this.edgeG.append(line)
     transitionIn(line)
-    this.edgeToElem.set(hash, { line, edge })
+
+    return { line, edge }
   }
 
   private centerOnZone (zone: GameObject) {
@@ -154,8 +147,7 @@ export default class MapComponent extends Component {
     for (const [zone, component] of this.zoneToComponent) {
       const x = zone.position.x * s
       const y = zone.position.y * s
-      component.element.style.transform =
-          `${translate(x, y)} translate(-50%, -50%)`
+      component.element.style.transform = translate(x, y)
     }
 
     this.travelAnimation.updateScale(s)
