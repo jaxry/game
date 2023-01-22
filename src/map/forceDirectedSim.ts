@@ -9,7 +9,7 @@ export const renderedConnectionDistance = (d3.forceLink().distance() as any)()
 
 export function startForceDirectedSimulation (startingNode: GameObject) {
   const graph = getZoneGraph(startingNode)
-  const nodes = [...graph.nodes]
+  const nodes = [...graph.nodes.keys()]
   const d3Graph = makeD3Graph(graph)
   const sim = d3.forceSimulation()
   sim.nodes(d3Graph.nodes)
@@ -31,7 +31,7 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
 function makeD3Graph (graph: ZoneGraph) {
   const edges: d3.SimulationLinkDatum<d3.SimulationNodeDatum>[] = []
 
-  const nodes = mapIter(graph.nodes, n => n.position)
+  const nodes = mapIter(graph.nodes.keys(), n => n.position)
 
   for (const { source, target } of graph.edges.values()) {
     edges.push({

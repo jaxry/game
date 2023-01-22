@@ -17,6 +17,10 @@ export default class MapNode extends GameComponent {
     const zoneComponent = this.newComponent(Zone, this.zone)
     this.element.append(zoneComponent.element)
 
+    // const circle = document.createElement('div')
+    // circle.classList.add(circleStyle)
+    // this.element.append(circle)
+
     this.newEffect(class extends Effect {
       override events () {
         this.on(this.object, 'itemActionStart', ({ action }) => {
@@ -42,5 +46,11 @@ const containerStyle = makeStyle({
   border,
   borderRadius,
   boxShadow,
+})
+
+const circleStyle = makeStyle({
+  width: `1rem`,
+  height: `1rem`,
+
 })
 

@@ -3,7 +3,7 @@ import createSvg from '../createSvg'
 import { Edge, getZoneGraph } from '../../behavior/connections'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
-import { backgroundColor, duration, mapEdgeColor } from '../theme'
+import { duration, mapEdgeColor } from '../theme'
 import MapNode from './MapNode'
 import addPanZoom from '../PanZoom'
 import { makeOrGet, numToPixel, translate } from '../../util'
@@ -12,8 +12,8 @@ import { TravelAnimation } from '../game/TravelAnimation'
 export default class MapComponent extends Component {
   private svg = createSvg('svg')
   private edgeG = createSvg('g')
-  private map = document.createElement('div')
 
+  private map = document.createElement('div')
   private zoneContainer = document.createElement('div')
   private travelIcons = document.createElement('div')
 
@@ -28,6 +28,8 @@ export default class MapComponent extends Component {
   private zoneToComponent: Map<GameObject, MapNode> = new Map()
   private edgeToElem: Map<string, { line: Element, edge: Edge }> = new Map()
 
+  private elementScaleThreshold = 6
+
   constructor () {
     super()
 
@@ -41,14 +43,14 @@ export default class MapComponent extends Component {
     this.svg.append(this.edgeG)
 
     this.map.classList.add(mapStyle)
+    this.element.append(this.map)
+
     this.map.append(this.zoneContainer)
     this.map.append(this.travelIcons)
 
-    this.element.append(this.map)
-
     addPanZoom(this.element, this.transform, (updatedScale) => {
-      updatedScale && this.updateScale()
-      this.updateTranslation(false)
+      updatedScale && this.updateZoneScale()
+      this.updateTransform(false)
     })
   }
 
@@ -61,7 +63,7 @@ export default class MapComponent extends Component {
       }
     }
 
-    for (const node of graph.nodes) {
+    for (const node of graph.nodes.keys()) {
       if (!this.zoneToComponent.has(node)) {
         this.makeZone(node)
       }
@@ -125,6 +127,12 @@ export default class MapComponent extends Component {
   private makeEdge (hash: string, edge: Edge) {
     const line = createSvg('line')
     line.classList.add(edgeStyle)
+
+    line.setAttribute('x1', numToPixel(edge.source.position.x))
+    line.setAttribute('y1', numToPixel(edge.source.position.y))
+    line.setAttribute('x2', numToPixel(edge.target.position.x))
+    line.setAttribute('y2', numToPixel(edge.target.position.y))
+
     this.edgeG.append(line)
     transitionIn(line)
     this.edgeToElem.set(hash, { line, edge })
@@ -136,12 +144,12 @@ export default class MapComponent extends Component {
     this.transform.y = -zone.position.y * this.transform.scale +
         +this.element.offsetHeight / 2
 
-    this.updateScale()
-    this.updateTranslation()
+    this.updateZoneScale()
+    this.updateTransform()
   }
 
-  private updateScale () {
-    const s = this.transform.scale
+  private updateZoneScale () {
+    const s = Math.max(this.elementScaleThreshold, this.transform.scale)
 
     for (const [zone, component] of this.zoneToComponent) {
       const x = zone.position.x * s
@@ -150,25 +158,26 @@ export default class MapComponent extends Component {
           `${translate(x, y)} translate(-50%, -50%)`
     }
 
-    for (const { edge, line } of this.edgeToElem.values()) {
-      line.setAttribute('x1', numToPixel(edge.source.position.x * s))
-      line.setAttribute('y1', numToPixel(edge.source.position.y * s))
-      line.setAttribute('x2', numToPixel(edge.target.position.x * s))
-      line.setAttribute('y2', numToPixel(edge.target.position.y * s))
-    }
-
     this.travelAnimation.updateScale(s)
   }
 
-  private updateTranslation (animate = true) {
-    const transform = translate(this.transform.x, this.transform.y)
+  private updateTransform (animate = true) {
+    const { x, y, scale } = this.transform
+
+    const mapScale = Math.min(1, scale / this.elementScaleThreshold)
+
     const options: KeyframeAnimationOptions = {
       duration: animate ? duration.slow : 0,
       fill: 'forwards',
       easing: 'ease-in-out',
     }
-    this.map.animate({ transform }, options).commitStyles()
-    this.edgeG.animate({ transform }, options).commitStyles()
+
+    this.edgeG.animate({
+      transform: `${translate(x, y)} scale(${scale})`,
+    }, options).commitStyles()
+    this.map.animate({
+      transform: `${translate(x, y)} scale(${mapScale})`,
+    }, options).commitStyles()
   }
 }
 
@@ -193,20 +202,26 @@ function transitionOut (elem: Element) {
 const containerStyle = makeStyle({
   position: 'relative',
   overflow: `hidden`,
+  contain: `strict`,
 })
 
 const mapStyle = makeStyle({
   position: `absolute`,
   inset: `0`,
+  transformOrigin: `top left`,
 })
 
-const svgStyle = makeStyle()
-makeStyle(`.${svgStyle} *`, {
-  transformBox: `fill-box`,
-  transformOrigin: `center`,
+const svgStyle = makeStyle({
+  position: `absolute`,
+  inset: `0`,
 })
 
 const edgeStyle = makeStyle({
   stroke: mapEdgeColor,
   strokeWidth: `2`,
+  vectorEffect: `non-scaling-stroke`,
+
+  // make SVG transform behave like HTML transform
+  transformBox: `fill-box`,
+  transformOrigin: `center`,
 })
