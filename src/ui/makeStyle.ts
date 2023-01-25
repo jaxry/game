@@ -1,4 +1,4 @@
-type Style = Partial<CSSStyleDeclaration>
+type Style = Partial<CSSStyleDeclaration & { vectorEffect: string }>
 
 export function makeStyle (style?: Style): string
 export function makeStyle (selector: string, style: Style): void

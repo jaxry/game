@@ -65,22 +65,25 @@ export interface Edge {
 }
 
 export interface ZoneGraph {
-  nodes: Set<GameObject>
+  nodes: Map<GameObject, number>
   edges: Map<string, Edge>
 }
 
 export function getZoneGraph (
     startingNode: GameObject, maxDepth = Infinity): ZoneGraph {
-  const nodes = new Set<GameObject>()
+  const nodes = new Map<GameObject, number>()
   const edges = new Map<string, Edge>()
 
   function traverse (node: GameObject, depth: number) {
-    nodes.add(node)
-    if (depth >= maxDepth) {
+    if (nodes.has(node)) {
+      nodes.set(node, Math.min(nodes.get(node)!, depth))
       return
     }
-    for (const neighbor of node.connections) {
-      if (!nodes.has(neighbor)) {
+
+    nodes.set(node, depth)
+
+    if (depth < maxDepth) {
+      for (const neighbor of node.connections) {
         traverse(neighbor, depth + 1)
       }
     }
@@ -89,10 +92,10 @@ export function getZoneGraph (
   traverse(startingNode, 0)
 
   const visited = new Set<GameObject>()
-  for (const node of nodes) {
+  for (const node of nodes.keys()) {
     visited.add(node)
     for (const neighbor of node.connections) {
-      if (visited.has(neighbor) || !nodes.has(neighbor)) {
+      if (!nodes.has(neighbor) || visited.has(neighbor)) {
         continue
       }
       const edge = { source: node, target: neighbor }
