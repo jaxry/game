@@ -23,7 +23,7 @@ export default class MapNode extends GameComponent {
       override events () {
         this.on(this.object, 'itemActionStart', ({ action }) => {
           if (action instanceof TravelAction) {
-            map.travelAnimation.start(action)
+            map.animateTravel(action)
           }
         })
         // this.onEvent(this.object, 'itemActionEnd', ({ action }) => {

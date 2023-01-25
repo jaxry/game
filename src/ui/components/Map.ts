@@ -8,6 +8,7 @@ import MapNode from './MapNode'
 import addPanZoom from '../PanZoom'
 import { makeOrGet, numToPixel, translate } from '../../util'
 import { TravelAnimation } from '../game/TravelAnimation'
+import TravelAction from '../../actions/Travel'
 
 export default class MapComponent extends Component {
   private svg = createSvg('svg')
@@ -17,7 +18,7 @@ export default class MapComponent extends Component {
   private zoneContainer = document.createElement('div')
   private travelIcons = document.createElement('div')
 
-  travelAnimation = new TravelAnimation(this.travelIcons)
+  private travelAnimation = new TravelAnimation(this.travelIcons)
 
   private transform = {
     x: 0,
@@ -86,6 +87,12 @@ export default class MapComponent extends Component {
     }
 
     this.centerOnZone(centerZone)
+  }
+
+  animateTravel (action: TravelAction) {
+    if (this.zoneToDepth.get(action.object.container)! <= 1) {
+      this.travelAnimation.start(action)
+    }
   }
 
   private makeZone (zone: GameObject) {
