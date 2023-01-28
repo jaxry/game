@@ -8,7 +8,6 @@ import MapNode from './MapNode'
 import addPanZoom from '../PanZoom'
 import { makeOrGet, numToPixel, translate } from '../../util'
 import { TravelAnimation } from '../game/TravelAnimation'
-import TravelAction from '../../actions/Travel'
 
 export default class MapComponent extends Component {
   private svg = createSvg('svg')
@@ -18,7 +17,7 @@ export default class MapComponent extends Component {
   private zoneContainer = document.createElement('div')
   private travelIcons = document.createElement('div')
 
-  private travelAnimation = new TravelAnimation(this.travelIcons)
+  travelAnimation = new TravelAnimation(this.travelIcons)
 
   private transform = {
     x: 0,
@@ -27,7 +26,6 @@ export default class MapComponent extends Component {
   }
 
   private zoneToComponent = new Map<GameObject, MapNode>()
-  private zoneToDepth = new WeakMap<GameObject, number>()
   private edgeToElem = new Map<string, { line: Element, edge: Edge }>()
 
   private elementScaleThreshold = 5
@@ -69,13 +67,14 @@ export default class MapComponent extends Component {
       const component = makeOrGet(this.zoneToComponent, zone, () => {
         return this.makeZone(zone)
       })
-      this.zoneToDepth.set(zone, depth)
       depth <= 1 ? component.setComplex() : component.setSimple()
     }
 
     for (const [hash, { line }] of this.edgeToElem) {
       if (!graph.edges.has(hash)) {
-        transitionOut(line)
+        shrink(line).onfinish = () => {
+          line.remove()
+        }
         this.edgeToElem.delete(hash)
       }
     }
@@ -89,35 +88,14 @@ export default class MapComponent extends Component {
     this.centerOnZone(centerZone)
   }
 
-  animateTravel (action: TravelAction) {
-    if (this.zoneToDepth.get(action.object.container)! <= 1) {
-      this.travelAnimation.start(action)
-    }
-  }
-
   private makeZone (zone: GameObject) {
     const component = this.newComponent(MapNode, zone, this)
     this.zoneContainer.append(component.element)
-
-    component.element.animate({
-      transform: ['scale(0)', 'scale(1)'],
-    }, {
-      duration: duration.slow,
-      easing: 'ease-in-out',
-      composite: 'add',
-    })
-
     return component
   }
 
   private removeZone (zone: GameObject, component: MapNode) {
-    component.element.animate({
-      transform: `scale(0)`,
-    }, {
-      duration: duration.slow,
-      easing: 'ease-in-out',
-      composite: 'add',
-    }).onfinish = () => {
+    shrink(component.element).onfinish = () => {
       component.remove()
     }
     this.zoneToComponent.delete(zone)
@@ -133,7 +111,7 @@ export default class MapComponent extends Component {
     line.setAttribute('y2', numToPixel(edge.target.position.y))
 
     this.edgeG.append(line)
-    transitionIn(line)
+    grow(line)
 
     return { line, edge }
   }
@@ -180,22 +158,23 @@ export default class MapComponent extends Component {
   }
 }
 
-function transitionIn (elem: Element) {
-  elem.animate({
+function grow (elem: Element) {
+  return elem.animate({
     transform: ['scale(0)', 'scale(1)'],
   }, {
-    duration: duration.normal,
+    duration: duration.slow,
+    easing: 'ease-out',
   })
 }
 
-function transitionOut (elem: Element) {
-  elem.animate({
+function shrink (elem: Element) {
+  return elem.animate({
     transform: ['scale(1)', 'scale(0)'],
   }, {
-    duration: duration.normal,
-  }).onfinish = () => {
-    elem.remove()
-  }
+    duration: duration.slow,
+    easing: 'ease-in',
+    composite: 'add',
+  })
 }
 
 const containerStyle = makeStyle({

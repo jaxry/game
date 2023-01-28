@@ -13,17 +13,37 @@ import Component from './Component'
 
 export default class MapNode extends GameComponent {
   node: HTMLElement | Component
+  zoneEffect?: Effect
 
-  constructor (public zone: GameObject, map: MapComponent) {
+  constructor (public zone: GameObject, public map: MapComponent) {
     super()
 
     this.element.classList.add(containerStyle)
 
-    this.newEffect(class extends Effect {
+    this.element.addEventListener('click', () => {
+      playerTravelToZone(this.zone)
+    })
+
+  }
+
+  setComplex () {
+    if (this.node instanceof Component) {
+      return
+    }
+    this.removeSimple()
+
+    this.node = this.newComponent(Zone, this.zone)
+    this.node.element.classList.add(zoneStyle)
+    this.element.append(this.node.element)
+
+    grow(this.node.element)
+
+    const self = this
+    this.zoneEffect = this.newEffect(class extends Effect {
       override events () {
         this.on(this.object, 'itemActionStart', ({ action }) => {
           if (action instanceof TravelAction) {
-            map.animateTravel(action)
+            self.map.travelAnimation.start(action)
           }
         })
         // this.onEvent(this.object, 'itemActionEnd', ({ action }) => {
@@ -31,55 +51,64 @@ export default class MapNode extends GameComponent {
         // })
       }
     }, this.zone)
-
-    this.element.addEventListener('click', () => {
-      playerTravelToZone(this.zone)
-    })
-  }
-
-  setComplex () {
-    if (this.node instanceof Component) {
-      return
-    }
-
-    if (this.node) {
-      const node = this.node as HTMLElement
-      node.animate({
-        opacity: 0,
-      }, {
-        duration: duration.normal,
-      }).onfinish = () => node.remove()
-    }
-
-    this.node = this.newComponent(Zone, this.zone)
-    this.node.element.classList.add(zoneStyle)
-    this.element.append(this.node.element)
-
-    this.node.element.animate({ opacity: [0, 1] },
-        { duration: duration.normal })
-
   }
 
   setSimple () {
     if (this.node instanceof HTMLElement) {
       return
     }
-
-    if (this.node) {
-      const node = this.node as Component
-      node.element.animate({
-        opacity: 0,
-      }, {
-        duration: duration.normal,
-      }).onfinish = () => node.remove()
-    }
+    this.removeComplex()
 
     this.node = document.createElement('div')
     this.node.classList.add(circleStyle)
     this.element.append(this.node)
 
-    this.node.animate({ opacity: [0, 1] }, { duration: duration.normal })
+    grow(this.node)
   }
+
+  private removeComplex () {
+    if (!this.node) {
+      return
+    }
+
+    const node = this.node as Component
+    shrink(node.element).onfinish = () => {
+      node.remove()
+    }
+
+    this.zoneEffect!.deactivate()
+  }
+
+  private removeSimple () {
+    if (!this.node) {
+      return
+    }
+
+    const node = this.node as HTMLElement
+    shrink(node).onfinish = () => {
+      node.remove()
+    }
+  }
+}
+
+function grow (elem: HTMLElement) {
+  return elem.animate({
+    transform: [`scale(0)`, `scale(1)`],
+  }, {
+    duration: duration.normal,
+    composite: 'add',
+    easing: 'ease-out',
+  })
+}
+
+function shrink (elem: HTMLElement) {
+  return elem.animate({
+    transform: [`scale(1)`, `scale(0)`],
+  }, {
+    duration: duration.normal,
+    composite: 'add',
+    easing: 'ease-in',
+  })
 }
 
 const containerStyle = makeStyle({
