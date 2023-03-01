@@ -32,11 +32,16 @@ export default class GameUI extends GameComponent {
   private createMap () {
     const map = this.newComponent(MapComponent)
 
+    setTimeout(() => {
+      map.render(game.player.container)
+    })
+
+
     const mapEffect = this.newEffect(class extends Effect {
       override events () {
         this.on(this.object.container, 'leave', ({ item }) => {
           if (item === this.object) {
-            map.setCenter(this.object.container)
+            map.render(this.object.container)
             this.reregisterEvents()
           }
         })
@@ -48,12 +53,12 @@ export default class GameUI extends GameComponent {
     })
 
     this.on(game.event.mapUpdated, () => {
-      map.setCenter(game.player.container)
+      map.updatePositions()
     })
 
     // map needs a frame to render before animations work
     setTimeout(() => {
-      map.setCenter(game.player.container)
+      map.render(game.player.container)
     })
 
     return map

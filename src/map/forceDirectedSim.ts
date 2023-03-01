@@ -22,9 +22,8 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
       .force('link', d3.forceLink(d3Graph.edges))
       .velocityDecay(0.2)
       // .alphaDecay(0.0075)
-      .tick(300)
-      .on('end', () => {
-        game.event.mapUpdated.emit(undefined)
+      .on('tick', () => {
+        game.event.mapUpdated.emit()
       })
 }
 

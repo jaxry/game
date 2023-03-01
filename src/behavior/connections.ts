@@ -23,11 +23,11 @@ export function connectZones (
 
 export function positionZone (source: GameObject, target: GameObject) {
   if (!source.position) {
-    source.position = { x: 0, y: 0 }
+    source.position = { x: 0, y: 0, vx: 0, vy: 0 }
   }
 
   if (!target.position) {
-    target.position = { x: 0, y: 0 }
+    target.position = { x: 0, y: 0, vx: 0, vy: 0 }
   }
 
   const theta = 2 * Math.PI * Math.random()

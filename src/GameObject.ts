@@ -27,7 +27,7 @@ export default class GameObject {
 
   // connections to other game objects on a 2D planar graph
   connections: GameObject[]
-  position: { x: number, y: number }
+  position: { x: number, y: number, vx: number, vy: number }
 
   health: number
   energy: number
