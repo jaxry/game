@@ -21,8 +21,7 @@ export default class Zone extends GameComponent {
     const self = this
 
     this.zoneEvents = this.newEffect(class extends Effect {
-      override events () {
-        this.on(this.object, 'enter', ({ item }) => {
+      override events () {        this.on(this.object, 'enter', ({ item }) => {
           self.objectEnter(item)
         })
         this.on(this.object, 'leave', ({ item }) => {
@@ -48,6 +47,10 @@ export default class Zone extends GameComponent {
     const card = makeOrGet(this.objectToCard, obj, () =>
         this.newComponent(ObjectCard, obj))
 
+    card.element.classList.add(cardStyle)
+    card.element.style.transform =
+        `translate(${Math.random() * 20}rem, ${Math.random() * 20}rem)`
+
     this.element.append(card.element)
 
     return card
@@ -55,27 +58,24 @@ export default class Zone extends GameComponent {
 
   private objectEnter (obj: GameObject) {
     const card = this.makeCard(obj)
-    card.enter()
+    // card.enter()
   }
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
-    card.exit()
+    card.remove()
+    // card.exit()
   }
 }
 
 const containerStyle = makeStyle({
-  display: `flex`,
-  minWidth: `2rem`,
-  flexDirection: `column`,
-  padding: `0.5rem`,
-  paddingBottom: `1rem`,
+  position: `relative`,
+  width: `20rem`,
+  height: `20rem`,
   cursor: `pointer`,
 })
 
-makeStyle(`.${containerStyle} > *`, {
-  margin: `0.25rem 0`,
-})
-makeStyle(`.${containerStyle} > *`, {
+const cardStyle = makeStyle({
+  position: `absolute`,
   cursor: `default`,
 })
