@@ -19,10 +19,10 @@ export default class DummyElement {
       margin: [`0`, this.style.margin],
     }, options)
 
-    animateManual(this.element, options.duration as number, (t) => {
+    animateManual(this.element, (t) => {
       this.element.style.width = `${t * this.original.offsetWidth}px`
       this.element.style.height = `${t * this.original.offsetHeight}px`
-    })
+    }, options)
 
     animation.onfinish = () => {
       this.element.replaceWith(this.original)
