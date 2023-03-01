@@ -1,15 +1,15 @@
 import GameTime from './GameTime'
 import type GameObject from './GameObject'
 import type Effect from './behavior/Effect'
-import Observer from './Observer'
+import Observable from './Observable'
 import { serializable } from './serialize'
 
 export default class Game {
   time = new GameTime()
   event = {
-    tickEnd: new Observer(),
-    mapUpdated: new Observer(),
-    playerChange: new Observer<GameObject>(),
+    tickEnd: new Observable(),
+    mapUpdated: new Observable(),
+    playerChange: new Observable<GameObject>(),
   }
   player!: GameObject
   world!: GameObject
