@@ -6,7 +6,7 @@ import { makeStyle } from '../makeStyle'
 import { duration, mapEdgeColor } from '../theme'
 import MapNode from './MapNode'
 import addPanZoom from '../PanZoom'
-import { makeOrGet, numToPixel, translate } from '../../util'
+import { makeOrGet, translate } from '../../util'
 import { TravelAnimation } from '../game/TravelAnimation'
 
 export default class MapComponent extends Component {
@@ -89,6 +89,13 @@ export default class MapComponent extends Component {
     this.centerOnZone(centerZone)
   }
 
+  updatePositions () {
+    this.updateZonePositionsAndScale()
+    for (const { line, edge } of this.edgeToElem.values()) {
+      this.updateEdgePosition(line, edge)
+    }
+  }
+
   private makeZone (zone: GameObject) {
     const component = this.newComponent(MapNode, zone, this)
     this.zoneContainer.append(component.element)
@@ -137,17 +144,10 @@ export default class MapComponent extends Component {
   }
 
   private updateEdgePosition (line: Element, edge: Edge) {
-    line.setAttribute('x1', numToPixel(edge.source.position.x))
-    line.setAttribute('y1', numToPixel(edge.source.position.y))
-    line.setAttribute('x2', numToPixel(edge.target.position.x))
-    line.setAttribute('y2', numToPixel(edge.target.position.y))
-  }
-
-  updatePositions () {
-    this.updateZonePositionsAndScale()
-    for (const { line, edge } of this.edgeToElem.values()) {
-      this.updateEdgePosition(line, edge)
-    }
+    line.setAttribute('x1', edge.source.position.x.toString())
+    line.setAttribute('y1', edge.source.position.y.toString())
+    line.setAttribute('x2', edge.target.position.x.toString())
+    line.setAttribute('y2', edge.target.position.y.toString())
   }
 
   private updateTransform (animate = false) {
