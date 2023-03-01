@@ -1,11 +1,12 @@
 import { getZoneGraph, ZoneGraph } from '../behavior/connections'
-import { game } from '../Game'
 import * as d3 from 'd3-force'
 import GameObject from '../GameObject'
 import { mapIter } from '../util'
+import SpatialGrid from '../physics/SpatialGrid'
+import { game } from '../Game'
 
 // gets the default d3 node distance
-export const renderedConnectionDistance = (d3.forceLink().distance() as any)()
+export const renderedConnectionDistance = 30
 
 export function startForceDirectedSimulation (startingNode: GameObject) {
   // const graph = getZoneGraph(startingNode)
@@ -28,11 +29,11 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
   const graph = getZoneGraph(startingNode)
   const nodes = [...graph.nodes.keys()]
   const edges = [...graph.edges.values()]
+  const grid = new SpatialGrid<GameObject>(10 * renderedConnectionDistance)
 
   let alpha = 1
 
   function tick () {
-
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i]
       for (let j = i + 1; j < nodes.length; j++) {
@@ -40,7 +41,6 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
         const dx = other.position.x - node.position.x
         const dy = other.position.y - node.position.y
         const dist = Math.sqrt(dx * dx + dy * dy)
-        // if (dist > 5 * renderedConnectionDistance) continue
         let force = Math.min(10 / dist, 1000)
         const fx = force * force * dx / dist
         const fy = force * force * dy / dist
@@ -50,6 +50,28 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
         other.position.vy += fy
       }
     }
+
+    // for (const node of nodes) {
+    //   for (let dx = -1; dx <= 1; dx++) {
+    //     for (let dy = -1; dy <= 1; dy++) {
+    //       const otherNodes = grid.get(node.position.x, node.position.y, dx, dy)
+    //       if (!otherNodes) continue
+    //       for (const other of otherNodes) {
+    //           if (other.id <= node.id) continue
+    //           const dx = other.position.x - node.position.x
+    //           const dy = other.position.y - node.position.y
+    //           const dist = Math.sqrt(dx * dx + dy * dy)
+    //           let force = Math.min(10 / dist, 1000)
+    //           const fx = force * force * dx / dist
+    //           const fy = force * force * dy / dist
+    //           node.position.vx -= fx
+    //           node.position.vy -= fy
+    //           other.position.vx += fx
+    //           other.position.vy += fy
+    //       }
+    //     }
+    //   }
+    // }
 
     for (const { source, target } of edges) {
       const dx = target.position.x - source.position.x
@@ -65,19 +87,23 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
     }
 
     alpha *= 0.9995
+    // grid.clear()
 
     for (const node of nodes) {
       node.position.vx *= alpha
       node.position.vy *= alpha
       node.position.x += node.position.vx
       node.position.y += node.position.vy
+      // grid.add(node.position.x, node.position.y, node)
     }
 
     game.event.mapUpdated.emit()
+
     requestAnimationFrame(tick)
   }
 
   tick()
+  console.log(grid)
 }
 
 function makeD3Graph (graph: ZoneGraph) {
