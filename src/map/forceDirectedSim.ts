@@ -24,7 +24,7 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
       // .alphaDecay(0.0075)
       .tick(300)
       .on('end', () => {
-        game.event.mapUpdated.emit(undefined)
+        game.event.mapUpdated.emit()
       })
 }
 

@@ -1,4 +1,4 @@
-import Observer from '../../Observer'
+import Observable from '../../Observable'
 import { Constructor } from '../../types'
 
 export default class Component<T extends Element = HTMLElement> {
@@ -45,7 +45,7 @@ export default class Component<T extends Element = HTMLElement> {
     this.childComponents.clear()
   }
 
-  on<T> (event: Observer<T>, listener: (data: T) => void) {
+  on<T> (event: Observable<T>, listener: (data: T) => void) {
     this.onRemove(event.on(listener))
   }
 }

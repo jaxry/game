@@ -81,7 +81,7 @@ serializable(GameObject, {
 })
 
 export class GameObjectEvents {
-  destroy: undefined
+  destroy: void
 
   // objects being contained or taken out of the event object
   enter: { item: GameObject, from?: GameObject }

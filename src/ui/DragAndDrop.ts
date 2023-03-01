@@ -1,7 +1,7 @@
-import Observer from '../Observer'
+import Observable from '../Observable'
 
 export default class DragAndDrop<T> {
-  onDrag = new Observer<T | null>()
+  onDrag = new Observable<T | null>()
 
   private payload: T | null = null
 
