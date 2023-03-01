@@ -16,10 +16,6 @@ export function moveTo (
   object.container = container
   object.containedAs = containedAs
 
-  if (container.numSpots) {
-    object.spot = spot ?? Math.floor(Math.random() * container.numSpots)
-  }
-
   container.contains.add(object)
 
   // object.emit('move', { to: container, from })
@@ -34,12 +30,6 @@ export function wearOnContainer (container: GameObject, item: GameObject) {
 export function putInsideContainer (
     container: GameObject, item: GameObject, spot?: number) {
   moveTo(container, item, ContainedAs.inside, spot)
-}
-
-export function moveToSpot (item: GameObject, spot: number) {
-  const from = item.spot
-  item.spot = spot
-  item.container.emit('moveSpot', { item, from, to: spot })
 }
 
 export function removeFromContainer (item: GameObject) {

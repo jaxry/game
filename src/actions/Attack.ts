@@ -18,8 +18,7 @@ export default class AttackAction extends Action {
 
   override condition () {
     return this.target.health > 0 &&
-        isAncestor(this.object.container, this.target) &&
-        this.object.spot === this.target.spot
+        isAncestor(this.object.container, this.target)
   }
 
   override do () {

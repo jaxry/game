@@ -19,12 +19,6 @@ export default class GameObject {
   containedAs: ContainedAs
   contains: Set<GameObject>
 
-  // the 1-dimensional space that the object resides in
-  spot: number
-
-  // the number of 1-dimensional spaces the container has
-  numSpots: number
-
   // connections to other game objects on a 2D planar graph
   connections: GameObject[]
   position: { x: number, y: number }

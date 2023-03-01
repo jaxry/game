@@ -5,7 +5,6 @@ import Effect from '../behavior/Effect'
 import { game } from '../Game'
 import type GameObject from '../GameObject'
 import { randomElement } from '../util'
-import MoveSpotAction from '../actions/MoveSpot'
 import { makeType } from '../GameObjectType'
 import { serializable } from '../serialize'
 import { isPlayer } from '../behavior/player'
@@ -21,12 +20,9 @@ class MonsterAttack extends Effect {
     }
 
     const active = this.object.activeAction
-    const sameSpot = this.object.spot === this.target.spot
 
     if (isContainedWith(this.object, this.target)) {
-      if (!sameSpot && !(active instanceof MoveSpotAction)) {
-        new MoveSpotAction(this.object, this.target.spot).activate()
-      } else if (sameSpot && !(active instanceof AttackAction)) {
+      if (!(active instanceof AttackAction)) {
         new AttackAction(this.object, this.target).activate()
       }
     } else {
