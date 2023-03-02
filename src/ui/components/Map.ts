@@ -22,13 +22,13 @@ export default class MapComponent extends Component {
   private transform = {
     x: 0,
     y: 0,
-    scale: 4,
+    scale: 2,
   }
 
   private zoneToComponent = new Map<GameObject, MapNode>()
   private edgeToElem = new Map<string, { line: Element, edge: Edge }>()
 
-  private elementScaleThreshold = 5
+  private elementScaleThreshold = 3
 
   constructor () {
     super()

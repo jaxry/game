@@ -3,7 +3,7 @@ import findLargestGraph from './findLargestGraph'
 import makeZones from './makeZones'
 
 export function generateRandomGraph (vertexCount: number) {
-  const chance = 2 / vertexCount
+  const chance = 1.1 / vertexCount
 
   function tryOnce () {
     let vertices: Vertex[] = []

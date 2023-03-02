@@ -4,7 +4,7 @@ import Effect from './behavior/Effect'
 import Action from './behavior/Action'
 import { serializable } from './serialize'
 import { toPrecision } from './util'
-import Position from './physics/Position'
+import Position from './Position'
 
 let nextId = 1
 

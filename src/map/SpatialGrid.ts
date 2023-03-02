@@ -1,22 +1,24 @@
 import { makeOrGet } from '../util'
+import Position from '../Position'
 
 export default class SpatialGrid<T> {
   grid = new Map<number, T[]>()
   constructor (public gridSize: number) {}
 
-  index (number: number) {
-    return Math.floor(number / this.gridSize)
-  }
-
-  add (x: number, y: number, item: T) {
+  add (position: Position, item: T) {
     const items = makeOrGet(this.grid,
-        szudzikPairSigned(this.index(x), this.index(y)),
+        szudzikPairSigned(
+            Math.floor(position.x / this.gridSize),
+            Math.floor(position.y / this.gridSize)),
         () => [])
+
     items.push(item)
   }
 
-  get (x: number, y: number, offsetX = 0, offsetY = 0) {
-    return this.grid.get(szudzikPairSigned(this.index(x) + offsetX, this.index(y) + offsetY))
+  get (position: Position, offsetX = 0, offsetY = 0) {
+    return this.grid.get(szudzikPairSigned(
+        Math.floor(position.x / this.gridSize + offsetX),
+        Math.floor(position.y / this.gridSize + offsetY)))
   }
 
   clear () {
