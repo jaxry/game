@@ -18,17 +18,18 @@ export default class MapComponent extends Component {
   private travelIcons = document.createElement('div')
 
   travelAnimation = new TravelAnimation(this.travelIcons)
+  maxDepthFromCenter = 2
 
   private transform = {
     x: 0,
     y: 0,
-    scale: 2,
+    scale: 1,
   }
 
   private zoneToComponent = new Map<GameObject, MapNode>()
   private edgeToElem = new Map<string, { line: Element, edge: Edge }>()
 
-  private elementScaleThreshold = 3
+  private elementScaleThreshold = 1
 
   constructor () {
     super()
@@ -55,7 +56,7 @@ export default class MapComponent extends Component {
   }
 
   render (centerZone: GameObject) {
-    const graph = getZoneGraph(centerZone)
+    const graph = getZoneGraph(centerZone, this.maxDepthFromCenter)
 
     for (const [zone, component] of this.zoneToComponent) {
       if (!graph.nodes.has(zone)) {
@@ -67,8 +68,8 @@ export default class MapComponent extends Component {
       const component = makeOrGet(this.zoneToComponent, zone, () => {
         return this.makeZone(zone)
       })
-      // depth <= 1 ? component.setComplex() : component.setSimple()
-      component.setSimple()
+      depth <= 1 ? component.setComplex() : component.setSimple()
+      // component.setSimple()
     }
 
     for (const [hash, { line }] of this.edgeToElem) {
@@ -86,6 +87,7 @@ export default class MapComponent extends Component {
       })
     }
 
+    this.updatePositions()
     this.centerOnZone(centerZone)
   }
 
@@ -113,8 +115,6 @@ export default class MapComponent extends Component {
     const line = createSvg('line')
     line.classList.add(edgeStyle)
 
-    this.updateEdgePosition(line, edge)
-
     this.edgeG.append(line)
     grow(line)
 
@@ -127,20 +127,19 @@ export default class MapComponent extends Component {
     this.transform.y = -zone.position.y * this.transform.scale +
         +this.element.offsetHeight / 2
 
-    this.updateZonePositionsAndScale()
     this.updateTransform()
   }
 
   private updateZonePositionsAndScale () {
-    const nodeScale = Math.max(this.elementScaleThreshold, this.transform.scale)
+    const scale = Math.max(this.elementScaleThreshold, this.transform.scale)
 
     for (const [zone, component] of this.zoneToComponent) {
-      const x = zone.position.x * nodeScale
-      const y = zone.position.y * nodeScale
+      const x = zone.position.x * scale
+      const y = zone.position.y * scale
       component.element.style.transform = translate(x, y)
     }
 
-    this.travelAnimation.updateScale(nodeScale)
+    this.travelAnimation.updateScale(scale)
   }
 
   private updateEdgePosition (line: Element, edge: Edge) {
@@ -150,7 +149,7 @@ export default class MapComponent extends Component {
     line.setAttribute('y2', edge.target.position.y.toString())
   }
 
-  private updateTransform (animate = false) {
+  private updateTransform (animate = true) {
     const { x, y, scale } = this.transform
 
     const mapScale = Math.min(1, scale / this.elementScaleThreshold)

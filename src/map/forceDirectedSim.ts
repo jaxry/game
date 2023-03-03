@@ -2,34 +2,29 @@ import { getZoneGraph } from '../behavior/connections'
 import GameObject from '../GameObject'
 import SpatialGrid from './SpatialGrid'
 import { game } from '../Game'
+import { clamp } from '../util'
 
-// gets the default d3 node distance
-export const renderedConnectionDistance = 100
+export const renderedConnectionDistance = 300
 
 export function startForceDirectedSimulation (startingNode: GameObject) {
+  const iterations = 300
 
-  // higher alpha starts system with higher energy but leads to instability
-  let alpha = 0.9
+  // higher alpha starts system with higher energy
+  let alpha = 0.09
 
   // repelling force is this much stronger than attracting force
-  const repelRatio = 80
+  const repelRatio = 2400
 
-  const velocityDecay = 0.5
-  const alphaDecay = 0.999
-  const maxForceDistance = 10
+  const velocityDecay = 0.8
+  const alphaDecay = 0.985
 
   const graph = getZoneGraph(startingNode)
   const nodes = [...graph.nodes.keys()]
   const edges = [...graph.edges.values()]
-  const grid = new SpatialGrid<GameObject>(maxForceDistance *
-      renderedConnectionDistance)
+  const grid = new SpatialGrid<GameObject>(2 * repelRatio)
 
   function repelNodes () {
     for (const node of nodes) {
-      // randomly jitter to disrupt stuck positions
-      node.position.vx += alpha * (Math.random() - 0.5)
-      node.position.vy += alpha * (Math.random() - 0.5)
-
       // get 2x2 spatially partitioned grid cells closest to node
       for (let dx = 0; dx <= 1; dx++) {
         for (let dy = 0; dy <= 1; dy++) {
@@ -45,7 +40,7 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
             const dx = other.position.x - node.position.x
             const dy = other.position.y - node.position.y
             const dist = Math.sqrt(dx * dx + dy * dy)
-            let force = repelRatio / dist
+            const force = repelRatio / dist
             const fx = alpha * force * force * dx / dist
             const fy = alpha * force * force * dy / dist
             node.position.vx -= fx
@@ -63,7 +58,7 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
       const dx = target.position.x - source.position.x
       const dy = target.position.y - source.position.y
       const dist = Math.sqrt(dx * dx + dy * dy)
-      const force = dist - renderedConnectionDistance
+      const force = dist
       const fx = alpha * force * dx / dist
       const fy = alpha * force * dy / dist
       source.position.vx += fx
@@ -73,6 +68,7 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
     }
   }
 
+  let i = 0
   function tick () {
     repelNodes()
     attractConnectedNodes()
@@ -80,21 +76,29 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
     grid.clear()
 
     for (const node of nodes) {
-      // decay velocity
-      node.position.vx *= velocityDecay
-      node.position.vy *= velocityDecay
+      // clamp velocity to prevent instability
+      node.position.vx = clamp(-repelRatio, repelRatio, node.position.vx)
+      node.position.vy = clamp(-repelRatio, repelRatio, node.position.vy)
 
       // apply velocity
       node.position.x += node.position.vx
       node.position.y += node.position.vy
 
+      // decay velocity
+      node.position.vx *= velocityDecay
+      node.position.vy *= velocityDecay
+
       // add node to spatially partitioned grid
       grid.add(node.position, node)
     }
 
-    game.event.mapUpdated.emit()
+    // game.event.mapPositionUpdate.emit()
 
-    requestAnimationFrame(tick)
+    if (i++ < iterations) {
+      tick()
+    } else {
+      game.event.mapUpdate.emit()
+    }
   }
 
   tick()

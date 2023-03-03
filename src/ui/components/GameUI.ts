@@ -47,11 +47,14 @@ export default class GameUI extends GameComponent {
       mapEffect.setObject(game.player)
     })
 
-    this.on(game.event.mapUpdated, () => {
+    this.on(game.event.mapPositionUpdate, () => {
       map.updatePositions()
     })
 
-    // map needs a frame to render before animations work
+    this.on(game.event.mapUpdate, () => {
+      map.render(game.player.container)
+    })
+
     setTimeout(() => {
       map.render(game.player.container)
     })

@@ -12,7 +12,7 @@ export function initGame (game: Game) {
 
   game.world = spawn(typeWorld)
 
-  const zones = generateRandomGraph(200)
+  const zones = generateRandomGraph(30)
   for (const zone of zones) {
     putInsideContainer(game.world, zone)
   }
