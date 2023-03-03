@@ -1,4 +1,4 @@
-import { Vertex } from './types'
+import Vertex from './Vertex'
 
 export default function findLargestGraph (vertices: Vertex[]) {
   const visited = new Map<Vertex, number>()

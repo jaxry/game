@@ -8,7 +8,8 @@ export default class Game {
   time = new GameTime()
   event = {
     tickEnd: new Observable(),
-    mapUpdated: new Observable(),
+    mapPositionUpdate: new Observable(),
+    mapUpdate: new Observable(),
     playerChange: new Observable<GameObject>(),
   }
   player!: GameObject
