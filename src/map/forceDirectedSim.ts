@@ -18,10 +18,14 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
   const velocityDecay = 0.8
   const alphaDecay = 0.985
 
+  const maxDistance = 2 * repelRatio
+  const maxDistance2 = maxDistance * maxDistance
+
   const graph = getZoneGraph(startingNode)
   const nodes = [...graph.nodes.keys()]
   const edges = [...graph.edges.values()]
-  const grid = new SpatialGrid<GameObject>(2 * repelRatio)
+
+  const grid = new SpatialGrid<GameObject>(2 * maxDistance)
 
   function repelNodes () {
     for (const node of nodes) {
@@ -39,7 +43,11 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
             }
             const dx = other.position.x - node.position.x
             const dy = other.position.y - node.position.y
-            const dist = Math.sqrt(dx * dx + dy * dy)
+            const dist2 = dx * dx + dy * dy
+            if (dist2 > maxDistance2) {
+              continue
+            }
+            const dist = Math.sqrt(dist2)
             const force = repelRatio / dist
             const fx = alpha * force * force * dx / dist
             const fy = alpha * force * force * dy / dist
@@ -68,12 +76,16 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
     }
   }
 
-  let i = 0
-  function tick () {
+  function applyForces () {
+    grid.clear()
+    for (const node of nodes) {
+      // add node to spatially partitioned grid
+      grid.add(node.position, node)
+    }
+
     repelNodes()
     attractConnectedNodes()
     alpha *= alphaDecay
-    grid.clear()
 
     for (const node of nodes) {
       // clamp velocity to prevent instability
@@ -87,15 +99,27 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
       // decay velocity
       node.position.vx *= velocityDecay
       node.position.vy *= velocityDecay
-
-      // add node to spatially partitioned grid
-      grid.add(node.position, node)
     }
+  }
 
-    // game.event.mapPositionUpdate.emit()
+  let i = 0
+
+  // fully simulate forces before rendering map
+  function tick () {
+    while (i++ < iterations) {
+      applyForces()
+    }
+    game.event.mapUpdate.emit()
+  }
+
+  // render map after every tick
+  function tickAnimated () {
+    applyForces()
+
+    game.event.mapPositionUpdate.emit()
 
     if (i++ < iterations) {
-      tick()
+      requestAnimationFrame(tickAnimated)
     } else {
       game.event.mapUpdate.emit()
     }

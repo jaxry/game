@@ -111,7 +111,7 @@ export default class ObjectCard extends GameComponent {
       easing: 'ease-out',
       duration: duration.normal,
       delay: duration.normal,
-      fill: 'backwards'
+      fill: 'backwards',
     })
   }
 

@@ -10,16 +10,13 @@ import { makeOrGet, translate } from '../../util'
 import { TravelAnimation } from '../game/TravelAnimation'
 
 export default class MapComponent extends Component {
+  maxDepthFromCenter = 2
   private svg = createSvg('svg')
   private edgeG = createSvg('g')
-
   private map = document.createElement('div')
   private zoneContainer = document.createElement('div')
   private travelIcons = document.createElement('div')
-
   travelAnimation = new TravelAnimation(this.travelIcons)
-  maxDepthFromCenter = 2
-
   private transform = {
     x: 0,
     y: 0,

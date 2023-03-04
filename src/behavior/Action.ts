@@ -10,6 +10,14 @@ export default class Action extends Effect {
   // for targeted actions such as attacks
   target?: GameObject
 
+  get seconds () {
+    return GameTime.seconds(this.time)
+  }
+
+  get milliseconds () {
+    return GameTime.milliseconds(this.time)
+  }
+
   // Called after the specified time is elapsed
   do? (): void
 
@@ -49,13 +57,5 @@ export default class Action extends Effect {
 
   condition () {
     return true
-  }
-
-  get seconds () {
-    return GameTime.seconds(this.time)
-  }
-
-  get milliseconds () {
-    return GameTime.milliseconds(this.time)
   }
 }
