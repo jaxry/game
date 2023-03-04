@@ -14,7 +14,6 @@ import {
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import DummyElement from '../DummyElement'
-import animateWithDelay from '../animateWithDelay'
 
 const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
@@ -105,13 +104,14 @@ export default class ObjectCard extends GameComponent {
   enter () {
     new DummyElement(this.element).growWidthFirst()
 
-    animateWithDelay(this.element, {
+    this.element.animate({
       opacity: [0, 1],
       transform: [`translate(0,100%)`, `translate(0,0)`],
     }, {
       easing: 'ease-out',
       duration: duration.normal,
       delay: duration.normal,
+      fill: 'backwards'
     })
   }
 
