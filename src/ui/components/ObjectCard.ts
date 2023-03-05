@@ -56,23 +56,11 @@ export default class ObjectCard extends GameComponent {
           this.element.getBoundingClientRect())
     })
 
-    dragAndDropGameObject.drag(this.element, object, name)
-
-    this.on(game.event.tickEnd, () => this.update())
+    // dragAndDropGameObject.drag(this.element, object, name)
 
     const self = this
     this.newEffect(class extends Effect {
       override tick () {
-        const action = this.object.activeAction
-        const startAnimation = action?.target
-            && action.seconds === 1
-            && objectToCard.has(action.target)
-        if (startAnimation) {
-          self.targetActionAnimation?.exit()
-          const to = objectToCard.get(action.target!)!
-          self.targetActionAnimation = self.newComponent(
-              TargetActionAnimation, action, self.element, to.element)
-        }
       }
 
       override events () {
@@ -153,10 +141,6 @@ export default class ObjectCard extends GameComponent {
     }).onfinish = () => {
       component.remove()
     }
-  }
-
-  private update () {
-    this.actionComponent?.update()
   }
 }
 

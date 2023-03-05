@@ -3,6 +3,7 @@ import Action from '../../behavior/Action'
 import { actionColor, actionTimeColor } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameTime from '../../GameTime'
+import { game } from '../../Game'
 
 export default class ActionComponent extends Component {
   private readonly time: HTMLElement
@@ -29,7 +30,7 @@ export default class ActionComponent extends Component {
     this.time.classList.add(timeStyle)
     this.element.append(this.time)
 
-    this.update()
+    this.on(game.event.tick, () => this.update())
   }
 
   update () {
