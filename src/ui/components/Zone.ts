@@ -3,14 +3,21 @@ import { game } from '../../Game'
 import GameObject from '../../GameObject'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/core'
-import { getAndDelete, makeOrGet } from '../../util'
+import { clamp, getAndDelete, makeOrGet, translate } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
+import makeDraggable from '../makeDraggable'
+import Position from '../../Position'
+import { outsideElem } from './App'
 
 export default class Zone extends GameComponent {
   private objectToCard = new Map<GameObject, ObjectCard>()
+  private cardData = new WeakMap<ObjectCard, {
+    object: GameObject,
+    position: Position
+  }>()
   private zoneEvents: Effect
 
   constructor (public zone: GameObject) {
@@ -21,7 +28,8 @@ export default class Zone extends GameComponent {
     const self = this
 
     this.zoneEvents = this.newEffect(class extends Effect {
-      override events () {        this.on(this.object, 'enter', ({ item }) => {
+      override events () {
+        this.on(this.object, 'enter', ({ item }) => {
           self.objectEnter(item)
         })
         this.on(this.object, 'leave', ({ item }) => {
@@ -43,15 +51,46 @@ export default class Zone extends GameComponent {
     }
   }
 
-  private makeCard (obj: GameObject) {
-    const card = makeOrGet(this.objectToCard, obj, () =>
-        this.newComponent(ObjectCard, obj))
+  private makeCard (object: GameObject) {
+    const card = makeOrGet(this.objectToCard, object, () =>
+        this.newComponent(ObjectCard, object))
+
+    const position = new Position(Math.random() * 250, Math.random() * 250)
+
+    this.cardData.set(card, { object, position })
 
     card.element.classList.add(cardStyle)
-    card.element.style.transform =
-        `translate(${Math.random() * 20}rem, ${Math.random() * 20}rem)`
+    card.element.style.transform = translate(position.x, position.y)
 
     this.element.append(card.element)
+
+    makeDraggable(card.element, {
+      onDown: (e) => {
+        const { left, top } = card.element.getBoundingClientRect()
+        const relX = e.clientX - left
+        const relY = e.clientY - top
+
+        outsideElem.append(card.element)
+
+        card.element.style.transform = translate(
+            e.clientX - relX, e.clientY - relY)
+
+        return (e) => {
+          card.element.style.transform = translate(
+              e.clientX - relX, e.clientY - relY)
+        }
+      },
+      onUp: () => {
+        const parentBBox = this.element.getBoundingClientRect()
+        const cardBBox = card.element.getBoundingClientRect()
+        const x = clamp(0, this.element.offsetWidth,
+            cardBBox.left - parentBBox.left)
+        const y = clamp(0, this.element.offsetHeight,
+            cardBBox.top - parentBBox.top)
+        this.element.append(card.element)
+        card.element.style.transform = translate(x, y)
+      },
+    })
 
     return card
   }

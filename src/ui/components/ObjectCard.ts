@@ -1,9 +1,7 @@
 import GameObject from '../../GameObject'
 import { isPlayer } from '../../behavior/player'
-import ObjectInfo from './ObjectInfo'
 import Action from '../../behavior/Action'
 import ActionComponent from './ActionComponent'
-import { dragAndDropGameObject } from './GameUI'
 import { game } from '../../Game'
 import Effect from '../../behavior/Effect'
 import TargetActionAnimation from './TargetActionAnimation'
@@ -48,13 +46,13 @@ export default class ObjectCard extends GameComponent {
       this.setAction(object.activeAction)
     }
 
-    this.element.addEventListener('click', () => {
-      if (isPlayer(object)) {
-        return
-      }
-      this.newComponent(ObjectInfo, object,
-          this.element.getBoundingClientRect())
-    })
+    // this.element.addEventListener('click', () => {
+    //   if (isPlayer(object)) {
+    //     return
+    //   }
+    //   this.newComponent(ObjectInfo, object,
+    //       this.element.getBoundingClientRect())
+    // })
 
     // dragAndDropGameObject.drag(this.element, object, name)
 
@@ -64,6 +62,11 @@ export default class ObjectCard extends GameComponent {
       }
 
       override events () {
+        this.on(object.container, 'leave', ({ item }) => {
+          if (item === this.object) {
+            this.reregisterEvents()
+          }
+        })
         this.on(object.container, 'itemActionStart', ({ action }) => {
           if (action.object !== this.object) {
             return
@@ -78,12 +81,6 @@ export default class ObjectCard extends GameComponent {
           }
           self.targetActionAnimation?.exit()
           self.clearAction()
-        })
-
-        this.on(object.container, 'leave', ({ item }) => {
-          if (item === this.object) {
-            this.reregisterEvents()
-          }
         })
       }
     }, object)
