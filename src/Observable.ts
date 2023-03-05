@@ -1,4 +1,4 @@
-export default class Observer<T> {
+export default class Observable<T = void> {
   private listeners: Set<(data: T) => void> = new Set()
 
   on (listener: (data: T) => void) {

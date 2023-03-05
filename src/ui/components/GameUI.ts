@@ -36,7 +36,7 @@ export default class GameUI extends GameComponent {
       override events () {
         this.on(this.object.container, 'leave', ({ item }) => {
           if (item === this.object) {
-            map.setCenter(this.object.container)
+            map.render(this.object.container)
             this.reregisterEvents()
           }
         })
@@ -47,13 +47,16 @@ export default class GameUI extends GameComponent {
       mapEffect.setObject(game.player)
     })
 
-    this.on(game.event.mapUpdated, () => {
-      map.setCenter(game.player.container)
+    this.on(game.event.mapPositionUpdate, () => {
+      map.updatePositions()
     })
 
-    // map needs a frame to render before animations work
+    this.on(game.event.mapUpdate, () => {
+      map.render(game.player.container)
+    })
+
     setTimeout(() => {
-      map.setCenter(game.player.container)
+      map.render(game.player.container)
     })
 
     return map

@@ -1,4 +1,4 @@
-import { Vertex } from './types'
+import Vertex from './Vertex'
 import findLargestGraph from './findLargestGraph'
 import makeZones from './makeZones'
 

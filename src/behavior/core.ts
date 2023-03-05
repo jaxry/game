@@ -25,7 +25,7 @@ function tick () {
 
   game.energyPool += destroyMarked()
 
-  game.event.tickEnd.emit(undefined)
+  game.event.tickEnd.emit()
 }
 
 let timeout: number | null = null

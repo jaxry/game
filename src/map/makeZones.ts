@@ -1,7 +1,7 @@
 import GameObject from '../GameObject'
 import { spawn } from '../behavior/spawn'
 import { connectZones } from '../behavior/connections'
-import { Vertex } from './types'
+import Vertex from './Vertex'
 import { makeType } from '../GameObjectType'
 
 export default function makeZones (vertices: Vertex[]) {
@@ -9,10 +9,6 @@ export default function makeZones (vertices: Vertex[]) {
 
   for (const vertex of vertices) {
     const zone = spawn(typeZone)
-
-    if (vertex.position) {
-      zone.position = vertex.position
-    }
     vertexToZone.set(vertex, zone)
   }
 
