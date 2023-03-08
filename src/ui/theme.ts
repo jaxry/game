@@ -22,8 +22,8 @@ export const boxShadowLarge = `0 0.5rem 1rem #0006`
 export const sidebarColor = backgroundHue[800]
 export const windowColor = backgroundHue[700]
 
-export const mapNode = backgroundHue[700]
-export const mapNodeDistant = colors.zinc[700]
+export const mapNodeColor = backgroundHue[700]
+export const mapNodeDistantColor = colors.zinc[700]
 
 export const mapEdgeColor = backgroundHue[500]
 

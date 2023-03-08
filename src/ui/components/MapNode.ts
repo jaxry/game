@@ -1,8 +1,6 @@
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
-import {
-  border, borderRadius, boxShadow, duration, mapNode, mapNodeDistant,
-} from '../theme'
+import { boxShadow, duration, mapNodeDistantColor } from '../theme'
 import Zone from './Zone'
 import GameComponent from './GameComponent'
 import Effect from '../../behavior/Effect'
@@ -33,7 +31,6 @@ export default class MapNode extends GameComponent {
     this.removeSimple()
 
     this.node = this.newComponent(Zone, this.zone)
-    this.node.element.classList.add(zoneStyle)
     this.element.append(this.node.element)
 
     grow(this.node.element)
@@ -115,24 +112,13 @@ const containerStyle = makeStyle({
   position: `absolute`,
 })
 
-const nodeStyleStub = {
+const circleStyle = makeStyle({
   position: `absolute`,
   transform: `translate(-50%, -50%)`,
-  boxShadow,
-}
-
-const zoneStyle = makeStyle({
-  ...nodeStyleStub,
-  border,
-  borderRadius,
-  background: mapNode,
-})
-
-const circleStyle = makeStyle({
-  ...nodeStyleStub,
   width: `4rem`,
   height: `4rem`,
   borderRadius: `50%`,
-  background: mapNodeDistant,
+  background: mapNodeDistantColor,
+  boxShadow,
 })
 

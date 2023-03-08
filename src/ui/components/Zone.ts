@@ -9,18 +9,23 @@ import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
 import makeDraggable from '../makeDraggable'
-import { outsideElem } from './App'
+import { border, borderRadius, boxShadow, mapNodeColor } from '../theme'
 
 export default class Zone extends GameComponent {
+  private background = document.createElement('div')
+  private cardContainer = document.createElement('div')
+
   private objectToCard = new Map<GameObject, ObjectCard>()
   private cardToObject = new WeakMap<ObjectCard, GameObject>()
   private zoneEvents: Effect
-  private cardContainer = document.createElement('div')
 
   constructor (public zone: GameObject) {
     super()
 
     this.element.classList.add(containerStyle)
+
+    this.background.classList.add(backgroundStyle)
+    this.element.append(this.background)
 
     this.element.append(this.cardContainer)
 
@@ -49,13 +54,13 @@ export default class Zone extends GameComponent {
       this.makeCard(obj)
     }
     requestAnimationFrame(() => {
-      this.updateContainerSize()
+      this.updateBackgroundSize()
     })
   }
 
   private get scale () {
-    return this.element.offsetWidth
-        / this.element.getBoundingClientRect().width
+    return this.background.offsetWidth
+        / this.background.getBoundingClientRect().width
   }
 
   private makeCard (object: GameObject) {
@@ -83,43 +88,34 @@ export default class Zone extends GameComponent {
         relX = (e.clientX - left) * this.scale
         relY = (e.clientY - top) * this.scale
 
-        outsideElem.append(card.element)
-
-        card.element.style.transform = translate(
-            e.clientX - relX, e.clientY - relY)
+        this.cardContainer.append(card.element)
       },
       onDrag: (e) => {
-        card.element.style.transform = translate(
-            e.clientX - relX, e.clientY - relY)
-      },
-      onUp: (e) => {
         const parentBBox = this.cardContainer.getBoundingClientRect()
-        console.log(this.scale)
         const x = (e.clientX - parentBBox.left) * this.scale - relX
         const y = (e.clientY - parentBBox.top) * this.scale - relY
-        this.cardContainer.append(card.element)
         card.element.style.transform = translate(x, y)
-        this.updateContainerSize()
-      },
+        this.updateBackgroundSize()
+      }
     })
   }
 
   private objectEnter (obj: GameObject) {
     const card = this.makeCard(obj)
     // card.enter()
-    this.updateContainerSize()
+    this.updateBackgroundSize()
   }
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
     card.remove()
     // card.exit()
-    this.updateContainerSize()
+    this.updateBackgroundSize()
   }
 
-  private updateContainerSize () {
-    let width = 0
-    let height = 0
+  private updateBackgroundSize () {
+    let width = 16
+    let height = 16
 
     const { left, top } = this.cardContainer.getBoundingClientRect()
     for (const card of this.objectToCard.values()) {
@@ -130,19 +126,25 @@ export default class Zone extends GameComponent {
       height = Math.max(height, -relY, relY + card.element.offsetHeight)
     }
 
-    this.element.style.width = numToPx(2 * width)
-    this.element.style.height = numToPx(2 * height)
+    this.background.style.width = numToPx(width * 2)
+    this.background.style.height = numToPx(height * 2)
+    this.background.style.transform = translate(-width, -height)
   }
 }
 
 const containerStyle = makeStyle({
-  contain: `strict`,
+  position: `absolute`,
   minWidth: `2rem`,
   minHeight: `2rem`,
-  display: `flex`,
-  justifyContent: `center`,
-  alignItems: `center`,
   cursor: `pointer`,
+})
+
+const backgroundStyle = makeStyle({
+  position: `absolute`,
+  background: mapNodeColor,
+  border,
+  borderRadius,
+  boxShadow,
 })
 
 const cardStyle = makeStyle({
