@@ -12,6 +12,7 @@ import {
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import DummyElement from '../DummyElement'
+import { dragAndDropGameObject } from './GameUI'
 
 const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
@@ -54,7 +55,7 @@ export default class ObjectCard extends GameComponent {
     //       this.element.getBoundingClientRect())
     // })
 
-    // dragAndDropGameObject.drag(this.element, object, name)
+    dragAndDropGameObject.drag(this.element, object, name)
 
     const self = this
     this.newEffect(class extends Effect {

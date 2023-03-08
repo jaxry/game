@@ -1,7 +1,6 @@
 import { putInsideContainer } from './behavior/container'
 import { spawn } from './behavior/spawn'
 import GameTime from './GameTime'
-import { typeMonster } from './objects/monster'
 import { generateRandomGraph } from './map/generateRandomGraph'
 import { startForceDirectedSimulation } from './map/forceDirectedSim'
 import { makeType } from './GameObjectType'
@@ -27,10 +26,10 @@ export function initGame (game: Game) {
     spawn(typeApple, game.player)
   }
 
-  for (let i = 0; i < 15; i++) {
-    spawn(Math.random() > 0.2 ? typeMonster : typeApple,
-        zones.at(Math.random() * zones.length))
-  }
+  // for (let i = 0; i < 15; i++) {
+  //   spawn(Math.random() > 0.2 ? typeMonster : typeApple,
+  //       zones.at(Math.random() * zones.length))
+  // }
 
   const chest = spawn(typeChest, zone)
   spawn(typeApple, chest)

@@ -3,27 +3,26 @@ import { game } from '../../Game'
 import GameObject from '../../GameObject'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/core'
-import { clamp, getAndDelete, makeOrGet, translate } from '../../util'
+import { getAndDelete, makeOrGet, numToPx, translate } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
 import makeDraggable from '../makeDraggable'
-import Position from '../../Position'
 import { outsideElem } from './App'
 
 export default class Zone extends GameComponent {
   private objectToCard = new Map<GameObject, ObjectCard>()
-  private cardData = new WeakMap<ObjectCard, {
-    object: GameObject,
-    position: Position
-  }>()
+  private cardToObject = new WeakMap<ObjectCard, GameObject>()
   private zoneEvents: Effect
+  private cardContainer = document.createElement('div')
 
   constructor (public zone: GameObject) {
     super()
 
     this.element.classList.add(containerStyle)
+
+    this.element.append(this.cardContainer)
 
     const self = this
 
@@ -49,68 +48,100 @@ export default class Zone extends GameComponent {
     for (const obj of this.zone.contains) {
       this.makeCard(obj)
     }
+    requestAnimationFrame(() => {
+      this.updateContainerSize()
+    })
+  }
+
+  private get scale () {
+    return this.element.offsetWidth
+        / this.element.getBoundingClientRect().width
   }
 
   private makeCard (object: GameObject) {
     const card = makeOrGet(this.objectToCard, object, () =>
         this.newComponent(ObjectCard, object))
 
-    const position = new Position(Math.random() * 250, Math.random() * 250)
-
-    this.cardData.set(card, { object, position })
+    this.cardToObject.set(card, object)
 
     card.element.classList.add(cardStyle)
-    card.element.style.transform = translate(position.x, position.y)
 
-    this.element.append(card.element)
+    this.cardContainer.append(card.element)
 
+    this.makeCardDraggable(card)
+
+    return card
+  }
+
+  private makeCardDraggable (card: ObjectCard) {
+    let relX: number
+    let relY: number
     makeDraggable(card.element, {
       onDown: (e) => {
         const { left, top } = card.element.getBoundingClientRect()
-        const relX = e.clientX - left
-        const relY = e.clientY - top
+
+        relX = (e.clientX - left) * this.scale
+        relY = (e.clientY - top) * this.scale
 
         outsideElem.append(card.element)
 
         card.element.style.transform = translate(
             e.clientX - relX, e.clientY - relY)
-
-        return (e) => {
-          card.element.style.transform = translate(
-              e.clientX - relX, e.clientY - relY)
-        }
       },
-      onUp: () => {
-        const parentBBox = this.element.getBoundingClientRect()
-        const cardBBox = card.element.getBoundingClientRect()
-        const x = clamp(0, this.element.offsetWidth,
-            cardBBox.left - parentBBox.left)
-        const y = clamp(0, this.element.offsetHeight,
-            cardBBox.top - parentBBox.top)
-        this.element.append(card.element)
+      onDrag: (e) => {
+        card.element.style.transform = translate(
+            e.clientX - relX, e.clientY - relY)
+      },
+      onUp: (e) => {
+        const parentBBox = this.cardContainer.getBoundingClientRect()
+        console.log(this.scale)
+        const x = (e.clientX - parentBBox.left) * this.scale - relX
+        const y = (e.clientY - parentBBox.top) * this.scale - relY
+        this.cardContainer.append(card.element)
         card.element.style.transform = translate(x, y)
+        this.updateContainerSize()
       },
     })
-
-    return card
   }
 
   private objectEnter (obj: GameObject) {
     const card = this.makeCard(obj)
     // card.enter()
+    this.updateContainerSize()
   }
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
     card.remove()
     // card.exit()
+    this.updateContainerSize()
+  }
+
+  private updateContainerSize () {
+    let width = 0
+    let height = 0
+
+    const { left, top } = this.cardContainer.getBoundingClientRect()
+    for (const card of this.objectToCard.values()) {
+      const { x, y } = card.element.getBoundingClientRect()
+      const relX = (x - left) * this.scale
+      const relY = (y - top) * this.scale
+      width = Math.max(width, -relX, relX + card.element.offsetWidth)
+      height = Math.max(height, -relY, relY + card.element.offsetHeight)
+    }
+
+    this.element.style.width = numToPx(2 * width)
+    this.element.style.height = numToPx(2 * height)
   }
 }
 
 const containerStyle = makeStyle({
-  position: `relative`,
-  width: `20rem`,
-  height: `20rem`,
+  contain: `strict`,
+  minWidth: `2rem`,
+  minHeight: `2rem`,
+  display: `flex`,
+  justifyContent: `center`,
+  alignItems: `center`,
   cursor: `pointer`,
 })
 

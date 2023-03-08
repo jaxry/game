@@ -186,7 +186,6 @@ function shrink (elem: Element) {
 
 const containerStyle = makeStyle({
   position: 'relative',
-  overflow: `hidden`,
   contain: `strict`,
 })
 
