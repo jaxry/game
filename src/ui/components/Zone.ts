@@ -134,8 +134,6 @@ export default class Zone extends GameComponent {
 
 const containerStyle = makeStyle({
   position: `absolute`,
-  minWidth: `2rem`,
-  minHeight: `2rem`,
   cursor: `pointer`,
 })
 
@@ -145,6 +143,8 @@ const backgroundStyle = makeStyle({
   border,
   borderRadius,
   boxShadow,
+  minWidth: `2rem`,
+  minHeight: `2rem`,
 })
 
 const cardStyle = makeStyle({

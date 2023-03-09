@@ -11,12 +11,13 @@ import { TravelAnimation } from '../game/TravelAnimation'
 
 export default class MapComponent extends Component {
   maxDepthFromCenter = 2
-  private svg = createSvg('svg')
-  private edgeG = createSvg('g')
+
+  private edgeContainer = createSvg('g')
   private map = document.createElement('div')
   private zoneContainer = document.createElement('div')
   private travelIcons = document.createElement('div')
   travelAnimation = new TravelAnimation(this.travelIcons)
+
   private transform = {
     x: 0,
     y: 0,
@@ -26,19 +27,20 @@ export default class MapComponent extends Component {
   private zoneToComponent = new Map<GameObject, MapNode>()
   private edgeToElem = new Map<string, { line: Element, edge: Edge }>()
 
-  private elementScaleThreshold = 1
+  private firstRender = true
 
   constructor () {
     super()
 
     this.element.classList.add(containerStyle)
 
-    this.svg.classList.add(svgStyle)
-    this.svg.setAttribute('width', '100%')
-    this.svg.setAttribute('height', '100%')
-    this.element.append(this.svg)
+    const svg = createSvg('svg')
+    svg.classList.add(svgStyle)
+    svg.setAttribute('width', '100%')
+    svg.setAttribute('height', '100%')
+    this.element.append(svg)
 
-    this.svg.append(this.edgeG)
+    svg.append(this.edgeContainer)
 
     this.map.classList.add(mapStyle)
     this.element.append(this.map)
@@ -84,7 +86,8 @@ export default class MapComponent extends Component {
     }
 
     this.updatePositions()
-    this.centerOnZone(centerZone)
+    this.centerOnZone(centerZone, !this.firstRender)
+    this.firstRender = false
   }
 
   updatePositions () {
@@ -111,23 +114,23 @@ export default class MapComponent extends Component {
     const line = createSvg('line')
     line.classList.add(edgeStyle)
 
-    this.edgeG.append(line)
+    this.edgeContainer.append(line)
     grow(line)
 
     return { line, edge }
   }
 
-  private centerOnZone (zone: GameObject) {
+  private centerOnZone (zone: GameObject, animate = true) {
     this.transform.x = -zone.position.x * this.transform.scale
         + this.element.offsetWidth / 2
     this.transform.y = -zone.position.y * this.transform.scale +
         +this.element.offsetHeight / 2
 
-    this.updateTransform()
+    this.updateTransform(animate)
   }
 
   private updateZonePositionsAndScale () {
-    const scale = Math.max(this.elementScaleThreshold, this.transform.scale)
+    const scale = Math.max(1, this.transform.scale)
 
     for (const [zone, component] of this.zoneToComponent) {
       const x = zone.position.x * scale
@@ -148,7 +151,7 @@ export default class MapComponent extends Component {
   private updateTransform (animate = true) {
     const { x, y, scale } = this.transform
 
-    const mapScale = Math.min(1, scale / this.elementScaleThreshold)
+    const mapScale = Math.min(1, scale)
 
     const options: KeyframeAnimationOptions = {
       duration: animate ? duration.slow : 0,
@@ -156,7 +159,7 @@ export default class MapComponent extends Component {
       easing: 'ease-in-out',
     }
 
-    this.edgeG.animate({
+    this.edgeContainer.animate({
       transform: `${translate(x, y)} scale(${scale})`,
     }, options).commitStyles()
     this.map.animate({
