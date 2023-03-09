@@ -3,7 +3,7 @@ import { translate } from '../../util'
 import { makeStyle } from '../makeStyle'
 import { duration } from '../theme'
 
-export class TravelAnimation {
+export default class TravelAnimation {
   scale = 1
 
   animationState = new Set<{

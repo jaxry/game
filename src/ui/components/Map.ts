@@ -1,4 +1,4 @@
-import Component from './Component'
+import Component, { Context } from './Component'
 import createSvg from '../createSvg'
 import { Edge, getZoneGraph } from '../../behavior/connections'
 import GameObject from '../../GameObject'
@@ -7,7 +7,9 @@ import { duration, mapEdgeColor } from '../theme'
 import MapNode from './MapNode'
 import addPanZoom from '../PanZoom'
 import { makeOrGet, translate } from '../../util'
-import { TravelAnimation } from '../game/TravelAnimation'
+import TravelAnimation from '../game/TravelAnimation'
+
+export const nodeScale = new Context(1)
 
 export default class MapComponent extends Component {
   maxDepthFromCenter = 2
@@ -130,15 +132,15 @@ export default class MapComponent extends Component {
   }
 
   private updateZonePositionsAndScale () {
-    const scale = Math.max(1, this.transform.scale)
+    const nodeScale = Math.max(1, this.transform.scale)
 
     for (const [zone, component] of this.zoneToComponent) {
-      const x = zone.position.x * scale
-      const y = zone.position.y * scale
+      const x = zone.position.x * nodeScale
+      const y = zone.position.y * nodeScale
       component.element.style.transform = translate(x, y)
     }
 
-    this.travelAnimation.updateScale(scale)
+    this.travelAnimation.updateScale(nodeScale)
   }
 
   private updateEdgePosition (line: Element, edge: Edge) {
@@ -152,6 +154,7 @@ export default class MapComponent extends Component {
     const { x, y, scale } = this.transform
 
     const mapScale = Math.min(1, scale)
+    this.setContext(nodeScale, 1 / mapScale)
 
     const options: KeyframeAnimationOptions = {
       duration: animate ? duration.slow : 0,

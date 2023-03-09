@@ -10,6 +10,7 @@ import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
 import makeDraggable from '../makeDraggable'
 import { border, borderRadius, boxShadow, mapNodeColor } from '../theme'
+import { nodeScale } from './Map'
 
 export default class Zone extends GameComponent {
   private background = document.createElement('div')
@@ -59,8 +60,10 @@ export default class Zone extends GameComponent {
   }
 
   private get scale () {
-    return this.background.offsetWidth
-        / this.background.getBoundingClientRect().width
+    // If map is zoomed out, the zone is transform scaled down.
+    // Element.boundingClientRect() calculations need that
+    // scale applied for correct values
+    return this.getContext(nodeScale)
   }
 
   private makeCard (object: GameObject) {
@@ -81,19 +84,21 @@ export default class Zone extends GameComponent {
   private makeCardDraggable (card: ObjectCard) {
     let relX: number
     let relY: number
+    let scale: number
     makeDraggable(card.element, {
       onDown: (e) => {
         const { left, top } = card.element.getBoundingClientRect()
 
-        relX = (e.clientX - left) * this.scale
-        relY = (e.clientY - top) * this.scale
+        scale = this.scale
+        relX = (e.clientX - left) * scale
+        relY = (e.clientY - top) * scale
 
         this.cardContainer.append(card.element)
       },
       onDrag: (e) => {
         const parentBBox = this.cardContainer.getBoundingClientRect()
-        const x = (e.clientX - parentBBox.left) * this.scale - relX
-        const y = (e.clientY - parentBBox.top) * this.scale - relY
+        const x = (e.clientX - parentBBox.left) * scale - relX
+        const y = (e.clientY - parentBBox.top) * scale - relY
         card.element.style.transform = translate(x, y)
         this.updateBackgroundSize()
       }
@@ -118,10 +123,12 @@ export default class Zone extends GameComponent {
     let height = 16
 
     const { left, top } = this.cardContainer.getBoundingClientRect()
+    const scale = this.scale
+
     for (const card of this.objectToCard.values()) {
       const { x, y } = card.element.getBoundingClientRect()
-      const relX = (x - left) * this.scale
-      const relY = (y - top) * this.scale
+      const relX = (x - left) * scale
+      const relY = (y - top) * scale
       width = Math.max(width, -relX, relX + card.element.offsetWidth)
       height = Math.max(height, -relY, relY + card.element.offsetHeight)
     }

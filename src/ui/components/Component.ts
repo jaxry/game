@@ -48,4 +48,27 @@ export default class Component<T extends Element = HTMLElement> {
   on<T> (event: Observable<T>, listener: (data: T) => void) {
     this.onRemove(event.on(listener))
   }
+
+  getContext<T> (context: Context<T>): T {
+    let component: any = this
+    while (component) {
+      if (context.map.has(component)) {
+        return context.map.get(component)!
+      }
+      component = component.parentComponent
+    }
+    return context.defaultValue
+  }
+
+  setContext<T> (context: Context<T>, value: T) {
+    context.map.set(this, value)
+  }
+}
+
+export class Context<T> {
+  map = new WeakMap<any, T>()
+
+  constructor (public defaultValue: T) {
+
+  }
 }
