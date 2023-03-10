@@ -50,7 +50,7 @@ export default class Component<T extends Element = HTMLElement> {
   }
 
   getContext<T> (context: Context<T>): T {
-    let component: any = this
+    let component: Component<any> | undefined = this
     while (component) {
       const value = context.map.get(component)
       if (value) {

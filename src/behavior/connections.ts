@@ -2,7 +2,6 @@ import type GameObject from '../GameObject'
 import PriorityQueue from '../PriorityQueue'
 import { deleteElem } from '../util'
 import { renderedConnectionDistance } from '../map/forceDirectedSim'
-import Position from '../Position'
 
 export function connectZones (
     source: GameObject, target: GameObject, autoPosition = true) {
@@ -23,14 +22,6 @@ export function connectZones (
 }
 
 export function positionZone (source: GameObject, target: GameObject) {
-  if (!source.position) {
-    source.position = new Position()
-  }
-
-  if (!target.position) {
-    target.position = new Position()
-  }
-
   const theta = 2 * Math.PI * Math.random()
   const d = 2 * renderedConnectionDistance
   const dx = d * Math.cos(theta)
