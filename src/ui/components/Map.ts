@@ -154,7 +154,7 @@ export default class MapComponent extends Component {
     const { x, y, scale } = this.transform
 
     const mapScale = Math.min(1, scale)
-    this.setContext(nodeScale, 1 / mapScale)
+    this.setContext(nodeScale, mapScale)
 
     const options: KeyframeAnimationOptions = {
       duration: animate ? duration.slow : 0,

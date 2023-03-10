@@ -61,8 +61,8 @@ export default class Zone extends GameComponent {
 
   private get scale () {
     // If map is zoomed out, the zone is transform scaled down.
-    // Element.boundingClientRect() calculations need that
-    // scale applied for correct values
+    // Element.boundingClientRect() calculations need that scale applied
+    // for correct values
     return this.getContext(nodeScale)
   }
 
@@ -90,15 +90,15 @@ export default class Zone extends GameComponent {
         const { left, top } = card.element.getBoundingClientRect()
 
         scale = this.scale
-        relX = (e.clientX - left) * scale
-        relY = (e.clientY - top) * scale
+        relX = (e.clientX - left) / scale
+        relY = (e.clientY - top) / scale
 
         this.cardContainer.append(card.element)
       },
       onDrag: (e) => {
         const parentBBox = this.cardContainer.getBoundingClientRect()
-        const x = (e.clientX - parentBBox.left) * scale - relX
-        const y = (e.clientY - parentBBox.top) * scale - relY
+        const x = (e.clientX - parentBBox.left) / scale - relX
+        const y = (e.clientY - parentBBox.top) / scale - relY
         card.element.style.transform = translate(x, y)
         this.updateBackgroundSize()
       }
@@ -127,8 +127,8 @@ export default class Zone extends GameComponent {
 
     for (const card of this.objectToCard.values()) {
       const { x, y } = card.element.getBoundingClientRect()
-      const relX = (x - left) * scale
-      const relY = (y - top) * scale
+      const relX = (x - left) / scale
+      const relY = (y - top) / scale
       width = Math.max(width, -relX, relX + card.element.offsetWidth)
       height = Math.max(height, -relY, relY + card.element.offsetHeight)
     }

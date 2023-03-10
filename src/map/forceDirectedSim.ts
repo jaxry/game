@@ -13,7 +13,7 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
   let alpha = 0.09
 
   // repelling force is this much stronger than attracting force
-  const repelRatio = 2400
+  const repelRatio = 3000
 
   const velocityDecay = 0.8
   const alphaDecay = 0.985

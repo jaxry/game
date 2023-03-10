@@ -31,9 +31,9 @@ export function initGame (game: Game) {
   //       zones.at(Math.random() * zones.length))
   // }
 
-  // for (let i = 0; i < 5; i++) {
-  //   spawn(typeApple, zone)
-  // }
+  for (let i = 0; i < 5; i++) {
+    spawn(typeApple, zone)
+  }
 
   const chest = spawn(typeChest, zone)
   spawn(typeApple, chest)

@@ -52,8 +52,9 @@ export default class Component<T extends Element = HTMLElement> {
   getContext<T> (context: Context<T>): T {
     let component: any = this
     while (component) {
-      if (context.map.has(component)) {
-        return context.map.get(component)!
+      const value = context.map.get(component)
+      if (value) {
+        return value
       }
       component = component.parentComponent
     }
