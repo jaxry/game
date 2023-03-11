@@ -19,7 +19,7 @@ export default function makeDraggable (
       onDown?: (e: MouseEvent) => boolean | OnDrag | void,
 
       onOver?: (e: MouseEvent) => void,
-      onUp?: (e: MouseEvent) => void,
+      onUp?: OnDrag,
 
       startEnabled?: MouseEvent
     }) {
@@ -61,12 +61,7 @@ export default function makeDraggable (
     window.addEventListener('mouseup', up, { once: true })
   }
 
-  // throttle the mousemove event to the browser's requestAnimationFrame
-  // otherwise event gets triggered way more than necessary
-  const move = throttle((e: MouseEvent) => {
-    if (!onDrag) {
-      return
-    }
+  function calcChange (e: MouseEvent) {
     const relative = {
       x: e.clientX - startX,
       y: e.clientY - startY,
@@ -77,6 +72,16 @@ export default function makeDraggable (
     }
     lastX = e.clientX
     lastY = e.clientY
+    return { relative, difference }
+  }
+
+  // throttle the mousemove event to the browser's requestAnimationFrame
+  // otherwise event gets triggered way more than necessary
+  const move = throttle((e: MouseEvent) => {
+    if (!onDrag) {
+      return
+    }
+    const { relative, difference } = calcChange(e)
     onDrag(e, relative, difference)
   })
 
@@ -87,7 +92,8 @@ export default function makeDraggable (
       document.body.removeEventListener('mouseover', options.onOver)
     }
 
-    options.onUp?.(e)
+    const { relative, difference } = calcChange(e)
+    options.onUp?.(e, relative, difference)
 
     onDrag = undefined
   }

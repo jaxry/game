@@ -6,9 +6,6 @@ import { clamp } from '../util'
 
 const iterations = 300
 
-// higher alpha starts system with higher energy
-let alpha = 0.09
-
 // repelling force is this much stronger than attracting force
 const repelRatio = 3000
 
@@ -21,6 +18,9 @@ const maxDistance2 = maxDistance * maxDistance
 export const renderedConnectionDistance = repelRatio / 12
 
 export function startForceDirectedSimulation (startingNode: GameObject) {
+  // higher alpha starts system with higher energy
+  let alpha = 0.09
+
   const graph = getZoneGraph(startingNode)
   const nodes = [...graph.nodes.keys()]
   const edges = [...graph.edges.values()]

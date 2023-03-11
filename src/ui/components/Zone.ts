@@ -10,6 +10,8 @@ import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
 import makeDraggable from '../makeDraggable'
 import { border, borderRadius, boxShadow, mapNodeColor } from '../theme'
+import CardPhysics from '../game/CardPhysics'
+import ElapsedTime from '../../ElapsedTime'
 
 export default class Zone extends GameComponent {
   private background = document.createElement('div')
@@ -18,6 +20,8 @@ export default class Zone extends GameComponent {
   private objectToCard = new Map<GameObject, ObjectCard>()
   private cardToObject = new WeakMap<ObjectCard, GameObject>()
   private zoneEvents: Effect
+
+  private cardPhysics = new CardPhysics()
 
   constructor (public zone: GameObject) {
     super()
@@ -75,38 +79,56 @@ export default class Zone extends GameComponent {
 
     this.translateCard(object, card)
 
-    this.cardContainer.append(card.element)
-
     this.makeCardDraggable(object, card)
+
+    this.cardContainer.append(card.element)
 
     return card
   }
 
   private makeCardDraggable (object: GameObject, card: ObjectCard) {
-    let relX: number
-    let relY: number
+    let relX = 0
+    let relY = 0
+    const elapsedTime = new ElapsedTime()
+
     makeDraggable(card.element, {
       onDown: (e) => {
-        const {
-          left,
-          top,
-          width,
-          height,
-        } = card.element.getBoundingClientRect()
+        const { left, top, width, height }
+            = card.element.getBoundingClientRect()
 
         relX = (e.clientX - left - width / 2) / this.scale
         relY = (e.clientY - top - height / 2) / this.scale
+        elapsedTime.start()
 
         this.cardContainer.append(card.element)
       },
-      onDrag: (e) => {
+      onDrag: (e, relative, difference) => {
         const parentBBox = this.cardContainer.getBoundingClientRect()
         const x = (e.clientX - parentBBox.left) / this.scale - relX
         const y = (e.clientY - parentBBox.top) / this.scale - relY
         this.translateCard(object, card, x, y)
         this.updateBackgroundSize()
+        calcVelocity(difference)
+
+      },
+      onUp: (e, relative, difference) => {
+        calcVelocity(difference)
+        this.cardPhysics.simulate(object.position, () => {
+          this.translateCard(object, card)
+        })
       },
     })
+
+    function calcVelocity (movement: { x: number, y: number }) {
+      const elapsed = elapsedTime.elapsed()
+
+      const vx = movement.x / elapsed
+      const vy = movement.y / elapsed
+      const weight = 0.95 ** elapsed
+
+      object.position.vx = object.position.vx * weight + vx * (1 - weight)
+      object.position.vy = object.position.vy * weight + vy * (1 - weight)
+    }
   }
 
   private translateCard (
