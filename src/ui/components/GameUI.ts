@@ -6,7 +6,6 @@ import DragAndDrop from '../DragAndDrop'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
-import GameSidebar from './GameSidebar'
 import { border } from '../theme'
 
 export const dragAndDropGameObject = new DragAndDrop<GameObject>()
@@ -17,9 +16,9 @@ export default class GameUI extends GameComponent {
 
     this.element.classList.add(containerStyle)
 
-    const sidebar = this.newComponent(GameSidebar)
-    sidebar.element.classList.add(sidebarStyle)
-    this.element.append(sidebar.element)
+    // const sidebar = this.newComponent(GameSidebar)
+    // sidebar.element.classList.add(sidebarStyle)
+    // this.element.append(sidebar.element)
 
     const map = this.createMap()
     map.element.classList.add(mapStyle)
