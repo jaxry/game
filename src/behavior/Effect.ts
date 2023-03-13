@@ -1,7 +1,7 @@
 import GameObject, {
   ActiveGameObjectEvent, GameObjectEventListener, GameObjectEvents,
 } from '../GameObject'
-import { ignore, serializable } from '../serialize'
+import { serializable } from '../serialize'
 import { addEffectToGameLoop, removeEffectFromGameLoop } from './core'
 
 export default class Effect {
@@ -129,9 +129,9 @@ export default class Effect {
 
 serializable(Effect, {
   transform: {
-    object: ignore, // added back in Game class
-    eventList: ignore,
-    isActive: ignore,
+    object: serializable.ignore, // added back in Game class
+    eventList: serializable.ignore,
+    isActive: serializable.ignore,
   },
 })
 

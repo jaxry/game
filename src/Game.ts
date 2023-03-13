@@ -2,7 +2,7 @@ import GameTime from './GameTime'
 import type GameObject from './GameObject'
 import type Effect from './behavior/Effect'
 import Observable from './Observable'
-import { ignore, serializable } from './serialize'
+import { serializable } from './serialize'
 
 export default class Game {
   time = new GameTime()
@@ -20,8 +20,8 @@ export default class Game {
 
 serializable(Game, {
   transform: {
-    event: ignore,
-    effectsWithTick: ignore,
+    event: serializable.ignore,
+    effectsWithTick: serializable.ignore,
   },
   afterDeserialize: (game: Game) => {
     rehydrateObject(game.world)

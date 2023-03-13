@@ -19,11 +19,6 @@ interface SerializableOptions<T> {
   afterDeserialize?: (object: T) => void
 }
 
-export const ignore = [() => undefined] as any
-export const ignoreIfEmpty = [
-  (x: Map<unknown, unknown> | Set<unknown>) => x.size > 0 ? x : undefined,
-] as any
-
 export function serializable<T> (
     constructor: Constructor<T>, options?: SerializableOptions<T>) {
 
@@ -43,6 +38,11 @@ export function serializable<T> (
             combineFunctions(parentCallback, callback) : callback
       }, options?.afterDeserialize)
 }
+
+serializable.ignore = [() => undefined] as any
+serializable.ignoreIfEmpty = [
+  (x: Map<unknown, unknown> | Set<unknown>) => x.size > 0 ? x : undefined,
+] as any
 
 export function serialize (toSerialize: any) {
   const sharedObjects = new SharedObjects()
