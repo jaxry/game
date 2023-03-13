@@ -5,21 +5,24 @@ let nextConstructorId = 1
 const idToConstructor = new Map<number, Constructor>()
 const constructorToId = new Map<Constructor, number>()
 
-const constructorToIgnoreSet = new WeakMap<Constructor, Set<string>>()
 const constructorToTransform = new WeakMap<Constructor,
     SerializableOptions<any>['transform']>()
 const constructorToDeserializeCallback = new WeakMap<Constructor,
     SerializableOptions<any>['afterDeserialize']>()
 
 export interface SerializableOptions<T> {
-  ignore?: (keyof T)[]
-
   // transform a key value to a simple, jsonable result
   transform?: {
     [prop in keyof T]?: [(value: T[prop]) => any, ((value: any) => T[prop])?]
   }
   afterDeserialize?: (object: T) => void
 }
+
+export const ignoreIfEmpty = [
+  (x: Map<unknown, unknown> | Set<unknown>) => x.size > 0 ? x : undefined,
+] as any
+
+export const transformIgnore = [() => undefined] as any
 
 export function serializable<T> (
     constructor: Constructor<T>, options?: SerializableOptions<T>) {
@@ -28,26 +31,17 @@ export function serializable<T> (
   idToConstructor.set(id, constructor)
   constructorToId.set(constructor, id)
 
-  addInheritedProperty(constructor, constructorToIgnoreSet,
-      (ignore, parentSet) => {
-        const set = parentSet ? new Set(parentSet) : new Set<string>()
-        for (const key of ignore) {
-          set.add(key as string)
-        }
-        return set
-      }, options?.ignore)
+  addInheritedProperty(constructor, constructorToTransform,
+      (transform, parentTransform) => {
+        return parentTransform ? { ...parentTransform, ...transform } :
+            transform
+      }, options?.transform)
 
   addInheritedProperty(constructor, constructorToDeserializeCallback,
       (callback, parentCallback) => {
         return parentCallback ?
             combineFunctions(parentCallback, callback) : callback
       }, options?.afterDeserialize)
-
-  addInheritedProperty(constructor, constructorToTransform,
-      (transform, parentTransform) => {
-        return parentTransform ? { ...parentTransform, ...transform } :
-            transform
-      }, options?.transform)
 }
 
 export function serialize (toSerialize: any) {
@@ -97,12 +91,7 @@ export function serialize (toSerialize: any) {
       copy.$c = id
     }
 
-    const ignoreSet = constructorToIgnoreSet.get(object.constructor)
-
     for (const key in object) {
-      if (ignoreSet?.has(key)) {
-        continue
-      }
       const value = object[key]
       const transform =
           constructorToTransform.get(object.constructor)?.[key]?.[0]
@@ -173,9 +162,7 @@ export function deserialize (json: string) {
     revive(shared[i], sharedRevived[i])
   }
 
-  const deserialized = revive(object)
-
-  return deserialized
+  return revive(object)
 }
 
 function instantiateFromTemplate (object: any) {
@@ -260,12 +247,7 @@ class SharedObjects {
 
       this.objectSet.add(object)
 
-      const ignoreSet = constructorToIgnoreSet.get(object.constructor)
-
       for (const key in object) {
-        if (ignoreSet?.has(key)) {
-          continue
-        }
         this.find(object[key])
       }
     }
