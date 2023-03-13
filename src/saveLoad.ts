@@ -14,6 +14,7 @@ export function loadGame () {
 
 export function saveGameToFile () {
   const save = serialize(game)
+  console.log(save)
 
   const request = indexedDB.open('game')
 

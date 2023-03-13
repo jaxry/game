@@ -65,20 +65,22 @@ export default class GameObject {
 }
 
 serializable(GameObject, {
-  ignore: ['id', 'events', 'container'],
-  // container is added back in Game class
-
   transform: {
+    id: serializable.ignore,
+    events: serializable.ignore,
+    container: serializable.ignore, // added back in Game class
     type: [
       (type: GameObjectType) => getIdFromType(type),
       (id: number) => getTypeFromId(id),
     ],
     position: [
       (position: Position) => ({
-        x: toPrecision(position.x, 1),
-        y: toPrecision(position.y, 1),
+        x: toPrecision(position.x, 0),
+        y: toPrecision(position.y, 0),
       }),
       ({ x, y }: any) => new Position(x, y)],
+    effects: serializable.ignoreIfEmpty,
+    contains: serializable.ignoreIfEmpty,
   },
 })
 

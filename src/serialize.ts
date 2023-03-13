@@ -3,18 +3,16 @@ import { Constructor } from './types'
 
 let nextConstructorId = 1
 const idToConstructor = new Map<number, Constructor>()
-const constructorToId = new Map<Constructor, number>()
+const constructorToId = new WeakMap<Constructor, number>()
 
-const constructorToIgnoreSet = new WeakMap<Constructor, Set<string>>()
 const constructorToTransform = new WeakMap<Constructor,
     SerializableOptions<any>['transform']>()
 const constructorToDeserializeCallback = new WeakMap<Constructor,
     SerializableOptions<any>['afterDeserialize']>()
 
-export interface SerializableOptions<T> {
-  ignore?: (keyof T)[]
-
+interface SerializableOptions<T> {
   // transform a key value to a simple, jsonable result
+  // if returns undefined, the key is not serialized
   transform?: {
     [prop in keyof T]?: [(value: T[prop]) => any, ((value: any) => T[prop])?]
   }
@@ -28,30 +26,28 @@ export function serializable<T> (
   idToConstructor.set(id, constructor)
   constructorToId.set(constructor, id)
 
-  addInheritedProperty(constructor, constructorToIgnoreSet,
-      (ignore, parentSet) => {
-        const set = parentSet ? new Set(parentSet) : new Set<string>()
-        for (const key of ignore) {
-          set.add(key as string)
-        }
-        return set
-      }, options?.ignore)
+  addInheritedProperty(constructor, constructorToTransform,
+      (transform, parentTransform) => {
+        return parentTransform ? { ...parentTransform, ...transform } :
+            transform
+      }, options?.transform)
 
   addInheritedProperty(constructor, constructorToDeserializeCallback,
       (callback, parentCallback) => {
         return parentCallback ?
             combineFunctions(parentCallback, callback) : callback
       }, options?.afterDeserialize)
-
-  addInheritedProperty(constructor, constructorToTransform,
-      (transform, parentTransform) => {
-        return parentTransform ? { ...parentTransform, ...transform } :
-            transform
-      }, options?.transform)
 }
 
+serializable.ignore = [() => undefined] as any
+serializable.ignoreIfEmpty = [
+  (x: Map<unknown, unknown> | Set<unknown>) => x.size > 0 ? x : undefined,
+] as any
+
 export function serialize (toSerialize: any) {
-  const sharedObjects = getSharedObjects(toSerialize)
+  const sharedObjects = new SharedObjects()
+
+  sharedObjects.find(toSerialize)
 
   function prepare (value: any, makeSharedReference = true): any {
     if (isPrimitive(value)) {
@@ -59,8 +55,9 @@ export function serialize (toSerialize: any) {
     }
     const object = value
 
-    if (makeSharedReference && sharedObjects.has(object)) {
-      return `→${sharedObjects.get(object)}`
+    const sharedId = makeSharedReference && sharedObjects.getId(object)
+    if (sharedId !== false) {
+      return `→${sharedId}`
     }
 
     if (object instanceof Set) {
@@ -70,11 +67,7 @@ export function serialize (toSerialize: any) {
     } else if (object instanceof Map) {
       return {
         $m: mapIter(object, ([key, value]) => {
-          const pKey = prepare(key)
-          const pValue = prepare(value)
-          if (pKey !== undefined && pValue !== undefined) {
-            return [pKey, pValue]
-          }
+          return [prepare(key), prepare(value)]
         }),
       }
     } else if (Array.isArray(object)) {
@@ -98,17 +91,15 @@ export function serialize (toSerialize: any) {
       copy.$c = id
     }
 
-    const ignoreSet = constructorToIgnoreSet.get(object.constructor)
-
     for (const key in object) {
-      if (ignoreSet?.has(key)) {
-        continue
-      }
       const value = object[key]
-      const transform = constructorToTransform.get(object.constructor)
-          ?.[key]?.[0]
-      const transformed = transform && value ? transform(value) : value
+      const transform =
+          constructorToTransform.get(object.constructor)?.[key]?.[0]
+      const transformed =
+          transform && value !== undefined ? transform(value) : value
+
       const prepared = prepare(transformed)
+
       if (prepared !== undefined) {
         copy[key] = prepared
       }
@@ -118,8 +109,9 @@ export function serialize (toSerialize: any) {
   }
 
   const toStringify = {
-    shared: mapIter(sharedObjects.keys(), (object) => prepare(object, false)),
-    object: prepare(toSerialize, true),
+    object: prepare(toSerialize),
+    shared: mapIter(sharedObjects.usedSharedObjects,
+        (object) => prepare(object, false)),
   }
 
   return JSON.stringify(toStringify)
@@ -170,9 +162,7 @@ export function deserialize (json: string) {
     revive(shared[i], sharedRevived[i])
   }
 
-  const deserialized = revive(object)
-
-  return deserialized
+  return revive(object)
 }
 
 function instantiateFromTemplate (object: any) {
@@ -220,6 +210,70 @@ function findParentInMap<T> (
   }
 }
 
+class SharedObjects {
+  // use set instead of array
+  // this allows for iterating over set while adding extra elements via
+  // more calls to this.getId
+  usedSharedObjects = new Set<any>()
+
+  private objectSet = new WeakSet<any>()
+  private sharedObjects = new WeakMap<any, number>()
+
+  find (object: any) {
+    if (isPrimitive(object)) {
+      return
+    }
+
+    if (this.objectSet.has(object)) {
+      this.sharedObjects.set(object, -1)
+      return
+    }
+
+    if (object instanceof Set || object instanceof Array) {
+      this.objectSet.add(object)
+      for (const value of object) {
+        this.find(value)
+      }
+    } else if (object instanceof Map) {
+      this.objectSet.add(object)
+      for (const [key, value] of object) {
+        this.find(key)
+        this.find(value)
+      }
+    } else if (object.constructor === Object ||
+        constructorToId.has(object.constructor)) {
+      // don't consider Function objects
+      // or classes without a serializable call
+
+      this.objectSet.add(object)
+
+      for (const key in object) {
+        this.find(object[key])
+      }
+    }
+  }
+
+  getId (object: any) {
+    let id = this.sharedObjects.get(object)
+
+    if (id === undefined) {
+      return false
+    }
+
+    if (id === -1) {
+      id = this.usedSharedObjects.size
+      this.sharedObjects.set(object, id)
+      this.usedSharedObjects.add(object)
+    }
+
+    return id
+  }
+}
+
+function isPrimitive (value: any) {
+  return value === null || typeof value !== 'object'
+}
+
 type Args<T> = (...args: T[]) => void
 
 function combineFunctions<T> (fn1: Args<T>, fn2: Args<T>): Args<T> {
@@ -227,62 +281,4 @@ function combineFunctions<T> (fn1: Args<T>, fn2: Args<T>): Args<T> {
     fn1(...args)
     fn2(...args)
   }
-}
-
-function getSharedObjects (object: any) {
-  const objectSet = new Set<any>()
-  const sharedObjects = new Set<any>()
-
-  function findShared (value: any) {
-    if (isPrimitive(value)) {
-      return
-    }
-
-    const object = value
-
-    if (objectSet.has(object)) {
-      sharedObjects.add(object)
-      return
-    }
-
-    if (object instanceof Set || object instanceof Array) {
-      objectSet.add(object)
-      for (const value of object) {
-        findShared(value)
-      }
-    } else if (object instanceof Map) {
-      objectSet.add(object)
-      for (const [key, value] of object) {
-        findShared(key)
-        findShared(value)
-      }
-    } else if (object.constructor === Object ||
-        constructorToId.has(object.constructor)) {
-
-      objectSet.add(object)
-
-      const ignoreSet = constructorToIgnoreSet.get(object.constructor)
-
-      for (const key in object) {
-        if (ignoreSet?.has(key)) {
-          continue
-        }
-        findShared(object[key])
-      }
-    }
-  }
-
-  findShared(object)
-
-  const sharedObjectToId = new Map<any, number>()
-  let id = 0
-  for (const object of sharedObjects) {
-    sharedObjectToId.set(object, id++)
-  }
-
-  return sharedObjectToId
-}
-
-function isPrimitive (value: any) {
-  return value === null || typeof value !== 'object'
 }

@@ -9,10 +9,6 @@ export function spawn (type: GameObjectType, container?: GameObject) {
     instance.health = type.health
   }
 
-  if (type.isContainer) {
-    instance.contains = new Set()
-  }
-
   if (container) {
     putInsideContainer(container, instance)
   }
