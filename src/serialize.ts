@@ -51,7 +51,9 @@ export function serializable<T> (
 }
 
 export function serialize (toSerialize: any) {
-  const sharedObjects = getSharedObjects(toSerialize)
+  const sharedObjects = new SharedObjects()
+
+  sharedObjects.find(toSerialize)
 
   function prepare (value: any, makeSharedReference = true): any {
     if (isPrimitive(value)) {
@@ -59,8 +61,9 @@ export function serialize (toSerialize: any) {
     }
     const object = value
 
-    if (makeSharedReference && sharedObjects.has(object)) {
-      return `→${sharedObjects.get(object)}`
+    const sharedId = makeSharedReference && sharedObjects.getId(object)
+    if (sharedId !== false) {
+      return `→${sharedId}`
     }
 
     if (object instanceof Set) {
@@ -118,8 +121,9 @@ export function serialize (toSerialize: any) {
   }
 
   const toStringify = {
-    shared: mapIter(sharedObjects.keys(), (object) => prepare(object, false)),
-    object: prepare(toSerialize, true),
+    object: prepare(toSerialize),
+    shared: mapIter(sharedObjects.usedSharedObjects,
+        (object) => prepare(object, false)),
   }
 
   return JSON.stringify(toStringify)
@@ -220,46 +224,42 @@ function findParentInMap<T> (
   }
 }
 
-type Args<T> = (...args: T[]) => void
+class SharedObjects {
+  // use set instead of array
+  // this allows for iterating over set while adding extra elements via
+  // more calls to this.getId
+  usedSharedObjects = new Set<any>()
 
-function combineFunctions<T> (fn1: Args<T>, fn2: Args<T>): Args<T> {
-  return (...args) => {
-    fn1(...args)
-    fn2(...args)
-  }
-}
+  private objectSet = new WeakSet<any>()
+  private sharedObjects = new WeakMap<any, number>()
 
-function getSharedObjects (object: any) {
-  const objectSet = new Set<any>()
-  const sharedObjects = new Set<any>()
-
-  function findShared (value: any) {
-    if (isPrimitive(value)) {
+  find (object: any) {
+    if (isPrimitive(object)) {
       return
     }
 
-    const object = value
-
-    if (objectSet.has(object)) {
-      sharedObjects.add(object)
+    if (this.objectSet.has(object)) {
+      this.sharedObjects.set(object, -1)
       return
     }
 
     if (object instanceof Set || object instanceof Array) {
-      objectSet.add(object)
+      this.objectSet.add(object)
       for (const value of object) {
-        findShared(value)
+        this.find(value)
       }
     } else if (object instanceof Map) {
-      objectSet.add(object)
+      this.objectSet.add(object)
       for (const [key, value] of object) {
-        findShared(key)
-        findShared(value)
+        this.find(key)
+        this.find(value)
       }
     } else if (object.constructor === Object ||
         constructorToId.has(object.constructor)) {
+      // don't consider Function objects
+      // or classes without a serializable call
 
-      objectSet.add(object)
+      this.objectSet.add(object)
 
       const ignoreSet = constructorToIgnoreSet.get(object.constructor)
 
@@ -267,22 +267,37 @@ function getSharedObjects (object: any) {
         if (ignoreSet?.has(key)) {
           continue
         }
-        findShared(object[key])
+        this.find(object[key])
       }
     }
   }
 
-  findShared(object)
+  getId (object: any) {
+    let id = this.sharedObjects.get(object)
 
-  const sharedObjectToId = new Map<any, number>()
-  let id = 0
-  for (const object of sharedObjects) {
-    sharedObjectToId.set(object, id++)
+    if (id === undefined) {
+      return false
+    }
+
+    if (id === -1) {
+      id = this.usedSharedObjects.size
+      this.sharedObjects.set(object, id)
+      this.usedSharedObjects.add(object)
+    }
+
+    return id
   }
-
-  return sharedObjectToId
 }
 
 function isPrimitive (value: any) {
   return value === null || typeof value !== 'object'
+}
+
+type Args<T> = (...args: T[]) => void
+
+function combineFunctions<T> (fn1: Args<T>, fn2: Args<T>): Args<T> {
+  return (...args) => {
+    fn1(...args)
+    fn2(...args)
+  }
 }
