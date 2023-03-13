@@ -73,11 +73,7 @@ export function serialize (toSerialize: any) {
     } else if (object instanceof Map) {
       return {
         $m: mapIter(object, ([key, value]) => {
-          const pKey = prepare(key)
-          const pValue = prepare(value)
-          if (pKey !== undefined && pValue !== undefined) {
-            return [pKey, pValue]
-          }
+          return [prepare(key), prepare(value)]
         }),
       }
     } else if (Array.isArray(object)) {
@@ -108,10 +104,13 @@ export function serialize (toSerialize: any) {
         continue
       }
       const value = object[key]
-      const transform = constructorToTransform.get(object.constructor)
-          ?.[key]?.[0]
-      const transformed = transform && value ? transform(value) : value
+      const transform =
+          constructorToTransform.get(object.constructor)?.[key]?.[0]
+      const transformed =
+          transform && value !== undefined ? transform(value) : value
+
       const prepared = prepare(transformed)
+
       if (prepared !== undefined) {
         copy[key] = prepared
       }
