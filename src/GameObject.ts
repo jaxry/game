@@ -2,7 +2,7 @@ import type GameObjectType from './GameObjectType'
 import { getIdFromType, getTypeFromId } from './GameObjectType'
 import Effect from './behavior/Effect'
 import Action from './behavior/Action'
-import { ignoreIfEmpty, serializable, transformIgnore } from './serialize'
+import { ignore, ignoreIfEmpty, serializable } from './serialize'
 import { toPrecision } from './util'
 import Position from './Position'
 
@@ -66,9 +66,9 @@ export default class GameObject {
 
 serializable(GameObject, {
   transform: {
-    id: transformIgnore,
-    events: transformIgnore,
-    container: transformIgnore, // added back in Game class
+    id: ignore,
+    events: ignore,
+    container: ignore, // added back in Game class
     type: [
       (type: GameObjectType) => getIdFromType(type),
       (id: number) => getTypeFromId(id),
@@ -80,6 +80,7 @@ serializable(GameObject, {
       }),
       ({ x, y }: any) => new Position(x, y)],
     effects: ignoreIfEmpty,
+    contains: ignoreIfEmpty,
   },
 })
 

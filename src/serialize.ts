@@ -3,26 +3,26 @@ import { Constructor } from './types'
 
 let nextConstructorId = 1
 const idToConstructor = new Map<number, Constructor>()
-const constructorToId = new Map<Constructor, number>()
+const constructorToId = new WeakMap<Constructor, number>()
 
 const constructorToTransform = new WeakMap<Constructor,
     SerializableOptions<any>['transform']>()
 const constructorToDeserializeCallback = new WeakMap<Constructor,
     SerializableOptions<any>['afterDeserialize']>()
 
-export interface SerializableOptions<T> {
+interface SerializableOptions<T> {
   // transform a key value to a simple, jsonable result
+  // if returns undefined, the key is not serialized
   transform?: {
     [prop in keyof T]?: [(value: T[prop]) => any, ((value: any) => T[prop])?]
   }
   afterDeserialize?: (object: T) => void
 }
 
+export const ignore = [() => undefined] as any
 export const ignoreIfEmpty = [
   (x: Map<unknown, unknown> | Set<unknown>) => x.size > 0 ? x : undefined,
 ] as any
-
-export const transformIgnore = [() => undefined] as any
 
 export function serializable<T> (
     constructor: Constructor<T>, options?: SerializableOptions<T>) {

@@ -47,8 +47,10 @@ export default class Zone extends GameComponent {
       this.makeSpot(i)
     }
 
-    for (const obj of this.zone.contains) {
-      this.makeCard(obj)
+    if (this.zone.contains) {
+      for (const obj of this.zone.contains) {
+        this.makeCard(obj)
+      }
     }
   }
 
