@@ -128,8 +128,11 @@ export default class Effect {
 }
 
 serializable(Effect, {
-  ignore: ['object', 'eventList', 'isActive'],
-  // object is added back in Game class
+  transform: {
+    object: serializable.ignore, // added back in Game class
+    eventList: serializable.ignore,
+    isActive: serializable.ignore,
+  },
 })
 
 export function removeEffects (obj: GameObject) {

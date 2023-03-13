@@ -19,7 +19,10 @@ export default class Game {
 }
 
 serializable(Game, {
-  ignore: ['event', 'effectsWithTick'],
+  transform: {
+    event: serializable.ignore,
+    effectsWithTick: serializable.ignore,
+  },
   afterDeserialize: (game: Game) => {
     rehydrateObject(game.world)
   },

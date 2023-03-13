@@ -3,9 +3,13 @@ import { ContainedAs } from '../GameObject'
 
 export function moveTo (
     container: GameObject, object: GameObject, containedAs: ContainedAs) {
+
+  if (!container.type.isContainer) {
+    console.warn(container, ' is not a container')
+  }
+
   if (!container.contains) {
-    console.warn(container, `is not a container`)
-    return
+    container.contains = new Set()
   }
 
   const from = object.container
