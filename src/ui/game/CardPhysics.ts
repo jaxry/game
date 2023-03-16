@@ -3,9 +3,10 @@ import GameObject from '../../GameObject'
 import Component from '../components/Component'
 
 export default class CardPhysics {
-  repelForce = 0.005
-  velocityDecay = 0.993
-  minVelocityBeforeStop = 1e-6
+  repelForce = 0.002
+  velocityDecay = 0.997
+  minVelocityBeforeStop = 1e-5
+  minIterations = 10
 
   private animationId = 0
   private ignoring = new WeakSet<GameObject>()
@@ -29,16 +30,27 @@ export default class CardPhysics {
 
           if (this.ignoring.has(objects[j])) continue
 
-          if (intersects(cards[i].element, cards[j].element)) {
+          const aBBox = cards[i].element.getBoundingClientRect()
+          const bBBox = cards[j].element.getBoundingClientRect()
+
+          if (intersects(aBBox, bBBox)) {
             const a = objects[i]
             const b = objects[j]
-            const dx = a.position.x - b.position.x
-            const dy = a.position.y - b.position.y
-            const f = this.repelForce * elapsed / Math.sqrt(dx * dx + dy * dy)
-            a.position.vx += f * dx
-            a.position.vy += f * dy
-            b.position.vx -= f * dx
-            b.position.vy -= f * dy
+            const xOverlap = Math.min(
+                aBBox.right, bBBox.right) - Math.max(aBBox.left, bBBox.left)
+            const yOverlap = Math.min(
+                aBBox.bottom, bBBox.bottom) - Math.max(aBBox.top, bBBox.top)
+            const sum = xOverlap + yOverlap
+
+            // push the objects apart on each axis proportional
+            // to their overlap, so that the least overlap moves the most
+            const dirX = Math.sign(a.position.x - b.position.x) * yOverlap / sum
+            const dirY = Math.sign(a.position.y - b.position.y) * xOverlap / sum
+            const f = this.repelForce * elapsed
+            a.position.vx += f * dirX
+            a.position.vy += f * dirY
+            b.position.vx -= f * dirX
+            b.position.vy -= f * dirY
           }
         }
       }
@@ -66,6 +78,7 @@ export default class CardPhysics {
 
     const elapsedTime = new ElapsedTime()
 
+    let iterations = 0
     const tick = () => {
       const elapsed = elapsedTime.elapsed()
 
@@ -74,7 +87,7 @@ export default class CardPhysics {
 
       this.onUpdate()
 
-      if (repeat) {
+      if (repeat || ++iterations < this.minIterations) {
         this.animationId = requestAnimationFrame(tick)
       }
     }
@@ -94,11 +107,9 @@ export default class CardPhysics {
   }
 }
 
-function intersects (a: Element, b: Element) {
-  const aBBox = a.getBoundingClientRect()
-  const bBBox = b.getBoundingClientRect()
-  return aBBox.left < bBBox.right &&
-      bBBox.left < aBBox.right &&
-      aBBox.top < bBBox.bottom &&
-      bBBox.top < aBBox.bottom
+function intersects (a: DOMRect, b: DOMRect) {
+  return a.left < b.right &&
+      b.left < a.right &&
+      a.top < b.bottom &&
+      b.top < a.bottom
 }
