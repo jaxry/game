@@ -12,7 +12,8 @@ import {
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import DummyElement from '../DummyElement'
-import { dragAndDropGameObject } from './GameUI'
+import { onClickNotDrag } from '../makeDraggable'
+import ObjectInfo from './ObjectInfo'
 
 const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
@@ -47,15 +48,12 @@ export default class ObjectCard extends GameComponent {
       this.setAction(object.activeAction)
     }
 
-    // this.element.addEventListener('click', () => {
-    //   if (isPlayer(object)) {
-    //     return
-    //   }
-    //   this.newComponent(ObjectInfo, object,
-    //       this.element.getBoundingClientRect())
-    // })
+    onClickNotDrag(this.element, () => {
+      this.newComponent(ObjectInfo, object,
+          this.element.getBoundingClientRect())
+    })
 
-    dragAndDropGameObject.drag(this.element, object, name)
+    // dragAndDropGameObject.drag(this.element, object, name)
 
     const self = this
     this.newEffect(class extends Effect {

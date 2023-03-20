@@ -36,10 +36,10 @@ export default class CardPhysics {
           if (intersects(aBBox, bBBox)) {
             const a = objects[i]
             const b = objects[j]
-            const xOverlap = Math.min(
-                aBBox.right, bBBox.right) - Math.max(aBBox.left, bBBox.left)
-            const yOverlap = Math.min(
-                aBBox.bottom, bBBox.bottom) - Math.max(aBBox.top, bBBox.top)
+            const xOverlap = Math.min(aBBox.right, bBBox.right)
+                - Math.max(aBBox.left, bBBox.left)
+            const yOverlap = Math.min(aBBox.bottom, bBBox.bottom)
+                - Math.max(aBBox.top, bBBox.top)
             const sum = xOverlap + yOverlap
 
             // push the objects apart on each axis proportional
