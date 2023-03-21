@@ -1,7 +1,7 @@
 import GameObject from '../../GameObject'
 import Window from './Window'
-import Inventory from './Inventory'
 import { makeStyle } from '../makeStyle'
+import Zone from './Zone'
 
 export default class ObjectInfo extends Window {
   constructor (object: GameObject, parentBBox: DOMRect) {
@@ -14,10 +14,15 @@ export default class ObjectInfo extends Window {
     this.element.append(name)
 
     if (object.contains) {
-      const inventory = this.newComponent(Inventory, object)
+      const inventory = this.newComponent(Zone, object)
       this.element.append(inventory.element)
     }
   }
 }
 
-const containerStyle = makeStyle({})
+const containerStyle = makeStyle({
+  display: `flex`,
+  flexDirection: `column`,
+  justifyContent: `center`,
+  alignItems: `center`,
+})

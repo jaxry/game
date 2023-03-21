@@ -31,6 +31,7 @@ export default class MapNode extends GameComponent {
     this.removeSimple()
 
     this.node = this.newComponent(Zone, this.zone)
+    this.node.element.classList.add(zoneStyle)
     this.element.append(this.node.element)
 
     grow(this.node.element)
@@ -110,6 +111,11 @@ function shrink (elem: HTMLElement) {
 
 const containerStyle = makeStyle({
   position: `absolute`,
+
+})
+
+const zoneStyle = makeStyle({
+  transform: `translate(-50%, -50%)`,
 })
 
 const circleStyle = makeStyle({

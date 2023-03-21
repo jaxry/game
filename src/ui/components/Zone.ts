@@ -13,7 +13,6 @@ import { border, borderRadius, boxShadow, mapNodeColor } from '../theme'
 import CardPhysics from '../game/CardPhysics'
 
 export default class Zone extends GameComponent {
-  private background = document.createElement('div')
   private cardContainer = document.createElement('div')
 
   private objectToCard = new Map<GameObject, ObjectCard>()
@@ -21,17 +20,16 @@ export default class Zone extends GameComponent {
   private zoneEvents: Effect
 
   private cardPhysics = new CardPhysics(this.objectToCard, () => {
-    this.updateCards()
-    this.updateBackgroundSize()
+    this.updatePositions()
   })
+
+  private left = 0
+  private top = 0
 
   constructor (public zone: GameObject) {
     super()
 
     this.element.classList.add(containerStyle)
-
-    this.background.classList.add(backgroundStyle)
-    this.element.append(this.background)
 
     this.element.append(this.cardContainer)
 
@@ -67,8 +65,8 @@ export default class Zone extends GameComponent {
   private get scale () {
     // If map is zoomed out, the zone is transform scaled down.
     // Element.boundingClientRect() calculations need that scale applied
-    return this.background.getBoundingClientRect().width
-        / this.background.offsetWidth
+    return this.element.getBoundingClientRect().width
+        / this.element.offsetWidth
   }
 
   private makeCard (object: GameObject) {
@@ -78,8 +76,6 @@ export default class Zone extends GameComponent {
     this.cardToObject.set(card, object)
 
     card.element.classList.add(cardStyle)
-
-    this.translateCard(object, card)
 
     this.makeCardDraggable(object, card)
 
@@ -105,11 +101,10 @@ export default class Zone extends GameComponent {
         this.cardContainer.append(card.element)
       },
       onDrag: (e) => {
-        const parentBBox = this.cardContainer.getBoundingClientRect()
-        object.position.x = (e.clientX - parentBBox.left) / this.scale - relX
-        object.position.y = (e.clientY - parentBBox.top) / this.scale - relY
-        this.translateCard(object, card)
-        this.updateBackgroundSize()
+        const bbox = this.element.getBoundingClientRect()
+        object.position.x = (e.clientX - bbox.x) / this.scale - relX + this.left
+        object.position.y = (e.clientY - bbox.y) / this.scale - relY + this.top
+        this.updatePositions()
       },
       onUp: () => {
         this.cardPhysics.ignore(object, false)
@@ -118,60 +113,55 @@ export default class Zone extends GameComponent {
     })
   }
 
-  private translateCard (object: GameObject, card: ObjectCard) {
-    const t = translate(object.position.x, object.position.y)
-    card.element.style.transform = `${t} translate(-50%,-50%)`
-  }
-
-  private updateCards () {
-    for (const [object, card] of this.objectToCard) {
-      this.translateCard(object, card)
-    }
-  }
-
   private objectEnter (obj: GameObject) {
     const card = this.makeCard(obj)
     // card.enter()
-    this.updateBackgroundSize()
+    this.updatePositions()
   }
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
     card.remove()
     // card.exit()
-    this.updateBackgroundSize()
+    this.updatePositions()
   }
 
-  private updateBackgroundSize () {
-    let width = 16
-    let height = 16
+  private updatePositions () {
+    let minX = Infinity
+    let minY = Infinity
+    let maxX = -Infinity
+    let maxY = -Infinity
 
     for (const [object, card] of this.objectToCard) {
-      const x = object.position.x
-      const y = object.position.y
-      width = Math.max(width, Math.abs(x) + card.element.offsetWidth / 2)
-      height = Math.max(height, Math.abs(y) + card.element.offsetHeight / 2)
+      minX = Math.min(minX, object.position.x - card.element.offsetWidth / 2)
+      minY = Math.min(minY, object.position.y - card.element.offsetHeight / 2)
+      maxX = Math.max(maxX, object.position.x + card.element.offsetWidth / 2)
+      maxY = Math.max(maxY, object.position.y + card.element.offsetHeight / 2)
     }
 
-    this.background.style.width = numToPx(width * 2)
-    this.background.style.height = numToPx(height * 2)
-    this.background.style.transform = translate(-width, -height)
+    for (const [object, card] of this.objectToCard) {
+      const t = translate(
+          object.position.x - this.left, object.position.y - this.top)
+      card.element.style.transform = `${t} translate(-50%, -50%)`
+    }
+    const width = Math.max(32, maxX - minX)
+    const height = Math.max(32, maxY - minY)
+
+    this.element.style.width = numToPx(width)
+    this.element.style.height = numToPx(height)
+
+    this.left = minX
+    this.top = minY
   }
 }
 
 const containerStyle = makeStyle({
-  position: `absolute`,
+  position: `relative`,
   cursor: `pointer`,
-})
-
-const backgroundStyle = makeStyle({
-  position: `absolute`,
   background: mapNodeColor,
   border,
   borderRadius,
   boxShadow,
-  minWidth: `2rem`,
-  minHeight: `2rem`,
 })
 
 const cardStyle = makeStyle({
