@@ -6,8 +6,7 @@ import Position from '../Position'
 export function spawn (type: GameObjectType, container?: GameObject) {
   const object = new GameObject(type)
 
-  object.position = new Position(
-      200 * (Math.random() - 0.5), 200 * (Math.random() - 0.5))
+  object.position = new Position()
 
   if (type.health) {
     object.health = type.health

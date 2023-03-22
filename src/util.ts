@@ -138,7 +138,7 @@ export function* iterChildren (node: Element) {
 }
 
 export function numToPixel (num: number) {
-  return Math.round(num).toString()
+  return num.toFixed(3)
 }
 
 export function numToPx (num: number) {

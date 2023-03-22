@@ -7,8 +7,8 @@ import makeDraggable from '../makeDraggable'
 import { boxShadowLarge, windowColor } from '../theme'
 
 export default class Window extends Component {
-  private posX: number
-  private posY: number
+  posX = 0
+  posY = 0
 
   constructor (parentBBox: DOMRect) {
     super()
@@ -21,21 +21,20 @@ export default class Window extends Component {
 
     outsideElem.append(this.element)
 
-    this.posX = parentBBox.left
-    this.posY = parentBBox.bottom
-
-    this.updatePosition()
+    this.setPosition(
+        parentBBox.left + parentBBox.width / 2,
+        parentBBox.top + parentBBox.height / 2)
 
     makeDraggable(this.element, {
       onDrag: (e, relative, difference) => {
-        this.posX += difference.x
-        this.posY += difference.y
-        this.updatePosition()
+        this.setPosition(this.posX + difference.x, this.posY + difference.y)
       },
     })
   }
 
-  private updatePosition () {
+  setPosition (x: number, y: number) {
+    this.posX = x
+    this.posY = y
     this.element.style.transform = translate(this.posX, this.posY)
   }
 }

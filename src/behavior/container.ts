@@ -18,10 +18,11 @@ export function moveTo (
 
   object.container = container
   object.containedAs = containedAs
+  object.position.x = 200 * (Math.random() - 0.5)
+  object.position.y = 200 * (Math.random() - 0.5)
 
   container.contains.add(object)
 
-  // object.emit('move', { to: container, from })
   from?.emit('leave', { item: object, to: container })
   container.emit('enter', { item: object, from })
 }

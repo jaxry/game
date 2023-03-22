@@ -15,6 +15,9 @@ export default class ObjectInfo extends Window {
 
     if (object.contains) {
       const inventory = this.newComponent(Zone, object)
+      inventory.onResize = (leftDiff, topDiff) => {
+        this.setPosition(this.posX + leftDiff, this.posY + topDiff)
+      }
       this.element.append(inventory.element)
     }
   }

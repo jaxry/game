@@ -13,6 +13,8 @@ import { border, borderRadius, boxShadow, mapNodeColor } from '../theme'
 import CardPhysics from '../game/CardPhysics'
 
 export default class Zone extends GameComponent {
+  onResize?: (leftDiff: number, topDiff: number) => void
+
   private cardContainer = document.createElement('div')
 
   private objectToCard = new Map<GameObject, ObjectCard>()
@@ -102,8 +104,8 @@ export default class Zone extends GameComponent {
       },
       onDrag: (e) => {
         const bbox = this.element.getBoundingClientRect()
-        object.position.x = (e.clientX - bbox.x) / this.scale - relX + this.left
-        object.position.y = (e.clientY - bbox.y) / this.scale - relY + this.top
+        object.position.x = this.left + (e.clientX - bbox.x) / this.scale - relX
+        object.position.y = this.top + (e.clientY - bbox.y) / this.scale - relY
         this.updatePositions()
       },
       onUp: () => {
@@ -127,31 +129,41 @@ export default class Zone extends GameComponent {
   }
 
   private updatePositions () {
-    let minX = Infinity
-    let minY = Infinity
-    let maxX = -Infinity
-    let maxY = -Infinity
+    let left = Infinity
+    let top = Infinity
+    let right = -Infinity
+    let bottom = -Infinity
 
     for (const [object, card] of this.objectToCard) {
-      minX = Math.min(minX, object.position.x - card.element.offsetWidth / 2)
-      minY = Math.min(minY, object.position.y - card.element.offsetHeight / 2)
-      maxX = Math.max(maxX, object.position.x + card.element.offsetWidth / 2)
-      maxY = Math.max(maxY, object.position.y + card.element.offsetHeight / 2)
+      const x = object.position.x
+      const y = object.position.y
+      left = Math.min(left, x - card.element.offsetWidth / 2)
+      top = Math.min(top, y - card.element.offsetHeight / 2)
+      right = Math.max(right, x + card.element.offsetWidth / 2)
+      bottom = Math.max(bottom, y + card.element.offsetHeight / 2)
     }
 
     for (const [object, card] of this.objectToCard) {
-      const t = translate(
-          object.position.x - this.left, object.position.y - this.top)
-      card.element.style.transform = `${t} translate(-50%, -50%)`
+      const tx = object.position.x - this.left
+      const ty = object.position.y - this.top
+      card.element.style.transform =
+          `${translate(tx, ty)} translate(-50%, -50%)`
     }
-    const width = Math.max(32, maxX - minX)
-    const height = Math.max(32, maxY - minY)
+    const width = Math.max(32, right - left)
+    const height = Math.max(32, bottom - top)
 
     this.element.style.width = numToPx(width)
     this.element.style.height = numToPx(height)
 
-    this.left = minX
-    this.top = minY
+    const leftDiff = left - this.left
+    const topDiff = top - this.top
+
+    this.left = left
+    this.top = top
+
+    if (leftDiff !== 0 || topDiff !== 0) {
+      this.onResize?.(leftDiff, topDiff)
+    }
   }
 }
 
