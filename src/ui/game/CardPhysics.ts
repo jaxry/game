@@ -76,6 +76,13 @@ export default class CardPhysics {
       return repeat
     }
 
+    const freeze = () => {
+      for (const object of objects) {
+        object.position.vx = 0
+        object.position.vy = 0
+      }
+    }
+
     const elapsedTime = new ElapsedTime()
 
     let iterations = 0
@@ -89,6 +96,8 @@ export default class CardPhysics {
 
       if (repeat || ++iterations < this.minIterations) {
         this.animationId = requestAnimationFrame(tick)
+      } else {
+        freeze()
       }
     }
 

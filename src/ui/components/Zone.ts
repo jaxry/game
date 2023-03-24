@@ -61,6 +61,8 @@ export default class Zone extends GameComponent {
         this.makeCard(obj)
       }
     }
+
+    // Wait a frame for cards to render. Simulation requires rendered bboxes
     requestAnimationFrame(() => this.cardPhysics.simulate())
   }
 

@@ -1,7 +1,7 @@
 export default class ElapsedTime {
   lastTime: number
 
-  constructor() {
+  constructor () {
     this.start()
   }
 

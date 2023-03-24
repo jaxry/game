@@ -1,7 +1,7 @@
 import throttle from './throttle'
 
 let isDragging = false
-
+// TODO: Don't stop propagation. Just check if onDrag is called in child
 export default function makeDraggable (
     element: Element,
     options: {

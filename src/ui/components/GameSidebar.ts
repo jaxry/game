@@ -1,7 +1,5 @@
 import Component from './Component'
 import TimeComponent from './Time'
-import Inventory from './Inventory'
-import { game } from '../../Game'
 import { makeStyle } from '../makeStyle'
 import { deleteSaveFile, saveGameToFile } from '../../saveLoad'
 import { restartGame } from '../../main'
@@ -16,8 +14,8 @@ export default class GameSidebar extends Component {
     const time = this.newComponent(TimeComponent)
     this.element.append(time.element)
 
-    const inventory = this.newComponent(Inventory, game.player)
-    this.element.append(inventory.element)
+    // const inventory = this.newComponent(Inventory, game.player)
+    // this.element.append(inventory.element)
 
     const saveLoadContainer = document.createElement('div')
     saveLoadContainer.classList.add(saveLoadContainerStyle)

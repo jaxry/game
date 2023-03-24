@@ -13,7 +13,7 @@ import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import DummyElement from '../DummyElement'
 import { onClickNotDrag } from '../makeDraggable'
-import ObjectInfo from './ObjectInfo'
+import Zone from './Zone'
 
 const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
@@ -49,8 +49,7 @@ export default class ObjectCard extends GameComponent {
     }
 
     onClickNotDrag(this.element, () => {
-      this.newComponent(ObjectInfo, object,
-          this.element.getBoundingClientRect())
+      this.showInventory()
     })
 
     // dragAndDropGameObject.drag(this.element, object, name)
@@ -113,6 +112,14 @@ export default class ObjectCard extends GameComponent {
     }
   }
 
+  showInventory () {
+    const inventory = this.newComponent(Zone, this.object)
+    // inventory.onResize = (leftDiff, topDiff) => {
+    //   this.setPosition(this.posX + leftDiff, this.posY + topDiff)
+    // }
+    this.element.append(inventory.element)
+  }
+
   private setAction (action: Action) {
     this.clearAction()
     const component = this.newComponent(ActionComponent, action)
@@ -142,7 +149,6 @@ export default class ObjectCard extends GameComponent {
 
 const containerStyle = makeStyle({
   overflow: `hidden`,
-  width: `10rem`,
   display: `flex`,
   flexDirection: `column`,
   alignItems: `center`,
