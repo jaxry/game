@@ -12,14 +12,13 @@ import makeDraggable from '../makeDraggable'
 import { border, borderRadius, boxShadow, mapNodeColor } from '../theme'
 import CardPhysics from '../game/CardPhysics'
 
-export default class Zone extends GameComponent {
+export default class Inventory extends GameComponent {
   onResize?: (leftDiff: number, topDiff: number) => void
 
   private cardContainer = document.createElement('div')
 
   private objectToCard = new Map<GameObject, ObjectCard>()
   private cardToObject = new WeakMap<ObjectCard, GameObject>()
-  private zoneEvents: Effect
 
   private cardPhysics = new CardPhysics(this.objectToCard, () => {
     this.updatePositions()
@@ -28,7 +27,7 @@ export default class Zone extends GameComponent {
   private left = 0
   private top = 0
 
-  constructor (public zone: GameObject) {
+  constructor (public container: GameObject) {
     super()
 
     this.element.classList.add(containerStyle)
@@ -37,7 +36,7 @@ export default class Zone extends GameComponent {
 
     const self = this
 
-    this.zoneEvents = this.newEffect(class extends Effect {
+    this.newEffect(class extends Effect {
       override events () {
         this.on(this.object, 'enter', ({ item }) => {
           self.objectEnter(item)
@@ -46,18 +45,18 @@ export default class Zone extends GameComponent {
           self.objectLeave(item)
         })
       }
-    }, zone)
+    }, container)
 
     dragAndDropGameObject.drop(this.element, (item) => {
-      if (new TransferAction(game.player, item, this.zone).condition()) {
+      if (new TransferAction(game.player, item, this.container).condition()) {
         return 'move'
       }
     }, (item) => {
-      setPlayerEffect(new TransferAction(game.player, item, this.zone))
+      setPlayerEffect(new TransferAction(game.player, item, this.container))
     })
 
-    if (this.zone.contains) {
-      for (const obj of this.zone.contains) {
+    if (this.container.contains) {
+      for (const obj of this.container.contains) {
         this.makeCard(obj)
       }
     }
@@ -67,7 +66,7 @@ export default class Zone extends GameComponent {
   }
 
   private get scale () {
-    // If map is zoomed out, the zone is transform scaled down.
+    // If map is zoomed out, the zone is scaled down via transform.
     // Element.boundingClientRect() calculations need that scale applied
     return this.element.getBoundingClientRect().width
         / this.element.offsetWidth

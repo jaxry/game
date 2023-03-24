@@ -1,7 +1,7 @@
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import { boxShadow, duration, mapNodeDistantColor } from '../theme'
-import Zone from './Zone'
+import Inventory from './Inventory'
 import GameComponent from './GameComponent'
 import Effect from '../../behavior/Effect'
 import TravelAction from '../../actions/Travel'
@@ -30,7 +30,7 @@ export default class MapNode extends GameComponent {
     }
     this.removeSimple()
 
-    this.node = this.newComponent(Zone, this.zone)
+    this.node = this.newComponent(Inventory, this.zone)
     this.node.element.classList.add(zoneStyle)
     this.element.append(this.node.element)
 
@@ -111,7 +111,6 @@ function shrink (elem: HTMLElement) {
 
 const containerStyle = makeStyle({
   position: `absolute`,
-
 })
 
 const zoneStyle = makeStyle({

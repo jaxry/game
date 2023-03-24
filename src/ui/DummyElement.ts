@@ -34,6 +34,7 @@ export default class DummyElement {
   growWidthFirst () {
     this.element.style.height = `0`
     this.element.style.marginBlock = `0`
+
     this.element.animate({
       width: [`0`, this.style.width],
       marginInline: [`0`, this.style.marginInline],
