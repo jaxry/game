@@ -9,11 +9,11 @@ import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
 import makeDraggable from '../makeDraggable'
-import { border, borderRadius, boxShadow, mapNodeColor } from '../theme'
+import { borderRadius, boxShadow } from '../theme'
 import CardPhysics from '../game/CardPhysics'
 
 export default class Inventory extends GameComponent {
-  onResize?: (leftDiff: number, topDiff: number) => void
+  onResize?: (xDiff: number, yDiff: number) => void
 
   private cardContainer = document.createElement('div')
 
@@ -25,7 +25,9 @@ export default class Inventory extends GameComponent {
   })
 
   private left = 0
+  private right = 0
   private top = 0
+  private bottom = 0
 
   constructor (public container: GameObject) {
     super()
@@ -76,6 +78,12 @@ export default class Inventory extends GameComponent {
     const card = makeOrGet(this.objectToCard, object, () =>
         this.newComponent(ObjectCard, object))
 
+    card.onInventoryResized = (xDiff, yDiff) => {
+      object.position.x += xDiff / 2 // divide by 2 to account for centered card
+      object.position.y += yDiff / 2
+      this.updatePositions()
+    }
+
     this.cardToObject.set(card, object)
 
     card.element.classList.add(cardStyle)
@@ -118,14 +126,12 @@ export default class Inventory extends GameComponent {
 
   private objectEnter (obj: GameObject) {
     const card = this.makeCard(obj)
-    // card.enter()
     this.updatePositions()
   }
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
     card.remove()
-    // card.exit()
     this.updatePositions()
   }
 
@@ -145,34 +151,35 @@ export default class Inventory extends GameComponent {
     }
 
     for (const [object, card] of this.objectToCard) {
-      const tx = object.position.x - this.left
-      const ty = object.position.y - this.top
+      const tx = object.position.x - left
+      const ty = object.position.y - top
       card.element.style.transform =
           `${translate(tx, ty)} translate(-50%, -50%)`
     }
+
     const width = Math.max(32, right - left)
     const height = Math.max(32, bottom - top)
 
     this.element.style.width = numToPx(width)
     this.element.style.height = numToPx(height)
 
-    const leftDiff = left - this.left
-    const topDiff = top - this.top
+    const xDiff = left - this.left + right - this.right
+    const yDiff = top - this.top + bottom - this.bottom
+
+    if (xDiff !== 0 || yDiff !== 0) {
+      this.onResize?.(xDiff, yDiff)
+    }
 
     this.left = left
+    this.right = right
     this.top = top
-
-    if (leftDiff !== 0 || topDiff !== 0) {
-      this.onResize?.(leftDiff, topDiff)
-    }
+    this.bottom = bottom
   }
 }
 
 const containerStyle = makeStyle({
   position: `relative`,
   cursor: `pointer`,
-  background: mapNodeColor,
-  border,
   borderRadius,
   boxShadow,
 })

@@ -4,7 +4,6 @@ import Action from '../../behavior/Action'
 import ActionComponent from './ActionComponent'
 import { game } from '../../Game'
 import Effect from '../../behavior/Effect'
-import TargetActionAnimation from './TargetActionAnimation'
 import {
   borderRadius, boxShadow, duration, objectCardColor, objectCardNameBorderColor,
   objectCardPlayerColor,
@@ -18,8 +17,10 @@ import Inventory from './Inventory'
 const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
 export default class ObjectCard extends GameComponent {
-  private actionComponent?: ActionComponent
-  private targetActionAnimation?: TargetActionAnimation
+
+  onInventoryResized?: (xDiff: number, yDiff: number) => void
+  private action?: ActionComponent
+  private inventory?: Inventory
 
   constructor (public object: GameObject) {
     super()
@@ -77,7 +78,6 @@ export default class ObjectCard extends GameComponent {
           if (action.object !== this.object) {
             return
           }
-          self.targetActionAnimation?.exit()
           self.clearAction()
         })
       }
@@ -85,28 +85,29 @@ export default class ObjectCard extends GameComponent {
   }
 
   showInventory () {
-    const inventory = this.newComponent(Inventory, this.object)
-    // inventory.onResize = (leftDiff, topDiff) => {
-    //   this.setPosition(this.posX + leftDiff, this.posY + topDiff)
-    // }
-    this.element.append(inventory.element)
+    if (this.inventory) {
+      return
+    }
+    this.inventory = this.newComponent(Inventory, this.object)
+    this.inventory.onResize = this.onInventoryResized
+    this.element.append(this.inventory.element)
   }
 
   private setAction (action: Action) {
     this.clearAction()
     const component = this.newComponent(ActionComponent, action)
-    this.actionComponent = component
+    this.action = component
     this.element.append(component.element)
 
     new DummyElement(component.element).growHeightOnly()
   }
 
   private clearAction () {
-    if (!this.actionComponent) {
+    if (!this.action) {
       return
     }
-    const component = this.actionComponent
-    this.actionComponent = undefined
+    const component = this.action
+    this.action = undefined
 
     new DummyElement(component.element).shrinkHeightOnly()
     component.element.animate({
@@ -129,13 +130,13 @@ const containerStyle = makeStyle({
   boxShadow,
   borderRadius,
   userSelect: `none`,
-  textTransform: `capitalize`,
 })
 
 const nameStyle = makeStyle({
   width: `100%`,
   textAlign: `center`,
   borderBottom: `2px solid ${objectCardNameBorderColor}`,
+  textTransform: `capitalize`,
 })
 
 const playerStyle = makeStyle({

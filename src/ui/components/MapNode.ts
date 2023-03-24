@@ -1,6 +1,8 @@
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
-import { boxShadow, duration, mapNodeDistantColor } from '../theme'
+import {
+  border, boxShadow, duration, mapNodeColor, mapNodeDistantColor,
+} from '../theme'
 import Inventory from './Inventory'
 import GameComponent from './GameComponent'
 import Effect from '../../behavior/Effect'
@@ -115,6 +117,8 @@ const containerStyle = makeStyle({
 
 const zoneStyle = makeStyle({
   transform: `translate(-50%, -50%)`,
+  background: mapNodeColor,
+  border,
 })
 
 const circleStyle = makeStyle({
