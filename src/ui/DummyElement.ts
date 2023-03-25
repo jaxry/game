@@ -116,4 +116,5 @@ const options: KeyframeAnimationOptions = {
 
 const dummyStyle = makeStyle({
   pointerEvents: `none`,
+  contain: `content`,
 })

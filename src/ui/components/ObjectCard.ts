@@ -121,7 +121,6 @@ export default class ObjectCard extends GameComponent {
 }
 
 const containerStyle = makeStyle({
-  overflow: `hidden`,
   display: `flex`,
   flexDirection: `column`,
   alignItems: `center`,

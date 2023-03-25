@@ -157,11 +157,8 @@ export default class Inventory extends GameComponent {
           `${translate(tx, ty)} translate(-50%, -50%)`
     }
 
-    const width = Math.max(32, right - left)
-    const height = Math.max(32, bottom - top)
-
-    this.element.style.width = numToPx(width)
-    this.element.style.height = numToPx(height)
+    this.element.style.width = numToPx(Math.max(32, right - left))
+    this.element.style.height = numToPx(Math.max(32, bottom - top))
 
     const xDiff = left - this.left + right - this.right
     const yDiff = top - this.top + bottom - this.bottom
@@ -182,6 +179,7 @@ const containerStyle = makeStyle({
   cursor: `pointer`,
   borderRadius,
   boxShadow,
+  contain: `strict`,
 })
 
 const cardStyle = makeStyle({

@@ -21,7 +21,7 @@ const containerStyle = makeStyle({
   background: backgroundColor,
   color: fontColor,
   height: `100vh`,
-  overflow: `hidden`,
+  contain: `strict`,
 })
 
 const outsideElemStyle = makeStyle({

@@ -116,6 +116,7 @@ const containerStyle = makeStyle({
 })
 
 const zoneStyle = makeStyle({
+  position: `absolute`,
   transform: `translate(-50%, -50%)`,
   background: mapNodeColor,
   border,
