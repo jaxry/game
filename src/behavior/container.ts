@@ -18,8 +18,8 @@ export function moveTo (
 
   object.container = container
   object.containedAs = containedAs
-  object.position.x = 200 * (Math.random() - 0.5)
-  object.position.y = 200 * (Math.random() - 0.5)
+  object.position.x = (Math.random() - 0.5)
+  object.position.y = (Math.random() - 0.5)
 
   container.contains.add(object)
 

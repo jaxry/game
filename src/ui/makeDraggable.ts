@@ -1,7 +1,8 @@
 import throttle from './throttle'
 
 let isDragging = false
-// TODO: Don't stop propagation. Just check if onDrag is called in child
+let childDrag = false
+
 export default function makeDraggable (
     element: Element,
     options: {
@@ -16,19 +17,18 @@ export default function makeDraggable (
       startEnabled?: MouseEvent
     }) {
 
-  if (!options.onDrag && !options.onDown) {
-    return
-  }
-
   function down (e: MouseEvent) {
-    const returned = options.onDown?.(e)
+    if (childDrag) {
+      return
+    }
 
-    e.preventDefault()
-    e.stopPropagation()
+    const returned = options.onDown?.(e)
 
     if (returned === false) {
       return
     }
+
+    childDrag = true
 
     initPositions(e)
 
@@ -64,6 +64,7 @@ export default function makeDraggable (
       const { relative, difference } = calcPositionChange(e)
       options.onUp?.(e, relative, difference)
       isDragging = false
+      childDrag = false
     }, { once: true })
   }
 

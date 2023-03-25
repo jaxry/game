@@ -85,7 +85,7 @@ export default class ObjectCard extends GameComponent {
   }
 
   showInventory () {
-    if (this.inventory) {
+    if (this.inventory || !this.object.contains) {
       return
     }
     this.inventory = this.newComponent(Inventory, this.object)

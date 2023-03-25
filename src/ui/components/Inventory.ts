@@ -64,7 +64,7 @@ export default class Inventory extends GameComponent {
     }
 
     // Wait a frame for cards to render. Simulation requires rendered bboxes
-    requestAnimationFrame(() => this.cardPhysics.simulate())
+    requestAnimationFrame(() => this.cardPhysics.simulate(true))
   }
 
   private get scale () {
@@ -79,8 +79,8 @@ export default class Inventory extends GameComponent {
         this.newComponent(ObjectCard, object))
 
     card.onInventoryResized = (xDiff, yDiff) => {
-      object.position.x += xDiff / 2 // divide by 2 to account for centered card
-      object.position.y += yDiff / 2
+      object.position.x += xDiff
+      object.position.y += yDiff
       this.updatePositions()
     }
 
@@ -160,8 +160,8 @@ export default class Inventory extends GameComponent {
     this.element.style.width = numToPx(Math.max(32, right - left))
     this.element.style.height = numToPx(Math.max(32, bottom - top))
 
-    const xDiff = left - this.left + right - this.right
-    const yDiff = top - this.top + bottom - this.bottom
+    const xDiff = (left - this.left + right - this.right) / 2
+    const yDiff = (top - this.top + bottom - this.bottom) / 2
 
     if (xDiff !== 0 || yDiff !== 0) {
       this.onResize?.(xDiff, yDiff)
