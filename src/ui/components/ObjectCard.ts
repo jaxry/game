@@ -13,12 +13,13 @@ import GameComponent from './GameComponent'
 import DummyElement from '../DummyElement'
 import { onClickNotDrag } from '../makeDraggable'
 import Inventory from './Inventory'
+import { onResize } from '../onResize'
 
 const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
 export default class ObjectCard extends GameComponent {
-
   onInventoryResized?: (xDiff: number, yDiff: number) => void
+  onCardResized?: (entry: ResizeObserverEntry) => void
   private action?: ActionComponent
   private inventory?: Inventory
 
@@ -52,6 +53,10 @@ export default class ObjectCard extends GameComponent {
     onClickNotDrag(this.element, (e) => {
       e.stopPropagation()
       this.showInventory()
+    })
+
+    onResize(this.element, (entry) => {
+      this.onCardResized?.(entry)
     })
 
     // dragAndDropGameObject.drag(this.element, object, name)

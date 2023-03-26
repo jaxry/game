@@ -3,10 +3,10 @@ import GameObject from '../../GameObject'
 import Component from '../components/Component'
 
 export default class CardPhysics {
-  repelForce = 0.0005
-  velocityDecay = 0.997
+  repelForce = 0.001
+  velocityDecay = 0.995
   minVelocityBeforeStop = 1e-5
-  minIterations = 10
+  minSimulationTime = 100
 
   private animationId = 0
   private ignoring = new WeakSet<GameObject>()
@@ -19,23 +19,20 @@ export default class CardPhysics {
 
   }
 
+  // providing a new objectToCard updates the list of cards to simulate
   simulate (
       objectToCard?: Map<GameObject, Component>, repelFromCenter = false) {
     if (objectToCard) {
+      // objects might be added or removed since last simulation
       this.objects = [...objectToCard.keys()]
       this.cards = [...objectToCard.values()]
-    }
-
-    const freeze = () => {
-      for (const object of this.objects) {
-        object.position.vx = 0
-        object.position.vy = 0
-      }
+    } else if (this.animationId) {
+      // current simulation already running, nothing has changed
+      return
     }
 
     const elapsedTime = new ElapsedTime()
 
-    let iterations = 0
     const tick = () => {
       const elapsed = elapsedTime.elapsed()
 
@@ -47,15 +44,16 @@ export default class CardPhysics {
 
       this.onUpdate()
 
-      if (repeat || ++iterations < this.minIterations) {
+      if (repeat || elapsedTime.total() < this.minSimulationTime) {
         this.animationId = requestAnimationFrame(tick)
       } else {
-        freeze()
+        this.animationId = 0
+        this.freeze()
       }
     }
 
     cancelAnimationFrame(this.animationId)
-    requestAnimationFrame(tick)
+    this.animationId = requestAnimationFrame(tick)
   }
 
   ignore (object: GameObject, ignore: boolean) {
@@ -152,6 +150,13 @@ export default class CardPhysics {
       }
     }
     return repeat
+  }
+
+  private freeze () {
+    for (const object of this.objects) {
+      object.position.vx = 0
+      object.position.vy = 0
+    }
   }
 }
 

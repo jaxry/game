@@ -65,9 +65,7 @@ export default class Inventory extends GameComponent {
       }
     }
 
-    // Wait a frame for cards to render. Simulation requires rendered bboxes
-    requestAnimationFrame(() =>
-        this.cardPhysics.simulate(this.objectToCard, true))
+    this.cardPhysics.simulate(this.objectToCard, true)
   }
 
   private get scale () {
@@ -85,6 +83,10 @@ export default class Inventory extends GameComponent {
       object.position.x += xDiff
       object.position.y += yDiff
       this.updatePositions()
+    }
+
+    card.onCardResized = () => {
+      this.cardPhysics.simulate()
     }
 
     this.cardToObject.set(card, object)

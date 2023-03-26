@@ -82,7 +82,6 @@ export function onClickNotDrag (
     element: HTMLElement, handler: (e: MouseEvent) => void) {
   element.addEventListener('click', (e) => {
     if (!isDragging) {
-      console.log('click')
       handler(e)
     }
   })

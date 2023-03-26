@@ -1,4 +1,5 @@
 export default class ElapsedTime {
+  startTime: number
   lastTime: number
 
   constructor () {
@@ -6,7 +7,8 @@ export default class ElapsedTime {
   }
 
   start () {
-    this.lastTime = performance.now()
+    this.startTime = performance.now()
+    this.lastTime = this.startTime
   }
 
   elapsed () {
@@ -14,5 +16,9 @@ export default class ElapsedTime {
     const elapsed = now - this.lastTime
     this.lastTime = now
     return elapsed
+  }
+
+  total () {
+    return performance.now() - this.startTime
   }
 }
