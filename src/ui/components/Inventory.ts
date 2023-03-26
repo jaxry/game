@@ -3,7 +3,9 @@ import { game } from '../../Game'
 import GameObject from '../../GameObject'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/core'
-import { getAndDelete, makeOrGet, numToPx, translate } from '../../util'
+import {
+  getAndDelete, makeOrGet, moveToTop, numToPx, translate,
+} from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
@@ -20,7 +22,7 @@ export default class Inventory extends GameComponent {
   private objectToCard = new Map<GameObject, ObjectCard>()
   private cardToObject = new WeakMap<ObjectCard, GameObject>()
 
-  private cardPhysics = new CardPhysics(this.objectToCard, () => {
+  private cardPhysics = new CardPhysics(() => {
     this.updatePositions()
   })
 
@@ -64,7 +66,8 @@ export default class Inventory extends GameComponent {
     }
 
     // Wait a frame for cards to render. Simulation requires rendered bboxes
-    requestAnimationFrame(() => this.cardPhysics.simulate(true))
+    requestAnimationFrame(() =>
+        this.cardPhysics.simulate(this.objectToCard, true))
   }
 
   private get scale () {
@@ -109,7 +112,7 @@ export default class Inventory extends GameComponent {
 
         this.cardPhysics.ignore(object, true)
 
-        this.cardContainer.append(card.element)
+        moveToTop(card.element)
       },
       onDrag: (e) => {
         const bbox = this.element.getBoundingClientRect()
@@ -126,13 +129,13 @@ export default class Inventory extends GameComponent {
 
   private objectEnter (obj: GameObject) {
     const card = this.makeCard(obj)
-    this.updatePositions()
+    this.cardPhysics.simulate(this.objectToCard)
   }
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
     card.remove()
-    this.updatePositions()
+    this.cardPhysics.simulate(this.objectToCard)
   }
 
   private updatePositions () {

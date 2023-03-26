@@ -137,6 +137,12 @@ export function* iterChildren (node: Element) {
   }
 }
 
+let lastZIndex = 0
+
+export function moveToTop (node: HTMLElement) {
+  node.style.zIndex = (++lastZIndex).toString()
+}
+
 export function numToPixel (num: number) {
   return num.toFixed(3)
 }

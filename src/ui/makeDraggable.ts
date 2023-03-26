@@ -29,42 +29,40 @@ export default function makeDraggable (
     }
 
     childDrag = true
+    isDragging = false
 
     initPositions(e)
 
-    const firstMove = () => {
+    const controller = new AbortController()
+    const signal = controller.signal
+
+    document.body.addEventListener('mousemove', () => {
       isDragging = true
-    }
-
-    // throttle the mousemove event to the browser's requestAnimationFrame
-    // otherwise event gets triggered way more than necessary
-    const move = throttle((e: MouseEvent) => {
-      // move() might be called after mouse up due to throttling.
-      // return if this is the case
-      if (!isDragging) {
-        return
-      }
-      const { relative, difference } = calcPositionChange(e)
-      options.onDrag!(e, relative, difference)
-    })
-
-    document.body.addEventListener('mousemove', firstMove, { once: true })
+    }, { once: true, signal })
 
     if (options.onDrag) {
-      document.body.addEventListener('mousemove', move)
+      document.body.addEventListener('mousemove', throttle((e: MouseEvent) => {
+        // Throttle the mousemove event to the browser's requestAnimationFrame,
+        // otherwise event gets triggered way more than necessary.
+        // move() might be called after mouse up due to throttling.
+        // return if this is the case
+        if (!isDragging) {
+          return
+        }
+        const { relative, difference } = calcPositionChange(e)
+        options.onDrag!(e, relative, difference)
+      }), { signal })
     }
-    if (options.onOver) {
-      document.body.addEventListener('mouseover', options.onOver)
-    }
-    window.addEventListener('mouseup', (e) => {
-      document.body.removeEventListener('mousemove', firstMove)
-      document.body.removeEventListener('mousemove', move)
-      document.body.removeEventListener('mouseover', options.onOver!)
 
+    if (options.onOver) {
+      document.body.addEventListener('mouseover', options.onOver, { signal })
+    }
+
+    window.addEventListener('mouseup', (e) => {
       const { relative, difference } = calcPositionChange(e)
       options.onUp?.(e, relative, difference)
-      isDragging = false
       childDrag = false
+      controller.abort()
     }, { once: true })
   }
 
@@ -82,16 +80,11 @@ export default function makeDraggable (
 
 export function onClickNotDrag (
     element: HTMLElement, handler: (e: MouseEvent) => void) {
-  element.addEventListener('mousedown', (e) => {
-    const up = () => {
-      if (!isDragging) {
-        handler(e)
-      }
+  element.addEventListener('click', (e) => {
+    if (!isDragging) {
+      console.log('click')
+      handler(e)
     }
-    element.addEventListener('mouseup', up, { once: true })
-    window.addEventListener('mouseup', () => {
-      element.removeEventListener('mouseup', up)
-    }, { once: true })
   })
 }
 

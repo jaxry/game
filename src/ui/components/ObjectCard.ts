@@ -49,7 +49,8 @@ export default class ObjectCard extends GameComponent {
       this.setAction(object.activeAction)
     }
 
-    onClickNotDrag(this.element, () => {
+    onClickNotDrag(this.element, (e) => {
+      e.stopPropagation()
       this.showInventory()
     })
 

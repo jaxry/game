@@ -3,7 +3,7 @@ import GameObject from '../../GameObject'
 import Component from '../components/Component'
 
 export default class CardPhysics {
-  repelForce = 0.001
+  repelForce = 0.0005
   velocityDecay = 0.997
   minVelocityBeforeStop = 1e-5
   minIterations = 10
@@ -15,14 +15,16 @@ export default class CardPhysics {
   private cards: Component[]
 
   constructor (
-      public objectToCard: Map<GameObject, Component>,
       public onUpdate: () => void) {
 
   }
 
-  simulate (repelFromCenter = false) {
-    this.objects = [...this.objectToCard.keys()]
-    this.cards = [...this.objectToCard.values()]
+  simulate (
+      objectToCard?: Map<GameObject, Component>, repelFromCenter = false) {
+    if (objectToCard) {
+      this.objects = [...objectToCard.keys()]
+      this.cards = [...objectToCard.values()]
+    }
 
     const freeze = () => {
       for (const object of this.objects) {
