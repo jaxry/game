@@ -150,21 +150,29 @@ export default class MapComponent extends Component {
 
   private updateTransform (animate = true) {
     const { x, y, scale } = this.transform
-
     const mapScale = Math.min(1, scale)
 
-    const options: KeyframeAnimationOptions = {
-      duration: animate ? duration.slow : 0,
-      fill: 'forwards',
-      easing: 'ease-in-out',
+    const edgeTransform = `${translate(x, y)} scale(${scale})`
+    const mapTransform = `${translate(x, y)} scale(${mapScale})`
+    const applyTransform = () => {
+      this.edgeContainer.style.transform = edgeTransform
+      this.map.style.transform = mapTransform
     }
 
-    this.edgeContainer.animate({
-      transform: `${translate(x, y)} scale(${scale})`,
-    }, options).commitStyles()
-    this.map.animate({
-      transform: `${translate(x, y)} scale(${mapScale})`,
-    }, options).commitStyles()
+    if (animate) {
+      const options: KeyframeAnimationOptions = {
+        duration: duration.slow,
+        easing: 'ease-in-out',
+      }
+      this.edgeContainer.animate({
+        transform: edgeTransform,
+      }, options)
+      this.map.animate({
+        transform: mapTransform,
+      }, options).onfinish = applyTransform
+    } else {
+      applyTransform()
+    }
   }
 }
 
