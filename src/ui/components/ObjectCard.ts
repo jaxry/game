@@ -17,8 +17,7 @@ import { onResize } from '../onResize'
 import { dragAndDropGameObject } from './GameUI'
 
 export default class ObjectCard extends GameComponent {
-  onInventoryResized?: (xDiff: number, yDiff: number) => void
-  onCardResized?: (entry: ResizeObserverEntry) => void
+  onResized?: (xDiff: number, yDiff: number) => void
   private name = document.createElement('div')
   private action?: ActionComponent
   private inventory?: Inventory
@@ -53,8 +52,8 @@ export default class ObjectCard extends GameComponent {
       this.expand()
     })
 
-    onResize(this.element, (entry) => {
-      this.onCardResized?.(entry)
+    onResize(this.element, () => {
+      this.onResized?.(0, 0)
     })
 
     const self = this
@@ -106,7 +105,7 @@ export default class ObjectCard extends GameComponent {
     }
     this.inventory = this.newComponent(Inventory, this.object)
     requestAnimationFrame(() => {
-      this.inventory!.onResize = this.onInventoryResized
+      this.inventory!.onResize = this.onResized
     })
     this.element.append(this.inventory.element)
   }

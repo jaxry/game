@@ -79,15 +79,11 @@ export default class Inventory extends GameComponent {
     const card = makeOrGet(this.objectToCard, object, () =>
         this.newComponent(ObjectCard, object))
 
-    card.onCardResized = () => {
-      this.cardPhysics.simulate()
-    }
-
-    card.onInventoryResized = (xDiff, yDiff) => {
+    card.onResized = (xDiff, yDiff) => {
       object.position.x += xDiff
       object.position.y += yDiff
+      this.cardPhysics.simulate()
     }
-
     this.cardToObject.set(card, object)
 
     card.element.classList.add(cardStyle)

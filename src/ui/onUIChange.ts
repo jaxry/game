@@ -1,36 +1,26 @@
-
-let observer: MutationObserver | null = null
-let callbacks = new Set<() => void>()
-
-function createObserverIfNeeded () {
-  if (observer) {
-    return
+const callbacks = new Set<() => void>()
+const observer = new MutationObserver(() => {
+  for (const callback of callbacks) {
+    callback()
   }
-
-  observer = new MutationObserver(() => {
-    for (const callback of callbacks) {
-      callback()
-    }
-  })
-  observer.observe(document.body, {
-    subtree: true,
-    childList: true,
-    attributes: true,
-  })
-}
-
-function removeObserverIfEmpty () {
-  if (callbacks.size === 0) {
-    observer?.disconnect()
-    observer = null
-  }
-}
+})
 
 export function onUIChange (callback: () => void) {
-  createObserverIfNeeded()
+  if (callbacks.size === 0) {
+    observer.observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+    })
+  }
+
   callbacks.add(callback)
+
   return () => {
     callbacks.delete(callback)
-    removeObserverIfEmpty()
+
+    if (callbacks.size === 0) {
+      observer?.disconnect()
+    }
   }
 }
