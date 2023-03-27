@@ -14,19 +14,18 @@ import DummyElement from '../DummyElement'
 import { onClickNotDrag } from '../makeDraggable'
 import Inventory from './Inventory'
 import { onResize } from '../onResize'
-
-const objectToCard = new WeakMap<GameObject, ObjectCard>()
+import { dragAndDropGameObject } from './GameUI'
 
 export default class ObjectCard extends GameComponent {
   onInventoryResized?: (xDiff: number, yDiff: number) => void
   onCardResized?: (entry: ResizeObserverEntry) => void
+  private name = document.createElement('div')
   private action?: ActionComponent
   private inventory?: Inventory
+  private expanded = false
 
   constructor (public object: GameObject) {
     super()
-
-    objectToCard.set(object, this)
 
     this.element.classList.add(containerStyle)
 
@@ -41,25 +40,22 @@ export default class ObjectCard extends GameComponent {
       }
     })
 
-    const name = document.createElement('div')
-    name.classList.add(nameStyle)
-    name.textContent = object.type.name
-    this.element.append(name)
+    this.name.classList.add(nameStyle)
+    this.name.textContent = object.type.name
+    this.element.append(this.name)
 
     if (object.activeAction) {
       this.setAction(object.activeAction)
     }
 
     onClickNotDrag(this.element, (e) => {
-      e.stopPropagation()
-      this.showInventory()
+      // e.stopPropagation()
+      this.expand()
     })
 
     onResize(this.element, (entry) => {
       this.onCardResized?.(entry)
     })
-
-    // dragAndDropGameObject.drag(this.element, object, name)
 
     const self = this
     this.newEffect(class extends Effect {
@@ -90,12 +86,28 @@ export default class ObjectCard extends GameComponent {
     }, object)
   }
 
+  expand () {
+    if (this.expanded) {
+      return
+    }
+    this.expanded = true
+
+    const grab = document.createElement('div')
+    grab.textContent = `Grab`
+    dragAndDropGameObject.drag(grab, this.object, this.name)
+    this.element.append(grab)
+
+    this.showInventory()
+  }
+
   showInventory () {
     if (this.inventory || !this.object.contains) {
       return
     }
     this.inventory = this.newComponent(Inventory, this.object)
-    this.inventory.onResize = this.onInventoryResized
+    requestAnimationFrame(() => {
+      this.inventory!.onResize = this.onInventoryResized
+    })
     this.element.append(this.inventory.element)
   }
 

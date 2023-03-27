@@ -170,6 +170,8 @@ export default class MapComponent extends Component {
       this.map.animate({
         transform: mapTransform,
       }, options).onfinish = applyTransform
+      // have to apply transform manually, since using
+      // fill: 'forwards' or commitStyles() prevents future manual transforms
     } else {
       applyTransform()
     }
