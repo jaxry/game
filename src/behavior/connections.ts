@@ -21,7 +21,7 @@ export function connectZones (
   target.connections.push(source)
 }
 
-export function positionZone (source: GameObject, target: GameObject) {
+function positionZone (source: GameObject, target: GameObject) {
   const theta = 2 * Math.PI * Math.random()
   const d = 2 * renderedConnectionDistance
   const dx = d * Math.cos(theta)
