@@ -58,9 +58,6 @@ export default class ObjectCard extends GameComponent {
 
     const self = this
     this.newEffect(class extends Effect {
-      override tick () {
-      }
-
       override events () {
         this.on(object.container, 'leave', ({ item }) => {
           if (item === this.object) {

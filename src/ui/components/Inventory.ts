@@ -17,8 +17,6 @@ import CardPhysics from '../game/CardPhysics'
 export default class Inventory extends GameComponent {
   onResize?: (xDiff: number, yDiff: number) => void
 
-  private cardContainer = document.createElement('div')
-
   private objectToCard = new Map<GameObject, ObjectCard>()
   private cardToObject = new WeakMap<ObjectCard, GameObject>()
 
@@ -35,8 +33,6 @@ export default class Inventory extends GameComponent {
     super()
 
     this.element.classList.add(containerStyle)
-
-    this.element.append(this.cardContainer)
 
     const self = this
 
@@ -90,7 +86,7 @@ export default class Inventory extends GameComponent {
 
     this.makeCardDraggable(object, card)
 
-    this.cardContainer.append(card.element)
+    this.element.append(card.element)
 
     return card
   }
