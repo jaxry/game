@@ -95,6 +95,16 @@ export default class MapComponent extends Component {
     this.zoneToComponent.delete(zone)
   }
 
+  private makeEdge (edge: Edge) {
+    const line = document.createElement('div')
+    line.classList.add(edgeStyle)
+
+    this.edgeContainer.append(line)
+    grow(line)
+
+    return { line, edge }
+  }
+
   updatePositions () {
     const nodeScale = Math.max(1, this.transform.scale)
 
@@ -122,16 +132,6 @@ export default class MapComponent extends Component {
         +this.element.offsetHeight / 2
 
     this.updateTransform(animate)
-  }
-
-  private makeEdge (edge: Edge) {
-    const line = document.createElement('div')
-    line.classList.add(edgeStyle)
-
-    this.edgeContainer.append(line)
-    grow(line)
-
-    return { line, edge }
   }
 
   private updateTransform (animate = true) {

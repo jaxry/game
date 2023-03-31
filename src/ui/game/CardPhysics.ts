@@ -1,33 +1,40 @@
 import ElapsedTime from '../../ElapsedTime'
 import GameObject from '../../GameObject'
 import Component from '../components/Component'
+import { deleteElemFn } from '../../util'
+
+const velocityDecay = 0.995
+const minVelocityBeforeStop = 1e-5
+const repelForce = 0.002
+const minSimulationTime = 100
+
+const attractionForce = 0.003
+const attractionDistance = 10
 
 export default class CardPhysics {
-  repelForce = 0.001
-  velocityDecay = 0.995
-  minVelocityBeforeStop = 1e-5
-  minSimulationTime = 100
-
   private animationId = 0
+
+  private objects: GameObject[] = []
+  private cards: Component[] = []
+
+  private attractions: [GameObject, GameObject][] = []
+
   private ignoring = new WeakSet<GameObject>()
 
-  private objects: GameObject[]
-  private cards: Component[]
-
   constructor (
+      public objectToCard: Map<GameObject, Component>,
       public onUpdate: () => void) {
 
   }
 
-  // providing a new objectToCard updates the list of cards to simulate
-  simulate (
-      objectToCard?: Map<GameObject, Component>, repelFromCenter = false) {
-    if (objectToCard) {
-      // objects might be added or removed since last simulation
-      this.objects = [...objectToCard.keys()]
-      this.cards = [...objectToCard.values()]
+  // Providing a new objectToCard updates the list of cards to simulate
+  simulate (rebuild = false, repelFromCenter = false) {
+    if (rebuild) {
+      // Objects might be added or removed since last simulation
+      this.rebuild()
     } else if (this.animationId) {
-      // current simulation already running, nothing has changed
+      // Current simulation already running, nothing has changed.
+      // Keep the value from repelFromCenter as is.
       return
     }
 
@@ -36,19 +43,28 @@ export default class CardPhysics {
     const tick = () => {
       const elapsed = elapsedTime.elapsed()
 
-      repelFromCenter ?
-          this.repelOverlappingFromCenters(elapsed) :
-          this.repelOverlapping(elapsed)
+      // repelFromCenter ?
+      //     repelOverlappingFromCenters(
+      //         this.objects, this.cards, elapsed) :
+      //     repelOverlapping(
+      //         this.objects, this.cards, elapsed)
+      repelOverlappingFromCenters(this.objects, this.cards, elapsed)
 
-      const repeat = this.applyVelocity(elapsed)
+      for (const [a, b] of this.attractions) {
+        attract(
+            a, this.objectToCard.get(a)!,
+            b, this.objectToCard.get(b)!, elapsed)
+      }
+
+      const repeat = applyVelocity(this.objects, elapsed)
 
       this.onUpdate()
 
-      if (repeat || elapsedTime.total() < this.minSimulationTime) {
+      if (repeat || elapsedTime.total() < minSimulationTime) {
         this.animationId = requestAnimationFrame(tick)
       } else {
         this.animationId = 0
-        this.freeze()
+        freezeAll(this.objects)
       }
     }
 
@@ -56,107 +72,154 @@ export default class CardPhysics {
     this.animationId = requestAnimationFrame(tick)
   }
 
-  ignore (object: GameObject, ignore: boolean) {
-    if (ignore) {
-      object.position.vx = 0
-      object.position.vy = 0
-      this.ignoring.add(object)
-    } else {
-      this.ignoring.delete(object)
-    }
+  ignore (object: GameObject) {
+    this.ignoring.add(object)
+    this.rebuild()
   }
 
-  private repelOverlapping (elapsed: number) {
-    for (let i = 0; i < this.objects.length; i++) {
+  unignore (object: GameObject) {
+    this.ignoring.delete(object)
+    this.rebuild()
+    this.simulate()
+  }
 
-      if (this.ignoring.has(this.objects[i])) continue
+  attract (obj1: GameObject, obj2: GameObject) {
+    const first = obj1.id < obj2.id ? obj1 : obj2
+    const second = obj1.id < obj2.id ? obj2 : obj1
+    if (this.attractions.find(([a, b]) => a === first && b === second)) {
+      return
+    }
+    this.attractions.push([first, second])
+  }
 
-      for (let j = i + 1; j < this.objects.length; j++) {
+  release (obj1: GameObject, obj2: GameObject) {
+    const first = obj1.id < obj2.id ? obj1 : obj2
+    const second = obj1.id < obj2.id ? obj2 : obj1
+    deleteElemFn(this.attractions, ([a, b]) => a === first && b === second)
+  }
 
-        if (this.ignoring.has(this.objects[j])) continue
+  private rebuild () {
+    this.objects.length = 0
+    this.cards.length = 0
 
-        const aBBox = this.cards[i].element.getBoundingClientRect()
-        const bBBox = this.cards[j].element.getBoundingClientRect()
+    for (const [object, card] of this.objectToCard) {
+      if (this.ignoring.has(object)) {
+        continue
+      }
 
-        if (intersects(aBBox, bBBox)) {
-          const a = this.objects[i]
-          const b = this.objects[j]
+      this.objects.push(object)
+      this.cards.push(card)
+    }
 
-          // move card to the closest edge to minimize distance traveled
-          const xOverlap = Math.abs(a.position.x - b.position.x)
-              - (aBBox.width + bBBox.width) / 2
-          const yOverlap = Math.abs(a.position.y - b.position.y)
-              - (aBBox.height + bBBox.height) / 2
-          const f = this.repelForce * elapsed
+    this.attractions = this.attractions.filter(([a, b]) =>
+        this.objectToCard.has(a) && this.objectToCard.has(b))
+  }
+}
 
-          if (xOverlap > yOverlap) {
-            const dir = f * Math.sign(a.position.x - b.position.x)
-            a.position.vx += dir
-            b.position.vx -= dir
-          } else {
-            const dir = f * Math.sign(a.position.y - b.position.y)
-            a.position.vy += dir
-            b.position.vy -= dir
-          }
+function repelOverlappingFromCenters (
+    objects: GameObject[], cards: Component[], elapsed: number) {
+  for (let i = 0; i < objects.length; i++) {
+
+    for (let j = i + 1; j < objects.length; j++) {
+
+      const aBBox = cards[i].element.getBoundingClientRect()
+      const bBBox = cards[j].element.getBoundingClientRect()
+
+      if (intersects(aBBox, bBBox)) {
+        const a = objects[i]
+        const b = objects[j]
+
+        const dx = a.position.x - b.position.x
+        const dy = a.position.y - b.position.y
+        const d = Math.sqrt(dx * dx + dy * dy)
+        const f = repelForce * elapsed / d
+        a.position.vx += f * dx
+        a.position.vy += f * dy
+        b.position.vx -= f * dx
+        b.position.vy -= f * dy
+      }
+    }
+  }
+}
+
+function repelOverlapping (
+    objects: GameObject[], cards: Component[], elapsed: number) {
+  for (let i = 0; i < objects.length; i++) {
+
+    for (let j = i + 1; j < objects.length; j++) {
+
+      const aBBox = cards[i].element.getBoundingClientRect()
+      const bBBox = cards[j].element.getBoundingClientRect()
+
+      if (intersects(aBBox, bBBox)) {
+        const a = objects[i]
+        const b = objects[j]
+
+        const { dx, dy } = rectDistance(a, aBBox, b, bBBox)
+
+        let f = repelForce * elapsed
+
+        // Move card to the closest edge to minimize distance traveled
+        if (dx > dy) {
+          f *= Math.sign(a.position.x - b.position.x)
+          a.position.vx += f
+          b.position.vx -= f
+        } else {
+          f *= Math.sign(a.position.y - b.position.y)
+          a.position.vy += f
+          b.position.vy -= f
         }
       }
     }
   }
+}
 
-  private repelOverlappingFromCenters (elapsed: number) {
-    for (let i = 0; i < this.objects.length; i++) {
+function applyVelocity (objects: GameObject[], elapsed: number) {
+  let repeat = false
 
-      if (this.ignoring.has(this.objects[i])) continue
-
-      for (let j = i + 1; j < this.objects.length; j++) {
-
-        if (this.ignoring.has(this.objects[j])) continue
-
-        const aBBox = this.cards[i].element.getBoundingClientRect()
-        const bBBox = this.cards[j].element.getBoundingClientRect()
-
-        if (intersects(aBBox, bBBox)) {
-          const a = this.objects[i]
-          const b = this.objects[j]
-
-          const dx = a.position.x - b.position.x
-          const dy = a.position.y - b.position.y
-          const d = Math.sqrt(dx * dx + dy * dy)
-          const f = this.repelForce * elapsed / d
-          a.position.vx += f * dx
-          a.position.vy += f * dy
-          b.position.vx -= f * dx
-          b.position.vy -= f * dy
-        }
-      }
+  for (const object of objects) {
+    object.position.x += object.position.vx
+    object.position.y += object.position.vy
+    object.position.vx *= velocityDecay ** elapsed
+    object.position.vy *= velocityDecay ** elapsed
+    const magnitude2 = object.position.vx * object.position.vx
+        + object.position.vy * object.position.vy
+    if (magnitude2 > minVelocityBeforeStop) {
+      repeat = true
     }
   }
+  return repeat
+}
 
-  private applyVelocity (elapsed: number) {
-    let repeat = false
+function attract (
+    a: GameObject, aCard: Component, b: GameObject, bCard: Component,
+    elapsed: number) {
+  const aBBox = aCard.element.getBoundingClientRect()
+  const bBBox = bCard.element.getBoundingClientRect()
 
-    for (const object of this.objects) {
-
-      if (this.ignoring.has(object)) continue
-
-      object.position.x += object.position.vx
-      object.position.y += object.position.vy
-      object.position.vx *= this.velocityDecay ** elapsed
-      object.position.vy *= this.velocityDecay ** elapsed
-      const magnitude2 = object.position.vx * object.position.vx
-          + object.position.vy * object.position.vy
-      if (magnitude2 > this.minVelocityBeforeStop) {
-        repeat = true
-      }
-    }
-    return repeat
+  const { dx, dy } = rectDistance(a, aBBox, b, bBBox)
+  const dist = Math.max(dx, dy)
+  let f = attractionForce * Math.sign(dist - attractionDistance) * elapsed
+  if (dx > dy) {
+    f *= Math.sign(a.position.x - b.position.x)
+    a.position.vx -= f
+    b.position.vx += f
+  } else {
+    f *= Math.sign(a.position.y - b.position.y)
+    a.position.vy -= f
+    b.position.vy += f
   }
 
-  private freeze () {
-    for (const object of this.objects) {
-      object.position.vx = 0
-      object.position.vy = 0
-    }
+}
+
+function freeze (object: GameObject) {
+  object.position.vx = 0
+  object.position.vy = 0
+}
+
+function freezeAll (objects: GameObject[]) {
+  for (const object of objects) {
+    freeze(object)
   }
 }
 
@@ -165,4 +228,15 @@ function intersects (a: DOMRect, b: DOMRect) {
       b.left < a.right &&
       a.top < b.bottom &&
       b.top < a.bottom
+}
+
+function rectDistance (
+    o1: GameObject, o1BBox: DOMRect,
+    o2: GameObject, o2BBox: DOMRect) {
+  return {
+    dx: Math.abs(o1.position.x - o2.position.x)
+        - (o1BBox.width + o2BBox.width) / 2,
+    dy: Math.abs(o1.position.y - o2.position.y)
+        - (o1BBox.height + o2BBox.height) / 2,
+  }
 }

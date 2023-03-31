@@ -20,7 +20,7 @@ export default class Inventory extends GameComponent {
   private objectToCard = new Map<GameObject, ObjectCard>()
   private cardToObject = new WeakMap<ObjectCard, GameObject>()
 
-  private cardPhysics = new CardPhysics(() => {
+  private cardPhysics = new CardPhysics(this.objectToCard, () => {
     this.updatePositions()
   })
 
@@ -44,6 +44,16 @@ export default class Inventory extends GameComponent {
         this.on(this.object, 'leave', ({ item }) => {
           self.objectLeave(item)
         })
+        this.on(this.object, 'itemActionStart', ({ action }) => {
+          if (action.target && self.objectToCard.has(action.target)) {
+            self.cardPhysics.attract(action.object, action.target)
+          }
+        })
+        this.on(this.object, 'itemActionEnd', ({ action }) => {
+          if (action.target && self.objectToCard.has(action.target)) {
+            self.cardPhysics.release(action.object, action.target)
+          }
+        })
       }
     }, container)
 
@@ -61,7 +71,7 @@ export default class Inventory extends GameComponent {
       }
     }
 
-    this.cardPhysics.simulate(this.objectToCard, true)
+    this.cardPhysics.simulate(true, true)
   }
 
   private get scale () {
@@ -103,7 +113,7 @@ export default class Inventory extends GameComponent {
         relX = (e.clientX - left - width / 2) / this.scale
         relY = (e.clientY - top - height / 2) / this.scale
 
-        this.cardPhysics.ignore(object, true)
+        this.cardPhysics.ignore(object)
 
         moveToTop(card.element)
       },
@@ -114,21 +124,20 @@ export default class Inventory extends GameComponent {
         this.updatePositions()
       },
       onUp: () => {
-        this.cardPhysics.ignore(object, false)
-        this.cardPhysics.simulate()
+        this.cardPhysics.unignore(object)
       },
     })
   }
 
   private objectEnter (obj: GameObject) {
     const card = this.makeCard(obj)
-    this.cardPhysics.simulate(this.objectToCard)
+    this.cardPhysics.simulate(true)
   }
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
     card.remove()
-    this.cardPhysics.simulate(this.objectToCard)
+    this.cardPhysics.simulate(true)
   }
 
   private updatePositions () {

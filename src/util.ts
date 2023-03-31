@@ -38,7 +38,17 @@ export function shuffleArray<T> (array: T[]) {
 }
 
 export function deleteElem<T> (array: T[], elem: T) {
-  array.splice(array.indexOf(elem), 1)
+  const index = array.indexOf(elem)
+  if (index >= 0) {
+    array.splice(index, 1)
+  }
+}
+
+export function deleteElemFn<T> (array: T[], fn: (elem: T) => boolean) {
+  const index = array.findIndex(fn)
+  if (index >= 0) {
+    array.splice(index, 1)
+  }
 }
 
 // ---------------
@@ -91,7 +101,9 @@ export function getAndDelete<T, U> (map: Map<T, U>, key: T): U | undefined {
   return value
 }
 
-export function makeOrGet<T, U> (map: Map<T, U>, key: T, makeFn: () => U) {
+export function makeOrGet<T, U> (
+    map: T extends object ? WeakMap<T, U> : Map<T, U>,
+    key: T, makeFn: () => U): U {
   if (!map.has(key)) {
     map.set(key, makeFn())
   }
