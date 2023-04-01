@@ -43,12 +43,11 @@ export default class CardPhysics {
     const tick = () => {
       const elapsed = elapsedTime.elapsed()
 
-      // repelFromCenter ?
-      //     repelOverlappingFromCenters(
-      //         this.objects, this.cards, elapsed) :
-      //     repelOverlapping(
-      //         this.objects, this.cards, elapsed)
-      repelOverlappingFromCenters(this.objects, this.cards, elapsed)
+      repelFromCenter || this.attractions.length ?
+          repelOverlappingFromCenters(
+              this.objects, this.cards, elapsed) :
+          repelOverlapping(
+              this.objects, this.cards, elapsed)
 
       for (const [a, b] of this.attractions) {
         attract(
@@ -75,6 +74,7 @@ export default class CardPhysics {
   ignore (object: GameObject) {
     this.ignoring.add(object)
     this.rebuild()
+    this.simulate()
   }
 
   unignore (object: GameObject) {
@@ -90,12 +90,14 @@ export default class CardPhysics {
       return
     }
     this.attractions.push([first, second])
+    this.simulate()
   }
 
   release (obj1: GameObject, obj2: GameObject) {
     const first = obj1.id < obj2.id ? obj1 : obj2
     const second = obj1.id < obj2.id ? obj2 : obj1
     deleteElemFn(this.attractions, ([a, b]) => a === first && b === second)
+    this.simulate()
   }
 
   private rebuild () {
@@ -174,22 +176,6 @@ function repelOverlapping (
   }
 }
 
-function applyVelocity (objects: GameObject[], elapsed: number) {
-  let repeat = false
-
-  for (const object of objects) {
-    object.position.x += object.position.vx
-    object.position.y += object.position.vy
-    object.position.vx *= velocityDecay ** elapsed
-    object.position.vy *= velocityDecay ** elapsed
-    const magnitude2 = object.position.vx * object.position.vx
-        + object.position.vy * object.position.vy
-    if (magnitude2 > minVelocityBeforeStop) {
-      repeat = true
-    }
-  }
-  return repeat
-}
 
 function attract (
     a: GameObject, aCard: Component, b: GameObject, bCard: Component,
@@ -209,7 +195,23 @@ function attract (
     a.position.vy -= f
     b.position.vy += f
   }
+}
 
+function applyVelocity (objects: GameObject[], elapsed: number) {
+  let repeat = false
+
+  for (const object of objects) {
+    object.position.x += object.position.vx
+    object.position.y += object.position.vy
+    object.position.vx *= velocityDecay ** elapsed
+    object.position.vy *= velocityDecay ** elapsed
+    const magnitude2 = object.position.vx * object.position.vx
+        + object.position.vy * object.position.vy
+    if (magnitude2 > minVelocityBeforeStop) {
+      repeat = true
+    }
+  }
+  return repeat
 }
 
 function freeze (object: GameObject) {
