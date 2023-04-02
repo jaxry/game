@@ -1,15 +1,15 @@
 import ElapsedTime from '../../ElapsedTime'
 import GameObject from '../../GameObject'
 import Component from '../components/Component'
-import { deleteElemFn } from '../../util'
+import { clamp, deleteElemFn } from '../../util'
 
 const velocityDecay = 0.995
 const minVelocityBeforeStop = 1e-5
-const repelForce = 0.002
+const repelForce = 0.0003
 const minSimulationTime = 100
 
-const attractionForce = 0.003
-const attractionDistance = 10
+const attractionForce = repelForce * 2
+const attractionDistance = 16
 
 export default class CardPhysics {
   private animationId = 0
@@ -41,18 +41,19 @@ export default class CardPhysics {
     const elapsedTime = new ElapsedTime()
 
     const tick = () => {
-      const elapsed = elapsedTime.elapsed()
+      const elapsed = Math.min(33, elapsedTime.elapsed())
+      const elapsed2 = elapsed * elapsed
 
       repelFromCenter || this.attractions.length ?
           repelOverlappingFromCenters(
-              this.objects, this.cards, elapsed) :
+              this.objects, this.cards, elapsed2) :
           repelOverlapping(
-              this.objects, this.cards, elapsed)
+              this.objects, this.cards, elapsed2)
 
       for (const [a, b] of this.attractions) {
         attract(
             a, this.objectToCard.get(a)!,
-            b, this.objectToCard.get(b)!, elapsed)
+            b, this.objectToCard.get(b)!, elapsed2)
       }
 
       const repeat = applyVelocity(this.objects, elapsed)
@@ -185,7 +186,8 @@ function attract (
 
   const { dx, dy } = rectDistance(a, aBBox, b, bBBox)
   const dist = Math.max(dx, dy)
-  let f = attractionForce * Math.sign(dist - attractionDistance) * elapsed
+  const spring = clamp(-1, 1, (dist - attractionDistance) / attractionDistance)
+  let f = attractionForce * spring * elapsed
   if (dx > dy) {
     f *= Math.sign(a.position.x - b.position.x)
     a.position.vx -= f
@@ -201,10 +203,10 @@ function applyVelocity (objects: GameObject[], elapsed: number) {
   let repeat = false
 
   for (const object of objects) {
-    object.position.x += object.position.vx
-    object.position.y += object.position.vy
     object.position.vx *= velocityDecay ** elapsed
     object.position.vy *= velocityDecay ** elapsed
+    object.position.x += object.position.vx
+    object.position.y += object.position.vy
     const magnitude2 = object.position.vx * object.position.vx
         + object.position.vy * object.position.vy
     if (magnitude2 > minVelocityBeforeStop) {
@@ -214,14 +216,10 @@ function applyVelocity (objects: GameObject[], elapsed: number) {
   return repeat
 }
 
-function freeze (object: GameObject) {
-  object.position.vx = 0
-  object.position.vy = 0
-}
-
 function freezeAll (objects: GameObject[]) {
   for (const object of objects) {
-    freeze(object)
+    object.position.vx = 0
+    object.position.vy = 0
   }
 }
 
