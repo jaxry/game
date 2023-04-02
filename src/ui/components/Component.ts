@@ -13,6 +13,7 @@ export default class Component<T extends Element = HTMLElement> {
   }
 
   newComponent<T extends Constructor<Component>> (
+      parent: Element | null,
       constructor: T,
       ...args: ConstructorParameters<T>): InstanceType<T> {
 
@@ -20,6 +21,10 @@ export default class Component<T extends Element = HTMLElement> {
     component.parentComponent = this
 
     this.childComponents.add(component)
+
+    if (parent) {
+      parent.append(component.element)
+    }
 
     return component as InstanceType<T>
   }

@@ -4,6 +4,7 @@ import { actionColor, actionTimeColor } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameTime from '../../GameTime'
 import { game } from '../../Game'
+import { createDiv } from '../create'
 
 export default class ActionComponent extends Component {
   private readonly time: HTMLElement
@@ -13,22 +14,14 @@ export default class ActionComponent extends Component {
 
     this.element.classList.add(containerStyle)
 
-    const nameTarget = document.createElement('div')
-    this.element.append(nameTarget)
+    const nameTarget = createDiv(this.element)
 
-    const name = document.createElement('div')
-    name.classList.add(nameStyle)
-    name.textContent = action.name
-    nameTarget.append(name)
+    const name = createDiv(nameTarget, nameStyle, action.name)
 
-    const target = document.createElement('div')
-    target.classList.add(targetStyle)
-    target.textContent = action.target?.type.name ?? ''
-    nameTarget.append(target)
+    const target = createDiv(nameTarget, targetStyle,
+        action.target?.type.name ?? '')
 
-    this.time = document.createElement('div')
-    this.time.classList.add(timeStyle)
-    this.element.append(this.time)
+    this.time = createDiv(this.element, timeStyle)
 
     this.on(game.event.tick, () => this.update())
   }

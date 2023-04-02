@@ -3,6 +3,7 @@ import GameUI from './GameUI'
 import { makeStyle } from '../makeStyle'
 import '../preflight.css'
 import { backgroundColor, fontColor } from '../theme'
+import { createDiv } from '../create'
 
 export default class App extends Component {
   constructor () {
@@ -11,7 +12,7 @@ export default class App extends Component {
     this.element.classList.add(containerStyle)
 
     this.element.append(outsideElem)
-    this.element.append(this.newComponent(GameUI).element)
+    this.newComponent(this.element, GameUI)
   }
 }
 
@@ -33,5 +34,4 @@ makeStyle(`.${outsideElemStyle} > *`, {
   position: `fixed`,
 })
 
-export const outsideElem = document.createElement('div')
-outsideElem.classList.add(outsideElemStyle)
+export const outsideElem = createDiv(null, outsideElemStyle)

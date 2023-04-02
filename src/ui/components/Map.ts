@@ -7,14 +7,15 @@ import MapNode from './MapNode'
 import addPanZoom from '../PanZoom'
 import { makeOrGet, numToPixel, numToPx, translate } from '../../util'
 import TravelAnimation from '../game/TravelAnimation'
+import { createDiv } from '../create'
 
 export default class MapComponent extends Component {
   maxDepthFromCenter = 2
 
-  private map = document.createElement('div')
-  private edgeContainer = document.createElement('div')
-  private zoneContainer = document.createElement('div')
-  private travelIcons = document.createElement('div')
+  private map = createDiv(this.element, mapStyle)
+  private edgeContainer = createDiv(this.map)
+  private zoneContainer = createDiv(this.map)
+  private travelIcons = createDiv(this.map)
   travelAnimation = new TravelAnimation(this.travelIcons)
 
   private transform = {
@@ -32,13 +33,6 @@ export default class MapComponent extends Component {
     super()
 
     this.element.classList.add(containerStyle)
-
-    this.map.classList.add(mapStyle)
-    this.element.append(this.map)
-
-    this.map.append(this.edgeContainer)
-    this.map.append(this.zoneContainer)
-    this.map.append(this.travelIcons)
 
     addPanZoom(this.element, this.transform, (updatedScale) => {
       updatedScale && this.updatePositions()
@@ -83,9 +77,7 @@ export default class MapComponent extends Component {
   }
 
   private makeZone (zone: GameObject) {
-    const component = this.newComponent(MapNode, zone, this)
-    this.zoneContainer.append(component.element)
-    return component
+    return this.newComponent(this.zoneContainer, MapNode, zone, this)
   }
 
   private removeZone (zone: GameObject, component: MapNode) {
@@ -96,10 +88,9 @@ export default class MapComponent extends Component {
   }
 
   private makeEdge (edge: Edge) {
-    const line = document.createElement('div')
+    const line = createDiv(this.edgeContainer)
     line.classList.add(edgeStyle)
 
-    this.edgeContainer.append(line)
     grow(line)
 
     return { line, edge }

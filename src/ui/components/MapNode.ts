@@ -10,6 +10,7 @@ import TravelAction from '../../actions/Travel'
 import MapComponent from './Map'
 import { playerTravelToZone } from '../../behavior/player'
 import Component from './Component'
+import { createDiv } from '../create'
 
 export default class MapNode extends GameComponent {
   node: HTMLElement | Component
@@ -32,9 +33,8 @@ export default class MapNode extends GameComponent {
     }
     this.removeSimple()
 
-    this.node = this.newComponent(Inventory, this.zone)
+    this.node = this.newComponent(this.element, Inventory, this.zone)
     this.node.element.classList.add(zoneStyle)
-    this.element.append(this.node.element)
 
     grow(this.node.element)
 
@@ -59,9 +59,7 @@ export default class MapNode extends GameComponent {
     }
     this.removeComplex()
 
-    this.node = document.createElement('div')
-    this.node.classList.add(circleStyle)
-    this.element.append(this.node)
+    this.node = createDiv(this.element, circleStyle)
 
     grow(this.node)
   }

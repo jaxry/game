@@ -20,16 +20,14 @@ export default class GameUI extends GameComponent {
     // sidebar.element.classList.add(sidebarStyle)
     // this.element.append(sidebar.element)
 
-    const map = this.createMap()
-    map.element.classList.add(mapStyle)
-    this.element.append(map.element)
-
+    this.createMap()
     this.setupWindowVisibility()
     startGameLoop()
   }
 
   private createMap () {
-    const map = this.newComponent(MapComponent)
+    const map = this.newComponent(this.element, MapComponent)
+    map.element.classList.add(mapStyle)
 
     const mapEffect = this.newEffect(class extends Effect {
       override events () {

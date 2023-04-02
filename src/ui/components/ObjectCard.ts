@@ -15,10 +15,11 @@ import { onClickNotDrag } from '../makeDraggable'
 import Inventory from './Inventory'
 import { onResize } from '../onResize'
 import { dragAndDropGameObject } from './GameUI'
+import { createDiv } from '../create'
 
 export default class ObjectCard extends GameComponent {
   onResized?: (xDiff: number, yDiff: number) => void
-  private name = document.createElement('div')
+  private name = createDiv(this.element, nameStyle)
   private action?: ActionComponent
   private inventory?: Inventory
   private expanded = false
@@ -39,9 +40,7 @@ export default class ObjectCard extends GameComponent {
       }
     })
 
-    this.name.classList.add(nameStyle)
     this.name.textContent = object.type.name
-    this.element.append(this.name)
 
     if (object.activeAction) {
       this.setAction(object.activeAction)
@@ -88,10 +87,8 @@ export default class ObjectCard extends GameComponent {
     }
     this.expanded = true
 
-    const grab = document.createElement('div')
-    grab.textContent = `Grab`
+    const grab = createDiv(this.element, undefined, 'Grab')
     dragAndDropGameObject.drag(grab, this.object, this.name)
-    this.element.append(grab)
 
     this.showInventory()
   }
@@ -100,18 +97,16 @@ export default class ObjectCard extends GameComponent {
     if (this.inventory || !this.object.contains) {
       return
     }
-    this.inventory = this.newComponent(Inventory, this.object)
+    this.inventory = this.newComponent(this.element, Inventory, this.object)
     requestAnimationFrame(() => {
       this.inventory!.onResize = this.onResized
     })
-    this.element.append(this.inventory.element)
   }
 
   private setAction (action: Action) {
     this.clearAction()
-    const component = this.newComponent(ActionComponent, action)
+    const component = this.newComponent(this.element, ActionComponent, action)
     this.action = component
-    this.element.append(component.element)
 
     new DummyElement(component.element).growHeightOnly()
   }

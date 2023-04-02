@@ -1,15 +1,14 @@
 import { duration } from './theme'
 import animateManual from './animateManual'
 import { makeStyle } from './makeStyle'
+import { createDiv } from './create'
 
 export default class DummyElement {
-  dummy = document.createElement('div')
+  dummy = createDiv(null, dummyStyle)
 
   style = getComputedStyle(this.dummy)
 
   constructor (public original: HTMLElement) {
-    this.dummy.classList.add(dummyStyle)
-
     original.replaceWith(this.dummy)
     this.dummy.append(original)
   }

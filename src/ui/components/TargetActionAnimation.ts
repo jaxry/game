@@ -11,7 +11,6 @@ export default class TargetActionAnimation extends Component {
     to.append(this.element)
 
     this.element.classList.add(containerStyle)
-
     this.element.textContent = action.name
 
     this.element.animate({

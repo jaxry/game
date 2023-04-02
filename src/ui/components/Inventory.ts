@@ -83,7 +83,9 @@ export default class Inventory extends GameComponent {
 
   private makeCard (object: GameObject) {
     const card = makeOrGet(this.objectToCard, object, () =>
-        this.newComponent(ObjectCard, object))
+        this.newComponent(this.element, ObjectCard, object))
+
+    card.element.classList.add(cardStyle)
 
     card.onResized = (xDiff, yDiff) => {
       object.position.x += xDiff
@@ -92,11 +94,7 @@ export default class Inventory extends GameComponent {
     }
     this.cardToObject.set(card, object)
 
-    card.element.classList.add(cardStyle)
-
     this.makeCardDraggable(object, card)
-
-    this.element.append(card.element)
 
     return card
   }
