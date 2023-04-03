@@ -3,15 +3,15 @@ export default class ElapsedTime {
   lastTime: number
 
   constructor () {
-    this.start()
+    this.restart()
   }
 
-  start () {
+  restart () {
     this.startTime = performance.now()
     this.lastTime = this.startTime
   }
 
-  elapsed () {
+  elapsedFromLast () {
     const now = performance.now()
     const elapsed = now - this.lastTime
     this.lastTime = now

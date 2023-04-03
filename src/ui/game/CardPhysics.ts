@@ -4,7 +4,7 @@ import Component from '../components/Component'
 import { clamp, deleteElemFn } from '../../util'
 
 const velocityDecay = 0.995
-const minVelocityBeforeStop = 1e-5
+const minVelocityBeforeStop = 1e-4
 const repelForce = 0.0003
 const minSimulationTime = 100
 
@@ -40,8 +40,12 @@ export default class CardPhysics {
 
     const elapsedTime = new ElapsedTime()
 
+    const queueNext = () => {
+      this.animationId = requestAnimationFrame(tick)
+    }
+
     const tick = () => {
-      const elapsed = Math.min(33, elapsedTime.elapsed())
+      const elapsed = Math.min(30, elapsedTime.elapsedFromLast())
       const elapsed2 = elapsed * elapsed
 
       repelFromCenter || this.attractions.length ?
@@ -60,8 +64,11 @@ export default class CardPhysics {
 
       this.onUpdate()
 
-      if (repeat || elapsedTime.total() < minSimulationTime) {
-        this.animationId = requestAnimationFrame(tick)
+      if (repeat) {
+        elapsedTime.restart()
+        queueNext()
+      } else if (elapsedTime.total() < minSimulationTime) {
+        queueNext()
       } else {
         this.animationId = 0
         freezeAll(this.objects)
