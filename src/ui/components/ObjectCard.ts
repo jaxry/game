@@ -5,17 +5,17 @@ import ActionComponent from './ActionComponent'
 import { game } from '../../Game'
 import Effect from '../../behavior/Effect'
 import {
-  borderRadius, boxShadow, duration, objectCardColor, objectCardNameBorderColor,
+  borderRadius, boxShadow, objectCardColor, objectCardNameBorderColor,
   objectCardPlayerColor,
 } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
-import DummyElement from '../DummyElement'
 import { onClickNotDrag } from '../makeDraggable'
 import Inventory from './Inventory'
 import { onResize } from '../onResize'
 import { dragAndDropGameObject } from './GameUI'
 import { createDiv } from '../create'
+import { grow, shrink } from '../SmoothDom'
 
 export default class ObjectCard extends GameComponent {
   onResized?: (xDiff: number, yDiff: number) => void
@@ -108,7 +108,8 @@ export default class ObjectCard extends GameComponent {
     if (this.inventory || !this.object.contains) {
       return
     }
-    this.inventory = this.newComponent(this.expandedContainer!, Inventory, this.object)
+    this.inventory =
+        this.newComponent(this.expandedContainer!, Inventory, this.object)
     requestAnimationFrame(() => {
       this.inventory!.onResize = this.onResized
     })
@@ -124,7 +125,7 @@ export default class ObjectCard extends GameComponent {
     const component = this.newComponent(this.element, ActionComponent, action)
     this.action = component
 
-    new DummyElement(component.element).growHeightOnly()
+    grow(component.element)
   }
 
   private clearAction () {
@@ -134,14 +135,9 @@ export default class ObjectCard extends GameComponent {
     const component = this.action
     this.action = undefined
 
-    new DummyElement(component.element).shrinkHeightOnly()
-    component.element.animate({
-      opacity: 0,
-    }, {
-      duration: duration.fast,
-    }).onfinish = () => {
+    shrink(component.element, () => {
       component.remove()
-    }
+    })
   }
 }
 

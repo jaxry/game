@@ -1,5 +1,7 @@
 export function createElement<T extends keyof HTMLElementTagNameMap>
-(parent: Element | null, tag: T, cls?: string, text?: string): HTMLElementTagNameMap[T] {
+(
+    parent: Element | null, tag: T, cls?: string,
+    text?: string): HTMLElementTagNameMap[T] {
   const element = document.createElement(tag)
 
   if (parent) {
@@ -15,7 +17,8 @@ export function createElement<T extends keyof HTMLElementTagNameMap>
   return element
 }
 
-export function createDiv (parent: Element | null, cls?: string, text?: string) {
+export function createDiv (
+    parent: Element | null, cls?: string, text?: string) {
   return createElement(parent, 'div', cls, text)
 }
 

@@ -184,7 +184,6 @@ function repelOverlapping (
   }
 }
 
-
 function attract (
     a: GameObject, aCard: Component, b: GameObject, bCard: Component,
     elapsed: number) {

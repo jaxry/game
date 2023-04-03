@@ -77,26 +77,6 @@ export default class MapComponent extends Component {
     this.firstRender = false
   }
 
-  private makeZone (zone: GameObject) {
-    return this.newComponent(this.zoneContainer, MapNode, zone, this)
-  }
-
-  private removeZone (zone: GameObject, component: MapNode) {
-    shrink(component.element).onfinish = () => {
-      component.remove()
-    }
-    this.zoneToComponent.delete(zone)
-  }
-
-  private makeEdge (edge: Edge) {
-    const line = createDiv(this.edgeContainer)
-    line.classList.add(edgeStyle)
-
-    grow(line)
-
-    return { line, edge }
-  }
-
   updatePositions () {
     const nodeScale = Math.max(1, this.transform.scale)
 
@@ -115,6 +95,26 @@ export default class MapComponent extends Component {
     }
 
     this.travelAnimation.updateScale(nodeScale)
+  }
+
+  private makeZone (zone: GameObject) {
+    return this.newComponent(this.zoneContainer, MapNode, zone, this)
+  }
+
+  private removeZone (zone: GameObject, component: MapNode) {
+    shrink(component.element).onfinish = () => {
+      component.remove()
+    }
+    this.zoneToComponent.delete(zone)
+  }
+
+  private makeEdge (edge: Edge) {
+    const line = createDiv(this.edgeContainer)
+    line.classList.add(edgeStyle)
+
+    grow(line)
+
+    return { line, edge }
   }
 
   private centerOnZone (zone: GameObject, animate = true) {
@@ -183,7 +183,6 @@ function getEdgePositionAndAngle ({ source, target }: Edge) {
   const y = (source.position.y + target.position.y) / 2
   return { x, y, angle, length }
 }
-
 
 const containerStyle = makeStyle({
   position: 'relative',

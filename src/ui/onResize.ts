@@ -1,4 +1,5 @@
-export function onResize(element: Element,
+export function onResize (
+    element: Element,
     callback: (entry: ResizeObserverEntry) => void) {
 
   const observer = new ResizeObserver((entries) => {
