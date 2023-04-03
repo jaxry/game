@@ -28,6 +28,7 @@ export default class MapComponent extends Component {
   private edgeToElem = new Map<string, { line: HTMLElement, edge: Edge }>()
 
   private firstRender = true
+  private activeMapAnimation: Animation | undefined
 
   constructor () {
     super()
@@ -131,13 +132,18 @@ export default class MapComponent extends Component {
 
     const transform = `${translate(x, y)} scale(${mapScale})`
 
+    this.activeMapAnimation?.finish()
+    this.activeMapAnimation = undefined
+
     if (animate) {
-      this.map.animate({
+      this.activeMapAnimation = this.map.animate({
         transform: transform,
       }, {
         duration: duration.slow,
         easing: 'ease-in-out',
-      }).onfinish = () => {
+      })
+
+      this.activeMapAnimation.onfinish = () => {
         this.map.style.transform = transform
       }
       // have to apply transform manually, since using
