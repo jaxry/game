@@ -178,11 +178,11 @@ export default class Inventory extends GameComponent {
 }
 
 const containerStyle = makeStyle({
+  contain: `strict`,
   position: `relative`,
   cursor: `pointer`,
   borderRadius,
   boxShadow,
-  contain: `strict`,
 })
 
 const cardStyle = makeStyle({

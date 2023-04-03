@@ -23,6 +23,7 @@ export default class ActionComponent extends Component {
 
     this.time = createDiv(this.element, timeStyle)
 
+    this.update()
     this.on(game.event.tick, () => this.update())
   }
 

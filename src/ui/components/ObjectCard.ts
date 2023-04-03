@@ -20,9 +20,10 @@ import { createDiv } from '../create'
 export default class ObjectCard extends GameComponent {
   onResized?: (xDiff: number, yDiff: number) => void
   private name = createDiv(this.element, nameStyle)
+  private expandedContainer?: HTMLDivElement
+
   private action?: ActionComponent
   private inventory?: Inventory
-  private expanded = false
 
   constructor (public object: GameObject) {
     super()
@@ -47,8 +48,12 @@ export default class ObjectCard extends GameComponent {
     }
 
     onClickNotDrag(this.element, (e) => {
-      // e.stopPropagation()
-      this.expand()
+      e.stopPropagation()
+      if (this.expandedContainer) {
+        this.close()
+      } else {
+        this.expand()
+      }
     })
 
     onResize(this.element, () => {
@@ -82,25 +87,36 @@ export default class ObjectCard extends GameComponent {
   }
 
   expand () {
-    if (this.expanded) {
+    if (this.expandedContainer) {
       return
     }
-    this.expanded = true
+    this.expandedContainer = createDiv(this.element)
 
-    const grab = createDiv(this.element, undefined, 'Grab')
+    const grab = createDiv(this.expandedContainer, undefined, 'Grab')
     dragAndDropGameObject.drag(grab, this.object, this.name)
 
-    this.showInventory()
+    this.addInventory()
   }
 
-  showInventory () {
+  close () {
+    this.removeInventory()
+    this.expandedContainer?.remove()
+    this.expandedContainer = undefined
+  }
+
+  private addInventory () {
     if (this.inventory || !this.object.contains) {
       return
     }
-    this.inventory = this.newComponent(this.element, Inventory, this.object)
+    this.inventory = this.newComponent(this.expandedContainer!, Inventory, this.object)
     requestAnimationFrame(() => {
       this.inventory!.onResize = this.onResized
     })
+  }
+
+  private removeInventory () {
+    this.inventory?.remove()
+    this.inventory = undefined
   }
 
   private setAction (action: Action) {
@@ -130,6 +146,7 @@ export default class ObjectCard extends GameComponent {
 }
 
 const containerStyle = makeStyle({
+  contain: `content`,
   display: `flex`,
   flexDirection: `column`,
   alignItems: `center`,
