@@ -1,7 +1,7 @@
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import {
-  border, boxShadow, duration, mapNodeColor, mapNodeDistantColor,
+  border, borderRadius, boxShadow, duration, mapNodeColor, mapNodeDistantColor,
 } from '../theme'
 import Inventory from './Inventory'
 import GameComponent from './GameComponent'
@@ -118,13 +118,15 @@ const zoneStyle = makeStyle({
   transform: `translate(-50%, -50%)`,
   background: mapNodeColor,
   border,
+  borderRadius,
+  boxShadow,
 })
 
 const circleStyle = makeStyle({
   position: `absolute`,
   transform: `translate(-50%, -50%)`,
-  width: `4rem`,
-  height: `4rem`,
+  width: `3rem`,
+  height: `3rem`,
   borderRadius: `50%`,
   background: mapNodeDistantColor,
   boxShadow,

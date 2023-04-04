@@ -4,15 +4,17 @@ import GameObject from '../../GameObject'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/core'
 import {
-  getAndDelete, makeOrGet, moveToTop, numToPx, translate,
+  copy, getAndDelete, isEqual, makeOrGet, moveToTop, numToPx, translate,
 } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
 import makeDraggable from '../makeDraggable'
-import { borderRadius, boxShadow } from '../theme'
+import { duration } from '../theme'
 import CardPhysics from '../game/CardPhysics'
+import tween, { Tween } from '../tween'
+import throttle from '../throttle'
 
 export default class Inventory extends GameComponent {
   onResize?: (xDiff: number, yDiff: number) => void
@@ -24,10 +26,11 @@ export default class Inventory extends GameComponent {
     this.updatePositions()
   })
 
-  private left = 0
-  private right = 0
-  private top = 0
-  private bottom = 0
+  private bounds = new Bounds()
+  private lastBounds = new Bounds()
+  private targetBounds = new Bounds()
+
+  private tween?: Tween
 
   constructor (public container: GameObject) {
     super()
@@ -99,6 +102,53 @@ export default class Inventory extends GameComponent {
     return card
   }
 
+  updatePositions = throttle(() => {
+    this.updateBounds()
+
+    if (!this.tween) {
+      Object.assign(this.bounds, this.targetBounds)
+    }
+
+    const xDiff = (this.bounds.left - this.lastBounds.left
+        + this.bounds.right - this.lastBounds.right) / 2
+    const yDiff = (this.bounds.top - this.lastBounds.top
+        + this.bounds.bottom - this.lastBounds.bottom) / 2
+    const firstRender = this.lastBounds.left === 0
+
+    if ((xDiff !== 0 || yDiff !== 0) && !firstRender) {
+      this.onResize?.(xDiff, yDiff)
+    }
+
+    Object.assign(this.lastBounds, this.bounds)
+
+    this.element.style.width = numToPx(this.bounds.width())
+    this.element.style.height = numToPx(this.bounds.height())
+
+    for (const [object, card] of this.objectToCard) {
+      const tx = object.position.x - this.bounds.left
+      const ty = object.position.y - this.bounds.top
+      card.element.style.transform =
+          `${translate(tx, ty)} translate(-50%, -50%)`
+    }
+  })
+
+  private updateBounds () {
+    this.targetBounds.reset()
+
+    for (const [object, card] of this.objectToCard) {
+      const x = object.position.x
+      const y = object.position.y
+      const w = card.element.offsetWidth / 2
+      const h = card.element.offsetHeight / 2
+      this.targetBounds.extendLeft(x - w)
+      this.targetBounds.extendRight(x + w)
+      this.targetBounds.extendTop(y - h)
+      this.targetBounds.extendBottom(y + h)
+    }
+    this.targetBounds.setMinSize(16)
+    this.targetBounds.expand(16)
+  }
+
   private makeCardDraggable (object: GameObject, card: ObjectCard) {
     let relX = 0
     let relY = 0
@@ -117,8 +167,10 @@ export default class Inventory extends GameComponent {
       },
       onDrag: (e) => {
         const bbox = this.element.getBoundingClientRect()
-        object.position.x = this.left + (e.clientX - bbox.x) / this.scale - relX
-        object.position.y = this.top + (e.clientY - bbox.y) / this.scale - relY
+        object.position.x = this.bounds.left
+            + (e.clientX - bbox.x) / this.scale - relX
+        object.position.y = this.bounds.top
+            + (e.clientY - bbox.y) / this.scale - relY
         this.updatePositions()
       },
       onUp: () => {
@@ -130,53 +182,92 @@ export default class Inventory extends GameComponent {
   private objectEnter (obj: GameObject) {
     const card = this.makeCard(obj)
     this.cardPhysics.simulate(true)
+    this.animateBounds()
   }
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
     card.remove()
-    this.cardPhysics.simulate(true)
+    this.animateBounds()
   }
 
-  private updatePositions () {
-    let left = Infinity
-    let top = Infinity
-    let right = -Infinity
-    let bottom = -Infinity
-
-    for (const [object, card] of this.objectToCard) {
-      const x = object.position.x
-      const y = object.position.y
-      left = Math.min(left, x - card.element.offsetWidth / 2)
-      top = Math.min(top, y - card.element.offsetHeight / 2)
-      right = Math.max(right, x + card.element.offsetWidth / 2)
-      bottom = Math.max(bottom, y + card.element.offsetHeight / 2)
+  private animateBounds () {
+    if (this.tween) {
+      return
     }
 
-    for (const [object, card] of this.objectToCard) {
-      const tx = object.position.x - left
-      const ty = object.position.y - top
-      card.element.style.transform =
-          `${translate(tx, ty)} translate(-50%, -50%)`
+    this.updateBounds()
+    if (isEqual(this.bounds, this.targetBounds)) {
+      return
     }
 
-    this.element.style.width = numToPx(Math.max(32, right - left))
-    this.element.style.height = numToPx(Math.max(32, bottom - top))
+    const start = copy(this.bounds)
 
-    // dont compare size differences on first update
-    if (this.left !== 0 && this.top !== 0) {
-      const xDiff = (left - this.left + right - this.right) / 2
-      const yDiff = (top - this.top + bottom - this.bottom) / 2
+    this.tween = tween((lerp) => {
+      this.bounds.left = lerp(start.left, this.targetBounds.left)
+      this.bounds.top = lerp(start.top, this.targetBounds.top)
+      this.bounds.right = lerp(start.right, this.targetBounds.right)
+      this.bounds.bottom = lerp(start.bottom, this.targetBounds.bottom)
+      this.updatePositions()
+    }, {
+      duration: duration.slow,
+    })
 
-      if (xDiff !== 0 || yDiff !== 0) {
-        this.onResize?.(xDiff, yDiff)
-      }
+    this.tween.onfinish = () => {
+      this.tween = undefined
     }
+  }
+}
 
-    this.left = left
-    this.right = right
-    this.top = top
-    this.bottom = bottom
+class Bounds {
+  left = 0
+  right = 0
+  top = 0
+  bottom = 0
+
+  reset () {
+    this.left = Infinity
+    this.top = Infinity
+    this.right = -Infinity
+    this.bottom = -Infinity
+  }
+
+  expand (amount: number) {
+    this.left -= amount
+    this.top -= amount
+    this.right += amount
+    this.bottom += amount
+  }
+
+  setMinSize (size: number) {
+    this.left = Math.min(isFinite(this.left) ? this.left : 0, -size)
+    this.top = Math.min(isFinite(this.top) ? this.top : 0, -size)
+    this.right = Math.max(isFinite(this.right) ? this.right : 0, size)
+    this.bottom = Math.max(isFinite(this.bottom) ? this.bottom : 0, size)
+  }
+
+  extendLeft (x: number) {
+    this.left = Math.min(this.left, x)
+  }
+
+  extendTop (y: number) {
+    this.top = Math.min(this.top, y)
+  }
+
+  extendRight (x: number) {
+    this.right = Math.max(this.right, x)
+  }
+
+  extendBottom (y: number) {
+    this.bottom = Math.max(this.bottom, y)
+  }
+
+  width () {
+    return this.right - this.left
+  }
+
+  height () {
+    return this.bottom - this.top
   }
 }
 
@@ -184,8 +275,6 @@ const containerStyle = makeStyle({
   contain: `strict`,
   position: `relative`,
   cursor: `pointer`,
-  borderRadius,
-  boxShadow,
 })
 
 const cardStyle = makeStyle({

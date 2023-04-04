@@ -1,23 +1,41 @@
+export interface Tween {
+  onfinish?: () => void
+}
+
 export default function tween (
-    callback: (t: number) => void, options: KeyframeAnimationOptions) {
+    callback: (lerpProgress: (
+        start: number, end: number) => number, progress: number) => void,
+    options: KeyframeAnimationOptions): Tween {
 
   const duration = Number(options.duration) ?? 1000
+
+  let progress = 0
+
+  function lerpProgress (start: number, end: number) {
+    return start + (end - start) * progress
+  }
+
+  const returnObj: Tween = {}
 
   const start = performance.now()
 
   const tick = () => {
-    const time = performance.now() - start
+    const elapsed = performance.now() - start
 
-    const progress = easeInOutCubic(time / duration)
+    progress = easeInOutCubic(elapsed / duration)
 
-    callback(progress)
+    callback(lerpProgress, progress)
 
-    if (time < duration) {
+    if (elapsed < duration) {
       requestAnimationFrame(tick)
+    } else {
+      returnObj.onfinish?.()
     }
   }
 
   tick()
+
+  return returnObj
 }
 
 function easeInOutCubic (x: number): number {

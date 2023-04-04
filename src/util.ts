@@ -129,7 +129,7 @@ export function isEqual<T extends Record<any, any>> (a: T, b: T): boolean {
 }
 
 export function copy<T> (source: T): T {
-  const copy = Object.create(Object.getPrototypeOf(source))
+  const copy = new (source as any).constructor()
   Object.assign(copy, source)
   return copy
 }

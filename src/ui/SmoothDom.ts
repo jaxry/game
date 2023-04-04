@@ -1,4 +1,4 @@
-import { lerp, numToPx } from '../util'
+import { numToPx } from '../util'
 import { createDiv } from './create'
 import { duration } from './theme'
 import { makeStyle } from './makeStyle'
@@ -21,11 +21,9 @@ export function growDynamic (element: HTMLElement, onFinish?: () => void) {
   const dummy = replaceWithDummy(element)
   const dim = calcFromAndToDimensions(dummy, element)
 
-  tween((t) => {
-    dummy.style.width =
-        numToPx(lerp(0, 1, dim.startWidth, element.offsetWidth, t))
-    dummy.style.height =
-        numToPx(lerp(0, 1, dim.startHeight, element.offsetHeight, t))
+  tween((lerp) => {
+    dummy.style.width = numToPx(lerp(dim.startWidth, element.offsetWidth))
+    dummy.style.height = numToPx(lerp(dim.startHeight, element.offsetHeight))
   }, options)
 
   dummy.animate({

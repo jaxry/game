@@ -15,7 +15,7 @@ import Inventory from './Inventory'
 import { onResize } from '../onResize'
 import { dragAndDropGameObject } from './GameUI'
 import { createDiv } from '../create'
-import { grow, growDynamic, shrink } from '../SmoothDom'
+import { grow, growDynamic, shrink } from '../smoothDom'
 
 export default class ObjectCard extends GameComponent {
   onResized?: (xDiff: number, yDiff: number) => void
@@ -150,6 +150,7 @@ export default class ObjectCard extends GameComponent {
 
 const containerStyle = makeStyle({
   contain: `content`,
+  width: `max-content`, // don't make card scrunch up in small containers
   display: `flex`,
   flexDirection: `column`,
   alignItems: `center`,
