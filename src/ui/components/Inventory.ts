@@ -163,11 +163,14 @@ export default class Inventory extends GameComponent {
     this.element.style.width = numToPx(Math.max(32, right - left))
     this.element.style.height = numToPx(Math.max(32, bottom - top))
 
-    const xDiff = (left - this.left + right - this.right) / 2
-    const yDiff = (top - this.top + bottom - this.bottom) / 2
+    // dont compare size differences on first update
+    if (this.left !== 0 && this.top !== 0) {
+      const xDiff = (left - this.left + right - this.right) / 2
+      const yDiff = (top - this.top + bottom - this.bottom) / 2
 
-    if (xDiff !== 0 || yDiff !== 0) {
-      this.onResize?.(xDiff, yDiff)
+      if (xDiff !== 0 || yDiff !== 0) {
+        this.onResize?.(xDiff, yDiff)
+      }
     }
 
     this.left = left

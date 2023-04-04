@@ -1,39 +1,49 @@
-import { numToPx } from '../util'
+import { lerp, numToPx } from '../util'
 import { createDiv } from './create'
 import { duration } from './theme'
 import { makeStyle } from './makeStyle'
+import tween from './tween'
 
 export function grow (element: HTMLElement) {
   const dummy = replaceWithDummy(element)
-
-  const { parentWidthDiff, parentHeightDiff } = parentDimensionDiff(dummy)
-
-  const width = element.offsetWidth
-  const height = element.offsetHeight
+  const dim = calcFromAndToDimensions(dummy, element)
 
   dummy.animate({
-    width: [numToPx(width - parentWidthDiff), numToPx(width)],
-    height: [numToPx(height - parentHeightDiff), numToPx(height)],
+    width: [numToPx(dim.startWidth), numToPx(dim.endWidth)],
+    height: [numToPx(dim.startHeight), numToPx(dim.endHeight)],
     margin: [`0`, getComputedStyle(element).margin],
   }, options).onfinish = () => {
-    if (element.parentNode === dummy) {
-      dummy.replaceWith(element)
-    }
+    replaceWithOriginal(dummy, element)
   }
 }
 
-export function shrink (element: HTMLElement, onFinish: () => void) {
+export function growDynamic (element: HTMLElement, onFinish?: () => void) {
   const dummy = replaceWithDummy(element)
+  const dim = calcFromAndToDimensions(dummy, element)
 
-  const { parentWidthDiff, parentHeightDiff } = parentDimensionDiff(dummy)
-
-  const width = element.offsetWidth
-  const height = element.offsetHeight
+  tween((t) => {
+    dummy.style.width =
+        numToPx(lerp(0, 1, dim.startWidth, element.offsetWidth, t))
+    dummy.style.height =
+        numToPx(lerp(0, 1, dim.startHeight, element.offsetHeight, t))
+  }, options)
 
   dummy.animate({
-    width: [numToPx(width), numToPx(width - parentWidthDiff)],
-    height: [numToPx(height), numToPx(height - parentHeightDiff)],
-    margin: [getComputedStyle(element).margin, `0`],
+    margin: [`0`, getComputedStyle(element).margin],
+  }, options).onfinish = () => {
+    replaceWithOriginal(dummy, element)
+    onFinish?.()
+  }
+}
+
+export function shrink (element: HTMLElement, onFinish?: () => void) {
+  const dummy = replaceWithDummy(element)
+  const dim = calcFromAndToDimensions(dummy, element)
+
+  dummy.animate({
+    width: [numToPx(dim.endWidth), numToPx(dim.startWidth)],
+    height: [numToPx(dim.endHeight), numToPx(dim.startHeight)],
+    margin: `0`,
   }, options).onfinish = () => {
     onFinish?.()
     dummy.remove()
@@ -47,20 +57,38 @@ function replaceWithDummy (element: Element) {
   return dummy
 }
 
-function parentDimensionDiff (element: HTMLElement) {
-  const parentWidthAfter = element.parentElement!.offsetWidth
-  const parentHeightAfter = element.parentElement!.offsetHeight
+function replaceWithOriginal (dummy: Element, element: Element) {
+  if (element.parentNode === dummy) {
+    dummy.replaceWith(element)
+  } else {
+    dummy.remove()
+  }
+}
 
-  element.style.width = `0`
-  element.style.height = `0`
+function calcFromAndToDimensions (dummy: HTMLElement, element: HTMLElement) {
+  const parentWidthAfter = dummy.parentElement!.offsetWidth
+  const parentHeightAfter = dummy.parentElement!.offsetHeight
 
-  const parentWidthBefore = element.parentElement!.offsetWidth
-  const parentHeightBefore = element.parentElement!.offsetHeight
+  dummy.style.width = `0`
+  dummy.style.height = `0`
+
+  const parentWidthBefore = dummy.parentElement!.offsetWidth
+  const parentHeightBefore = dummy.parentElement!.offsetHeight
 
   const parentWidthDiff = parentWidthAfter - parentWidthBefore
   const parentHeightDiff = parentHeightAfter - parentHeightBefore
 
-  return { parentWidthDiff, parentHeightDiff }
+  const width = element.offsetWidth
+  const height = element.offsetHeight
+
+  return {
+    // starting width/height is the size of the child that
+    // doesn't change the parent container's size
+    startWidth: width - parentWidthDiff,
+    startHeight: height - parentHeightDiff,
+    endWidth: width,
+    endHeight: height,
+  }
 }
 
 const options: KeyframeAnimationOptions = {

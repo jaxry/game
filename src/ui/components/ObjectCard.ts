@@ -15,7 +15,7 @@ import Inventory from './Inventory'
 import { onResize } from '../onResize'
 import { dragAndDropGameObject } from './GameUI'
 import { createDiv } from '../create'
-import { grow, shrink } from '../SmoothDom'
+import { grow, growDynamic, shrink } from '../SmoothDom'
 
 export default class ObjectCard extends GameComponent {
   onResized?: (xDiff: number, yDiff: number) => void
@@ -96,12 +96,19 @@ export default class ObjectCard extends GameComponent {
     dragAndDropGameObject.drag(grab, this.object, this.name)
 
     this.addInventory()
+
+    growDynamic(this.expandedContainer)
   }
 
   close () {
-    this.removeInventory()
-    this.expandedContainer?.remove()
-    this.expandedContainer = undefined
+    if (!this.expandedContainer) {
+      return
+    }
+    shrink(this.expandedContainer, () => {
+      this.removeInventory()
+      this.expandedContainer?.remove()
+      this.expandedContainer = undefined
+    })
   }
 
   private addInventory () {
@@ -110,9 +117,8 @@ export default class ObjectCard extends GameComponent {
     }
     this.inventory =
         this.newComponent(this.expandedContainer!, Inventory, this.object)
-    requestAnimationFrame(() => {
-      this.inventory!.onResize = this.onResized
-    })
+
+    this.inventory!.onResize = this.onResized
   }
 
   private removeInventory () {
@@ -122,6 +128,7 @@ export default class ObjectCard extends GameComponent {
 
   private setAction (action: Action) {
     this.clearAction()
+
     const component = this.newComponent(this.element, ActionComponent, action)
     this.action = component
 

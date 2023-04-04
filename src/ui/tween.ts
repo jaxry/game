@@ -1,6 +1,5 @@
-export default function animateManual (
-    element: HTMLElement, callback: (t: number) => void,
-    options: KeyframeAnimationOptions) {
+export default function tween (
+    callback: (t: number) => void, options: KeyframeAnimationOptions) {
 
   const duration = Number(options.duration) ?? 1000
 
