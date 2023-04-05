@@ -31,6 +31,36 @@ export default class Inventory extends GameComponent {
 
   private tween?: Tween
 
+  private updatePositions = throttle(() => {
+    this.updateBounds()
+
+    if (!this.tween) {
+      Object.assign(this.bounds, this.targetBounds)
+    }
+
+    const xDiff = (this.bounds.left - this.lastBounds.left
+        + this.bounds.right - this.lastBounds.right) / 2
+    const yDiff = (this.bounds.top - this.lastBounds.top
+        + this.bounds.bottom - this.lastBounds.bottom) / 2
+    const firstRender = this.lastBounds.left === 0
+
+    if ((xDiff !== 0 || yDiff !== 0) && !firstRender) {
+      this.onResize?.(xDiff, yDiff)
+    }
+
+    Object.assign(this.lastBounds, this.bounds)
+
+    this.element.style.width = numToPx(this.bounds.width())
+    this.element.style.height = numToPx(this.bounds.height())
+
+    for (const [object, card] of this.objectToCard) {
+      const tx = object.position.x - this.bounds.left
+      const ty = object.position.y - this.bounds.top
+      card.element.style.transform =
+          `${translate(tx, ty)} translate(-50%, -50%)`
+    }
+  })
+
   constructor (public container: GameObject) {
     super()
 
@@ -69,28 +99,28 @@ export default class Inventory extends GameComponent {
 
     if (this.container.contains) {
       for (const obj of this.container.contains) {
-        this.makeCard(obj)
+        this.makeCard(obj, true)
       }
     }
 
     this.cardPhysics.simulate(true, true)
+
+    // If component is removed, prevent onResize from being called
+    // in a later animation frame
+    this.onRemove(() => {
+      this.onResize = undefined
+    })
   }
 
-  private get scale () {
-    // If map is zoomed out, the zone is scaled down via transform.
-    // Element.boundingClientRect() calculations need that scale applied
-    return this.element.getBoundingClientRect().width
-        / this.element.offsetWidth
-  }
+  private makeCard (object: GameObject, init?: boolean) {
+    if (!init || object.position.x === 0 || object.position.y === 0) {
+      const { x, y } = this.averageCardPosition()
+      object.position.x = x + (Math.random() - 0.5)
+      object.position.y = y + (Math.random() - 0.5)
+    }
 
-  private makeCard (object: GameObject) {
     const card = makeOrGet(this.objectToCard, object, () =>
         this.newComponent(this.element, ObjectCard, object))
-
-    const { x, y } = this.averageCardPosition()
-
-    object.position.x = x + (Math.random() - 0.5)
-    object.position.y = y + (Math.random() - 0.5)
 
     card.element.classList.add(cardStyle)
 
@@ -103,83 +133,6 @@ export default class Inventory extends GameComponent {
     this.makeCardDraggable(object, card)
 
     return card
-  }
-
-  updatePositions = throttle(() => {
-    this.updateBounds()
-
-    if (!this.tween) {
-      Object.assign(this.bounds, this.targetBounds)
-    }
-
-    const xDiff = (this.bounds.left - this.lastBounds.left
-        + this.bounds.right - this.lastBounds.right) / 2
-    const yDiff = (this.bounds.top - this.lastBounds.top
-        + this.bounds.bottom - this.lastBounds.bottom) / 2
-    const firstRender = this.lastBounds.left === 0
-
-    if ((xDiff !== 0 || yDiff !== 0) && !firstRender) {
-      this.onResize?.(xDiff, yDiff)
-    }
-
-    Object.assign(this.lastBounds, this.bounds)
-
-    this.element.style.width = numToPx(this.bounds.width())
-    this.element.style.height = numToPx(this.bounds.height())
-
-    for (const [object, card] of this.objectToCard) {
-      const tx = object.position.x - this.bounds.left
-      const ty = object.position.y - this.bounds.top
-      card.element.style.transform =
-          `${translate(tx, ty)} translate(-50%, -50%)`
-    }
-  })
-
-  private updateBounds () {
-    this.targetBounds.reset()
-
-    for (const [object, card] of this.objectToCard) {
-      const x = object.position.x
-      const y = object.position.y
-      const w = card.element.offsetWidth / 2
-      const h = card.element.offsetHeight / 2
-      this.targetBounds.extendLeft(x - w)
-      this.targetBounds.extendRight(x + w)
-      this.targetBounds.extendTop(y - h)
-      this.targetBounds.extendBottom(y + h)
-    }
-    this.targetBounds.setMinSize(16)
-    this.targetBounds.expand(16)
-  }
-
-  private makeCardDraggable (object: GameObject, card: ObjectCard) {
-    let relX = 0
-    let relY = 0
-
-    makeDraggable(card.element, {
-      onDown: (e) => {
-        const { left, top, width, height }
-            = card.element.getBoundingClientRect()
-
-        relX = (e.clientX - left - width / 2) / this.scale
-        relY = (e.clientY - top - height / 2) / this.scale
-
-        this.cardPhysics.ignore(object)
-
-        moveToTop(card.element)
-      },
-      onDrag: (e) => {
-        const bbox = this.element.getBoundingClientRect()
-        object.position.x = this.bounds.left
-            + (e.clientX - bbox.x) / this.scale - relX
-        object.position.y = this.bounds.top
-            + (e.clientY - bbox.y) / this.scale - relY
-        this.updatePositions()
-      },
-      onUp: () => {
-        this.cardPhysics.unignore(object)
-      },
-    })
   }
 
   private objectEnter (obj: GameObject) {
@@ -197,7 +150,6 @@ export default class Inventory extends GameComponent {
     })
   }
 
-
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
 
@@ -213,6 +165,53 @@ export default class Inventory extends GameComponent {
     }).onfinish = () => {
       card.remove()
     }
+  }
+
+  private makeCardDraggable (object: GameObject, card: ObjectCard) {
+    let relX = 0
+    let relY = 0
+
+    makeDraggable(card.element, {
+      onDown: (e) => {
+        const { left, top, width, height }
+            = card.element.getBoundingClientRect()
+
+        relX = (e.clientX - left - width / 2) / this.scale()
+        relY = (e.clientY - top - height / 2) / this.scale()
+
+        this.cardPhysics.ignore(object)
+
+        moveToTop(card.element)
+      },
+      onDrag: (e) => {
+        const bbox = this.element.getBoundingClientRect()
+        object.position.x = this.bounds.left
+            + (e.clientX - bbox.x) / this.scale() - relX
+        object.position.y = this.bounds.top
+            + (e.clientY - bbox.y) / this.scale() - relY
+        this.updatePositions()
+      },
+      onUp: () => {
+        this.cardPhysics.unignore(object)
+      },
+    })
+  }
+
+  private updateBounds () {
+    this.targetBounds.reset()
+
+    for (const [object, card] of this.objectToCard) {
+      const x = object.position.x
+      const y = object.position.y
+      const w = card.element.offsetWidth / 2
+      const h = card.element.offsetHeight / 2
+      this.targetBounds.extendLeft(x - w)
+      this.targetBounds.extendRight(x + w)
+      this.targetBounds.extendTop(y - h)
+      this.targetBounds.extendBottom(y + h)
+    }
+    this.targetBounds.setMinSize(16)
+    this.targetBounds.expand(16)
   }
 
   private animateBounds () {
@@ -249,9 +248,16 @@ export default class Inventory extends GameComponent {
       x += object.position.x
       y += object.position.y
     }
-    x /= this.objectToCard.size
-    y /= this.objectToCard.size
+    x /= this.objectToCard.size || 1
+    y /= this.objectToCard.size || 1
     return { x, y }
+  }
+
+  private scale () {
+    // If map is zoomed out, the zone is scaled down via transform.
+    // Element.boundingClientRect() calculations need that scale applied
+    return this.element.getBoundingClientRect().width
+        / this.element.offsetWidth
   }
 }
 
