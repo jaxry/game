@@ -20,7 +20,6 @@ export default class Inventory extends GameComponent {
   onResize?: (xDiff: number, yDiff: number) => void
 
   private objectToCard = new Map<GameObject, ObjectCard>()
-  private cardToObject = new WeakMap<ObjectCard, GameObject>()
 
   private cardPhysics = new CardPhysics(this.objectToCard, () => {
     this.updatePositions()
@@ -95,7 +94,6 @@ export default class Inventory extends GameComponent {
       object.position.y += yDiff
       this.cardPhysics.simulate()
     }
-    this.cardToObject.set(card, object)
 
     this.makeCardDraggable(object, card)
 

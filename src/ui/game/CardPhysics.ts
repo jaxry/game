@@ -1,4 +1,3 @@
-import ElapsedTime from '../../ElapsedTime'
 import GameObject from '../../GameObject'
 import Component from '../components/Component'
 import { clamp, deleteElemFn } from '../../util'
@@ -13,8 +12,10 @@ const attractionDistance = 16
 
 export default class CardPhysics {
   private animationId = 0
-  private elapsedTime = new ElapsedTime()
+  private lastTime = 0
+  private inactiveTime = 0
   private repelFromCenter: boolean
+  private shouldRebuild = false
 
   private objects: GameObject[] = []
   private elements: Element[] = []
@@ -32,18 +33,19 @@ export default class CardPhysics {
 
   // Providing a new objectToCard updates the list of cards to simulate
   simulate (rebuild = false, repelFromCenter = false) {
+    // card was added or removed and arrays need to be rebuilt next tick
     if (rebuild) {
-      // Objects might be added or removed since last simulation
-      this.rebuild()
-    } else if (this.animationId) {
+      this.shouldRebuild = true
+    }
+
+    if (this.animationId) {
       // Current simulation already running, nothing has changed.
       // Keep the value from repelFromCenter as is.
       return
     }
 
-    cancelAnimationFrame(this.animationId)
+    this.lastTime = performance.now()
     this.repelFromCenter = repelFromCenter
-    this.elapsedTime.restart()
     this.animationId = requestAnimationFrame(this.tick)
   }
 
@@ -76,8 +78,16 @@ export default class CardPhysics {
     this.simulate()
   }
 
-  private tick = () => {
-    const elapsed = Math.min(30, this.elapsedTime.elapsedFromLast())
+  private tick = (time: number) => {
+    if (this.shouldRebuild) {
+      this.rebuild()
+      this.shouldRebuild = false
+    }
+
+    const elapsed = time - this.lastTime
+    this.lastTime = time
+    this.inactiveTime += elapsed
+
     const elapsed2 = elapsed * elapsed
 
     this.computeBoundingBoxes()
@@ -100,9 +110,9 @@ export default class CardPhysics {
     this.onUpdate()
 
     if (repeat) {
-      this.elapsedTime.restart()
+      this.inactiveTime = 0
       this.animationId = requestAnimationFrame(this.tick)
-    } else if (this.elapsedTime.total() < minSimulationTime) {
+    } else if (this.inactiveTime < minSimulationTime) {
       this.animationId = requestAnimationFrame(this.tick)
     } else {
       this.animationId = 0

@@ -1,5 +1,3 @@
-import throttle from './throttle'
-
 let isDragging = false
 let childDrag = false
 
@@ -41,7 +39,7 @@ export default function makeDraggable (
     }, { once: true, signal })
 
     if (options.onDrag) {
-      document.body.addEventListener('mousemove', throttle((e: MouseEvent) => {
+      document.body.addEventListener('mousemove', (e: MouseEvent) => {
         // Throttle the mousemove event to the browser's requestAnimationFrame,
         // otherwise event gets triggered way more than necessary.
         // move() might be called after mouse up due to throttling.
@@ -51,7 +49,7 @@ export default function makeDraggable (
         }
         const { relative, difference } = calcPositionChange(e)
         options.onDrag!(e, relative, difference)
-      }), { signal })
+      }, { signal })
     }
 
     if (options.onOver) {
