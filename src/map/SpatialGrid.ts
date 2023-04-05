@@ -1,5 +1,5 @@
 import { makeOrGet } from '../util'
-import Position from '../Position'
+import Point from '../Point'
 
 export default class SpatialGrid<T> {
   grid = new Map<number, T[]>()
@@ -7,7 +7,7 @@ export default class SpatialGrid<T> {
   constructor (public cellSize: number) {
   }
 
-  add (position: Position, item: T) {
+  add (position: Point, item: T) {
     const items = makeOrGet(this.grid,
         szudzikPairSigned(
             Math.floor(position.x / this.cellSize),
@@ -17,7 +17,7 @@ export default class SpatialGrid<T> {
     items.push(item)
   }
 
-  get (position: Position, offsetX = 0, offsetY = 0) {
+  get (position: Point, offsetX = 0, offsetY = 0) {
     return this.grid.get(szudzikPairSigned(
         Math.floor(position.x / this.cellSize + offsetX),
         Math.floor(position.y / this.cellSize + offsetY)))

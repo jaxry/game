@@ -1,12 +1,12 @@
 import GameObject from '../GameObject'
 import type GameObjectType from '../GameObjectType'
 import { putInsideContainer } from './container'
-import Position from '../Position'
+import Point from '../Point'
 
 export function spawn (type: GameObjectType, container?: GameObject) {
   const object = new GameObject(type)
 
-  object.position = new Position()
+  object.position = new Point()
 
   if (type.health) {
     object.health = type.health

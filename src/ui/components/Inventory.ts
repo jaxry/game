@@ -89,8 +89,8 @@ export default class Inventory extends GameComponent {
 
     const { x, y } = this.averageCardPosition()
 
-    object.position.x = x + 64 * (Math.random() - 0.5)
-    object.position.y = y + 64 * (Math.random() - 0.5)
+    object.position.x = x + (Math.random() - 0.5)
+    object.position.y = y + (Math.random() - 0.5)
 
     card.element.classList.add(cardStyle)
 

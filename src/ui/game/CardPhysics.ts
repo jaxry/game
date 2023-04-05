@@ -1,6 +1,7 @@
 import GameObject from '../../GameObject'
 import Component from '../components/Component'
 import { clamp, deleteElemFn } from '../../util'
+import Point from '../../Point'
 
 const velocityDecay = 0.995
 const minVelocityBeforeStop = 1e-4
@@ -17,8 +18,8 @@ export default class CardPhysics {
   private repelFromCenter: boolean
   private shouldRebuild = false
 
-  private objects: GameObject[] = []
-  private elements: Element[] = []
+  private positions: Point[] = []
+  private elements: HTMLElement[] = []
   private boundingBoxes: DOMRect[] = []
 
   private attractions: [GameObject, GameObject][] = []
@@ -93,18 +94,17 @@ export default class CardPhysics {
 
     this.repelFromCenter || this.attractions.length ?
         repelOverlappingFromCenters(
-            this.objects, this.boundingBoxes, elapsed2) :
+            this.positions, this.boundingBoxes, elapsed2) :
         repelOverlapping(
-            this.objects, this.boundingBoxes, elapsed2)
+            this.positions, this.boundingBoxes, elapsed2)
 
     for (const [a, b] of this.attractions) {
-      attract(
-          a, this.objectToCard.get(a)!.element.getBoundingClientRect(),
-          b, this.objectToCard.get(b)!.element.getBoundingClientRect(),
-          elapsed2)
+      const r1 = rectFromPosition(a.position, this.objectToCard.get(a)!.element)
+      const r2 = rectFromPosition(b.position, this.objectToCard.get(b)!.element)
+      attract(a.position, r1, b.position, r2, elapsed2)
     }
 
-    const repeat = applyVelocity(this.objects, elapsed)
+    const repeat = applyVelocity(this.positions, elapsed)
 
     this.onUpdate()
 
@@ -115,19 +115,20 @@ export default class CardPhysics {
       this.animationId = requestAnimationFrame(this.tick)
     } else {
       this.animationId = 0
-      freezeAll(this.objects)
+      freezeAll(this.positions)
     }
   }
 
   // caching bounding boxes improves performance by ~2x
   private computeBoundingBoxes () {
-    for (let i = 0; i < this.elements.length; i++) {
-      this.boundingBoxes[i] = this.elements[i].getBoundingClientRect()
+    for (let i = 0; i < this.positions.length; i++) {
+      this.boundingBoxes[i] = rectFromPosition(
+          this.positions[i], this.elements[i])
     }
   }
 
   private rebuild () {
-    this.objects.length = 0
+    this.positions.length = 0
     this.elements.length = 0
 
     for (const [object, card] of this.objectToCard) {
@@ -135,7 +136,7 @@ export default class CardPhysics {
         continue
       }
 
-      this.objects.push(object)
+      this.positions.push(object.position)
       this.elements.push(card.element)
     }
 
@@ -145,45 +146,43 @@ export default class CardPhysics {
 }
 
 function repelOverlappingFromCenters (
-    objects: GameObject[], bBoxes: DOMRect[],
-    elapsed: number) {
-  for (let i = 0; i < objects.length; i++) {
+    positions: Point[], bBoxes: DOMRect[], elapsed: number) {
+  for (let i = 0; i < positions.length; i++) {
 
-    for (let j = i + 1; j < objects.length; j++) {
+    for (let j = i + 1; j < positions.length; j++) {
 
       const aBBox = bBoxes[i]
       const bBBox = bBoxes[j]
 
       if (intersects(aBBox, bBBox)) {
-        const a = objects[i]
-        const b = objects[j]
+        const a = positions[i]
+        const b = positions[j]
 
-        const dx = a.position.x - b.position.x
-        const dy = a.position.y - b.position.y
+        const dx = a.x - b.x
+        const dy = a.y - b.y
         const d = Math.sqrt(dx * dx + dy * dy)
         const f = repelForce * elapsed / d
-        a.position.vx += f * dx
-        a.position.vy += f * dy
-        b.position.vx -= f * dx
-        b.position.vy -= f * dy
+        a.vx += f * dx
+        a.vy += f * dy
+        b.vx -= f * dx
+        b.vy -= f * dy
       }
     }
   }
 }
 
 function repelOverlapping (
-    objects: GameObject[], bBoxes: DOMRect[],
-    elapsed: number) {
-  for (let i = 0; i < objects.length; i++) {
+    positions: Point[], bBoxes: DOMRect[], elapsed: number) {
+  for (let i = 0; i < positions.length; i++) {
 
-    for (let j = i + 1; j < objects.length; j++) {
+    for (let j = i + 1; j < positions.length; j++) {
 
       const aBBox = bBoxes[i]
       const bBBox = bBoxes[j]
 
       if (intersects(aBBox, bBBox)) {
-        const a = objects[i]
-        const b = objects[j]
+        const a = positions[i]
+        const b = positions[j]
 
         const { dx, dy } = rectDistance(a, aBBox, b, bBBox)
 
@@ -191,13 +190,13 @@ function repelOverlapping (
 
         // Move card to the closest edge to minimize distance traveled
         if (dx > dy) {
-          f *= Math.sign(a.position.x - b.position.x)
-          a.position.vx += f
-          b.position.vx -= f
+          f *= Math.sign(a.x - b.x)
+          a.vx += f
+          b.vx -= f
         } else {
-          f *= Math.sign(a.position.y - b.position.y)
-          a.position.vy += f
-          b.position.vy -= f
+          f *= Math.sign(a.y - b.y)
+          a.vy += f
+          b.vy -= f
         }
       }
     }
@@ -205,34 +204,32 @@ function repelOverlapping (
 }
 
 function attract (
-    a: GameObject, aBBox: DOMRect, b: GameObject, bBBox: DOMRect,
-    elapsed: number) {
+    a: Point, aBBox: DOMRect, b: Point, bBBox: DOMRect, elapsed: number) {
 
   const { dx, dy } = rectDistance(a, aBBox, b, bBBox)
   const dist = Math.max(dx, dy)
   const spring = clamp(-1, 1, (dist - attractionDistance) / attractionDistance)
   let f = attractionForce * spring * elapsed
   if (dx > dy) {
-    f *= Math.sign(a.position.x - b.position.x)
-    a.position.vx -= f
-    b.position.vx += f
+    f *= Math.sign(a.x - b.x)
+    a.vx -= f
+    b.vx += f
   } else {
-    f *= Math.sign(a.position.y - b.position.y)
-    a.position.vy -= f
-    b.position.vy += f
+    f *= Math.sign(a.y - b.y)
+    a.vy -= f
+    b.vy += f
   }
 }
 
-function applyVelocity (objects: GameObject[], elapsed: number) {
+function applyVelocity (positions: Point[], elapsed: number) {
   let repeat = false
 
-  for (const object of objects) {
-    object.position.vx *= velocityDecay ** elapsed
-    object.position.vy *= velocityDecay ** elapsed
-    object.position.x += object.position.vx
-    object.position.y += object.position.vy
-    const magnitude2 = object.position.vx * object.position.vx
-        + object.position.vy * object.position.vy
+  for (const p of positions) {
+    p.vx *= velocityDecay ** elapsed
+    p.vy *= velocityDecay ** elapsed
+    p.x += p.vx
+    p.y += p.vy
+    const magnitude2 = p.vx * p.vx + p.vy * p.vy
     if (magnitude2 > minVelocityBeforeStop) {
       repeat = true
     }
@@ -240,10 +237,10 @@ function applyVelocity (objects: GameObject[], elapsed: number) {
   return repeat
 }
 
-function freezeAll (objects: GameObject[]) {
-  for (const object of objects) {
-    object.position.vx = 0
-    object.position.vy = 0
+function freezeAll (positions: Point[]) {
+  for (const p of positions) {
+    p.vx = 0
+    p.vy = 0
   }
 }
 
@@ -254,14 +251,17 @@ function intersects (a: DOMRect, b: DOMRect) {
       b.top < a.bottom
 }
 
-function rectDistance (
-    o1: GameObject, o1BBox: DOMRect,
-    o2: GameObject, o2BBox: DOMRect) {
+function rectDistance (a: Point, aRect: DOMRect, b: Point, bRect: DOMRect) {
   return {
-    dx: Math.abs(o1.position.x - o2.position.x)
-        - (o1BBox.width + o2BBox.width) / 2,
-    dy: Math.abs(o1.position.y - o2.position.y)
-        - (o1BBox.height + o2BBox.height) / 2,
+    dx: Math.abs(a.x - b.x) - (aRect.width + bRect.width) / 2,
+    dy: Math.abs(a.y - b.y) - (aRect.height + bRect.height) / 2,
   }
 }
 
+// This method ignores transform scaling on an element,
+// unlike getBoundingClientRect
+function rectFromPosition (position: Point, element: HTMLElement) {
+  const w = element.offsetWidth
+  const h = element.offsetHeight
+  return new DOMRect(position.x - w / 2, position.y - h / 2, w, h)
+}
