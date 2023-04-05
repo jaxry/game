@@ -31,34 +31,14 @@ export default class CardPhysics {
 
   }
 
-  // Providing a new objectToCard updates the list of cards to simulate
-  simulate (rebuild = false, repelFromCenter = false) {
-    // card was added or removed and arrays need to be rebuilt next tick
-    if (rebuild) {
-      this.shouldRebuild = true
-    }
-
-    if (this.animationId) {
-      // Current simulation already running, nothing has changed.
-      // Keep the value from repelFromCenter as is.
-      return
-    }
-
-    this.lastTime = performance.now()
-    this.repelFromCenter = repelFromCenter
-    this.animationId = requestAnimationFrame(this.tick)
-  }
-
   ignore (object: GameObject) {
     this.ignoring.add(object)
-    this.rebuild()
-    this.simulate()
+    this.simulate(true)
   }
 
   unignore (object: GameObject) {
     this.ignoring.delete(object)
-    this.rebuild()
-    this.simulate()
+    this.simulate(true)
   }
 
   attract (obj1: GameObject, obj2: GameObject) {
@@ -78,13 +58,32 @@ export default class CardPhysics {
     this.simulate()
   }
 
-  private tick = (time: number) => {
+  // Providing a new objectToCard updates the list of cards to simulate
+  simulate (rebuild = false, repelFromCenter = false) {
+    // card was added or removed and arrays need to be rebuilt next tick
+    if (rebuild) {
+      this.shouldRebuild = true
+    }
+
+    if (this.animationId) {
+      // Current simulation already running, nothing has changed.
+      // Keep the value from repelFromCenter as is.
+      return
+    }
+
+    this.lastTime = 0
+    this.repelFromCenter = repelFromCenter
+    this.animationId = requestAnimationFrame(this.tick)
+  }
+
+  private tick = () => {
     if (this.shouldRebuild) {
       this.rebuild()
       this.shouldRebuild = false
     }
 
-    const elapsed = time - this.lastTime
+    const time = performance.now()
+    const elapsed = this.lastTime === 0 ? 16 : time - this.lastTime
     this.lastTime = time
     this.inactiveTime += elapsed
 
@@ -265,3 +264,4 @@ function rectDistance (
         - (o1BBox.height + o2BBox.height) / 2,
   }
 }
+

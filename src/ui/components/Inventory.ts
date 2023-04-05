@@ -87,6 +87,11 @@ export default class Inventory extends GameComponent {
     const card = makeOrGet(this.objectToCard, object, () =>
         this.newComponent(this.element, ObjectCard, object))
 
+    const { x, y } = this.averageCardPosition()
+
+    object.position.x = x + 64 * (Math.random() - 0.5)
+    object.position.y = y + 64 * (Math.random() - 0.5)
+
     card.element.classList.add(cardStyle)
 
     card.onResized = (xDiff, yDiff) => {
@@ -179,14 +184,35 @@ export default class Inventory extends GameComponent {
 
   private objectEnter (obj: GameObject) {
     const card = this.makeCard(obj)
+
     this.cardPhysics.simulate(true)
     this.animateBounds()
+
+    card.element.animate({
+      transform: [`scale(0)`, `scale(1)`],
+    }, {
+      duration: duration.normal,
+      composite: `add`,
+      easing: `ease-out`,
+    })
   }
+
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
-    card.remove()
+
+    this.cardPhysics.simulate(true)
     this.animateBounds()
+
+    card.element.animate({
+      transform: `scale(0)`,
+    }, {
+      duration: duration.normal,
+      composite: `add`,
+      easing: `ease-in`,
+    }).onfinish = () => {
+      card.remove()
+    }
   }
 
   private animateBounds () {
@@ -214,6 +240,18 @@ export default class Inventory extends GameComponent {
     this.tween.onfinish = () => {
       this.tween = undefined
     }
+  }
+
+  private averageCardPosition () {
+    let x = 0
+    let y = 0
+    for (const object of this.objectToCard.keys()) {
+      x += object.position.x
+      y += object.position.y
+    }
+    x /= this.objectToCard.size
+    y /= this.objectToCard.size
+    return { x, y }
   }
 }
 
