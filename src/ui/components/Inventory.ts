@@ -20,17 +20,10 @@ export default class Inventory extends GameComponent {
   onResize?: (xDiff: number, yDiff: number) => void
 
   private objectToCard = new Map<GameObject, ObjectCard>()
-
-  private cardPhysics = new CardPhysics(this.objectToCard, () => {
-    this.updatePositions()
-  })
-
   private bounds = new Bounds()
   private lastBounds = new Bounds()
   private targetBounds = new Bounds()
-
   private tween?: Tween
-
   private updatePositions = throttle(() => {
     this.updateBounds()
 
@@ -59,6 +52,9 @@ export default class Inventory extends GameComponent {
       card.element.style.transform =
           `${translate(tx, ty)} translate(-50%, -50%)`
     }
+  })
+  private cardPhysics = new CardPhysics(this.objectToCard, () => {
+    this.updatePositions()
   })
 
   constructor (public container: GameObject) {
