@@ -1,4 +1,4 @@
-export default class Position {
+export default class Point {
   vx = 0
   vy = 0
 

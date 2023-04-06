@@ -38,7 +38,17 @@ export function shuffleArray<T> (array: T[]) {
 }
 
 export function deleteElem<T> (array: T[], elem: T) {
-  array.splice(array.indexOf(elem), 1)
+  const index = array.indexOf(elem)
+  if (index >= 0) {
+    array.splice(index, 1)
+  }
+}
+
+export function deleteElemFn<T> (array: T[], fn: (elem: T) => boolean) {
+  const index = array.findIndex(fn)
+  if (index >= 0) {
+    array.splice(index, 1)
+  }
 }
 
 // ---------------
@@ -91,7 +101,9 @@ export function getAndDelete<T, U> (map: Map<T, U>, key: T): U | undefined {
   return value
 }
 
-export function makeOrGet<T, U> (map: Map<T, U>, key: T, makeFn: () => U) {
+export function makeOrGet<T, U> (
+    map: T extends object ? WeakMap<T, U> : Map<T, U>,
+    key: T, makeFn: () => U): U {
   if (!map.has(key)) {
     map.set(key, makeFn())
   }
@@ -117,7 +129,7 @@ export function isEqual<T extends Record<any, any>> (a: T, b: T): boolean {
 }
 
 export function copy<T> (source: T): T {
-  const copy = Object.create(Object.getPrototypeOf(source))
+  const copy = new (source as any).constructor()
   Object.assign(copy, source)
   return copy
 }
@@ -137,8 +149,14 @@ export function* iterChildren (node: Element) {
   }
 }
 
+let lastZIndex = 0
+
+export function moveToTop (node: HTMLElement) {
+  node.style.zIndex = (++lastZIndex).toString()
+}
+
 export function numToPixel (num: number) {
-  return Math.round(num).toString()
+  return num.toFixed(3)
 }
 
 export function numToPx (num: number) {

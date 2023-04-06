@@ -1,12 +1,5 @@
-import throttle from './throttle'
-
-interface OnDrag {
-  (
-      e: MouseEvent,
-      mouseRelative: { x: number, y: number },
-      mouseDifference: { x: number, y: number },
-  ): void
-}
+let isDragging = false
+let childDrag = false
 
 export default function makeDraggable (
     element: Element,
@@ -14,82 +7,61 @@ export default function makeDraggable (
       onDrag?: OnDrag,
 
       // if returns false, drag is aborted
-      // if returns callback, this callback will be used instead of options.onDrag
-      // otherwise, options.onDrag will be the drag callback
-      onDown?: (e: MouseEvent) => boolean | OnDrag | void,
+      onDown?: (e: MouseEvent) => boolean | void,
 
       onOver?: (e: MouseEvent) => void,
-      onUp?: (e: MouseEvent) => void,
+      onUp?: OnDrag,
 
       startEnabled?: MouseEvent
     }) {
 
-  let startX = 0
-  let startY = 0
-
-  let lastX = 0
-  let lastY = 0
-
-  let onDrag: OnDrag | undefined
-
   function down (e: MouseEvent) {
+    if (childDrag) {
+      return
+    }
+
     const returned = options.onDown?.(e)
+
     if (returned === false) {
       return
-    } else if (returned instanceof Function) {
-      onDrag = returned
-    } else if (options.onDrag) {
-      onDrag = options.onDrag
-    } else if (!options.onOver) {
-      return
     }
 
-    e.preventDefault()
-    e.stopPropagation()
+    childDrag = true
+    isDragging = false
 
-    if (onDrag) {
-      startX = e.clientX
-      startY = e.clientY
-      lastX = e.clientX
-      lastY = e.clientY
-      document.body.addEventListener('mousemove', move)
-    }
-    if (options.onOver) {
-      document.body.addEventListener('mouseover', options.onOver)
-    }
+    initPositions(e)
 
-    window.addEventListener('mouseup', up, { once: true })
-  }
+    const controller = new AbortController()
+    const signal = controller.signal
 
-  // throttle the mousemove event to the browser's requestAnimationFrame
-  // otherwise event gets triggered way more than necessary
-  const move = throttle((e: MouseEvent) => {
-    if (!onDrag) {
-      return
-    }
-    const relative = {
-      x: e.clientX - startX,
-      y: e.clientY - startY,
-    }
-    const difference = {
-      x: e.clientX - lastX,
-      y: e.clientY - lastY,
-    }
-    lastX = e.clientX
-    lastY = e.clientY
-    onDrag(e, relative, difference)
-  })
+    document.body.addEventListener('mousemove', () => {
+      isDragging = true
+    }, { once: true, signal })
 
-  function up (e: MouseEvent) {
-    document.body.removeEventListener('mousemove', move)
+    if (options.onDrag) {
+      document.body.addEventListener('mousemove', (e: MouseEvent) => {
+        // Throttle the mousemove event to the browser's requestAnimationFrame,
+        // otherwise event gets triggered way more than necessary.
+        // move() might be called after mouse up due to throttling.
+        // return if this is the case
+        if (!isDragging) {
+          return
+        }
+        const { relative, difference } = calcPositionChange(e)
+        options.onDrag!(e, relative, difference)
+      }, { signal })
+    }
 
     if (options.onOver) {
-      document.body.removeEventListener('mouseover', options.onOver)
+      document.body.addEventListener('mouseover', options.onOver, { signal })
     }
 
-    options.onUp?.(e)
-
-    onDrag = undefined
+    window.addEventListener('mouseup', (e) => {
+      const { relative, difference } = calcPositionChange(e)
+      options.onUp?.(e, relative, difference)
+      childDrag = false
+      controller.abort()
+    }, { once: true })
   }
 
   (element as HTMLElement).addEventListener('mousedown', down)
@@ -102,4 +74,47 @@ export default function makeDraggable (
   return () => {
     (element as HTMLElement).removeEventListener('mousedown', down)
   }
+}
+
+export function onClickNotDrag (
+    element: HTMLElement, handler: (e: MouseEvent) => void) {
+  element.addEventListener('click', (e) => {
+    if (!isDragging) {
+      handler(e)
+    }
+  })
+}
+
+interface OnDrag {
+  (
+      e: MouseEvent,
+      mouseRelative: { x: number, y: number },
+      mouseDifference: { x: number, y: number },
+  ): void
+}
+
+let startX = 0
+let startY = 0
+let lastX = 0
+let lastY = 0
+
+function initPositions (e: MouseEvent) {
+  startX = e.clientX
+  startY = e.clientY
+  lastX = e.clientX
+  lastY = e.clientY
+}
+
+function calcPositionChange (e: MouseEvent) {
+  const relative = {
+    x: e.clientX - startX,
+    y: e.clientY - startY,
+  }
+  const difference = {
+    x: e.clientX - lastX,
+    y: e.clientY - lastY,
+  }
+  lastX = e.clientX
+  lastY = e.clientY
+  return { relative, difference }
 }

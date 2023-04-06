@@ -9,7 +9,7 @@ export default class TransferAction extends Action {
 
   constructor (
       object: GameObject, override target: GameObject,
-      public destination: GameObject, public spot?: number) {
+      public destination: GameObject) {
     super(object)
   }
 
@@ -18,7 +18,7 @@ export default class TransferAction extends Action {
   }
 
   override condition () {
-    // moving to a different spot
+    // moving to a different container
     return this.target.container !== this.destination &&
 
         // not moving target to an item it contains
@@ -32,7 +32,7 @@ export default class TransferAction extends Action {
   }
 
   override do () {
-    putInsideContainer(this.destination, this.target, this.spot)
+    putInsideContainer(this.destination, this.target)
   }
 }
 serializable(TransferAction)

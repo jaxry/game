@@ -4,22 +4,22 @@ import SpatialGrid from './SpatialGrid'
 import { game } from '../Game'
 import { clamp } from '../util'
 
-export const renderedConnectionDistance = 300
+const iterations = 300
+
+// repelling force is this much stronger than attracting force
+const repelRatio = 3000
+
+const velocityDecay = 0.8
+const alphaDecay = 0.985
+
+const maxDistance = 2 * repelRatio
+const maxDistance2 = maxDistance * maxDistance
+
+export const renderedConnectionDistance = repelRatio / 12
 
 export function startForceDirectedSimulation (startingNode: GameObject) {
-  const iterations = 300
-
   // higher alpha starts system with higher energy
   let alpha = 0.09
-
-  // repelling force is this much stronger than attracting force
-  const repelRatio = 2400
-
-  const velocityDecay = 0.8
-  const alphaDecay = 0.985
-
-  const maxDistance = 2 * repelRatio
-  const maxDistance2 = maxDistance * maxDistance
 
   const graph = getZoneGraph(startingNode)
   const nodes = [...graph.nodes.keys()]

@@ -1,7 +1,6 @@
 import GameObject from '../GameObject'
 import { spawn } from '../behavior/spawn'
 import { connectZones } from '../behavior/connections'
-import { lerp } from '../util'
 import Vertex from './Vertex'
 import { makeType } from '../GameObjectType'
 
@@ -10,7 +9,6 @@ export default function makeZones (vertices: Vertex[]) {
 
   for (const vertex of vertices) {
     const zone = spawn(typeZone)
-    zone.numSpots = Math.round(lerp(1, 6, 3, 8, vertex.edges.length))
     vertexToZone.set(vertex, zone)
   }
 

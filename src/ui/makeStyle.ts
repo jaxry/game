@@ -1,3 +1,5 @@
+import { createElement } from './create'
+
 type Style = Partial<CSSStyleDeclaration & { vectorEffect: string }>
 
 export function makeStyle (style?: Style): string
@@ -33,7 +35,6 @@ function makeStyleClass (style?: Style): string {
 }
 
 function makeStyleSheet () {
-  const elem = document.createElement('style')
-  document.head.append(elem)
+  const elem = createElement(document.head, 'style')
   return elem.sheet!
 }

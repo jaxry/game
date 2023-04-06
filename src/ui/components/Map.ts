@@ -1,22 +1,23 @@
 import Component from './Component'
-import createSvg from '../createSvg'
 import { Edge, getZoneGraph } from '../../behavior/connections'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import { duration, mapEdgeColor } from '../theme'
 import MapNode from './MapNode'
 import addPanZoom from '../PanZoom'
-import { makeOrGet, translate } from '../../util'
-import { TravelAnimation } from '../game/TravelAnimation'
+import { makeOrGet, numToPixel, numToPx, translate } from '../../util'
+import TravelAnimation from '../game/TravelAnimation'
+import { createDiv } from '../create'
 
 export default class MapComponent extends Component {
   maxDepthFromCenter = 2
-  private svg = createSvg('svg')
-  private edgeG = createSvg('g')
-  private map = document.createElement('div')
-  private zoneContainer = document.createElement('div')
-  private travelIcons = document.createElement('div')
+
+  private map = createDiv(this.element, mapStyle)
+  private edgeContainer = createDiv(this.map)
+  private zoneContainer = createDiv(this.map)
+  private travelIcons = createDiv(this.map)
   travelAnimation = new TravelAnimation(this.travelIcons)
+
   private transform = {
     x: 0,
     y: 0,
@@ -24,30 +25,18 @@ export default class MapComponent extends Component {
   }
 
   private zoneToComponent = new Map<GameObject, MapNode>()
-  private edgeToElem = new Map<string, { line: Element, edge: Edge }>()
+  private edgeToElem = new Map<string, { line: HTMLElement, edge: Edge }>()
 
-  private elementScaleThreshold = 1
+  private firstRender = true
+  private activeMapAnimation: Animation | undefined
 
   constructor () {
     super()
 
     this.element.classList.add(containerStyle)
 
-    this.svg.classList.add(svgStyle)
-    this.svg.setAttribute('width', '100%')
-    this.svg.setAttribute('height', '100%')
-    this.element.append(this.svg)
-
-    this.svg.append(this.edgeG)
-
-    this.map.classList.add(mapStyle)
-    this.element.append(this.map)
-
-    this.map.append(this.zoneContainer)
-    this.map.append(this.travelIcons)
-
     addPanZoom(this.element, this.transform, (updatedScale) => {
-      updatedScale && this.updateZonePositionsAndScale()
+      updatedScale && this.updatePositions()
       this.updateTransform(false)
     })
   }
@@ -84,20 +73,32 @@ export default class MapComponent extends Component {
     }
 
     this.updatePositions()
-    this.centerOnZone(centerZone)
+    this.centerOnZone(centerZone, !this.firstRender)
+    this.firstRender = false
   }
 
   updatePositions () {
-    this.updateZonePositionsAndScale()
-    for (const { line, edge } of this.edgeToElem.values()) {
-      this.updateEdgePosition(line, edge)
+    const nodeScale = Math.max(1, this.transform.scale)
+
+    for (const [zone, component] of this.zoneToComponent) {
+      const x = zone.position.x * nodeScale
+      const y = zone.position.y * nodeScale
+      component.element.style.transform = translate(x, y)
     }
+
+    for (const { line, edge } of this.edgeToElem.values()) {
+      const { x, y, angle, length } = getEdgePositionAndAngle(edge)
+      const t = translate(x * nodeScale, y * nodeScale)
+      const r = `rotate(${numToPixel(angle)}rad)`
+      line.style.transform = `translate(-50%,-50%)${t}${r}`
+      line.style.width = numToPx(length * nodeScale)
+    }
+
+    this.travelAnimation.updateScale(nodeScale)
   }
 
   private makeZone (zone: GameObject) {
-    const component = this.newComponent(MapNode, zone, this)
-    this.zoneContainer.append(component.element)
-    return component
+    return this.newComponent(this.zoneContainer, MapNode, zone, this)
   }
 
   private removeZone (zone: GameObject, component: MapNode) {
@@ -108,60 +109,48 @@ export default class MapComponent extends Component {
   }
 
   private makeEdge (edge: Edge) {
-    const line = createSvg('line')
+    const line = createDiv(this.edgeContainer)
     line.classList.add(edgeStyle)
 
-    this.edgeG.append(line)
     grow(line)
 
     return { line, edge }
   }
 
-  private centerOnZone (zone: GameObject) {
+  private centerOnZone (zone: GameObject, animate = true) {
     this.transform.x = -zone.position.x * this.transform.scale
         + this.element.offsetWidth / 2
     this.transform.y = -zone.position.y * this.transform.scale +
         +this.element.offsetHeight / 2
 
-    this.updateTransform()
-  }
-
-  private updateZonePositionsAndScale () {
-    const scale = Math.max(this.elementScaleThreshold, this.transform.scale)
-
-    for (const [zone, component] of this.zoneToComponent) {
-      const x = zone.position.x * scale
-      const y = zone.position.y * scale
-      component.element.style.transform = translate(x, y)
-    }
-
-    this.travelAnimation.updateScale(scale)
-  }
-
-  private updateEdgePosition (line: Element, edge: Edge) {
-    line.setAttribute('x1', edge.source.position.x.toString())
-    line.setAttribute('y1', edge.source.position.y.toString())
-    line.setAttribute('x2', edge.target.position.x.toString())
-    line.setAttribute('y2', edge.target.position.y.toString())
+    this.updateTransform(animate)
   }
 
   private updateTransform (animate = true) {
     const { x, y, scale } = this.transform
+    const mapScale = Math.min(1, scale)
 
-    const mapScale = Math.min(1, scale / this.elementScaleThreshold)
+    const transform = `${translate(x, y)} scale(${mapScale})`
 
-    const options: KeyframeAnimationOptions = {
-      duration: animate ? duration.slow : 0,
-      fill: 'forwards',
-      easing: 'ease-in-out',
+    this.activeMapAnimation?.finish()
+    this.activeMapAnimation = undefined
+
+    if (animate) {
+      this.activeMapAnimation = this.map.animate({
+        transform: transform,
+      }, {
+        duration: duration.slow,
+        easing: 'ease-in-out',
+      })
+
+      this.activeMapAnimation.onfinish = () => {
+        this.map.style.transform = transform
+      }
+      // have to apply transform manually, since using
+      // fill: 'forwards' or commitStyles() prevents future manual transforms
+    } else {
+      this.map.style.transform = transform
     }
-
-    this.edgeG.animate({
-      transform: `${translate(x, y)} scale(${scale})`,
-    }, options).commitStyles()
-    this.map.animate({
-      transform: `${translate(x, y)} scale(${mapScale})`,
-    }, options).commitStyles()
   }
 }
 
@@ -171,6 +160,7 @@ function grow (elem: Element) {
   }, {
     duration: duration.slow,
     easing: 'ease-out',
+    composite: 'add',
   })
 }
 
@@ -184,29 +174,27 @@ function shrink (elem: Element) {
   })
 }
 
+function getEdgePositionAndAngle ({ source, target }: Edge) {
+  const dirX = target.position.x - source.position.x
+  const dirY = target.position.y - source.position.y
+  const length = Math.sqrt(dirX * dirX + dirY * dirY)
+  const angle = Math.atan2(dirY, dirX)
+  const x = (source.position.x + target.position.x) / 2
+  const y = (source.position.y + target.position.y) / 2
+  return { x, y, angle, length }
+}
+
 const containerStyle = makeStyle({
   position: 'relative',
-  overflow: `hidden`,
   contain: `strict`,
 })
 
 const mapStyle = makeStyle({
   position: `absolute`,
-  inset: `0`,
   transformOrigin: `top left`,
 })
 
-const svgStyle = makeStyle({
-  position: `absolute`,
-  inset: `0`,
-})
-
 const edgeStyle = makeStyle({
-  stroke: mapEdgeColor,
-  strokeWidth: `2`,
-  vectorEffect: `non-scaling-stroke`,
-
-  // make SVG transform behave like HTML transform
-  transformBox: `fill-box`,
-  transformOrigin: `center`,
+  position: `absolute`,
+  borderTop: `2px solid ${mapEdgeColor}`,
 })

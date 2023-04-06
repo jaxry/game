@@ -1,11 +1,10 @@
 import Component from './Component'
 import TimeComponent from './Time'
-import Inventory from './Inventory'
-import { game } from '../../Game'
 import { makeStyle } from '../makeStyle'
 import { deleteSaveFile, saveGameToFile } from '../../saveLoad'
 import { restartGame } from '../../main'
 import { sidebarColor } from '../theme'
+import { createDiv, createElement } from '../create'
 
 export default class GameSidebar extends Component {
   constructor () {
@@ -13,31 +12,20 @@ export default class GameSidebar extends Component {
 
     this.element.classList.add(containerStyle)
 
-    const time = this.newComponent(TimeComponent)
-    this.element.append(time.element)
+    const time = this.newComponent(this.element, TimeComponent)
 
-    const inventory = this.newComponent(Inventory, game.player)
-    this.element.append(inventory.element)
+    // const inventory = this.newComponent(this.element, Inventory, game.player)
 
-    const saveLoadContainer = document.createElement('div')
-    saveLoadContainer.classList.add(saveLoadContainerStyle)
-    this.element.append(saveLoadContainer)
+    const saveLoadContainer = createDiv(this.element, saveLoadContainerStyle)
 
-    const save = document.createElement('button')
-    save.innerText = 'Save'
+    const save = createElement(saveLoadContainer, 'button', undefined, 'Save')
     save.addEventListener('click', saveGameToFile)
-    saveLoadContainer.append(save)
 
-    const load = document.createElement('button')
-    load.innerText = 'Load'
+    const load = createElement(saveLoadContainer, 'button', undefined, 'Load')
     load.addEventListener('click', restartGame)
-    saveLoadContainer.append(load)
 
-    const erase = document.createElement('button')
-    erase.innerText = 'Erase'
+    const erase = createElement(saveLoadContainer, 'button', undefined, 'Erase')
     erase.addEventListener('click', deleteSaveFile)
-    saveLoadContainer.append(erase)
-
   }
 }
 

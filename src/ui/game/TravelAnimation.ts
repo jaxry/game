@@ -2,8 +2,9 @@ import TravelAction from '../../actions/Travel'
 import { translate } from '../../util'
 import { makeStyle } from '../makeStyle'
 import { duration } from '../theme'
+import { createDiv } from '../create'
 
-export class TravelAnimation {
+export default class TravelAnimation {
   scale = 1
 
   animationState = new Set<{
@@ -15,10 +16,7 @@ export class TravelAnimation {
   }
 
   start (action: TravelAction) {
-    const icon = document.createElement('div')
-    icon.classList.add(iconStyle)
-    icon.textContent = action.object.type.name
-    this.container.append(icon)
+    const icon = createDiv(this.container, iconStyle, action.object.type.name)
 
     const actionDuration = action.milliseconds
 

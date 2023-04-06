@@ -4,7 +4,7 @@ import Effect from './behavior/Effect'
 import Action from './behavior/Action'
 import { serializable } from './serialize'
 import { toPrecision } from './util'
-import Position from './Position'
+import Point from './Point'
 
 let nextId = 1
 
@@ -20,15 +20,9 @@ export default class GameObject {
   containedAs: ContainedAs
   contains: Set<GameObject>
 
-  // the 1-dimensional space that the object resides in
-  spot: number
-
-  // the number of 1-dimensional spaces the container has
-  numSpots: number
-
   // connections to other game objects on a 2D planar graph
   connections: GameObject[]
-  position: Position
+  position: Point
 
   health: number
   energy: number
@@ -74,11 +68,11 @@ serializable(GameObject, {
       (id: number) => getTypeFromId(id),
     ],
     position: [
-      (position: Position) => ({
+      (position: Point) => ({
         x: toPrecision(position.x, 0),
         y: toPrecision(position.y, 0),
       }),
-      ({ x, y }: any) => new Position(x, y)],
+      ({ x, y }: any) => new Point(x, y)],
     effects: serializable.ignoreIfEmpty,
     contains: serializable.ignoreIfEmpty,
   },
@@ -90,7 +84,6 @@ export class GameObjectEvents {
   // objects being contained or taken out of the event object
   enter: { item: GameObject, from?: GameObject }
   leave: { item: GameObject, to?: GameObject }
-  moveSpot: { item: GameObject, from: number, to: number }
 
   // actions starting/finishing on a contained object of the event object
   itemActionStart: { action: Action }

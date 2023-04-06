@@ -7,7 +7,7 @@ import { serializable } from './serialize'
 export default class Game {
   time = new GameTime()
   event = {
-    tickEnd: new Observable(),
+    tick: new Observable(),
     mapPositionUpdate: new Observable(),
     mapUpdate: new Observable(),
     playerChange: new Observable<GameObject>(),

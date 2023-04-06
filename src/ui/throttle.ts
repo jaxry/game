@@ -1,13 +1,13 @@
 export default function throttle<T extends (...args: any) => any> (fn: T): T {
-  let next: number | null = null
+  let queued = 0
   let latestArgs: any
 
   const throttledFn = (...args: any[]) => {
     latestArgs = args
 
-    if (!next) {
-      next = requestAnimationFrame(() => {
-        next = null
+    if (!queued) {
+      queued = requestAnimationFrame(() => {
+        queued = 0
         return fn(...latestArgs)
       })
     }

@@ -1,15 +1,16 @@
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import {
-  border, borderRadius, boxShadow, duration, mapNode, mapNodeDistant,
+  border, borderRadius, boxShadow, duration, mapNodeColor, mapNodeDistantColor,
 } from '../theme'
-import Zone from './Zone'
+import Inventory from './Inventory'
 import GameComponent from './GameComponent'
 import Effect from '../../behavior/Effect'
 import TravelAction from '../../actions/Travel'
 import MapComponent from './Map'
 import { playerTravelToZone } from '../../behavior/player'
 import Component from './Component'
+import { createDiv } from '../create'
 
 export default class MapNode extends GameComponent {
   node: HTMLElement | Component
@@ -32,9 +33,8 @@ export default class MapNode extends GameComponent {
     }
     this.removeSimple()
 
-    this.node = this.newComponent(Zone, this.zone)
+    this.node = this.newComponent(this.element, Inventory, this.zone)
     this.node.element.classList.add(zoneStyle)
-    this.element.append(this.node.element)
 
     grow(this.node.element)
 
@@ -59,9 +59,7 @@ export default class MapNode extends GameComponent {
     }
     this.removeComplex()
 
-    this.node = document.createElement('div')
-    this.node.classList.add(circleStyle)
-    this.element.append(this.node)
+    this.node = createDiv(this.element, circleStyle)
 
     grow(this.node)
   }
@@ -115,24 +113,22 @@ const containerStyle = makeStyle({
   position: `absolute`,
 })
 
-const nodeStyleStub = {
+const zoneStyle = makeStyle({
   position: `absolute`,
   transform: `translate(-50%, -50%)`,
-  boxShadow,
-}
-
-const zoneStyle = makeStyle({
-  ...nodeStyleStub,
+  background: mapNodeColor,
   border,
   borderRadius,
-  background: mapNode,
+  boxShadow,
 })
 
 const circleStyle = makeStyle({
-  ...nodeStyleStub,
-  width: `4rem`,
-  height: `4rem`,
+  position: `absolute`,
+  transform: `translate(-50%, -50%)`,
+  width: `3rem`,
+  height: `3rem`,
   borderRadius: `50%`,
-  background: mapNodeDistant,
+  background: mapNodeDistantColor,
+  boxShadow,
 })
 

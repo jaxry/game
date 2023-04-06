@@ -16,14 +16,14 @@ export const borderColor = backgroundHue[600]
 export const border = `1px solid ${borderColor}`
 export const borderRadius = '0.25rem'
 
-export const boxShadow = `0 0.25rem 0.5rem #0003`
-export const boxShadowLarge = `0 0.5rem 1rem #0006`
+export const boxShadow = `0.25rem 0.25rem 0.5rem #0003`
+export const boxShadowLarge = `0.5rem 0.5rem 1rem #0006`
 
 export const sidebarColor = backgroundHue[800]
 export const windowColor = backgroundHue[700]
 
-export const mapNode = backgroundHue[700]
-export const mapNodeDistant = colors.zinc[700]
+export const mapNodeColor = backgroundHue[700]
+export const mapNodeDistantColor = colors.zinc[700]
 
 export const mapEdgeColor = backgroundHue[500]
 

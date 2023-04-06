@@ -1,30 +1,32 @@
 import GameObject from '../../GameObject'
 import { isPlayer } from '../../behavior/player'
-import ObjectInfo from './ObjectInfo'
 import Action from '../../behavior/Action'
 import ActionComponent from './ActionComponent'
-import { dragAndDropGameObject } from './GameUI'
 import { game } from '../../Game'
 import Effect from '../../behavior/Effect'
-import TargetActionAnimation from './TargetActionAnimation'
 import {
-  borderRadius, boxShadow, duration, objectCardColor, objectCardNameBorderColor,
+  borderRadius, boxShadow, objectCardColor, objectCardNameBorderColor,
   objectCardPlayerColor,
 } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
-import DummyElement from '../DummyElement'
-
-const objectToCard = new WeakMap<GameObject, ObjectCard>()
+import { onClickNotDrag } from '../makeDraggable'
+import Inventory from './Inventory'
+import { onResize } from '../onResize'
+import { dragAndDropGameObject } from './GameUI'
+import { createDiv } from '../create'
+import { grow, growDynamic, shrink } from '../smoothDom'
 
 export default class ObjectCard extends GameComponent {
-  private actionComponent?: ActionComponent
-  private targetActionAnimation?: TargetActionAnimation
+  onResized?: (xDiff: number, yDiff: number) => void
+  private name = createDiv(this.element, nameStyle)
+  private expandedContainer?: HTMLDivElement
+
+  private action?: ActionComponent
+  private inventory?: Inventory
 
   constructor (public object: GameObject) {
     super()
-
-    objectToCard.set(object, this)
 
     this.element.classList.add(containerStyle)
 
@@ -39,43 +41,33 @@ export default class ObjectCard extends GameComponent {
       }
     })
 
-    const name = document.createElement('div')
-    name.classList.add(nameStyle)
-    name.textContent = object.type.name
-    this.element.append(name)
+    this.name.textContent = object.type.name
 
     if (object.activeAction) {
       this.setAction(object.activeAction)
     }
 
-    this.element.addEventListener('click', () => {
-      if (isPlayer(object)) {
-        return
+    onClickNotDrag(this.element, (e) => {
+      e.stopPropagation()
+      if (this.expandedContainer) {
+        this.close()
+      } else {
+        this.expand()
       }
-      this.newComponent(ObjectInfo, object,
-          this.element.getBoundingClientRect())
     })
 
-    dragAndDropGameObject.drag(this.element, object, name)
-
-    this.on(game.event.tickEnd, () => this.update())
+    onResize(this.element, () => {
+      this.onResized?.(0, 0)
+    })
 
     const self = this
     this.newEffect(class extends Effect {
-      override tick () {
-        const action = this.object.activeAction
-        const startAnimation = action?.target
-            && action.seconds === 1
-            && objectToCard.has(action.target)
-        if (startAnimation) {
-          self.targetActionAnimation?.exit()
-          const to = objectToCard.get(action.target!)!
-          self.targetActionAnimation = self.newComponent(
-              TargetActionAnimation, action, self.element, to.element)
-        }
-      }
-
       override events () {
+        this.on(object.container, 'leave', ({ item }) => {
+          if (item === this.object) {
+            this.reregisterEvents()
+          }
+        })
         this.on(object.container, 'itemActionStart', ({ action }) => {
           if (action.object !== this.object) {
             return
@@ -88,81 +80,77 @@ export default class ObjectCard extends GameComponent {
           if (action.object !== this.object) {
             return
           }
-          self.targetActionAnimation?.exit()
           self.clearAction()
-        })
-
-        this.on(object.container, 'leave', ({ item }) => {
-          if (item === this.object) {
-            this.reregisterEvents()
-          }
         })
       }
     }, object)
   }
 
-  enter () {
-    new DummyElement(this.element).growWidthFirst()
+  expand () {
+    if (this.expandedContainer) {
+      return
+    }
+    this.expandedContainer = createDiv(this.element)
 
-    this.element.animate({
-      opacity: [0, 1],
-      transform: [`translate(0,100%)`, `translate(0,0)`],
-    }, {
-      easing: 'ease-out',
-      duration: duration.normal,
-      delay: duration.normal,
-      fill: 'backwards',
+    const grab = createDiv(this.expandedContainer, undefined, 'Grab')
+    dragAndDropGameObject.drag(grab, this.object, this.name)
+
+    this.addInventory()
+
+    growDynamic(this.expandedContainer)
+  }
+
+  close () {
+    if (!this.expandedContainer) {
+      return
+    }
+    shrink(this.expandedContainer, () => {
+      this.removeInventory()
+      this.expandedContainer?.remove()
+      this.expandedContainer = undefined
     })
   }
 
-  exit () {
-    new DummyElement(this.element).shrinkHeightFirst()
-
-    this.element.animate({
-      opacity: 0,
-      transform: `translate(0,100%)`,
-    }, {
-      easing: 'ease-in',
-      duration: duration.normal,
-    }).onfinish = () => {
-      this.remove()
+  private addInventory () {
+    if (this.inventory || !this.object.contains) {
+      return
     }
+    this.inventory =
+        this.newComponent(this.expandedContainer!, Inventory, this.object)
+
+    this.inventory!.onResize = this.onResized
+  }
+
+  private removeInventory () {
+    this.inventory?.remove()
+    this.inventory = undefined
   }
 
   private setAction (action: Action) {
     this.clearAction()
-    const component = this.newComponent(ActionComponent, action)
-    this.actionComponent = component
-    this.element.append(component.element)
 
-    new DummyElement(component.element).growHeightOnly()
+    const component = this.newComponent(this.element, ActionComponent, action)
+    this.action = component
+
+    grow(component.element)
   }
 
   private clearAction () {
-    if (!this.actionComponent) {
+    if (!this.action) {
       return
     }
-    const component = this.actionComponent
-    this.actionComponent = undefined
+    const component = this.action
+    this.action = undefined
 
-    new DummyElement(component.element).shrinkHeightOnly()
-    component.element.animate({
-      opacity: 0,
-    }, {
-      duration: duration.fast,
-    }).onfinish = () => {
+    shrink(component.element, () => {
       component.remove()
-    }
-  }
-
-  private update () {
-    this.actionComponent?.update()
+    })
   }
 }
 
 const containerStyle = makeStyle({
-  overflow: `hidden`,
-  width: `10rem`,
+  contain: `content`,
+  width: `max-content`, // don't make card scrunch up in small containers
   display: `flex`,
   flexDirection: `column`,
   alignItems: `center`,
@@ -171,13 +159,13 @@ const containerStyle = makeStyle({
   boxShadow,
   borderRadius,
   userSelect: `none`,
-  textTransform: `capitalize`,
 })
 
 const nameStyle = makeStyle({
   width: `100%`,
   textAlign: `center`,
   borderBottom: `2px solid ${objectCardNameBorderColor}`,
+  textTransform: `capitalize`,
 })
 
 const playerStyle = makeStyle({
