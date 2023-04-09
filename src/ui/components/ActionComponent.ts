@@ -18,8 +18,7 @@ export default class ActionComponent extends Component {
 
     const name = createDiv(nameTarget, nameStyle, action.name)
 
-    const target = createDiv(nameTarget, targetStyle,
-        action.target?.type.name ?? '')
+    const target = createDiv(nameTarget, targetStyle, getTarget(action))
 
     this.time = createDiv(this.element, timeStyle)
 
@@ -29,6 +28,14 @@ export default class ActionComponent extends Component {
 
   update () {
     this.time.textContent = GameTime.displaySeconds(this.action.time)
+  }
+}
+
+function getTarget (action: Action) {
+  if (Array.isArray(action.target)) {
+    return action.target.map(t => t.type.name).join(`, `)
+  } else {
+    return action.target?.type.name ?? ``
   }
 }
 

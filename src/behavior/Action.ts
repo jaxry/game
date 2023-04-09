@@ -8,7 +8,7 @@ export default class Action extends Effect {
   time = GameTime.second
 
   // for targeted actions such as attacks
-  target?: GameObject
+  target?: GameObject | GameObject[]
 
   get seconds () {
     return GameTime.seconds(this.time)

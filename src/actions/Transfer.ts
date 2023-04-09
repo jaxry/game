@@ -8,9 +8,10 @@ export default class TransferAction extends Action {
   override time = 5 * GameTime.second
 
   constructor (
-      object: GameObject, override target: GameObject,
+      object: GameObject, public item: GameObject,
       public destination: GameObject) {
     super(object)
+    this.target = [item, destination]
   }
 
   override get name () {
@@ -19,20 +20,20 @@ export default class TransferAction extends Action {
 
   override condition () {
     // moving to a different container
-    return this.target.container !== this.destination &&
+    return this.item.container !== this.destination &&
 
         // not moving target to an item it contains
-        !isAncestor(this.target, this.destination) &&
+        !isAncestor(this.item, this.destination) &&
 
         // object in same room as target
-        isAncestor(this.object.container, this.target) &&
+        isAncestor(this.object.container, this.item) &&
 
         // destination in same room as target
         isAncestor(this.object.container, this.destination)
   }
 
   override do () {
-    putInsideContainer(this.destination, this.target)
+    putInsideContainer(this.destination, this.item)
   }
 }
 serializable(TransferAction)
