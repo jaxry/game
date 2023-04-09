@@ -47,7 +47,7 @@ export default class Action extends Effect {
   override tick () {
     this.time--
 
-    if (this.time % GameTime.second === 0 && !this.condition()) {
+    if (!this.condition()) {
       this.deactivate()
 
     } else if (this.time <= 0) {

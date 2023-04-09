@@ -142,7 +142,7 @@ export default class Inventory extends GameComponent {
     }, {
       duration: duration.normal,
       composite: `add`,
-      easing: `ease-out`,
+      easing: `ease`,
     })
   }
 

@@ -95,7 +95,7 @@ function grow (elem: HTMLElement) {
   }, {
     duration: duration.normal,
     composite: 'add',
-    easing: 'ease-out',
+    easing: 'ease',
   })
 }
 

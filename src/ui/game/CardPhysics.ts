@@ -5,7 +5,7 @@ import Point from '../../Point'
 
 const velocityDecay = 0.995
 const minVelocityBeforeStop = 1e-4
-const repelForce = 0.0003
+const repelForce = 0.0002
 const minSimulationTime = 100
 
 const attractionForce = repelForce * 2

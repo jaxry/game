@@ -159,7 +159,7 @@ function grow (elem: Element) {
     transform: ['scale(0)', 'scale(1)'],
   }, {
     duration: duration.slow,
-    easing: 'ease-out',
+    easing: 'ease',
     composite: 'add',
   })
 }

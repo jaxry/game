@@ -104,11 +104,11 @@ export default class ObjectCard extends GameComponent {
     if (!this.expandedContainer) {
       return
     }
-    shrink(this.expandedContainer, () => {
+    shrink(this.expandedContainer).onfinish = () => {
       this.removeInventory()
       this.expandedContainer?.remove()
       this.expandedContainer = undefined
-    })
+    }
   }
 
   private addInventory () {
@@ -142,9 +142,9 @@ export default class ObjectCard extends GameComponent {
     const component = this.action
     this.action = undefined
 
-    shrink(component.element, () => {
+    shrink(component.element).onfinish = () => {
       component.remove()
-    })
+    }
   }
 }
 

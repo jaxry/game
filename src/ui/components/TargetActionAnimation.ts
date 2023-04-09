@@ -25,7 +25,7 @@ export default class TargetActionAnimation extends Component {
     }, {
       duration: action.milliseconds,
       composite: 'accumulate',
-      easing: 'ease-in-out',
+      easing: 'ease',
     })
 
     translation.onfinish = () => {

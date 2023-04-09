@@ -4,7 +4,12 @@ import { duration } from './theme'
 import { makeStyle } from './makeStyle'
 import tween from './tween'
 
-export function grow (element: HTMLElement) {
+class SmoothDom {
+  onfinish?: () => void
+}
+
+export function grow (
+    element: HTMLElement, options?: KeyframeAnimationOptions) {
   const dummy = replaceWithDummy(element)
   const dim = calcFromAndToDimensions(dummy, element)
 
@@ -12,40 +17,45 @@ export function grow (element: HTMLElement) {
     width: [numToPx(dim.startWidth), numToPx(dim.endWidth)],
     height: [numToPx(dim.startHeight), numToPx(dim.endHeight)],
     margin: [`0`, getComputedStyle(element).margin],
-  }, options).onfinish = () => {
+  }, { ...defaultOptions, ...options }).onfinish = () => {
     replaceWithOriginal(dummy, element)
   }
 }
 
-export function growDynamic (element: HTMLElement, onFinish?: () => void) {
+export function growDynamic (
+    element: HTMLElement, options?: KeyframeAnimationOptions) {
   const dummy = replaceWithDummy(element)
   const dim = calcFromAndToDimensions(dummy, element)
 
   tween((lerp) => {
     dummy.style.width = numToPx(lerp(dim.startWidth, element.offsetWidth))
     dummy.style.height = numToPx(lerp(dim.startHeight, element.offsetHeight))
-  }, options)
+  }, { ...defaultOptions, ...options })
 
   dummy.animate({
     margin: [`0`, getComputedStyle(element).margin],
-  }, options).onfinish = () => {
+  }, { ...defaultOptions, ...options }).onfinish = () => {
     replaceWithOriginal(dummy, element)
-    onFinish?.()
   }
 }
 
-export function shrink (element: HTMLElement, onFinish?: () => void) {
+export function shrink (
+    element: HTMLElement, options?: KeyframeAnimationOptions) {
   const dummy = replaceWithDummy(element)
   const dim = calcFromAndToDimensions(dummy, element)
+
+  const returnObj = new SmoothDom()
 
   dummy.animate({
     width: [numToPx(dim.endWidth), numToPx(dim.startWidth)],
     height: [numToPx(dim.endHeight), numToPx(dim.startHeight)],
     margin: `0`,
-  }, options).onfinish = () => {
-    onFinish?.()
+  }, { ...defaultOptions, ...options }).onfinish = () => {
     dummy.remove()
+    returnObj.onfinish?.()
   }
+
+  return returnObj
 }
 
 function replaceWithDummy (element: Element) {
@@ -89,9 +99,9 @@ function calcFromAndToDimensions (dummy: HTMLElement, element: HTMLElement) {
   }
 }
 
-const options: KeyframeAnimationOptions = {
+const defaultOptions: KeyframeAnimationOptions = {
   duration: duration.normal,
-  easing: 'ease-in-out',
+  easing: 'ease',
   fill: 'forwards',
 }
 
