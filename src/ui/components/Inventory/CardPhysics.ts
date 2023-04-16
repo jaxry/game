@@ -5,10 +5,10 @@ import Point from '../../../Point'
 
 const velocityDecay = 0.995
 const minVelocityBeforeStop = 1e-4
-const repelForce = 0.0002
+const repelForce = 0.0003
 const minSimulationTime = 100
 
-const attractionForce = repelForce * 2
+const attractionForce = 3 * repelForce
 const attractionDistance = 16
 
 export default class CardPhysics {
@@ -157,15 +157,7 @@ function repelOverlappingFromCenters (
       if (intersects(aBBox, bBBox)) {
         const a = positions[i]
         const b = positions[j]
-
-        const dx = a.x - b.x
-        const dy = a.y - b.y
-        const d = Math.sqrt(dx * dx + dy * dy)
-        const f = repelForce * elapsed / d
-        a.vx += f * dx
-        a.vy += f * dy
-        b.vx -= f * dx
-        b.vy -= f * dy
+        addForce(a, b, repelForce * elapsed)
       }
     }
   }
@@ -184,12 +176,12 @@ function repelOverlapping (
         const a = positions[i]
         const b = positions[j]
 
-        const { dx, dy } = rectDistance(a, aBBox, b, bBBox)
+        const { width, height } = rectDistance(aBBox, bBBox)
 
         let f = repelForce * elapsed
 
         // Move card to the closest edge to minimize distance traveled
-        if (dx > dy) {
+        if (width > height) {
           f *= Math.sign(a.x - b.x)
           a.vx += f
           b.vx -= f
@@ -206,19 +198,21 @@ function repelOverlapping (
 function attract (
     a: Point, aBBox: DOMRect, b: Point, bBBox: DOMRect, elapsed: number) {
 
-  const { dx, dy } = rectDistance(a, aBBox, b, bBBox)
-  const dist = Math.max(dx, dy)
+  const { width, height } = rectDistance(aBBox, bBBox)
+  const dist = Math.max(width, height)
   const spring = clamp(-1, 1, (dist - attractionDistance) / attractionDistance)
-  let f = attractionForce * spring * elapsed
-  if (dx > dy) {
-    f *= Math.sign(a.x - b.x)
-    a.vx -= f
-    b.vx += f
-  } else {
-    f *= Math.sign(a.y - b.y)
-    a.vy -= f
-    b.vy += f
-  }
+  addForce(a, b, -spring * attractionForce * elapsed)
+}
+
+function addForce (a: Point, b: Point, force: number) {
+  const dx = a.x - b.x
+  const dy = a.y - b.y
+  const d = Math.sqrt(dx * dx + dy * dy)
+  const f = force / d
+  a.vx += f * dx
+  a.vy += f * dy
+  b.vx -= f * dx
+  b.vy -= f * dy
 }
 
 function applyVelocity (positions: Point[], elapsed: number) {
@@ -251,10 +245,14 @@ function intersects (a: DOMRect, b: DOMRect) {
       b.top < a.bottom
 }
 
-function rectDistance (a: Point, aRect: DOMRect, b: Point, bRect: DOMRect) {
+function rectDistance (aRect: DOMRect, bRect: DOMRect) {
+  const acx = aRect.left + 0.5 * aRect.width
+  const acy = aRect.top + 0.5 * aRect.height
+  const bcx = bRect.left + 0.5 * bRect.width
+  const bcy = bRect.top + 0.5 * bRect.height
   return {
-    dx: Math.abs(a.x - b.x) - (aRect.width + bRect.width) / 2,
-    dy: Math.abs(a.y - b.y) - (aRect.height + bRect.height) / 2,
+    width: Math.abs(acx - bcx) - (aRect.width + bRect.width) / 2,
+    height: Math.abs(acy - bcy) - (aRect.height + bRect.height) / 2,
   }
 }
 
