@@ -15,7 +15,7 @@ export default class TransferAction extends Action {
   }
 
   override get name () {
-    return `pick up`
+    return [`move`, this.item, `to`, this.destination]
   }
 
   override condition () {

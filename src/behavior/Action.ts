@@ -10,6 +10,10 @@ export default class Action extends Effect {
   // for targeted actions such as attacks
   target?: GameObject | GameObject[]
 
+  get name (): string | (string | GameObject)[] {
+    return this.constructor.name
+  }
+
   get seconds () {
     return GameTime.seconds(this.time)
   }

@@ -165,7 +165,6 @@ const nameStyle = makeStyle({
   width: `100%`,
   textAlign: `center`,
   borderBottom: `2px solid ${objectCardNameBorderColor}`,
-  textTransform: `capitalize`,
 })
 
 const playerStyle = makeStyle({
