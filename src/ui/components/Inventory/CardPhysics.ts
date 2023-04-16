@@ -1,7 +1,7 @@
-import GameObject from '../../GameObject'
-import Component from '../components/Component'
-import { clamp, deleteElemFn } from '../../util'
-import Point from '../../Point'
+import GameObject from '../../../GameObject'
+import Component from '../Component'
+import { clamp, deleteElemFn } from '../../../util'
+import Point from '../../../Point'
 
 const velocityDecay = 0.995
 const minVelocityBeforeStop = 1e-4
