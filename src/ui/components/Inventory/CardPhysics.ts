@@ -23,6 +23,7 @@ export default class CardPhysics {
   private boundingBoxes: DOMRect[] = []
 
   private attractions: [GameObject, GameObject][] = []
+  private attractionIndices: [number, number][] = []
 
   private ignoring = new WeakSet<GameObject>()
 
@@ -49,14 +50,14 @@ export default class CardPhysics {
       return
     }
     this.attractions.push([first, second])
-    this.simulate()
+    this.simulate(true)
   }
 
   release (obj1: GameObject, obj2: GameObject) {
     const first = obj1.id < obj2.id ? obj1 : obj2
     const second = obj1.id < obj2.id ? obj2 : obj1
     deleteElemFn(this.attractions, ([a, b]) => a === first && b === second)
-    this.simulate()
+    this.simulate(true)
   }
 
   // Providing a new objectToCard updates the list of cards to simulate
@@ -98,10 +99,9 @@ export default class CardPhysics {
         repelOverlapping(
             this.positions, this.boundingBoxes, elapsed2)
 
-    for (const [a, b] of this.attractions) {
-      const r1 = rectFromPosition(a.position, this.objectToCard.get(a)!.element)
-      const r2 = rectFromPosition(b.position, this.objectToCard.get(b)!.element)
-      attract(a.position, r1, b.position, r2, elapsed2)
+    for (const [i, j] of this.attractionIndices) {
+      attract(this.positions[i], this.boundingBoxes[i],
+          this.positions[j], this.boundingBoxes[j], elapsed2)
     }
 
     const repeat = applyVelocity(this.positions, elapsed)
@@ -142,6 +142,17 @@ export default class CardPhysics {
 
     this.attractions = this.attractions.filter(([a, b]) =>
         this.objectToCard.has(a) && this.objectToCard.has(b))
+
+    this.attractionIndices.length = 0
+    for (const [a, b] of this.attractions) {
+      if (this.ignoring.has(a) || this.ignoring.has(b)) {
+        continue
+      }
+      this.attractionIndices.push([
+        this.positions.indexOf(a.position),
+        this.positions.indexOf(b.position),
+      ])
+    }
   }
 }
 
