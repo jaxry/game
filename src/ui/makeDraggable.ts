@@ -1,5 +1,5 @@
 let isDragging = false
-let childDrag = false
+let childDragged = false
 
 export default function makeDraggable (
     element: Element,
@@ -16,7 +16,7 @@ export default function makeDraggable (
     }) {
 
   function down (e: MouseEvent) {
-    if (childDrag) {
+    if (childDragged) {
       return
     }
 
@@ -26,7 +26,7 @@ export default function makeDraggable (
       return
     }
 
-    childDrag = true
+    childDragged = true
     isDragging = false
 
     initPositions(e)
@@ -59,7 +59,7 @@ export default function makeDraggable (
     window.addEventListener('mouseup', (e) => {
       const { relative, difference } = calcPositionChange(e)
       options.onUp?.(e, relative, difference)
-      childDrag = false
+      childDragged = false
       controller.abort()
     }, { once: true })
   }

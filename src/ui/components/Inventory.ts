@@ -133,6 +133,36 @@ export default class Inventory extends GameComponent {
     return card
   }
 
+  private makeCardDraggable (object: GameObject, card: ObjectCard) {
+    let relX = 0
+    let relY = 0
+
+    makeDraggable(card.element, {
+      onDown: (e) => {
+        const { left, top, width, height }
+            = card.element.getBoundingClientRect()
+
+        relX = (e.clientX - left - width / 2) / this.scale()
+        relY = (e.clientY - top - height / 2) / this.scale()
+
+        this.cardPhysics.ignore(object)
+
+        moveToTop(card.element)
+      },
+      onDrag: (e) => {
+        const bbox = this.element.getBoundingClientRect()
+        object.position.x = this.bounds.left
+            + (e.clientX - bbox.x) / this.scale() - relX
+        object.position.y = this.bounds.top
+            + (e.clientY - bbox.y) / this.scale() - relY
+        this.updatePositions()
+      },
+      onUp: () => {
+        this.cardPhysics.unignore(object)
+      },
+    })
+  }
+
   private objectEnter (obj: GameObject) {
     const card = this.makeCard(obj)
 
@@ -163,36 +193,6 @@ export default class Inventory extends GameComponent {
     }).onfinish = () => {
       card.remove()
     }
-  }
-
-  private makeCardDraggable (object: GameObject, card: ObjectCard) {
-    let relX = 0
-    let relY = 0
-
-    makeDraggable(card.element, {
-      onDown: (e) => {
-        const { left, top, width, height }
-            = card.element.getBoundingClientRect()
-
-        relX = (e.clientX - left - width / 2) / this.scale()
-        relY = (e.clientY - top - height / 2) / this.scale()
-
-        this.cardPhysics.ignore(object)
-
-        moveToTop(card.element)
-      },
-      onDrag: (e) => {
-        const bbox = this.element.getBoundingClientRect()
-        object.position.x = this.bounds.left
-            + (e.clientX - bbox.x) / this.scale() - relX
-        object.position.y = this.bounds.top
-            + (e.clientY - bbox.y) / this.scale() - relY
-        this.updatePositions()
-      },
-      onUp: () => {
-        this.cardPhysics.unignore(object)
-      },
-    })
   }
 
   private updateBounds () {

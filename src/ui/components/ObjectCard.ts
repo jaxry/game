@@ -95,7 +95,7 @@ export default class ObjectCard extends GameComponent {
     const grab = createDiv(this.expandedContainer, undefined, 'Grab')
     dragAndDropGameObject.drag(grab, this.object, this.name)
 
-    this.addInventory()
+    this.addInventory(this.expandedContainer)
 
     growDynamic(this.expandedContainer)
   }
@@ -111,13 +111,11 @@ export default class ObjectCard extends GameComponent {
     }
   }
 
-  private addInventory () {
+  private addInventory (container: Element) {
     if (this.inventory || !this.object.contains) {
       return
     }
-    this.inventory =
-        this.newComponent(this.expandedContainer!, Inventory, this.object)
-
+    this.inventory = this.newComponent(container, Inventory, this.object)
     this.inventory!.onResize = this.onResized
   }
 

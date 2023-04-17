@@ -15,7 +15,13 @@ export default class TransferAction extends Action {
   }
 
   override get name () {
-    return [`move`, this.item, `to`, this.destination]
+    if (this.destination === this.object) {
+      return [`pick up`, this.item]
+    } else if (this.destination === this.object.container) {
+      return [`drop`, this.item]
+    } else {
+      return [`move`, this.item, `to`, this.destination]
+    }
   }
 
   override condition () {
