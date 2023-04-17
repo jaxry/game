@@ -1,10 +1,10 @@
 import Component from './Component'
 import Action from '../../behavior/Action'
-import { actionColor, actionTimeColor } from '../theme'
+import { actionColor, actionTimeColor, fontColor } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameTime from '../../GameTime'
 import { game } from '../../Game'
-import { createDiv } from '../create'
+import { createDiv, createElement, createTextNode } from '../create'
 
 export default class ActionComponent extends Component {
   private readonly time: HTMLElement
@@ -14,12 +14,8 @@ export default class ActionComponent extends Component {
 
     this.element.classList.add(containerStyle)
 
-    const nameTarget = createDiv(this.element)
-
-    const name = createDiv(nameTarget, nameStyle, action.name)
-
-    const target = createDiv(nameTarget, targetStyle,
-        action.target?.type.name ?? '')
+    const name = createDiv(this.element, nameStyle)
+    formatName(name, action)
 
     this.time = createDiv(this.element, timeStyle)
 
@@ -32,18 +28,37 @@ export default class ActionComponent extends Component {
   }
 }
 
+function formatName (container: Element, action: Action) {
+  const name = action.name
+  if (typeof name === 'string') {
+    container.textContent = name
+  } else {
+    for (const n of name) {
+      typeof n === 'string' ?
+          createTextNode(container, ` ${n} `) :
+          createElement(container, 'span', objectStyle, n.type.name)
+    }
+  }
+}
+
 const containerStyle = makeStyle({
-  gap: `1rem`,
   display: `flex`,
+  flexDirection: `column`,
+  justifyContent: `center`,
   alignItems: `center`,
-  textAlign: `center`,
 })
 
 const nameStyle = makeStyle({
   color: actionColor,
 })
 
-const targetStyle = makeStyle({})
+makeStyle(`.${nameStyle}::first-letter`, {
+  textTransform: `capitalize`,
+})
+
+const objectStyle = makeStyle({
+  color: fontColor,
+})
 
 const timeStyle = makeStyle({
   color: actionTimeColor,

@@ -12,9 +12,11 @@ import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
 import makeDraggable from '../makeDraggable'
 import { duration } from '../theme'
-import CardPhysics from '../game/CardPhysics'
+import CardPhysics from './Inventory/CardPhysics'
 import tween, { Tween } from '../tween'
 import throttle from '../throttle'
+import Bounds from './Inventory/Bounds'
+import { attractableObjects } from './Inventory/attractableObjects'
 
 export default class Inventory extends GameComponent {
   onResize?: (xDiff: number, yDiff: number) => void
@@ -73,13 +75,13 @@ export default class Inventory extends GameComponent {
           self.objectLeave(item)
         })
         this.on(this.object, 'itemActionStart', ({ action }) => {
-          if (action.target && self.objectToCard.has(action.target)) {
-            self.cardPhysics.attract(action.object, action.target)
+          for (const target of attractableObjects(action)) {
+            self.cardPhysics.attract(action.object, target)
           }
         })
         this.on(this.object, 'itemActionEnd', ({ action }) => {
-          if (action.target && self.objectToCard.has(action.target)) {
-            self.cardPhysics.release(action.object, action.target)
+          for (const target of attractableObjects(action)) {
+            self.cardPhysics.release(action.object, target)
           }
         })
       }
@@ -131,38 +133,6 @@ export default class Inventory extends GameComponent {
     return card
   }
 
-  private objectEnter (obj: GameObject) {
-    const card = this.makeCard(obj)
-
-    this.cardPhysics.simulate(true)
-    this.animateBounds()
-
-    card.element.animate({
-      transform: [`scale(0)`, `scale(1)`],
-    }, {
-      duration: duration.normal,
-      composite: `add`,
-      easing: `ease-out`,
-    })
-  }
-
-  private objectLeave (obj: GameObject) {
-    const card = getAndDelete(this.objectToCard, obj)!
-
-    this.cardPhysics.simulate(true)
-    this.animateBounds()
-
-    card.element.animate({
-      transform: `scale(0)`,
-    }, {
-      duration: duration.normal,
-      composite: `add`,
-      easing: `ease-in`,
-    }).onfinish = () => {
-      card.remove()
-    }
-  }
-
   private makeCardDraggable (object: GameObject, card: ObjectCard) {
     let relX = 0
     let relY = 0
@@ -191,6 +161,38 @@ export default class Inventory extends GameComponent {
         this.cardPhysics.unignore(object)
       },
     })
+  }
+
+  private objectEnter (obj: GameObject) {
+    const card = this.makeCard(obj)
+
+    this.cardPhysics.simulate(true)
+    this.animateBounds()
+
+    card.element.animate({
+      transform: [`scale(0)`, `scale(1)`],
+    }, {
+      duration: duration.normal,
+      composite: `add`,
+      easing: `ease`,
+    })
+  }
+
+  private objectLeave (obj: GameObject) {
+    const card = getAndDelete(this.objectToCard, obj)!
+
+    this.cardPhysics.simulate(true)
+    this.animateBounds()
+
+    card.element.animate({
+      transform: `scale(0)`,
+    }, {
+      duration: duration.normal,
+      composite: `add`,
+      easing: `ease-in`,
+    }).onfinish = () => {
+      card.remove()
+    }
   }
 
   private updateBounds () {
@@ -254,58 +256,6 @@ export default class Inventory extends GameComponent {
     // Element.boundingClientRect() calculations need that scale applied
     return this.element.getBoundingClientRect().width
         / this.element.offsetWidth
-  }
-}
-
-class Bounds {
-  left = 0
-  right = 0
-  top = 0
-  bottom = 0
-
-  reset () {
-    this.left = Infinity
-    this.top = Infinity
-    this.right = -Infinity
-    this.bottom = -Infinity
-  }
-
-  expand (amount: number) {
-    this.left -= amount
-    this.top -= amount
-    this.right += amount
-    this.bottom += amount
-  }
-
-  setMinSize (size: number) {
-    this.left = Math.min(isFinite(this.left) ? this.left : 0, -size)
-    this.top = Math.min(isFinite(this.top) ? this.top : 0, -size)
-    this.right = Math.max(isFinite(this.right) ? this.right : 0, size)
-    this.bottom = Math.max(isFinite(this.bottom) ? this.bottom : 0, size)
-  }
-
-  extendLeft (x: number) {
-    this.left = Math.min(this.left, x)
-  }
-
-  extendTop (y: number) {
-    this.top = Math.min(this.top, y)
-  }
-
-  extendRight (x: number) {
-    this.right = Math.max(this.right, x)
-  }
-
-  extendBottom (y: number) {
-    this.bottom = Math.max(this.bottom, y)
-  }
-
-  width () {
-    return this.right - this.left
-  }
-
-  height () {
-    return this.bottom - this.top
   }
 }
 

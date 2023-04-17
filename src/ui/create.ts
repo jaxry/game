@@ -22,6 +22,12 @@ export function createDiv (
   return createElement(parent, 'div', cls, text)
 }
 
+export function createTextNode (parent: Element, text: string) {
+  const node = document.createTextNode(text)
+  parent.append(document.createTextNode(text))
+  return node
+}
+
 export function createSvg<T extends keyof SVGElementTagNameMap>
 (parent: Element, tag: T) {
   const element = document.createElementNS('http://www.w3.org/2000/svg', tag)

@@ -8,7 +8,11 @@ export default class Action extends Effect {
   time = GameTime.second
 
   // for targeted actions such as attacks
-  target?: GameObject
+  target?: GameObject | GameObject[]
+
+  get name (): string | (string | GameObject)[] {
+    return this.constructor.name
+  }
 
   get seconds () {
     return GameTime.seconds(this.time)
@@ -47,7 +51,7 @@ export default class Action extends Effect {
   override tick () {
     this.time--
 
-    if (this.time % GameTime.second === 0 && !this.condition()) {
+    if (!this.condition()) {
       this.deactivate()
 
     } else if (this.time <= 0) {

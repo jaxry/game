@@ -95,7 +95,7 @@ export default class ObjectCard extends GameComponent {
     const grab = createDiv(this.expandedContainer, undefined, 'Grab')
     dragAndDropGameObject.drag(grab, this.object, this.name)
 
-    this.addInventory()
+    this.addInventory(this.expandedContainer)
 
     growDynamic(this.expandedContainer)
   }
@@ -104,20 +104,18 @@ export default class ObjectCard extends GameComponent {
     if (!this.expandedContainer) {
       return
     }
-    shrink(this.expandedContainer, () => {
+    shrink(this.expandedContainer).onfinish = () => {
       this.removeInventory()
       this.expandedContainer?.remove()
       this.expandedContainer = undefined
-    })
+    }
   }
 
-  private addInventory () {
+  private addInventory (container: Element) {
     if (this.inventory || !this.object.contains) {
       return
     }
-    this.inventory =
-        this.newComponent(this.expandedContainer!, Inventory, this.object)
-
+    this.inventory = this.newComponent(container, Inventory, this.object)
     this.inventory!.onResize = this.onResized
   }
 
@@ -142,9 +140,9 @@ export default class ObjectCard extends GameComponent {
     const component = this.action
     this.action = undefined
 
-    shrink(component.element, () => {
+    shrink(component.element).onfinish = () => {
       component.remove()
-    })
+    }
   }
 }
 
@@ -165,7 +163,6 @@ const nameStyle = makeStyle({
   width: `100%`,
   textAlign: `center`,
   borderBottom: `2px solid ${objectCardNameBorderColor}`,
-  textTransform: `capitalize`,
 })
 
 const playerStyle = makeStyle({

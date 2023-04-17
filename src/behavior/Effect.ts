@@ -20,10 +20,6 @@ export default class Effect {
     this.object = object
   }
 
-  get name () {
-    return this.constructor.name
-  }
-
   get tickPriority () {
     return (this.constructor as typeof Effect).tickPriority
   }
