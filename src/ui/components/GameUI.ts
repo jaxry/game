@@ -1,12 +1,11 @@
 import { game } from '../../Game'
 import MapComponent from './Map'
 import Effect from '../../behavior/Effect'
-import { gameLoop, pauseGameLoop, startGameLoop } from '../../behavior/core'
+import { pauseGameLoop, startGameLoop } from '../../behavior/core'
 import DragAndDrop from '../DragAndDrop'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
-import { border } from '../theme'
 import { createDiv, createElement } from '../create'
 import { deleteSaveFile, saveGameToFile } from '../../saveLoad'
 import { restartGame } from '../../main'
@@ -19,14 +18,10 @@ export default class GameUI extends GameComponent {
 
     this.element.classList.add(containerStyle)
 
-    // const sidebar = this.newComponent(GameSidebar)
-    // sidebar.element.classList.add(sidebarStyle)
-    // this.element.append(sidebar.element)
-
     this.createMap()
     this.createSaveLoadBar()
     this.setupWindowVisibility()
-    gameLoop()
+    startGameLoop()
   }
 
   private createMap () {
@@ -96,7 +91,7 @@ const containerStyle = makeStyle({
 const saveLoadContainerStyle = makeStyle({
   position: `absolute`,
   display: `flex`,
-  gap: `1rem`
+  gap: `1rem`,
 })
 
 const mapStyle = makeStyle({

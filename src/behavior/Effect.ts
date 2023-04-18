@@ -23,11 +23,6 @@ export default class Effect {
 
   tick? (): void
 
-  protected tickIn (seconds: number) {
-    runEffectIn(this, seconds)
-  }
-
-  // Adds a GameObject event that is automatically cleaned up when the effect
   // is deactivated
   on<T extends keyof GameObjectEvents> (
       obj: GameObject, event: T, listener: GameObjectEventListener<T>) {
@@ -40,6 +35,8 @@ export default class Effect {
 
     return activeEvent
   }
+
+  // Adds a GameObject event that is automatically cleaned up when the effect
 
   onObject<T extends keyof GameObjectEvents> (
       event: T, listener: GameObjectEventListener<T>) {
@@ -116,6 +113,10 @@ export default class Effect {
     this.deactivate()
     this.object = object
     this.activate()
+  }
+
+  protected tickInTime (seconds: number) {
+    runEffectIn(this, seconds)
   }
 }
 

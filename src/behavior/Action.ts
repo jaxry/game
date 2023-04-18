@@ -8,13 +8,12 @@ import { toPrecision } from '../util'
 export default class Action extends Effect {
   static duration = GameTime.second
   time: number
+  // for targeted actions such as attacks
+  target?: GameObject | GameObject[]
 
   get duration () {
     return (this.constructor as typeof Action).duration
   }
-
-  // for targeted actions such as attacks
-  target?: GameObject | GameObject[]
 
   get name (): string | (string | GameObject)[] {
     return this.constructor.name
@@ -30,7 +29,7 @@ export default class Action extends Effect {
     this.object.activeAction = this
 
     this.time = game.time.current + this.duration
-    this.tickIn(this.duration)
+    this.tickInTime(this.duration)
 
     this.object.container.emit('childActionStart', { action: this })
 
@@ -64,6 +63,6 @@ export default class Action extends Effect {
 
 serializable(Action, {
   transform: {
-    time: (time) => toPrecision(time, 1)
-  }
+    time: (time) => toPrecision(time, 1),
+  },
 })

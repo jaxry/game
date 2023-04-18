@@ -2,17 +2,17 @@ import { beforeEach, describe, expect, test } from 'vitest'
 import PriorityQueue from './PriorityQueue'
 
 describe('PriorityQueue', () => {
-  let queue: PriorityQueue<{x: number}>
+  let queue: PriorityQueue<{ x: number }>
 
   beforeEach(() => {
-    queue = new PriorityQueue<{x: number}>()
-    queue.add({x: 10}, 10)
-    queue.add({x: 11}, 11)
-    queue.add({x: 9}, 9)
-    queue.add({x: 9}, 9)
-    queue.add({x: 8}, 8)
-    queue.add({x: 9}, 9)
-    queue.add({x: 14}, 14)
+    queue = new PriorityQueue<{ x: number }>()
+    queue.add({ x: 10 }, 10)
+    queue.add({ x: 11 }, 11)
+    queue.add({ x: 9 }, 9)
+    queue.add({ x: 9 }, 9)
+    queue.add({ x: 8 }, 8)
+    queue.add({ x: 9 }, 9)
+    queue.add({ x: 14 }, 14)
   })
 
   test('Min ordered', () => {

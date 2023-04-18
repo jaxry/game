@@ -6,7 +6,7 @@ interface SerializableOptions<T> {
   // if returns undefined, the key is not serialized
   transform?: {
     [prop in keyof T]?: ((value: T[prop]) => any) |
-        [(value: T[prop]) => any, ((value: any) => T[prop])]
+      [(value: T[prop]) => any, ((value: any) => T[prop])]
   }
   afterDeserialize?: (object: T) => void
 }
@@ -42,8 +42,7 @@ export function serializable<T> (
 
 serializable.ignore = () => undefined as any
 serializable.ignoreIfEmpty =
-  (x: Map<unknown, unknown> | Set<unknown>) => x.size > 0 ? x : undefined
-
+    (x: Map<unknown, unknown> | Set<unknown>) => x.size > 0 ? x : undefined
 
 export function serialize (toSerialize: any) {
   const sharedObjects = new SharedObjects()

@@ -13,8 +13,8 @@ function tick (elapsedGameTime = 0) {
 
   while (game.time.current >= game.effectsAtTime.peekPriority()) {
     const effect = game.effectsAtTime.pop()
+    // effect may have been deactivated since it was added to the queue
     if (effect.isActive) {
-      // effect may have been deactivated since it was added to the queue
       effect.tick!()
     }
   }
@@ -24,7 +24,7 @@ function tick (elapsedGameTime = 0) {
 
 let timeout: NodeJS.Timeout | null = null
 
-export function gameLoop () {
+function gameLoop () {
   tick(100 * GameTime.millisecond)
   timeout = setTimeout(gameLoop, 100)
 }

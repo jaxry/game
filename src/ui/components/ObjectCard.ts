@@ -44,7 +44,10 @@ export default class ObjectCard extends GameComponent {
     this.name.textContent = object.type.name
 
     if (object.activeAction) {
-      this.setAction(object.activeAction)
+      // delay a frame so animation starts correctly
+      requestAnimationFrame(() => {
+        this.setAction(object.activeAction)
+      })
     }
 
     onClickNotDrag(this.element, (e) => {

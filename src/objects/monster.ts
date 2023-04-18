@@ -23,13 +23,13 @@ class MonsterAttack extends Effect {
     })
     this.onContainer('childActionEnd', ({ action }) => {
       if (action.object === this.object) {
-        this.tickIn(15 * Math.random())
+        this.tickInTime(15 * Math.random())
       }
     })
   }
 
   override onActivate () {
-    this.tickIn(15 * Math.random())
+    this.tickInTime(15 * Math.random())
   }
 
   override tick () {
@@ -50,7 +50,7 @@ class MonsterSearch extends Effect {
       return this.found()
     }
 
-    this.tickIn(15 * Math.random())
+    this.tickInTime(15 * Math.random())
   }
 
   override events () {
