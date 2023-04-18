@@ -30,9 +30,9 @@ export default class Effect {
 
   onDeactivate? (): void
 
-  run? (): void
+  tick? (): void
 
-  protected runIn (seconds: number) {
+  protected tickIn (seconds: number) {
     runEffectIn(this, seconds)
   }
 

@@ -5,6 +5,8 @@ import { generateRandomGraph } from './map/generateRandomGraph'
 import { startForceDirectedSimulation } from './map/forceDirectedSim'
 import { makeType } from './GameObjectType'
 import Game from './Game'
+import { typeMonster } from './objects/monster'
+import { randomElement } from './util'
 
 export function initGame (game: Game) {
   game.energyPool = 2 * GameTime.hour
@@ -30,10 +32,13 @@ export function initGame (game: Game) {
   //   spawn(Math.random() > 0.2 ? typeMonster : typeApple,
   //       zones.at(Math.random() * zones.length))
   // }
-
-  for (let i = 0; i < 5; i++) {
-    spawn(typeApple, zone)
+  for (let i = 0; i < 20; i++) {
+    spawn(typeMonster, randomElement(zones))
   }
+
+  // for (let i = 0; i < 5; i++) {
+  //   spawn(typeApple, zone)
+  // }
 
   const chest = spawn(typeChest, zone)
   spawn(typeApple, chest)

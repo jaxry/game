@@ -29,7 +29,7 @@ export default class Action extends Effect {
     this.object.activeAction = this
 
     this.time = game.time.current + this.duration
-    this.runIn(this.duration)
+    this.tickIn(this.duration)
 
     this.object.container.emit('itemActionStart', { action: this })
 
@@ -48,7 +48,7 @@ export default class Action extends Effect {
     return this
   }
 
-  override run () {
+  override tick () {
     this.deactivate()
 
     if (this.condition()) {
