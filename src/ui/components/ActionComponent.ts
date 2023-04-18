@@ -18,9 +18,6 @@ export default class ActionComponent extends Component {
 
     const time = createDiv(this.element, timeStyle)
 
-    let duration = action.time - game.time.current
-    let start = Date.now()
-
     function update () {
       const t = Math.max(0, action.time - game.time.current)
       time.textContent = GameTime.displaySeconds(t)

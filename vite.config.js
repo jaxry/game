@@ -4,4 +4,5 @@ export default {
     target: 'esnext',
     minify: false
   },
+
 }

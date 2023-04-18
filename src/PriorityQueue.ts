@@ -66,10 +66,6 @@ export default class PriorityQueue<T> {
     }
   }
 
-  peekElement () {
-    return this.elements[0]
-  }
-
   peekPriority () {
     return this.priority[0]
   }
