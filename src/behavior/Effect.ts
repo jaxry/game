@@ -2,7 +2,7 @@ import GameObject, {
   ActiveGameObjectEvent, GameObjectEventListener, GameObjectEvents,
 } from '../GameObject'
 import { serializable } from '../serialize'
-import { addEffectToGameLoop, removeEffectFromGameLoop } from './core'
+import { runEffectIn } from './core'
 
 export default class Effect {
   // From 0 to a positive integer.
@@ -24,14 +24,17 @@ export default class Effect {
     return (this.constructor as typeof Effect).tickPriority
   }
 
-  // called once every game loop (every second)
-  tick? (): void
-
   events? (): void
 
   onActivate? (): void
 
   onDeactivate? (): void
+
+  run? (): void
+
+  protected runIn (seconds: number) {
+    runEffectIn(this, seconds)
+  }
 
   // Adds a GameObject event that is automatically cleaned up when the effect
   // is deactivated
@@ -49,11 +52,6 @@ export default class Effect {
 
   passiveActivation () {
     this.isActive = true
-
-    if (this.tick) {
-      addEffectToGameLoop(this)
-    }
-
     this.events?.()
   }
 
@@ -81,10 +79,6 @@ export default class Effect {
     }
 
     this.isActive = false
-
-    if (this.tick) {
-      removeEffectFromGameLoop(this)
-    }
 
     this.object.effects.delete(this)
 

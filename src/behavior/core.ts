@@ -1,71 +1,56 @@
 import { game } from '../Game'
 import { destroyMarked } from './destroy'
 import Effect from './Effect'
-import { deleteElem } from '../util'
 import GameTime from '../GameTime'
+import { Timer } from '../Timer'
 
-let tickInProgress = false
-let queuedTickEffects: Effect[] = []
+export function runEffectIn (effect: Effect, timeFromNow: number) {
+  game.effectsAtTime.add(effect, game.time.current + timeFromNow)
+}
 
-function tick () {
-  for (const effect of queuedTickEffects) {
-    game.effectsWithTick[effect.tickPriority].add(effect)
+function tick (elapsedGameTime = 0) {
+  game.time.current += elapsedGameTime
+
+  while (game.time.current >= game.effectsAtTime.peekPriority()) {
+    const effect = game.effectsAtTime.pop()
+    effect.run?.()
   }
-  queuedTickEffects.length = 0
-
-  game.time.current++
-
-  tickInProgress = true
-  for (const set of game.effectsWithTick) {
-    for (const effect of set) {
-      effect.tick!()
-    }
-  }
-  tickInProgress = false
 
   game.energyPool += destroyMarked()
 
-  game.event.tick.emit()
 }
 
-let timeout: number | null = null
-
-function gameLoop () {
-  tick()
-  timeout = setTimeout(gameLoop, GameTime.tickTime * 1000)
-}
-
-export function addEffectToGameLoop (effect: Effect) {
-  queuedTickEffects.push(effect)
-}
-
-export function removeEffectFromGameLoop (effect: Effect) {
-  const deleted = game.effectsWithTick[effect.tickPriority].delete(effect)
-  if (!deleted) {
-    deleteElem(queuedTickEffects, effect)
-  }
-}
+let timer: Timer | null = null
 
 export function startGameLoop () {
-  if (!timeout) {
-    timeout = setTimeout(gameLoop, GameTime.tickTime * 1000)
+  const nextTime = game.effectsAtTime.peekPriority()
+  if (nextTime) {
+    const duration = Math.max(16,
+        (nextTime - game.time.current) * GameTime.millisecond)
+    timer = new Timer(() => {
+      tick(duration / GameTime.millisecond)
+      startGameLoop()
+    }, duration)
+  } else {
+    timer = null
   }
+}
+
+export function resumeGameLoop () {
+  timer?.resume()
 }
 
 export function pauseGameLoop () {
-  clearTimeout(timeout!)
-  timeout = null
-}
-
-export function isTickInProgress () {
-  return tickInProgress
+  timer?.pause()
 }
 
 let playerEffect: Effect | null = null
 
 export function setPlayerEffect (effect: Effect) {
+  timer?.stop()
   playerEffect?.deactivate()
   playerEffect = effect
   playerEffect.activate()
+  startGameLoop()
 }
 

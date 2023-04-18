@@ -3,25 +3,26 @@ import type GameObject from './GameObject'
 import type Effect from './behavior/Effect'
 import Observable from './Observable'
 import { serializable } from './serialize'
+import PriorityQueue from './PriorityQueue'
 
 export default class Game {
   time = new GameTime()
   event = {
-    tick: new Observable(),
+    startLoop: new Observable(),
+    stopLoop: new Observable(),
     mapPositionUpdate: new Observable(),
     mapUpdate: new Observable(),
     playerChange: new Observable<GameObject>(),
   }
   player!: GameObject
   world!: GameObject
-  effectsWithTick = [new Set(), new Set()] as Set<Effect>[]
+  effectsAtTime = new PriorityQueue<Effect>()
   energyPool = 0
 }
 
 serializable(Game, {
   transform: {
     event: serializable.ignore,
-    effectsWithTick: serializable.ignore,
   },
   afterDeserialize: (game: Game) => {
     rehydrateObject(game.world)

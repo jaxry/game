@@ -3,6 +3,7 @@ import { translate } from '../../util'
 import { makeStyle } from '../makeStyle'
 import { duration } from '../theme'
 import { createDiv } from '../create'
+import GameTime from '../../GameTime'
 
 export default class TravelAnimation {
   scale = 1
@@ -18,7 +19,7 @@ export default class TravelAnimation {
   start (action: TravelAction) {
     const icon = createDiv(this.container, iconStyle, action.object.type.name)
 
-    const actionDuration = action.milliseconds
+    const actionDuration = action.duration * GameTime.millisecond
 
     const animation = icon.animate([], {
       duration: actionDuration,

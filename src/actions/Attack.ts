@@ -6,7 +6,7 @@ import { serializable } from '../serialize'
 import GameTime from '../GameTime'
 
 export default class AttackAction extends Action {
-  override time = 3 * GameTime.second
+  static override duration = 3 * GameTime.second
 
   constructor (attacker: GameObject, public override target: GameObject) {
     super(attacker)

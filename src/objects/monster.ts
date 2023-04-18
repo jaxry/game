@@ -14,7 +14,7 @@ class MonsterAttack extends Effect {
     super(object)
   }
 
-  override tick () {
+  override run () {
     if (Math.random() > 0.05) {
       return
     }
@@ -70,7 +70,7 @@ class MonsterSearch extends Effect {
     }
   }
 
-  override tick () {
+  override run () {
     if (!this.object.activeAction && Math.random() < 0.03) {
       this.travel()
     }

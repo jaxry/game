@@ -1,23 +1,16 @@
 import { serializable } from './serialize'
 
 export default class GameTime {
-  static tickTime = 0.1
+  static tickTime = 1 // in seconds
+  static millisecond = GameTime.tickTime * 1000
   static second = 1 / GameTime.tickTime
   static minute = 60 * GameTime.second
   static hour = 60 * GameTime.minute
   static day = 24 * GameTime.hour
   current = 0
 
-  static seconds (time: number) {
-    return time / GameTime.second
-  }
-
-  static milliseconds (time: number) {
-    return GameTime.seconds(time) * 1000
-  }
-
   static displaySeconds (time: number) {
-    return GameTime.seconds(time).toFixed(1)
+    return (time * GameTime.second).toFixed(1)
   }
 
   getSecondOfMinute (): number {

@@ -1,11 +1,16 @@
 import Effect from './Effect'
 import type GameObject from '../GameObject'
 import GameTime from '../GameTime'
+import { game } from '../Game'
 
 export default class Action extends Effect {
   static override tickPriority = 0
+  static duration = GameTime.second
+  time: number
 
-  time = GameTime.second
+  get duration () {
+    return (this.constructor as typeof Action).duration
+  }
 
   // for targeted actions such as attacks
   target?: GameObject | GameObject[]
@@ -14,15 +19,7 @@ export default class Action extends Effect {
     return this.constructor.name
   }
 
-  get seconds () {
-    return GameTime.seconds(this.time)
-  }
-
-  get milliseconds () {
-    return GameTime.milliseconds(this.time)
-  }
-
-  // Called after the specified time is elapsed
+  // Called after the specified duration elapses
   do? (): void
 
   override activate () {
@@ -30,6 +27,9 @@ export default class Action extends Effect {
 
     this.object.activeAction?.deactivate()
     this.object.activeAction = this
+
+    this.time = game.time.current + this.duration
+    this.runIn(this.duration)
 
     this.object.container.emit('itemActionStart', { action: this })
 
@@ -48,14 +48,10 @@ export default class Action extends Effect {
     return this
   }
 
-  override tick () {
-    this.time--
+  override run () {
+    this.deactivate()
 
-    if (!this.condition()) {
-      this.deactivate()
-
-    } else if (this.time <= 0) {
-      this.deactivate()
+    if (this.condition()) {
       this.do?.()
     }
   }

@@ -5,7 +5,6 @@ import { generateRandomGraph } from './map/generateRandomGraph'
 import { startForceDirectedSimulation } from './map/forceDirectedSim'
 import { makeType } from './GameObjectType'
 import Game from './Game'
-import { typeMonster } from './objects/monster'
 
 export function initGame (game: Game) {
   game.energyPool = 2 * GameTime.hour
@@ -27,18 +26,40 @@ export function initGame (game: Game) {
     spawn(typeApple, game.player)
   }
 
-  for (let i = 0; i < 15; i++) {
-    spawn(Math.random() > 0.2 ? typeMonster : typeApple,
-        zones.at(Math.random() * zones.length))
-  }
-
-  // for (let i = 0; i < 5; i++) {
-  //   spawn(typeApple, zone)
+  // for (let i = 0; i < 15; i++) {
+  //   spawn(Math.random() > 0.2 ? typeMonster : typeApple,
+  //       zones.at(Math.random() * zones.length))
   // }
+
+  for (let i = 0; i < 5; i++) {
+    spawn(typeApple, zone)
+  }
 
   const chest = spawn(typeChest, zone)
   spawn(typeApple, chest)
   spawn(typeApple, chest)
+
+  // new class extends Effect {
+  //   override run () {
+  //     console.log('run 1')
+  //     this.runAtTime(5 + Math.random() * 2)
+  //   }
+  //
+  //   override onActivate () {
+  //     this.runAtTime(3)
+  //   }
+  // }(game.player).activate()
+
+  // new class extends Effect {
+  //   override run () {
+  //     console.log('run 2')
+  //     this.runAtTime(13 + Math.random() * 6)
+  //   }
+  //
+  //   override onActivate () {
+  //     this.runAtTime(3)
+  //   }
+  // }(game.player).activate()
 }
 
 const typeWorld = makeType({
