@@ -1,64 +1,43 @@
 import { game } from '../Game'
-import { destroyMarked } from './destroy'
 import Effect from './Effect'
-import { deleteElem } from '../util'
 import GameTime from '../GameTime'
 
-let tickInProgress = false
-let queuedTickEffects: Effect[] = []
-
-function tick () {
-  for (const effect of queuedTickEffects) {
-    game.effectsWithTick[effect.tickPriority].add(effect)
+export function runEffectIn (effect: Effect, timeFromNow: number) {
+  if (effect.tick) {
+    game.effectsAtTime.add(effect, game.time.current + timeFromNow)
   }
-  queuedTickEffects.length = 0
+}
 
-  game.time.current++
+function tick (elapsedGameTime = 0) {
+  game.time.current += elapsedGameTime
 
-  tickInProgress = true
-  for (const set of game.effectsWithTick) {
-    for (const effect of set) {
+  while (game.time.current >= game.effectsAtTime.peekPriority()) {
+    const effect = game.effectsAtTime.pop()
+    // effect may have been deactivated since it was added to the queue
+    if (effect.isActive) {
       effect.tick!()
     }
   }
-  tickInProgress = false
-
-  game.energyPool += destroyMarked()
 
   game.event.tick.emit()
 }
 
-let timeout: number | null = null
+let timeout: NodeJS.Timeout | null = null
 
 function gameLoop () {
-  tick()
-  timeout = setTimeout(gameLoop, GameTime.tickTime * 1000)
-}
-
-export function addEffectToGameLoop (effect: Effect) {
-  queuedTickEffects.push(effect)
-}
-
-export function removeEffectFromGameLoop (effect: Effect) {
-  const deleted = game.effectsWithTick[effect.tickPriority].delete(effect)
-  if (!deleted) {
-    deleteElem(queuedTickEffects, effect)
-  }
+  tick(100 * GameTime.millisecond)
+  timeout = setTimeout(gameLoop, 100)
 }
 
 export function startGameLoop () {
   if (!timeout) {
-    timeout = setTimeout(gameLoop, GameTime.tickTime * 1000)
+    timeout = setTimeout(gameLoop, 100)
   }
 }
 
 export function pauseGameLoop () {
   clearTimeout(timeout!)
   timeout = null
-}
-
-export function isTickInProgress () {
-  return tickInProgress
 }
 
 let playerEffect: Effect | null = null

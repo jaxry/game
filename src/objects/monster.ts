@@ -14,21 +14,26 @@ class MonsterAttack extends Effect {
     super(object)
   }
 
-  override tick () {
-    if (Math.random() > 0.05) {
-      return
-    }
-
-    const active = this.object.activeAction
-
-    if (isContainedWith(this.object, this.target)) {
-      if (!(active instanceof AttackAction)) {
-        new AttackAction(this.object, this.target).activate()
+  override events () {
+    this.onContainer('leave', ({ object }) => {
+      if (object === this.object || object === game.player) {
+        this.deactivate()
+        new MonsterSearch(this.object).activate()
       }
-    } else {
-      this.deactivate()
-      new MonsterSearch(this.object).activate()
-    }
+    })
+    this.onContainer('childActionEnd', ({ action }) => {
+      if (action.object === this.object) {
+        this.tickInTime(15 * Math.random())
+      }
+    })
+  }
+
+  override onActivate () {
+    this.tickInTime(15 * Math.random())
+  }
+
+  override tick () {
+    new AttackAction(this.object, this.target).activate()
   }
 }
 
@@ -36,44 +41,43 @@ serializable(MonsterAttack)
 
 class MonsterSearch extends Effect {
   found () {
-    this.object.activeAction?.deactivate()
     this.deactivate()
     new MonsterAttack(this.object, game.player).activate()
   }
 
-  travel () {
-    if (!this.object.container.connections) {
-      return
+  lookForPlayer () {
+    if (isContainedWith(this.object, game.player)) {
+      return this.found()
     }
-    const location = randomElement(this.object.container.connections)
-    new TravelAction(this.object, location).activate()
+
+    this.tickInTime(15 * Math.random())
   }
 
   override events () {
-    this.on(this.object.container, 'enter', ({ item }) => {
-      if (isPlayer(item)) {
+    this.onContainer('enter', ({ object }) => {
+      if (isPlayer(object)) {
         this.found()
       }
     })
 
-    this.on(this.object.container, 'leave', ({ item }) => {
-      if (item !== this.object) {
-        return
+    this.onContainer('leave', ({ object }) => {
+      if (object === this.object) {
+        this.reregisterEvents()
+        this.lookForPlayer()
       }
-      this.reactivate()
     })
   }
 
   override onActivate () {
-    if (isContainedWith(this.object, game.player)) {
-      return this.found()
-    }
+    this.lookForPlayer()
   }
 
   override tick () {
-    if (!this.object.activeAction && Math.random() < 0.03) {
-      this.travel()
+    if (!this.object.container.connections) {
+      return
     }
+    const location = randomElement(this.object.container.connections)
+    return new TravelAction(this.object, location).activate()
   }
 }
 

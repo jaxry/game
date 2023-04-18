@@ -44,7 +44,10 @@ export default class ObjectCard extends GameComponent {
     this.name.textContent = object.type.name
 
     if (object.activeAction) {
-      this.setAction(object.activeAction)
+      // delay a frame so animation starts correctly
+      requestAnimationFrame(() => {
+        this.setAction(object.activeAction)
+      })
     }
 
     onClickNotDrag(this.element, (e) => {
@@ -63,12 +66,12 @@ export default class ObjectCard extends GameComponent {
     const self = this
     this.newEffect(class extends Effect {
       override events () {
-        this.on(object.container, 'leave', ({ item }) => {
-          if (item === this.object) {
+        this.onContainer('leave', ({ object }) => {
+          if (object === this.object) {
             this.reregisterEvents()
           }
         })
-        this.on(object.container, 'itemActionStart', ({ action }) => {
+        this.onContainer('childActionStart', ({ action }) => {
           if (action.object !== this.object) {
             return
           }
@@ -76,7 +79,7 @@ export default class ObjectCard extends GameComponent {
           self.setAction(action)
         })
 
-        this.on(object.container, 'itemActionEnd', ({ action }) => {
+        this.onContainer('childActionEnd', ({ action }) => {
           if (action.object !== this.object) {
             return
           }

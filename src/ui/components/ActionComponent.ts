@@ -7,7 +7,6 @@ import { game } from '../../Game'
 import { createDiv, createElement, createTextNode } from '../create'
 
 export default class ActionComponent extends Component {
-  private readonly time: HTMLElement
 
   constructor (public action: Action) {
     super()
@@ -17,14 +16,16 @@ export default class ActionComponent extends Component {
     const name = createDiv(this.element, nameStyle)
     formatName(name, action)
 
-    this.time = createDiv(this.element, timeStyle)
+    const time = createDiv(this.element, timeStyle)
 
-    this.update()
-    this.on(game.event.tick, () => this.update())
-  }
+    function update () {
+      const t = Math.max(0, action.time - game.time.current)
+      time.textContent = GameTime.displaySeconds(t)
+    }
 
-  update () {
-    this.time.textContent = GameTime.displaySeconds(this.action.time)
+    update()
+
+    this.on(game.event.tick, update)
   }
 }
 

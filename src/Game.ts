@@ -3,6 +3,7 @@ import type GameObject from './GameObject'
 import type Effect from './behavior/Effect'
 import Observable from './Observable'
 import { serializable } from './serialize'
+import PriorityQueue from './PriorityQueue'
 
 export default class Game {
   time = new GameTime()
@@ -14,14 +15,13 @@ export default class Game {
   }
   player!: GameObject
   world!: GameObject
-  effectsWithTick = [new Set(), new Set()] as Set<Effect>[]
+  effectsAtTime = new PriorityQueue<Effect>()
   energyPool = 0
 }
 
 serializable(Game, {
   transform: {
     event: serializable.ignore,
-    effectsWithTick: serializable.ignore,
   },
   afterDeserialize: (game: Game) => {
     rehydrateObject(game.world)
@@ -48,4 +48,6 @@ export let game: Game
 
 export function setGameInstance (instance: Game) {
   game = instance
+  // @ts-ignore
+  window.game = game
 }

@@ -6,7 +6,9 @@ import DragAndDrop from '../DragAndDrop'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
-import { border } from '../theme'
+import { createDiv, createElement } from '../create'
+import { deleteSaveFile, saveGameToFile } from '../../saveLoad'
+import { restartGame } from '../../main'
 
 export const dragAndDropGameObject = new DragAndDrop<GameObject>()
 
@@ -16,11 +18,8 @@ export default class GameUI extends GameComponent {
 
     this.element.classList.add(containerStyle)
 
-    // const sidebar = this.newComponent(GameSidebar)
-    // sidebar.element.classList.add(sidebarStyle)
-    // this.element.append(sidebar.element)
-
     this.createMap()
+    this.createSaveLoadBar()
     this.setupWindowVisibility()
     startGameLoop()
   }
@@ -31,8 +30,8 @@ export default class GameUI extends GameComponent {
 
     const mapEffect = this.newEffect(class extends Effect {
       override events () {
-        this.on(this.object.container, 'leave', ({ item }) => {
-          if (item === this.object) {
+        this.onContainer('leave', ({ object }) => {
+          if (object === this.object) {
             map.render(this.object.container)
             this.reregisterEvents()
           }
@@ -61,17 +60,26 @@ export default class GameUI extends GameComponent {
 
   private setupWindowVisibility () {
     function visibilityChange () {
-      if (document.hidden) {
-        pauseGameLoop()
-      } else {
-        startGameLoop()
-      }
+      document.hidden ? pauseGameLoop() : startGameLoop()
     }
 
     document.addEventListener('visibilitychange', visibilityChange)
     this.onRemove(() => {
       document.removeEventListener('visibilitychange', visibilityChange)
     })
+  }
+
+  private createSaveLoadBar () {
+    const saveLoadContainer = createDiv(this.element, saveLoadContainerStyle)
+
+    const save = createElement(saveLoadContainer, 'button', undefined, 'Save')
+    save.addEventListener('click', saveGameToFile)
+
+    const load = createElement(saveLoadContainer, 'button', undefined, 'Load')
+    load.addEventListener('click', restartGame)
+
+    const erase = createElement(saveLoadContainer, 'button', undefined, 'Erase')
+    erase.addEventListener('click', deleteSaveFile)
   }
 }
 
@@ -80,9 +88,10 @@ const containerStyle = makeStyle({
   display: `flex`,
 })
 
-const sidebarStyle = makeStyle({
-  flex: `0 0 25rem`,
-  borderRight: border,
+const saveLoadContainerStyle = makeStyle({
+  position: `absolute`,
+  display: `flex`,
+  gap: `1rem`,
 })
 
 const mapStyle = makeStyle({

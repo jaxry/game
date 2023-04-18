@@ -1,28 +1,25 @@
 import Effect from './Effect'
 import type GameObject from '../GameObject'
 import GameTime from '../GameTime'
+import { game } from '../Game'
+import { serializable } from '../serialize'
+import { toPrecision } from '../util'
 
 export default class Action extends Effect {
-  static override tickPriority = 0
-
-  time = GameTime.second
-
+  static duration = GameTime.second
+  time: number
   // for targeted actions such as attacks
   target?: GameObject | GameObject[]
+
+  get duration () {
+    return (this.constructor as typeof Action).duration
+  }
 
   get name (): string | (string | GameObject)[] {
     return this.constructor.name
   }
 
-  get seconds () {
-    return GameTime.seconds(this.time)
-  }
-
-  get milliseconds () {
-    return GameTime.milliseconds(this.time)
-  }
-
-  // Called after the specified time is elapsed
+  // Called after the specified duration elapses
   do? (): void
 
   override activate () {
@@ -31,7 +28,10 @@ export default class Action extends Effect {
     this.object.activeAction?.deactivate()
     this.object.activeAction = this
 
-    this.object.container.emit('itemActionStart', { action: this })
+    this.time = game.time.current + this.duration
+    this.tickInTime(this.duration)
+
+    this.object.container.emit('childActionStart', { action: this })
 
     return this
   }
@@ -43,19 +43,15 @@ export default class Action extends Effect {
       this.object.activeAction = undefined as any
     }
 
-    this.object.container.emit('itemActionEnd', { action: this })
+    this.object.container.emit('childActionEnd', { action: this })
 
     return this
   }
 
   override tick () {
-    this.time--
+    this.deactivate()
 
-    if (!this.condition()) {
-      this.deactivate()
-
-    } else if (this.time <= 0) {
-      this.deactivate()
+    if (this.condition()) {
       this.do?.()
     }
   }
@@ -64,3 +60,9 @@ export default class Action extends Effect {
     return true
   }
 }
+
+serializable(Action, {
+  transform: {
+    time: (time) => toPrecision(time, 1),
+  },
+})

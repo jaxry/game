@@ -115,12 +115,12 @@ export function getPath (source: GameObject, destination: GameObject) {
   const costSoFar = new Map<GameObject, number>()
   const frontier = new PriorityQueue<GameObject>()
 
-  frontier.set(source, 0)
+  frontier.add(source, 0)
   cameFrom.set(source, source)
   costSoFar.set(source, 0)
 
   while (frontier.length) {
-    const current = frontier.get()
+    const current = frontier.pop()
 
     if (current === destination) {
       return reconstructPath(source, destination, cameFrom)
@@ -135,7 +135,7 @@ export function getPath (source: GameObject, destination: GameObject) {
       if (neighborCost === undefined || newCost < neighborCost) {
         // const heuristic = connectionDistance(next, destination)
         const heuristic = 0
-        frontier.set(next, newCost + heuristic)
+        frontier.add(next, newCost + heuristic)
         costSoFar.set(next, newCost)
         cameFrom.set(next, current)
       }

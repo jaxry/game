@@ -1,26 +1,28 @@
-import { swap } from './util'
+import { swap, toPrecision } from './util'
+import { serializable } from './serialize'
 
 // implemented as a binary heap
+// returns elements with the lowest priority first
 export default class PriorityQueue<T> {
-  private elements: T[] = []
-  private costs: number[] = []
+  elements: T[] = []
+  priority: number[] = []
 
   get length () {
     return this.elements.length
   }
 
-  set (element: T, cost: number) {
+  add (element: T, priority: number) {
     this.elements.push(element)
-    this.costs.push(cost)
+    this.priority.push(priority)
 
     let i = this.elements.length - 1
 
     while (i > 0) {
       const parent = Math.floor((i - 1) / 2)
-      const parentCost = this.costs[parent]
-      if (cost < parentCost) {
+      const parentPriority = this.priority[parent]
+      if (priority < parentPriority) {
         swap(this.elements, i, parent)
-        swap(this.costs, i, parent)
+        swap(this.priority, i, parent)
         i = parent
       } else {
         return
@@ -28,16 +30,16 @@ export default class PriorityQueue<T> {
     }
   }
 
-  get (): T {
+  pop (): T {
     if (this.elements.length === 1) {
-      this.costs.pop()
+      this.priority.pop()
       return this.elements.pop()!
     }
 
     const head = this.elements[0]
 
     this.elements[0] = this.elements.pop()!
-    this.costs[0] = this.costs.pop()!
+    this.priority[0] = this.priority.pop()!
 
     let i = 0
 
@@ -47,17 +49,17 @@ export default class PriorityQueue<T> {
 
       let smallest = i
       if (left < this.elements.length &&
-          this.costs[left] < this.costs[smallest]) {
+          this.priority[left] < this.priority[smallest]) {
         smallest = left
       }
       if (right < this.elements.length &&
-          this.costs[right] < this.costs[smallest]) {
+          this.priority[right] < this.priority[smallest]) {
         smallest = right
       }
 
       if (smallest !== i) {
         swap(this.elements, i, smallest)
-        swap(this.costs, i, smallest)
+        swap(this.priority, i, smallest)
         i = smallest
       } else {
         return head
@@ -65,8 +67,18 @@ export default class PriorityQueue<T> {
     }
   }
 
+  peekPriority () {
+    return this.priority[0]
+  }
+
   clear () {
     this.elements.length = 0
-    this.costs.length = 0
+    this.priority.length = 0
   }
 }
+
+serializable(PriorityQueue, {
+  transform: {
+    priority: (priority) => priority.map((p) => toPrecision(p, 3)),
+  },
+})

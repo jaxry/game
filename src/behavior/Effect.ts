@@ -2,14 +2,9 @@ import GameObject, {
   ActiveGameObjectEvent, GameObjectEventListener, GameObjectEvents,
 } from '../GameObject'
 import { serializable } from '../serialize'
-import { addEffectToGameLoop, removeEffectFromGameLoop } from './core'
+import { runEffectIn } from './core'
 
 export default class Effect {
-  // From 0 to a positive integer.
-  // The lower the number, the sooner the effect's tick method
-  // is called in the game loop.
-  static tickPriority = 1
-
   // The object associated with the effect.
   // When the object is destroyed, the effect is automatically cleaned up.
   object: GameObject
@@ -20,20 +15,14 @@ export default class Effect {
     this.object = object
   }
 
-  get tickPriority () {
-    return (this.constructor as typeof Effect).tickPriority
-  }
-
-  // called once every game loop (every second)
-  tick? (): void
-
   events? (): void
 
   onActivate? (): void
 
   onDeactivate? (): void
 
-  // Adds a GameObject event that is automatically cleaned up when the effect
+  tick? (): void
+
   // is deactivated
   on<T extends keyof GameObjectEvents> (
       obj: GameObject, event: T, listener: GameObjectEventListener<T>) {
@@ -47,13 +36,21 @@ export default class Effect {
     return activeEvent
   }
 
+  // Adds a GameObject event that is automatically cleaned up when the effect
+
+  onObject<T extends keyof GameObjectEvents> (
+      event: T, listener: GameObjectEventListener<T>) {
+    return this.on(this.object, event, listener)
+  }
+
+  onContainer<T extends keyof GameObjectEvents> (
+      event: T, listener: GameObjectEventListener<T>) {
+    return this.on(this.object.container, event, listener)
+  }
+
+  // used when turning on the event after loading a save
   passiveActivation () {
     this.isActive = true
-
-    if (this.tick) {
-      addEffectToGameLoop(this)
-    }
-
     this.events?.()
   }
 
@@ -81,10 +78,6 @@ export default class Effect {
     }
 
     this.isActive = false
-
-    if (this.tick) {
-      removeEffectFromGameLoop(this)
-    }
 
     this.object.effects.delete(this)
 
@@ -120,6 +113,10 @@ export default class Effect {
     this.deactivate()
     this.object = object
     this.activate()
+  }
+
+  protected tickInTime (seconds: number) {
+    runEffectIn(this, seconds)
   }
 }
 
