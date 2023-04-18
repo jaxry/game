@@ -17,6 +17,7 @@ import tween, { Tween } from '../tween'
 import throttle from '../throttle'
 import Bounds from './Inventory/Bounds'
 import { attractableObjects } from './Inventory/attractableObjects'
+import { getDimensions } from '../dimensionsCache'
 
 export default class Inventory extends GameComponent {
   onResize?: (xDiff: number, yDiff: number) => void
@@ -201,8 +202,9 @@ export default class Inventory extends GameComponent {
     for (const [object, card] of this.objectToCard) {
       const x = object.position.x
       const y = object.position.y
-      const w = card.element.offsetWidth / 2
-      const h = card.element.offsetHeight / 2
+      const { width, height } = getDimensions(card.element)
+      const w = width / 2
+      const h = height / 2
       this.targetBounds.extendLeft(x - w)
       this.targetBounds.extendRight(x + w)
       this.targetBounds.extendTop(y - h)

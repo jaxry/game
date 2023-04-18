@@ -6,7 +6,7 @@ import { duration, mapEdgeColor } from '../theme'
 import MapNode from './MapNode'
 import addPanZoom from '../PanZoom'
 import { makeOrGet, numToPixel, numToPx, translate } from '../../util'
-import TravelAnimation from '../game/TravelAnimation'
+import TravelAnimation from './Map/TravelAnimation'
 import { createDiv } from '../create'
 
 export default class MapComponent extends Component {

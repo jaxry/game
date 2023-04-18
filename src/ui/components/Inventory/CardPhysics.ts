@@ -2,11 +2,13 @@ import GameObject from '../../../GameObject'
 import Component from '../Component'
 import { clamp, deleteElemFn } from '../../../util'
 import Point from '../../../Point'
+import { getDimensions } from '../../dimensionsCache'
 
 const velocityDecay = 0.995
 const minVelocityBeforeStop = 1e-4
 const repelForce = 0.0003
 const minSimulationTime = 100
+const maxElapsedTime = 30
 
 const attractionForce = 3 * repelForce
 const attractionDistance = 16
@@ -85,7 +87,8 @@ export default class CardPhysics {
     }
 
     const time = performance.now()
-    const elapsed = this.lastTime === 0 ? 16 : time - this.lastTime
+    const elapsed = Math.min(maxElapsedTime,
+        this.lastTime === 0 ? 16 : time - this.lastTime)
     this.lastTime = time
     this.inactiveTime += elapsed
 
@@ -270,7 +273,7 @@ function rectDistance (aRect: DOMRect, bRect: DOMRect) {
 // This method ignores transform scaling on an element,
 // unlike getBoundingClientRect
 function rectFromPosition (position: Point, element: HTMLElement) {
-  const w = element.offsetWidth
-  const h = element.offsetHeight
-  return new DOMRect(position.x - w / 2, position.y - h / 2, w, h)
+  const { width, height } = getDimensions(element)
+  return new DOMRect(position.x - width / 2, position.y - height / 2,
+      width, height)
 }

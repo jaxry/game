@@ -1,9 +1,9 @@
-import TravelAction from '../../actions/Travel'
-import { translate } from '../../util'
-import { makeStyle } from '../makeStyle'
-import { duration } from '../theme'
-import { createDiv } from '../create'
-import GameTime from '../../GameTime'
+import TravelAction from '../../../actions/Travel'
+import { translate } from '../../../util'
+import { makeStyle } from '../../makeStyle'
+import { duration } from '../../theme'
+import { createDiv } from '../../create'
+import GameTime from '../../../GameTime'
 
 export default class TravelAnimation {
   scale = 1
