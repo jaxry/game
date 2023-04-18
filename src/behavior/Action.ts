@@ -4,7 +4,6 @@ import GameTime from '../GameTime'
 import { game } from '../Game'
 
 export default class Action extends Effect {
-  static override tickPriority = 0
   static duration = GameTime.second
   time: number
 
@@ -31,7 +30,7 @@ export default class Action extends Effect {
     this.time = game.time.current + this.duration
     this.tickIn(this.duration)
 
-    this.object.container.emit('itemActionStart', { action: this })
+    this.object.container.emit('childActionStart', { action: this })
 
     return this
   }
@@ -43,7 +42,7 @@ export default class Action extends Effect {
       this.object.activeAction = undefined as any
     }
 
-    this.object.container.emit('itemActionEnd', { action: this })
+    this.object.container.emit('childActionEnd', { action: this })
 
     return this
   }

@@ -82,15 +82,12 @@ export class GameObjectEvents {
   destroy: void
 
   // objects being contained or taken out of the event object
-  enter: { item: GameObject, from?: GameObject }
-  leave: { item: GameObject, to?: GameObject }
+  enter: { object: GameObject, from?: GameObject }
+  leave: { object: GameObject, to?: GameObject }
 
   // actions starting/finishing on a contained object of the event object
-  itemActionStart: { action: Action }
-  itemActionEnd: { action: Action }
-
-  // the event object put inside a new container object
-  // move: { to: GameObject, from?: GameObject },
+  childActionStart: { action: Action }
+  childActionEnd: { action: Action }
 }
 
 export enum ContainedAs {

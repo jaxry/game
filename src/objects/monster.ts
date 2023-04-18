@@ -15,13 +15,13 @@ class MonsterAttack extends Effect {
   }
 
   override events () {
-    this.on(this.object.container, 'leave', ({ item }) => {
-      if (item === this.object || item === game.player) {
+    this.onContainer('leave', ({ object }) => {
+      if (object === this.object || object === game.player) {
         this.deactivate()
         new MonsterSearch(this.object).activate()
       }
     })
-    this.on(this.object.container, 'itemActionEnd', ({ action }) => {
+    this.onContainer('childActionEnd', ({ action }) => {
       if (action.object === this.object) {
         this.tickIn(15 * Math.random())
       }
@@ -54,18 +54,17 @@ class MonsterSearch extends Effect {
   }
 
   override events () {
-    this.on(this.object.container, 'enter', ({ item }) => {
-      if (isPlayer(item)) {
+    this.onContainer('enter', ({ object }) => {
+      if (isPlayer(object)) {
         this.found()
       }
     })
 
-    this.on(this.object.container, 'leave', ({ item }) => {
-      if (item !== this.object) {
-        return
+    this.onContainer('leave', ({ object }) => {
+      if (object === this.object) {
+        this.reregisterEvents()
+        this.lookForPlayer()
       }
-      this.reregisterEvents()
-      this.lookForPlayer()
     })
   }
 

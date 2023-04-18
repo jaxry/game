@@ -5,11 +5,6 @@ import { serializable } from '../serialize'
 import { runEffectIn } from './core'
 
 export default class Effect {
-  // From 0 to a positive integer.
-  // The lower the number, the sooner the effect's tick method
-  // is called in the game loop.
-  static tickPriority = 1
-
   // The object associated with the effect.
   // When the object is destroyed, the effect is automatically cleaned up.
   object: GameObject
@@ -18,10 +13,6 @@ export default class Effect {
 
   constructor (object: GameObject) {
     this.object = object
-  }
-
-  get tickPriority () {
-    return (this.constructor as typeof Effect).tickPriority
   }
 
   events? (): void
@@ -50,6 +41,17 @@ export default class Effect {
     return activeEvent
   }
 
+  onObject<T extends keyof GameObjectEvents> (
+      event: T, listener: GameObjectEventListener<T>) {
+    return this.on(this.object, event, listener)
+  }
+
+  onContainer<T extends keyof GameObjectEvents> (
+      event: T, listener: GameObjectEventListener<T>) {
+    return this.on(this.object.container, event, listener)
+  }
+
+  // used when turning on the event after loading a save
   passiveActivation () {
     this.isActive = true
     this.events?.()
