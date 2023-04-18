@@ -1,8 +1,6 @@
 import { game } from '../Game'
-import { destroyMarked } from './destroy'
 import Effect from './Effect'
 import GameTime from '../GameTime'
-import { Timer } from '../Timer'
 
 export function runEffectIn (effect: Effect, timeFromNow: number) {
   game.effectsAtTime.add(effect, game.time.current + timeFromNow)
@@ -16,41 +14,32 @@ function tick (elapsedGameTime = 0) {
     effect.run?.()
   }
 
-  game.energyPool += destroyMarked()
-
+  game.event.tick.emit()
 }
 
-let timer: Timer | null = null
+let timeout: number | null = null
+
+export function gameLoop () {
+  tick(100 * GameTime.millisecond)
+  timeout = setTimeout(gameLoop, 100)
+}
 
 export function startGameLoop () {
-  const nextTime = game.effectsAtTime.peekPriority()
-  if (nextTime) {
-    const duration = Math.max(16,
-        (nextTime - game.time.current) * GameTime.millisecond)
-    timer = new Timer(() => {
-      tick(duration / GameTime.millisecond)
-      startGameLoop()
-    }, duration)
-  } else {
-    timer = null
+  if (!timeout) {
+    timeout = setTimeout(gameLoop, 100)
   }
 }
 
-export function resumeGameLoop () {
-  timer?.resume()
-}
-
 export function pauseGameLoop () {
-  timer?.pause()
+  clearTimeout(timeout!)
+  timeout = null
 }
 
 let playerEffect: Effect | null = null
 
 export function setPlayerEffect (effect: Effect) {
-  timer?.stop()
   playerEffect?.deactivate()
   playerEffect = effect
   playerEffect.activate()
-  startGameLoop()
 }
 

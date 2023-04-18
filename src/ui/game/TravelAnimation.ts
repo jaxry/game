@@ -19,7 +19,7 @@ export default class TravelAnimation {
   start (action: TravelAction) {
     const icon = createDiv(this.container, iconStyle, action.object.type.name)
 
-    const actionDuration = action.duration * GameTime.millisecond
+    const actionDuration = action.duration / GameTime.millisecond
 
     const animation = icon.animate([], {
       duration: actionDuration,

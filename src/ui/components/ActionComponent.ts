@@ -5,7 +5,6 @@ import { makeStyle } from '../makeStyle'
 import GameTime from '../../GameTime'
 import { game } from '../../Game'
 import { createDiv, createElement, createTextNode } from '../create'
-import { Timer } from '../../Timer'
 
 export default class ActionComponent extends Component {
 
@@ -23,28 +22,13 @@ export default class ActionComponent extends Component {
     let start = Date.now()
 
     function update () {
-      const t = Math.max(0,
-          duration - (Date.now() - start) / GameTime.millisecond)
+      const t = Math.max(0, action.time - game.time.current)
       time.textContent = GameTime.displaySeconds(t)
     }
 
     update()
 
-    const timer = new Timer(() => {
-      update()
-      timer.resume(100)
-    }, 100)
-    this.onRemove(() => {
-      timer.stop()
-    })
-
-    this.on(game.event.stopLoop, () => {
-      timer.pause()
-    })
-
-    this.on(game.event.startLoop, () => {
-      timer.resume()
-    })
+    this.on(game.event.tick, update)
   }
 }
 

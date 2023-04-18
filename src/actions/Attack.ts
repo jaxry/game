@@ -1,5 +1,5 @@
 import Action from '../behavior/Action'
-import { markDestroy } from '../behavior/destroy'
+import { destroy } from '../behavior/destroy'
 import type GameObject from '../GameObject'
 import { isAncestor } from '../behavior/container'
 import { serializable } from '../serialize'
@@ -25,7 +25,7 @@ export default class AttackAction extends Action {
     if (this.target.health) {
       this.target.health--
       if (this.target.health <= 0) {
-        markDestroy(this.target)
+        destroy(this.target)
       }
     }
   }

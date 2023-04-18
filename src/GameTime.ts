@@ -1,9 +1,8 @@
 import { serializable } from './serialize'
 
 export default class GameTime {
-  static tickTime = 1 // in seconds
-  static millisecond = GameTime.tickTime * 1000
-  static second = 1 / GameTime.tickTime
+  static second = 1
+  static millisecond = 0.001 * GameTime.second
   static minute = 60 * GameTime.second
   static hour = 60 * GameTime.minute
   static day = 24 * GameTime.hour

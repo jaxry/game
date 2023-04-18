@@ -8,8 +8,7 @@ import PriorityQueue from './PriorityQueue'
 export default class Game {
   time = new GameTime()
   event = {
-    startLoop: new Observable(),
-    stopLoop: new Observable(),
+    tick: new Observable(),
     mapPositionUpdate: new Observable(),
     mapUpdate: new Observable(),
     playerChange: new Observable<GameObject>(),

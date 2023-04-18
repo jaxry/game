@@ -1,9 +1,7 @@
 import { game } from '../../Game'
 import MapComponent from './Map'
 import Effect from '../../behavior/Effect'
-import {
-  pauseGameLoop, resumeGameLoop, startGameLoop,
-} from '../../behavior/core'
+import { gameLoop, pauseGameLoop, startGameLoop } from '../../behavior/core'
 import DragAndDrop from '../DragAndDrop'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
@@ -24,7 +22,7 @@ export default class GameUI extends GameComponent {
 
     this.createMap()
     this.setupWindowVisibility()
-    startGameLoop()
+    gameLoop()
   }
 
   private createMap () {
@@ -63,7 +61,7 @@ export default class GameUI extends GameComponent {
 
   private setupWindowVisibility () {
     function visibilityChange () {
-      document.hidden ? pauseGameLoop() : resumeGameLoop()
+      document.hidden ? pauseGameLoop() : startGameLoop()
     }
 
     document.addEventListener('visibilitychange', visibilityChange)
