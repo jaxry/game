@@ -7,6 +7,9 @@ import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import { border } from '../theme'
+import { createDiv, createElement } from '../create'
+import { deleteSaveFile, saveGameToFile } from '../../saveLoad'
+import { restartGame } from '../../main'
 
 export const dragAndDropGameObject = new DragAndDrop<GameObject>()
 
@@ -21,6 +24,7 @@ export default class GameUI extends GameComponent {
     // this.element.append(sidebar.element)
 
     this.createMap()
+    this.createSaveLoadBar()
     this.setupWindowVisibility()
     gameLoop()
   }
@@ -69,6 +73,19 @@ export default class GameUI extends GameComponent {
       document.removeEventListener('visibilitychange', visibilityChange)
     })
   }
+
+  private createSaveLoadBar () {
+    const saveLoadContainer = createDiv(this.element, saveLoadContainerStyle)
+
+    const save = createElement(saveLoadContainer, 'button', undefined, 'Save')
+    save.addEventListener('click', saveGameToFile)
+
+    const load = createElement(saveLoadContainer, 'button', undefined, 'Load')
+    load.addEventListener('click', restartGame)
+
+    const erase = createElement(saveLoadContainer, 'button', undefined, 'Erase')
+    erase.addEventListener('click', deleteSaveFile)
+  }
 }
 
 const containerStyle = makeStyle({
@@ -76,9 +93,10 @@ const containerStyle = makeStyle({
   display: `flex`,
 })
 
-const sidebarStyle = makeStyle({
-  flex: `0 0 25rem`,
-  borderRight: border,
+const saveLoadContainerStyle = makeStyle({
+  position: `absolute`,
+  display: `flex`,
+  gap: `1rem`
 })
 
 const mapStyle = makeStyle({

@@ -2,6 +2,8 @@ import Effect from './Effect'
 import type GameObject from '../GameObject'
 import GameTime from '../GameTime'
 import { game } from '../Game'
+import { serializable } from '../serialize'
+import { toPrecision } from '../util'
 
 export default class Action extends Effect {
   static duration = GameTime.second
@@ -59,3 +61,9 @@ export default class Action extends Effect {
     return true
   }
 }
+
+serializable(Action, {
+  transform: {
+    time: (time) => toPrecision(time, 1)
+  }
+})

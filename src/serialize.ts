@@ -1,6 +1,16 @@
 import { mapIter } from './util'
 import { Constructor } from './types'
 
+interface SerializableOptions<T> {
+  // transform a key value to a simple, jsonable result
+  // if returns undefined, the key is not serialized
+  transform?: {
+    [prop in keyof T]?: ((value: T[prop]) => any) |
+        [(value: T[prop]) => any, ((value: any) => T[prop])]
+  }
+  afterDeserialize?: (object: T) => void
+}
+
 let nextConstructorId = 1
 const idToConstructor = new Map<number, Constructor>()
 const constructorToId = new WeakMap<Constructor, number>()
@@ -9,15 +19,6 @@ const constructorToTransform = new WeakMap<Constructor,
     SerializableOptions<any>['transform']>()
 const constructorToDeserializeCallback = new WeakMap<Constructor,
     SerializableOptions<any>['afterDeserialize']>()
-
-interface SerializableOptions<T> {
-  // transform a key value to a simple, jsonable result
-  // if returns undefined, the key is not serialized
-  transform?: {
-    [prop in keyof T]?: [(value: T[prop]) => any, ((value: any) => T[prop])?]
-  }
-  afterDeserialize?: (object: T) => void
-}
 
 export function serializable<T> (
     constructor: Constructor<T>, options?: SerializableOptions<T>) {
@@ -39,10 +40,10 @@ export function serializable<T> (
       }, options?.afterDeserialize)
 }
 
-serializable.ignore = [() => undefined] as any
-serializable.ignoreIfEmpty = [
-  (x: Map<unknown, unknown> | Set<unknown>) => x.size > 0 ? x : undefined,
-] as any
+serializable.ignore = () => undefined as any
+serializable.ignoreIfEmpty =
+  (x: Map<unknown, unknown> | Set<unknown>) => x.size > 0 ? x : undefined
+
 
 export function serialize (toSerialize: any) {
   const sharedObjects = new SharedObjects()
@@ -93,8 +94,7 @@ export function serialize (toSerialize: any) {
 
     for (const key in object) {
       const value = object[key]
-      const transform =
-          constructorToTransform.get(object.constructor)?.[key]?.[0]
+      const transform = getTransformTo(object, key)
       const transformed =
           transform && value !== undefined ? transform(value) : value
 
@@ -148,8 +148,8 @@ export function deserialize (json: string) {
           continue
         }
         const revived = revive(value[key])
-        const transform = constructorToTransform.get(copy.constructor)
-        copy[key] = transform?.[key]?.[1]?.(revived) ?? revived
+        const transform = getTransformFrom(copy, key)
+        copy[key] = transform?.(revived) ?? revived
       }
     }
 
@@ -180,6 +180,17 @@ function instantiateFromTemplate (object: any) {
   } else {
     return {}
   }
+}
+
+function getTransformTo (object: any, key: string) {
+  const transform = constructorToTransform.get(object.constructor)?.[key]
+  return Array.isArray(transform) ?
+      transform[0] : transform
+}
+
+function getTransformFrom (object: any, key: string) {
+  const transform = constructorToTransform.get(object.constructor)?.[key]
+  return Array.isArray(transform) ? transform[1] : undefined
 }
 
 function addInheritedProperty<T, K> (

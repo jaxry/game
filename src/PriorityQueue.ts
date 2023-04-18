@@ -1,10 +1,11 @@
-import { swap } from './util'
+import { swap, toPrecision } from './util'
+import { serializable, serialize } from './serialize'
 
 // implemented as a binary heap
 // returns elements with the lowest priority first
 export default class PriorityQueue<T> {
-  private elements: T[] = []
-  private priority: number[] = []
+  elements: T[] = []
+  priority: number[] = []
 
   get length () {
     return this.elements.length
@@ -75,3 +76,9 @@ export default class PriorityQueue<T> {
     this.priority.length = 0
   }
 }
+
+serializable(PriorityQueue, {
+  transform: {
+    priority: (priority) => priority.map((p) => toPrecision(p, 3))
+  }
+})

@@ -48,4 +48,6 @@ export let game: Game
 
 export function setGameInstance (instance: Game) {
   game = instance
+  // @ts-ignore
+  window.game = game
 }
