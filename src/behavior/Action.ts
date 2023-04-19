@@ -31,7 +31,7 @@ export default class Action extends Effect {
     this.time = game.time.current + this.duration
     this.tickInTime(this.duration)
 
-    this.object.container.emit('childActionStart', { action: this })
+    this.object.container.emit('actionStart', { action: this })
 
     return this
   }
@@ -43,7 +43,7 @@ export default class Action extends Effect {
       this.object.activeAction = undefined as any
     }
 
-    this.object.container.emit('childActionEnd', { action: this })
+    this.object.container.emit('actionEnd', { action: this })
 
     return this
   }

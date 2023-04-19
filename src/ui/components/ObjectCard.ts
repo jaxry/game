@@ -16,6 +16,7 @@ import { onResize } from '../onResize'
 import { dragAndDropGameObject } from './GameUI'
 import { createDiv } from '../create'
 import { grow, growDynamic, shrink } from '../smoothDom'
+import ObjectMessage from './ObjectMessage'
 
 export default class ObjectCard extends GameComponent {
   onResized?: (xDiff: number, yDiff: number) => void
@@ -71,7 +72,7 @@ export default class ObjectCard extends GameComponent {
             this.reregisterEvents()
           }
         })
-        this.onContainer('childActionStart', ({ action }) => {
+        this.onContainer('actionStart', ({ action }) => {
           if (action.object !== this.object) {
             return
           }
@@ -79,14 +80,23 @@ export default class ObjectCard extends GameComponent {
           self.setAction(action)
         })
 
-        this.onContainer('childActionEnd', ({ action }) => {
+        this.onContainer('actionEnd', ({ action }) => {
           if (action.object !== this.object) {
             return
           }
           self.clearAction()
         })
+
+        this.onContainer('speak', ({ object, message }) => {
+          if (object === this.object) {
+            console.log('message')
+            self.newComponent(self.element, ObjectMessage, message)
+          }
+        })
       }
     }, object)
+
+    // this.newComponent(this.element, ObjectMessage, 'hi hi this is a test')
   }
 
   expand () {
@@ -150,8 +160,8 @@ export default class ObjectCard extends GameComponent {
 }
 
 const containerStyle = makeStyle({
-  contain: `content`,
-  width: `max-content`, // don't make card scrunch up in small containers
+  position: `relative`,
+  width: `max-content`,
   display: `flex`,
   flexDirection: `column`,
   alignItems: `center`,

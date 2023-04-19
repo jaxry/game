@@ -86,8 +86,10 @@ export class GameObjectEvents {
   leave: { object: GameObject, to?: GameObject }
 
   // actions starting/finishing on a contained object of the event object
-  childActionStart: { action: Action }
-  childActionEnd: { action: Action }
+  actionStart: { action: Action }
+  actionEnd: { action: Action }
+
+  speak: { object: GameObject, message: string }
 }
 
 export enum ContainedAs {

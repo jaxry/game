@@ -75,12 +75,12 @@ export default class Inventory extends GameComponent {
         this.onObject('leave', ({ object }) => {
           self.objectLeave(object)
         })
-        this.onObject('childActionStart', ({ action }) => {
+        this.onObject('actionStart', ({ action }) => {
           for (const target of attractableObjects(action)) {
             self.cardPhysics.attract(action.object, target)
           }
         })
-        this.onObject('childActionEnd', ({ action }) => {
+        this.onObject('actionEnd', ({ action }) => {
           for (const target of attractableObjects(action)) {
             self.cardPhysics.release(action.object, target)
           }
@@ -262,7 +262,6 @@ export default class Inventory extends GameComponent {
 }
 
 const containerStyle = makeStyle({
-  contain: `strict`,
   position: `relative`,
   cursor: `pointer`,
 })

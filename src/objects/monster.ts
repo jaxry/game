@@ -8,6 +8,7 @@ import { randomElement } from '../util'
 import { makeType } from '../GameObjectType'
 import { serializable } from '../serialize'
 import { isPlayer } from '../behavior/player'
+import { speak } from '../behavior/speak'
 
 class MonsterAttack extends Effect {
   constructor (object: GameObject, public target: GameObject) {
@@ -21,7 +22,7 @@ class MonsterAttack extends Effect {
         new MonsterSearch(this.object).activate()
       }
     })
-    this.onContainer('childActionEnd', ({ action }) => {
+    this.onContainer('actionEnd', ({ action }) => {
       if (action.object === this.object) {
         this.tickInTime(15 * Math.random())
       }
@@ -33,6 +34,7 @@ class MonsterAttack extends Effect {
   }
 
   override tick () {
+    speak(this.object, 'Argh!!!')
     new AttackAction(this.object, this.target).activate()
   }
 }
@@ -41,16 +43,9 @@ serializable(MonsterAttack)
 
 class MonsterSearch extends Effect {
   found () {
+    speak(this.object, 'I found you...')
     this.deactivate()
     new MonsterAttack(this.object, game.player).activate()
-  }
-
-  lookForPlayer () {
-    if (isContainedWith(this.object, game.player)) {
-      return this.found()
-    }
-
-    this.tickInTime(15 * Math.random())
   }
 
   override events () {
@@ -63,16 +58,19 @@ class MonsterSearch extends Effect {
     this.onContainer('leave', ({ object }) => {
       if (object === this.object) {
         this.reregisterEvents()
-        this.lookForPlayer()
+        this.tickInTime(15 * Math.random())
       }
     })
   }
 
   override onActivate () {
-    this.lookForPlayer()
+    this.tickInTime(1 + Math.random())
   }
 
   override tick () {
+    if (isContainedWith(this.object, game.player)) {
+      return this.found()
+    }
     if (!this.object.container.connections) {
       return
     }
