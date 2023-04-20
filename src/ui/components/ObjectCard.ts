@@ -1,9 +1,9 @@
 import GameObject from '../../GameObject'
 import { isPlayer } from '../../behavior/player'
-import Action from '../../behavior/Action'
+import Action from '../../actions/Action'
 import ActionComponent from './ActionComponent'
 import { game } from '../../Game'
-import Effect from '../../behavior/Effect'
+import Effect from '../../effects/Effect'
 import {
   borderRadius, boxShadow, duration, objectCardColor, objectCardNameBorderColor,
   objectCardPlayerColor,

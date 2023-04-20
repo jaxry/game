@@ -1,4 +1,4 @@
-import Action from '../behavior/Action'
+import Action from './Action'
 import { destroy } from '../behavior/destroy'
 import type GameObject from '../GameObject'
 import { isAncestor } from '../behavior/container'

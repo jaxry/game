@@ -1,5 +1,5 @@
 import TravelAction from '../actions/Travel'
-import Effect from '../behavior/Effect'
+import Effect from '../effects/Effect'
 import type GameObject from '../GameObject'
 import { randomElement } from '../util'
 import { makeType } from '../GameObjectType'

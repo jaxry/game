@@ -1,5 +1,5 @@
 import { game } from '../Game'
-import Effect from './Effect'
+import Effect from '../effects/Effect'
 import GameTime from '../GameTime'
 
 export function runEffectIn (effect: Effect, timeFromNow: number) {

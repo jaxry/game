@@ -1,4 +1,4 @@
-import Effect from './Effect'
+import Effect from '../effects/Effect'
 import type GameObject from '../GameObject'
 import GameTime from '../GameTime'
 import { game } from '../Game'
