@@ -37,10 +37,6 @@ export function initGame (game: Game) {
     spawn(typeVillager, randomElement(zones))
   }
 
-  // for (let i = 0; i < 5; i++) {
-  //   spawn(typeApple, zone)
-  // }
-
   const chest = spawn(typeChest, zone)
   spawn(typeWood, chest)
   spawn(typeWood, chest)
