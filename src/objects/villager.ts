@@ -65,10 +65,10 @@ class FindWood extends Effect {
 
 serializable(FindWood)
 
-export const typeMonster = makeType({
+export const typeVillager = makeType({
   name: 'villager',
   isContainer: true,
-  description: 'a horrendous creature with sharp claws',
+  description: 'hmmmmph',
   health: 3,
   effects: [FindWood],
 })

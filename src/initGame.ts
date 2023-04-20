@@ -5,7 +5,7 @@ import { generateRandomGraph } from './map/generateRandomGraph'
 import { startForceDirectedSimulation } from './map/forceDirectedSim'
 import { makeType } from './GameObjectType'
 import Game from './Game'
-import { typeMonster } from './objects/monster'
+import { typeVillager } from './objects/villager'
 import { typeWood } from './objects/wood'
 import { randomElement } from './util'
 
@@ -34,7 +34,7 @@ export function initGame (game: Game) {
   }
 
   for (let i = 0; i < 10; i++) {
-    spawn(typeMonster, randomElement(zones))
+    spawn(typeVillager, randomElement(zones))
   }
 
   // for (let i = 0; i < 5; i++) {
