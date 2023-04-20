@@ -5,7 +5,7 @@ import ActionComponent from './ActionComponent'
 import { game } from '../../Game'
 import Effect from '../../behavior/Effect'
 import {
-  borderRadius, boxShadow, objectCardColor, objectCardNameBorderColor,
+  borderRadius, boxShadow, duration, objectCardColor, objectCardNameBorderColor,
   objectCardPlayerColor,
 } from '../theme'
 import { makeStyle } from '../makeStyle'
@@ -43,6 +43,9 @@ export default class ObjectCard extends GameComponent {
     })
 
     this.name.textContent = object.type.name
+
+    const grab = createDiv(this.element, grabStyle, '🫳')
+    dragAndDropGameObject.drag(grab, this.object, this.name)
 
     if (object.activeAction) {
       // delay a frame so animation starts correctly
@@ -104,9 +107,6 @@ export default class ObjectCard extends GameComponent {
       return
     }
     this.expandedContainer = createDiv(this.element)
-
-    const grab = createDiv(this.expandedContainer, undefined, 'Grab')
-    dragAndDropGameObject.drag(grab, this.object, this.name)
 
     this.addInventory(this.expandedContainer)
 
@@ -178,6 +178,21 @@ const nameStyle = makeStyle({
   borderBottom: `2px solid ${objectCardNameBorderColor}`,
 })
 
+const grabStyle = makeStyle({
+  position: `absolute`,
+  right: `0`,
+  transform: `translate(50%, -50%) scaleX(-1) `,
+  fontSize: `1.5rem`,
+  cursor: `grab`,
+  opacity: `0`,
+  transition: `opacity ${duration.fast}ms ease`,
+})
+
+makeStyle(`:hover > .${grabStyle}`, {
+  opacity: `1`,
+})
+
 const playerStyle = makeStyle({
   background: objectCardPlayerColor,
 })
+

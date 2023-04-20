@@ -55,13 +55,13 @@ export default class TravelAnimation {
   private setKeyframes (action: TravelAction, animation: Animation) {
     const from = action.object.container.position
     const to = action.target.position
-    const s = this.scale
+    const scale = this.scale
 
     const effect = animation.effect as KeyframeEffect
     effect.setKeyframes({
       transform: [
-        `${translate(from.x * s, from.y * s)}`,
-        `${translate(to.x * s, to.y * s)}`],
+        `${translate(from.x * scale, from.y * scale)}`,
+        `${translate(to.x * scale, to.y * scale)}`],
     })
   }
 }
