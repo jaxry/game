@@ -1,92 +1,75 @@
-import AttackAction from '../actions/Attack'
 import TravelAction from '../actions/Travel'
-import { isContainedWith } from '../behavior/container'
 import Effect from '../behavior/Effect'
-import { game } from '../Game'
 import type GameObject from '../GameObject'
 import { randomElement } from '../util'
 import { makeType } from '../GameObjectType'
 import { serializable } from '../serialize'
-import { isPlayer } from '../behavior/player'
 import { speak } from '../behavior/speak'
+import { typeWood } from './wood'
+import TransferAction from '../actions/Transfer'
 
-class MonsterAttack extends Effect {
-  constructor (object: GameObject, public target: GameObject) {
-    super(object)
-  }
-
+class FindWood extends Effect {
   override events () {
-    this.onContainer('leave', ({ object }) => {
-      if (object === this.object || object === game.player) {
-        this.deactivate()
-        new MonsterSearch(this.object).activate()
-      }
-    })
     this.onContainer('actionEnd', ({ action }) => {
       if (action.object === this.object) {
-        this.tickInTime(15 * Math.random())
+        this.queueTick()
       }
     })
-  }
-
-  override onActivate () {
-    this.tickInTime(15 * Math.random())
-  }
-
-  override tick () {
-    speak(this.object, 'Argh!!!')
-    new AttackAction(this.object, this.target).activate()
-  }
-}
-
-serializable(MonsterAttack)
-
-class MonsterSearch extends Effect {
-  found () {
-    speak(this.object, 'I found you...')
-    this.deactivate()
-    new MonsterAttack(this.object, game.player).activate()
-  }
-
-  override events () {
-    this.onContainer('enter', ({ object }) => {
-      if (isPlayer(object)) {
-        this.found()
-      }
-    })
-
     this.onContainer('leave', ({ object }) => {
       if (object === this.object) {
         this.reregisterEvents()
-        this.tickInTime(15 * Math.random())
       }
     })
   }
 
   override onActivate () {
-    this.tickInTime(1 + Math.random())
+    this.queueTick()
   }
 
   override tick () {
-    if (isContainedWith(this.object, game.player)) {
-      return this.found()
+    const wood = this.findWood()
+    if (wood) {
+      speak(this.object, 'Collect vood!')
+      new TransferAction(this.object, wood, this.object).activate()
+    } else {
+      speak(this.object, 'No vood. Must find.')
+      new TravelAction(
+          this.object, randomElement(this.object.container.connections))
+          .activate()
     }
-    if (!this.object.container.connections) {
-      return
+  }
+
+  private queueTick () {
+    this.tickInTime(6 + 6 * Math.random())
+  }
+
+  private findWood () {
+    for (const object of this.object.container.contains) {
+      if (object.type === typeWood && !this.isAlreadyBeingCollected(object)) {
+        return object
+      }
     }
-    const location = randomElement(this.object.container.connections)
-    return new TravelAction(this.object, location).activate()
+  }
+
+  private isAlreadyBeingCollected (object: GameObject) {
+    for (const o of this.object.container.contains) {
+      const collecting = o.activeAction instanceof TransferAction &&
+          o.activeAction.item === object
+      if (collecting) {
+        return true
+      }
+    }
+    return false
   }
 }
 
-serializable(MonsterSearch)
+serializable(FindWood)
 
 export const typeMonster = makeType({
-  name: 'Ogre Magi',
-  icon: '👹',
-  properNoun: true,
+  name: 'villager',
+  isContainer: true,
   description: 'a horrendous creature with sharp claws',
   health: 3,
-  effects: [MonsterSearch],
+  effects: [FindWood],
 })
 

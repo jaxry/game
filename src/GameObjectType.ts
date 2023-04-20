@@ -3,10 +3,6 @@ import type Effect from './behavior/Effect'
 export default class GameObjectType {
   name: string
 
-  icon: string
-
-  properNoun: boolean
-
   description: string
 
   effects: Array<typeof Effect>

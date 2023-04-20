@@ -6,6 +6,8 @@ import { startForceDirectedSimulation } from './map/forceDirectedSim'
 import { makeType } from './GameObjectType'
 import Game from './Game'
 import { typeMonster } from './objects/monster'
+import { typeWood } from './objects/wood'
+import { randomElement } from './util'
 
 export function initGame (game: Game) {
   game.energyPool = 2 * GameTime.hour
@@ -24,12 +26,15 @@ export function initGame (game: Game) {
   game.player = spawn(typeYou, zone)
 
   for (let i = 0; i < 3; i++) {
-    spawn(typeApple, game.player)
+    spawn(typeWood, game.player)
   }
 
-  for (let i = 0; i < 15; i++) {
-    spawn(Math.random() > 0.2 ? typeMonster : typeApple,
-        zones.at(Math.random() * zones.length))
+  for (let i = 0; i < 30; i++) {
+    spawn(typeWood, randomElement(zones))
+  }
+
+  for (let i = 0; i < 10; i++) {
+    spawn(typeMonster, randomElement(zones))
   }
 
   // for (let i = 0; i < 5; i++) {
@@ -37,8 +42,8 @@ export function initGame (game: Game) {
   // }
 
   const chest = spawn(typeChest, zone)
-  spawn(typeApple, chest)
-  spawn(typeApple, chest)
+  spawn(typeWood, chest)
+  spawn(typeWood, chest)
 }
 
 const typeWorld = makeType({
@@ -48,22 +53,11 @@ const typeWorld = makeType({
 
 const typeYou = makeType({
   name: `Boof Nasty`,
-  icon: `😭`,
-  properNoun: true,
   isContainer: true,
-  health: 99999,
 })
 
 const typeChest = makeType({
   name: `chest`,
-  icon: `📦`,
   description: `A wooden chest filled with loot`,
   isContainer: true,
-})
-
-const typeApple = makeType({
-  name: `apple`,
-  icon: '🍎',
-  health: 2,
-  description: `A crunchy apple. The most generic of items`,
 })
