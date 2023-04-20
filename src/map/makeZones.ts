@@ -30,8 +30,6 @@ export default function makeZones (vertices: Vertex[]) {
 
 const typeZone = makeType({
   name: ``,
-  icon: '○',
-  properNoun: true,
   description: `Somewhere and nowhere. Description of area. Each of these areas will eventually be unique.`,
   isContainer: true,
 })
