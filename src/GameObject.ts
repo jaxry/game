@@ -73,8 +73,6 @@ serializable(GameObject, {
         y: toPrecision(position.y, 0),
       }),
       ({ x, y }: any) => new Point(x, y)],
-    effects: serializable.ignoreIfEmpty,
-    contains: serializable.ignoreIfEmpty,
   },
 })
 
