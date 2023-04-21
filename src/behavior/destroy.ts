@@ -1,7 +1,7 @@
 import type GameObject from '../GameObject'
 import { removeConnections } from './connections'
 import { removeFromContainer } from './container'
-import { removeEffects } from './Effect'
+import { removeEffects } from '../effects/Effect'
 
 const destroyedSet: WeakSet<GameObject> = new WeakSet()
 

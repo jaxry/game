@@ -1,11 +1,7 @@
-import type Effect from './behavior/Effect'
+import type Effect from './effects/Effect'
 
 export default class GameObjectType {
   name: string
-
-  icon: string
-
-  properNoun: boolean
 
   description: string
 

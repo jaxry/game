@@ -2,7 +2,7 @@ import GameObject, {
   ActiveGameObjectEvent, GameObjectEventListener, GameObjectEvents,
 } from '../GameObject'
 import { serializable } from '../serialize'
-import { runEffectIn } from './core'
+import { runEffectIn } from '../behavior/core'
 
 export default class Effect {
   // The object associated with the effect.
@@ -54,7 +54,7 @@ export default class Effect {
     this.events?.()
   }
 
-  activate (reviveOnly = false) {
+  activate () {
     if (this.isActive) {
       return this
     }
@@ -102,11 +102,6 @@ export default class Effect {
     }
 
     this.events?.()
-  }
-
-  reactivate () {
-    this.reregisterEvents()
-    this.onActivate?.()
   }
 
   setObject (object: GameObject) {

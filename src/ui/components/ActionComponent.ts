@@ -1,5 +1,5 @@
 import Component from './Component'
-import Action from '../../behavior/Action'
+import Action from '../../actions/Action'
 import { actionColor, actionTimeColor, fontColor } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameTime from '../../GameTime'

@@ -1,4 +1,4 @@
-import Effect from '../../behavior/Effect'
+import Effect from '../../effects/Effect'
 import { game } from '../../Game'
 import GameObject from '../../GameObject'
 import ObjectCard from './ObjectCard'

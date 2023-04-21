@@ -1,4 +1,4 @@
-import Action from '../../../behavior/Action'
+import Action from '../../../actions/Action'
 import GameObject from '../../../GameObject'
 
 export function* attractableObjects (action: Action) {

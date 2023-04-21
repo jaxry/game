@@ -46,7 +46,7 @@ const containerStyle = makeStyle({
   background: objectDialogueBackground,
   padding: `1rem`,
   borderRadius: `50%`,
-  whiteSpace: `nowrap`,
+  width: `max-content`,
   pointerEvents: `none`,
-  boxShadow
+  boxShadow,
 })

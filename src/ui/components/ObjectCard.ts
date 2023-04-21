@@ -1,9 +1,9 @@
 import GameObject from '../../GameObject'
 import { isPlayer } from '../../behavior/player'
-import Action from '../../behavior/Action'
+import Action from '../../actions/Action'
 import ActionComponent from './ActionComponent'
 import { game } from '../../Game'
-import Effect from '../../behavior/Effect'
+import Effect from '../../effects/Effect'
 import {
   borderRadius, boxShadow, duration, objectCardColor, objectCardNameBorderColor,
   objectCardPlayerColor,
@@ -44,7 +44,7 @@ export default class ObjectCard extends GameComponent {
 
     this.name.textContent = object.type.name
 
-    const grab = createDiv(this.element, grabStyle, '🫳')
+    const grab = createDiv(this.element, grabStyle, `🫳`)
     dragAndDropGameObject.drag(grab, this.object, this.name)
 
     if (object.activeAction) {
@@ -70,36 +70,25 @@ export default class ObjectCard extends GameComponent {
     const self = this
     this.newEffect(class extends Effect {
       override events () {
-        this.onContainer('leave', ({ object }) => {
-          if (object === this.object) {
-            this.reregisterEvents()
-          }
-        })
         this.onContainer('actionStart', ({ action }) => {
-          if (action.object !== this.object) {
-            return
+          if (action.object === this.object) {
+            self.setAction(action)
           }
-
-          self.setAction(action)
         })
 
         this.onContainer('actionEnd', ({ action }) => {
-          if (action.object !== this.object) {
-            return
+          if (action.object === this.object) {
+            self.clearAction()
           }
-          self.clearAction()
         })
 
         this.onContainer('speak', ({ object, message }) => {
           if (object === this.object) {
-            console.log('message')
             self.newComponent(self.element, ObjectMessage, message)
           }
         })
       }
     }, object)
-
-    // this.newComponent(this.element, ObjectMessage, 'hi hi this is a test')
   }
 
   expand () {

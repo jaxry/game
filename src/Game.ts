@@ -1,6 +1,6 @@
 import GameTime from './GameTime'
 import type GameObject from './GameObject'
-import type Effect from './behavior/Effect'
+import type Effect from './effects/Effect'
 import Observable from './Observable'
 import { serializable } from './serialize'
 import PriorityQueue from './PriorityQueue'

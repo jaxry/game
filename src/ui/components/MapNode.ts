@@ -5,7 +5,7 @@ import {
 } from '../theme'
 import Inventory from './Inventory'
 import GameComponent from './GameComponent'
-import Effect from '../../behavior/Effect'
+import Effect from '../../effects/Effect'
 import TravelAction from '../../actions/Travel'
 import MapComponent from './Map'
 import { playerTravelToZone } from '../../behavior/player'
