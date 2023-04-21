@@ -14,14 +14,6 @@ export function isPlayer (object: GameObject) {
   return object === game.player
 }
 
-export function inPlayerBubble (object: GameObject) {
-  return isContainedWith(game.player, object)
-}
-
-export function isSelectable (obj: GameObject) {
-  return inPlayerBubble(obj) && !isDestroyed(obj)
-}
-
 export function playerTravelToZone (zone: GameObject) {
   const playerZone = game.player.container
 
