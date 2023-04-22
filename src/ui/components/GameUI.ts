@@ -31,8 +31,8 @@ export default class GameUI extends GameComponent {
     const mapEffect = this.newEffect(class extends Effect {
       override events () {
         this.onContainer('leave', ({ object }) => {
-          if (object === this.object) {
-            map.render(this.object.container)
+          if (object === game.player) {
+            map.render(game.player.container)
             this.reregisterEvents()
           }
         })
@@ -48,7 +48,7 @@ export default class GameUI extends GameComponent {
     })
 
     this.on(game.event.mapUpdate, () => {
-      map.render(game.player.container)
+      map.render(game.player.container, false)
     })
 
     setTimeout(() => {

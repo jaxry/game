@@ -10,8 +10,8 @@ import TravelAnimation from './Map/TravelAnimation'
 import { createDiv } from '../create'
 
 export default class MapComponent extends Component {
-  maxDepthFromCenter = 3
-  depthForComplexZones = 1
+  maxDepthFromCenter = Infinity
+  depthForComplexZones = 0
 
   private map = createDiv(this.element, mapStyle)
   private edgeContainer = createDiv(this.map)
@@ -42,7 +42,7 @@ export default class MapComponent extends Component {
     })
   }
 
-  render (centerZone: GameObject) {
+  render (centerZone: GameObject, panToCenter = true) {
     const graph = getZoneGraph(centerZone, this.maxDepthFromCenter)
 
     for (const [zone, component] of this.zoneToComponent) {
@@ -75,7 +75,9 @@ export default class MapComponent extends Component {
     }
 
     this.updatePositions()
-    this.centerOnZone(centerZone, !this.firstRender)
+    if (panToCenter) {
+      this.centerOnZone(centerZone, !this.firstRender)
+    }
     this.firstRender = false
   }
 

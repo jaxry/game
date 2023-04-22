@@ -13,6 +13,10 @@ export function connectZones (
     target.connections = []
   }
 
+  if (source.connections.includes(target)) {
+    return
+  }
+
   if (autoPosition) {
     positionZone(source, target)
   }

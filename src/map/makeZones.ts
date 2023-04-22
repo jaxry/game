@@ -1,14 +1,13 @@
 import GameObject from '../GameObject'
-import { spawn } from '../behavior/spawn'
 import { connectZones } from '../behavior/connections'
 import Vertex from './Vertex'
-import { makeType } from '../GameObjectType'
+import spawnZone from './spawnZone'
 
 export default function makeZones (vertices: Vertex[]) {
   const vertexToZone = new Map<Vertex, GameObject>()
 
   for (const vertex of vertices) {
-    const zone = spawn(typeZone)
+    const zone = spawnZone()
     vertexToZone.set(vertex, zone)
   }
 
@@ -27,9 +26,3 @@ export default function makeZones (vertices: Vertex[]) {
 
   return [...vertexToZone.values()]
 }
-
-const typeZone = makeType({
-  name: ``,
-  description: `Somewhere and nowhere. Description of area. Each of these areas will eventually be unique.`,
-  isContainer: true,
-})

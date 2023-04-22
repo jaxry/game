@@ -15,11 +15,15 @@ const alphaDecay = 0.985
 const maxDistance = 2 * repelRatio
 const maxDistance2 = maxDistance * maxDistance
 
-export const renderedConnectionDistance = repelRatio / 12
+export const renderedConnectionDistance = repelRatio / 20
 
-export function startForceDirectedSimulation (startingNode: GameObject) {
+export interface ForceDirectedSim {
+  stop (): void
+}
+
+export function startForceDirectedSimulation (startingNode: GameObject,
+    animate = false, alpha = 0.09): ForceDirectedSim {
   // higher alpha starts system with higher energy
-  let alpha = 0.09
 
   const graph = getZoneGraph(startingNode)
   const nodes = [...graph.nodes.keys()]
@@ -104,26 +108,36 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
 
   let i = 0
 
-  // fully simulate forces before rendering map
-  function tick () {
+  if (!animate) {
     while (i++ < iterations) {
       applyForces()
     }
     game.event.mapUpdate.emit()
+    return {
+      stop () {
+      },
+    }
   }
 
-  // render map after every tick
-  function tickAnimated () {
+  let animationFrame: number
+
+  function tick () {
     applyForces()
 
     game.event.mapPositionUpdate.emit()
 
     if (i++ < iterations) {
-      requestAnimationFrame(tickAnimated)
+      animationFrame = requestAnimationFrame(tick)
     } else {
-      game.event.mapUpdate.emit()
+      console.log('done')
     }
   }
 
   tick()
+
+  return {
+    stop () {
+      cancelAnimationFrame(animationFrame)
+    },
+  }
 }
