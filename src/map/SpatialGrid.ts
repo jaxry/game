@@ -2,7 +2,9 @@ import { makeOrGet } from '../util'
 import Point from '../Point'
 
 export default class SpatialGrid<T> {
-  grid = new Map<number, T[]>()
+  center = new Point(0, 0)
+
+  private grid = new Map<number, T[]>()
 
   constructor (public cellSize: number) {
   }
@@ -10,8 +12,8 @@ export default class SpatialGrid<T> {
   add (position: Point, item: T) {
     const items = makeOrGet(this.grid,
         szudzikPairSigned(
-            Math.floor(position.x / this.cellSize),
-            Math.floor(position.y / this.cellSize)),
+            Math.floor((position.x - this.center.x) / this.cellSize),
+            Math.floor((position.y - this.center.y) / this.cellSize)),
         () => [])
 
     items.push(item)
@@ -19,17 +21,13 @@ export default class SpatialGrid<T> {
 
   get (position: Point, offsetX = 0, offsetY = 0) {
     return this.grid.get(szudzikPairSigned(
-        Math.floor(position.x / this.cellSize + offsetX),
-        Math.floor(position.y / this.cellSize + offsetY)))
+        Math.floor((position.x - this.center.x) / this.cellSize + offsetX),
+        Math.floor((position.y - this.center.y) / this.cellSize + offsetY)))
   }
 
   clear () {
-    for (const [key, items] of this.grid.entries()) {
-      if (items.length === 0) {
-        this.grid.delete(key)
-      } else {
-        items.length = 0
-      }
+    for (const items of this.grid.values()) {
+      items.length = 0
     }
   }
 }

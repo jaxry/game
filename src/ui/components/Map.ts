@@ -10,8 +10,8 @@ import TravelAnimation from './Map/TravelAnimation'
 import { createDiv } from '../create'
 
 export default class MapComponent extends Component {
-  maxDepthFromCenter = 3
-  depthForComplexZones = 1
+  maxDepthFromCenter = Infinity
+  depthForComplexZones = Infinity
 
   private map = createDiv(this.element, mapStyle)
   private edgeContainer = createDiv(this.map)

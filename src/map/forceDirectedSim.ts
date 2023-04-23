@@ -12,7 +12,7 @@ const repelRatio = 3000
 const velocityDecay = 0.8
 const alphaDecay = 0.985
 
-const maxDistance = 2 * repelRatio
+const maxDistance = repelRatio
 const maxDistance2 = maxDistance * maxDistance
 
 export const renderedConnectionDistance = repelRatio / 12
@@ -87,6 +87,8 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
     attractConnectedNodes()
     alpha *= alphaDecay
 
+    grid.center.x = 0
+    grid.center.y = 0
     for (const node of nodes) {
       // clamp velocity to prevent instability
       node.position.vx = clamp(-repelRatio, repelRatio, node.position.vx)
@@ -99,7 +101,12 @@ export function startForceDirectedSimulation (startingNode: GameObject) {
       // decay velocity
       node.position.vx *= velocityDecay
       node.position.vy *= velocityDecay
+
+      grid.center.x += node.position.x
+      grid.center.y += node.position.y
     }
+    grid.center.x /= nodes.length
+    grid.center.y /= nodes.length
   }
 
   let i = 0
