@@ -1,4 +1,5 @@
 import colors from './colors'
+import { makeKeyframes } from './makeStyle'
 
 const baseSpeed = 600
 export const duration = {
@@ -6,6 +7,8 @@ export const duration = {
   normal: baseSpeed,
   slow: baseSpeed * 2,
 }
+
+export const fadeInKeyframes = makeKeyframes({ opacity: `0` }, { opacity: `1` })
 
 const backgroundHue = colors.slate
 
