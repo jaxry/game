@@ -8,10 +8,11 @@ import addPanZoom from '../PanZoom'
 import { makeOrGet, numToPixel, numToPx, translate } from '../../util'
 import TravelAnimation from './Map/TravelAnimation'
 import { createDiv } from '../create'
+import makeDraggable from '../makeDraggable'
 
 export default class MapComponent extends Component {
-  maxDepthFromCenter = Infinity
-  depthForComplexZones = Infinity
+  maxDepthFromCenter = 3
+  depthForComplexZones = 1
 
   private map = createDiv(this.element, mapStyle)
   private edgeContainer = createDiv(this.map)
@@ -42,18 +43,18 @@ export default class MapComponent extends Component {
     })
   }
 
-  render (centerZone: GameObject) {
+  render (centerZone: GameObject, animateToCenter = false) {
     const graph = getZoneGraph(centerZone, this.maxDepthFromCenter)
 
     for (const [zone, component] of this.zoneToComponent) {
       if (!graph.nodes.has(zone)) {
-        this.removeZone(zone, component)
+        this.removeNode(zone, component)
       }
     }
 
     for (const [zone, depth] of graph.nodes) {
       const component = makeOrGet(this.zoneToComponent, zone, () => {
-        return this.makeZone(zone)
+        return this.makeNode(zone)
       })
       depth <= this.depthForComplexZones ?
           component.setComplex() : component.setSimple()
@@ -75,7 +76,11 @@ export default class MapComponent extends Component {
     }
 
     this.updatePositions()
-    this.centerOnZone(centerZone, !this.firstRender)
+
+    if (animateToCenter) {
+      this.centerOnZone(centerZone, !this.firstRender)
+    }
+
     this.firstRender = false
   }
 
@@ -99,11 +104,19 @@ export default class MapComponent extends Component {
     this.travelAnimation.updateScale(nodeScale)
   }
 
-  private makeZone (zone: GameObject) {
-    return this.newComponent(this.zoneContainer, MapNode, zone, this)
+  private makeNode (zone: GameObject) {
+    const node = this.newComponent(this.zoneContainer, MapNode, zone, this)
+    makeDraggable(node.element, {
+      onDrag: (e) => {
+        zone.position.x += e.movementX / this.transform.scale
+        zone.position.y += e.movementY / this.transform.scale
+        this.updatePositions()
+      },
+    })
+    return node
   }
 
-  private removeZone (zone: GameObject, component: MapNode) {
+  private removeNode (zone: GameObject, component: MapNode) {
     shrink(component.element).onfinish = () => {
       component.remove()
     }

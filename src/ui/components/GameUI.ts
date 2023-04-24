@@ -52,7 +52,7 @@ export default class GameUI extends GameComponent {
     })
 
     setTimeout(() => {
-      map.render(game.player.container)
+      map.render(game.player.container, true)
     })
 
     return map
