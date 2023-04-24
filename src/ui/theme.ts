@@ -8,7 +8,8 @@ export const duration = {
   slow: baseSpeed * 2,
 }
 
-export const fadeInKeyframes = makeKeyframes({ opacity: `0` }, { opacity: `1` })
+const fadeInKeyframes = makeKeyframes({ opacity: `0` }, { opacity: `1` })
+export const fadeInAnimation = `${fadeInKeyframes} ${duration.fast}ms both`
 
 const backgroundHue = colors.slate
 

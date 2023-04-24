@@ -5,7 +5,7 @@ import ActionComponent from './ActionComponent'
 import { game } from '../../Game'
 import Effect from '../../effects/Effect'
 import {
-  borderRadius, boxShadow, duration, fadeInKeyframes, objectCardColor,
+  borderRadius, boxShadow, fadeInAnimation, objectCardColor,
   objectCardNameBorderColor, objectCardPlayerColor,
 } from '../theme'
 import { makeStyle } from '../makeStyle'
@@ -178,7 +178,7 @@ const grabStyle = makeStyle({
 
 makeStyle(`:hover > .${grabStyle}`, {
   display: 'block',
-  animation: `${fadeInKeyframes} ${duration.fast}ms both`,
+  animation: fadeInAnimation,
 })
 
 const playerStyle = makeStyle({
