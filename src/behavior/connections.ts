@@ -75,10 +75,15 @@ export function getZoneGraph (
     const depth = nodes.get(node)!
     visited.add(node)
     for (const neighbor of node.connections) {
-      if (!visited.has(neighbor)) {
+      if (visited.has(neighbor)) {
+        continue
+      }
+
+      const edge = { source: node, target: neighbor }
+      edges.set(edgeHash(edge), edge)
+
+      if (!nodes.has(neighbor)) {
         nodes.set(neighbor, depth + 1)
-        const edge = { source: node, target: neighbor }
-        edges.set(edgeHash(edge), edge)
         if (depth < maxDepth - 1) {
           queue.push(neighbor)
         }

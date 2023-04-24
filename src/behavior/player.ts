@@ -2,8 +2,6 @@ import TravelAction from '../actions/Travel'
 import { game } from '../Game'
 import type GameObject from '../GameObject'
 import { setPlayerEffect } from './core'
-import { isContainedWith } from './container'
-import { isDestroyed } from './destroy'
 
 export function changePlayer (object: GameObject) {
   game.player = object
