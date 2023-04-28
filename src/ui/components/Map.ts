@@ -1,5 +1,5 @@
 import Component from './Component'
-import { Edge, getZoneGraph } from '../../behavior/connections'
+import { Edge, getEdgeHash, getZoneGraph } from '../../behavior/connections'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import { duration, mapEdgeColor } from '../theme'
@@ -60,19 +60,22 @@ export default class MapComponent extends Component {
           component.setComplex() : component.setSimple()
     }
 
+    const currentEdges = new Set<string>()
+    for (const edge of graph.edges) {
+      const hash = getEdgeHash(edge)
+      currentEdges.add(hash)
+      makeOrGet(this.edgeToElem, hash, () => {
+        return this.makeEdge(edge)
+      })
+    }
+
     for (const [hash, { line }] of this.edgeToElem) {
-      if (!graph.edges.has(hash)) {
+      if (!currentEdges.has(hash)) {
         shrink(line).onfinish = () => {
           line.remove()
         }
         this.edgeToElem.delete(hash)
       }
-    }
-
-    for (const [hash, edge] of graph.edges) {
-      makeOrGet(this.edgeToElem, hash, () => {
-        return this.makeEdge(edge)
-      })
     }
 
     this.updatePositions()

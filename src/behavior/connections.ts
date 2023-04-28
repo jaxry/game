@@ -1,7 +1,7 @@
 import type GameObject from '../GameObject'
 import PriorityQueue from '../PriorityQueue'
 import { deleteElem } from '../util'
-import { renderedConnectionDistance } from '../map/forceDirectedSim'
+import { renderedConnectionDistance } from '../map/ForceDirectedSim'
 
 export function connectZones (
     source: GameObject, target: GameObject, autoPosition = true) {
@@ -58,13 +58,13 @@ export interface Edge {
 
 export interface ZoneGraph {
   nodes: Map<GameObject, number>
-  edges: Map<string, Edge>
+  edges: Set<Edge>
 }
 
 export function getZoneGraph (
     startingNode: GameObject, maxDepth = Infinity): ZoneGraph {
   const nodes = new Map<GameObject, number>()
-  const edges = new Map<string, Edge>()
+  const edges = new Set<Edge>()
   const visited = new Set<GameObject>()
 
   const queue = [startingNode]
@@ -79,8 +79,7 @@ export function getZoneGraph (
         continue
       }
 
-      const edge = { source: node, target: neighbor }
-      edges.set(edgeHash(edge), edge)
+      edges.add({ source: node, target: neighbor })
 
       if (!nodes.has(neighbor)) {
         nodes.set(neighbor, depth + 1)
@@ -94,7 +93,7 @@ export function getZoneGraph (
   return { nodes, edges }
 }
 
-function edgeHash ({ source, target }: Edge) {
+export function getEdgeHash ({ source, target }: Edge) {
   if (source.id < target.id) {
     return `${source.id}-${target.id}`
   } else {
