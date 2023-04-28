@@ -9,6 +9,8 @@ import { makeOrGet, numToPixel, numToPx, translate } from '../../util'
 import TravelAnimation from './Map/TravelAnimation'
 import { createDiv } from '../create'
 import makeDraggable from '../makeDraggable'
+import ForceDirectedSim from '../../map/ForceDirectedSim'
+import throttle from '../throttle'
 
 export default class MapComponent extends Component {
   maxDepthFromCenter = 3
@@ -18,6 +20,26 @@ export default class MapComponent extends Component {
   private edgeContainer = createDiv(this.map)
   private zoneContainer = createDiv(this.map)
   private travelIcons = createDiv(this.map)
+  updatePositions = throttle(() => {
+    const nodeScale = Math.max(1, this.transform.scale)
+
+    for (const [zone, component] of this.zoneToComponent) {
+      const x = zone.position.x * nodeScale
+      const y = zone.position.y * nodeScale
+      component.element.style.transform = translate(x, y)
+    }
+
+    for (const { line, edge } of this.edgeToElem.values()) {
+      const { x, y, angle, length } = getEdgePositionAndAngle(edge)
+      const t = translate(x * nodeScale, y * nodeScale)
+      const r = `rotate(${numToPixel(angle)}rad)`
+      line.style.transform = `translate(-50%,-50%)${t}${r}`
+      line.style.width = numToPx(length * nodeScale)
+    }
+
+    this.travelAnimation.updateScale(nodeScale)
+  })
+
   travelAnimation = new TravelAnimation(this.travelIcons)
 
   private transform = {
@@ -31,17 +53,7 @@ export default class MapComponent extends Component {
 
   private firstRender = true
   private activeMapAnimation: Animation | undefined
-
-  constructor () {
-    super()
-
-    this.element.classList.add(containerStyle)
-
-    addPanZoom(this.element, this.transform, (updatedScale) => {
-      updatedScale && this.updatePositions()
-      this.updateTransform(false)
-    })
-  }
+  private forceDirectedSim = new ForceDirectedSim()
 
   render (centerZone: GameObject, animateToCenter = false) {
     const graph = getZoneGraph(centerZone, this.maxDepthFromCenter)
@@ -87,32 +99,34 @@ export default class MapComponent extends Component {
     this.firstRender = false
   }
 
-  updatePositions () {
-    const nodeScale = Math.max(1, this.transform.scale)
+  constructor () {
+    super()
 
-    for (const [zone, component] of this.zoneToComponent) {
-      const x = zone.position.x * nodeScale
-      const y = zone.position.y * nodeScale
-      component.element.style.transform = translate(x, y)
+    this.element.classList.add(containerStyle)
+
+    addPanZoom(this.element, this.transform, (updatedScale) => {
+      updatedScale && this.updatePositions()
+      this.updateTransform(false)
+    })
+
+    this.forceDirectedSim.onUpdate = () => {
+      this.updatePositions()
     }
-
-    for (const { line, edge } of this.edgeToElem.values()) {
-      const { x, y, angle, length } = getEdgePositionAndAngle(edge)
-      const t = translate(x * nodeScale, y * nodeScale)
-      const r = `rotate(${numToPixel(angle)}rad)`
-      line.style.transform = `translate(-50%,-50%)${t}${r}`
-      line.style.width = numToPx(length * nodeScale)
-    }
-
-    this.travelAnimation.updateScale(nodeScale)
   }
 
   private makeNode (zone: GameObject) {
     const node = this.newComponent(this.zoneContainer, MapNode, zone, this)
     makeDraggable(node.element, {
+      onDown: () => {
+        this.forceDirectedSim.freeze(zone)
+      },
+      onUp: () => {
+        this.forceDirectedSim.unfreeze(zone)
+      },
       onDrag: (e) => {
         zone.position.x += e.movementX / this.transform.scale
         zone.position.y += e.movementY / this.transform.scale
+        this.forceDirectedSim.animate(zone)
         this.updatePositions()
       },
     })

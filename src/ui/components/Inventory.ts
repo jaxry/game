@@ -265,6 +265,7 @@ export default class Inventory extends GameComponent {
 const containerStyle = makeStyle({
   position: `relative`,
   cursor: `pointer`,
+  userSelect: `none`,
 })
 
 const cardStyle = makeStyle({

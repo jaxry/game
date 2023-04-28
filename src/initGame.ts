@@ -21,7 +21,7 @@ export function initGame (game: Game) {
 
   const zone = zones[0]
 
-  new ForceDirectedSim().start(zone)
+  new ForceDirectedSim().simulateFully(zone)
 
   game.player = spawn(typeYou, zone)
 
