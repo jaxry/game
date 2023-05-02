@@ -92,6 +92,10 @@ export default class MapComponent extends Component {
 
     this.updatePositions()
 
+    if (this.firstRender) {
+      this.forceDirectedSim.simulateFully(centerZone)
+    }
+
     if (animateToCenter) {
       this.centerOnZone(centerZone, !this.firstRender)
     }
@@ -127,7 +131,6 @@ export default class MapComponent extends Component {
         zone.position.x += e.movementX / this.transform.scale
         zone.position.y += e.movementY / this.transform.scale
         this.forceDirectedSim.animate(zone)
-        this.updatePositions()
       },
     })
     return node
@@ -141,11 +144,8 @@ export default class MapComponent extends Component {
   }
 
   private makeEdge (edge: Edge) {
-    const line = createDiv(this.edgeContainer)
-    line.classList.add(edgeStyle)
-
+    const line = createDiv(this.edgeContainer, edgeStyle)
     grow(line)
-
     return { line, edge }
   }
 

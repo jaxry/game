@@ -6,13 +6,14 @@ import { clamp } from '../util'
 // repelling force is this much stronger than attracting force
 const repelRatio = 3000
 
-const velocityDecay = 0.9
-const alphaDecay = 0.985
+const velocityDecay = 0.965
+const alphaDecay = 1
 
-const minVelocity = 0.015
+const minVelocity = 0.05
+const maxVelocity = repelRatio * 8
 
-const highStartAlpha = 0.09
-const lowStartAlpha = 0.005
+const highStartAlpha = 0.0006
+const lowStartAlpha = highStartAlpha / 4
 
 const maxDistance = repelRatio
 const maxDistance2 = maxDistance * maxDistance
@@ -29,20 +30,18 @@ export default class ForceDirectedSim {
 
   alpha: number
 
-  constructor () {
-
-  }
-
-  simulateFully (startingNode: GameObject, alpha = highStartAlpha) {
-    this.alpha = alpha
+  simulateFully (startingNode: GameObject, highEnergy = true) {
+    this.alpha = highEnergy ? highStartAlpha : lowStartAlpha
     this.init(startingNode)
+    let i = 0
     while (this.applyForces() > minVelocity) {
+      console.log(i++)
     }
     this.onUpdate?.()
   }
 
-  animate (startingNode: GameObject, alpha = lowStartAlpha) {
-    this.alpha = alpha
+  animate (startingNode: GameObject, highEnergy = false) {
+    this.alpha = highEnergy ? highStartAlpha : lowStartAlpha
 
     if (this.currentAnimation) {
       return
@@ -50,14 +49,19 @@ export default class ForceDirectedSim {
 
     this.init(startingNode)
 
-    const tick = () => {
-      const maxVelocity = this.applyForces()
+    let lastTime = 0
+
+    const tick = (time: number) => {
+      const elapsed = Math.min(17, lastTime ? time - lastTime : 17)
+      lastTime = time
+
+      const highestVelocity = this.applyForces(elapsed)
       this.onUpdate?.()
-      this.currentAnimation = maxVelocity > minVelocity ?
+      this.currentAnimation = highestVelocity > minVelocity ?
           requestAnimationFrame(tick) : null
     }
 
-    tick()
+    tick(0)
   }
 
   freeze (node: GameObject) {
@@ -76,24 +80,27 @@ export default class ForceDirectedSim {
     this.grid = new SpatialGrid<GameObject>(2 * maxDistance)
   }
 
-  private applyForces () {
+  private applyForces (elapsed = 17) {
     this.grid.clear()
     for (const node of this.nodes) {
       // add node to spatially partitioned grid
       this.grid.add(node.position, node)
     }
 
-    this.repelNodes()
-    this.attractConnectedNodes()
-    this.alpha *= alphaDecay
+    const elapsed2 = elapsed * elapsed
 
-    const maxVelocity = this.applyVelocity()
+    this.repelNodes(elapsed2)
+    this.attractConnectedNodes(elapsed2)
+
+    const highestVelocity = this.applyVelocity(elapsed)
     this.setGridCenter()
 
-    return maxVelocity
+    this.alpha *= alphaDecay ** elapsed
+
+    return highestVelocity
   }
 
-  private repelNodes () {
+  private repelNodes (elapsed: number) {
     for (const node of this.nodes) {
       // get 2x2 spatially partitioned grid cells closest to node
       for (let dx = 0; dx <= 1; dx++) {
@@ -115,8 +122,8 @@ export default class ForceDirectedSim {
             }
             const dist = Math.sqrt(dist2)
             const force = repelRatio / dist
-            const fx = this.alpha * force * force * dx / dist
-            const fy = this.alpha * force * force * dy / dist
+            const fx = this.alpha * elapsed * force * force * dx / dist
+            const fy = this.alpha * elapsed * force * force * dy / dist
             node.position.vx -= fx
             node.position.vy -= fy
             other.position.vx += fx
@@ -127,12 +134,12 @@ export default class ForceDirectedSim {
     }
   }
 
-  private attractConnectedNodes () {
+  private attractConnectedNodes (elapsed: number) {
     for (const { source, target } of this.edges) {
       const dx = target.position.x - source.position.x
       const dy = target.position.y - source.position.y
-      const fx = this.alpha * dx
-      const fy = this.alpha * dy
+      const fx = this.alpha * elapsed * dx
+      const fy = this.alpha * elapsed * dy
       source.position.vx += fx
       source.position.vy += fy
       target.position.vx -= fx
@@ -151,20 +158,20 @@ export default class ForceDirectedSim {
     this.grid.center.y /= this.nodes.length
   }
 
-  private applyVelocity () {
+  private applyVelocity (elapsed: number) {
     for (const { position } of this.frozen) {
       position.vx = 0
       position.vy = 0
     }
 
-    let maxVelocity = 0
+    let highestVelocity = 0
 
     for (const { position } of this.nodes) {
       // clamp velocity to prevent instability
-      position.vx = clamp(-repelRatio, repelRatio, position.vx)
-      position.vy = clamp(-repelRatio, repelRatio, position.vy)
+      position.vx = clamp(-maxVelocity, maxVelocity, position.vx)
+      position.vy = clamp(-maxVelocity, maxVelocity, position.vy)
 
-      maxVelocity = Math.max(maxVelocity,
+      highestVelocity = Math.max(highestVelocity,
           position.vx * position.vx + position.vy * position.vy)
 
       // apply velocity
@@ -172,10 +179,10 @@ export default class ForceDirectedSim {
       position.y += position.vy
 
       // decay velocity
-      position.vx *= velocityDecay
-      position.vy *= velocityDecay
+      position.vx *= velocityDecay ** elapsed
+      position.vy *= velocityDecay ** elapsed
     }
 
-    return maxVelocity
+    return highestVelocity
   }
 }

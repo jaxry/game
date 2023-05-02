@@ -2,7 +2,6 @@ import { putInsideContainer } from './behavior/container'
 import { spawn } from './behavior/spawn'
 import GameTime from './GameTime'
 import { generateRandomGraph } from './map/generateRandomGraph'
-import ForceDirectedSim from './map/ForceDirectedSim'
 import { makeType } from './GameObjectType'
 import Game from './Game'
 import { typeVillager } from './objects/villager'
@@ -20,8 +19,6 @@ export function initGame (game: Game) {
   }
 
   const zone = zones[0]
-
-  new ForceDirectedSim().simulateFully(zone)
 
   game.player = spawn(typeYou, zone)
 
