@@ -4,21 +4,23 @@ import GameTime from '../GameTime'
 
 export function runEffectIn (effect: Effect, timeFromNow: number) {
   if (effect.tick) {
-    game.effectsAtTime.add(effect, game.time.current + timeFromNow)
+    game.timedEffects.add(effect, game.time.current + timeFromNow)
   }
 }
 
 function tick (elapsedGameTime = 0) {
-  game.time.current += elapsedGameTime
+  const finalTime = game.time.current + elapsedGameTime
 
-  while (game.time.current >= game.effectsAtTime.peekPriority()) {
-    const effect = game.effectsAtTime.pop()
+  while (finalTime >= game.timedEffects.peekPriority()) {
+    game.time.current = game.timedEffects.peekPriority()
+    const effect = game.timedEffects.pop()
     // effect may have been deactivated since it was added to the queue
     if (effect.isActive) {
       effect.tick!()
     }
   }
 
+  game.time.current = finalTime
   game.event.tick.emit()
 }
 
