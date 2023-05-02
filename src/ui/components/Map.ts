@@ -1,5 +1,5 @@
 import Component from './Component'
-import { Edge, getZoneGraph } from '../../behavior/connections'
+import { Edge, getEdgeHash, getZoneGraph } from '../../behavior/connections'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import { duration, mapEdgeColor } from '../theme'
@@ -8,6 +8,9 @@ import addPanZoom from '../PanZoom'
 import { makeOrGet, numToPixel, numToPx, translate } from '../../util'
 import TravelAnimation from './Map/TravelAnimation'
 import { createDiv } from '../create'
+import makeDraggable from '../makeDraggable'
+import ForceDirectedSim from '../../map/ForceDirectedSim'
+import throttle from '../throttle'
 
 export default class MapComponent extends Component {
   maxDepthFromCenter = Infinity
@@ -18,70 +21,14 @@ export default class MapComponent extends Component {
   private zoneContainer = createDiv(this.map)
   private travelIcons = createDiv(this.map)
   travelAnimation = new TravelAnimation(this.travelIcons)
-
   private transform = {
     x: 0,
     y: 0,
     scale: 1,
   }
-
   private zoneToComponent = new Map<GameObject, MapNode>()
   private edgeToElem = new Map<string, { line: HTMLElement, edge: Edge }>()
-
-  private firstRender = true
-  private activeMapAnimation: Animation | undefined
-
-  constructor () {
-    super()
-
-    this.element.classList.add(containerStyle)
-
-    addPanZoom(this.element, this.transform, (updatedScale) => {
-      updatedScale && this.updatePositions()
-      this.updateTransform(false)
-    })
-  }
-
-  render (centerZone: GameObject, panToCenter = true) {
-    const graph = getZoneGraph(centerZone, this.maxDepthFromCenter)
-
-    for (const [zone, component] of this.zoneToComponent) {
-      if (!graph.nodes.has(zone)) {
-        this.removeZone(zone, component)
-      }
-    }
-
-    for (const [zone, depth] of graph.nodes) {
-      const component = makeOrGet(this.zoneToComponent, zone, () => {
-        return this.makeZone(zone)
-      })
-      depth <= this.depthForComplexZones ?
-          component.setComplex() : component.setSimple()
-    }
-
-    for (const [hash, { line }] of this.edgeToElem) {
-      if (!graph.edges.has(hash)) {
-        shrink(line).onfinish = () => {
-          line.remove()
-        }
-        this.edgeToElem.delete(hash)
-      }
-    }
-
-    for (const [hash, edge] of graph.edges) {
-      makeOrGet(this.edgeToElem, hash, () => {
-        return this.makeEdge(edge)
-      })
-    }
-
-    this.updatePositions()
-    if (panToCenter) {
-      this.centerOnZone(centerZone, !this.firstRender)
-    }
-    this.firstRender = false
-  }
-
-  updatePositions () {
+  updatePositions = throttle(() => {
     const nodeScale = Math.max(1, this.transform.scale)
 
     for (const [zone, component] of this.zoneToComponent) {
@@ -99,13 +46,94 @@ export default class MapComponent extends Component {
     }
 
     this.travelAnimation.updateScale(nodeScale)
+  })
+  private firstRender = true
+  private activeMapAnimation: Animation | undefined
+  private forceDirectedSim = new ForceDirectedSim()
+
+  constructor () {
+    super()
+
+    this.element.classList.add(containerStyle)
+
+    addPanZoom(this.element, this.transform, (updatedScale) => {
+      updatedScale && this.updatePositions()
+      this.updateTransform(false)
+    })
+
+    this.forceDirectedSim.onUpdate = () => {
+      this.updatePositions()
+    }
   }
 
-  private makeZone (zone: GameObject) {
-    return this.newComponent(this.zoneContainer, MapNode, zone, this)
+  render (centerZone: GameObject, panToCenter = false) {
+
+    const graph = getZoneGraph(centerZone, this.maxDepthFromCenter)
+
+    for (const [zone, component] of this.zoneToComponent) {
+      if (!graph.nodes.has(zone)) {
+        this.removeNode(zone, component)
+      }
+    }
+
+    for (const [zone, depth] of graph.nodes) {
+      const component = makeOrGet(this.zoneToComponent, zone, () => {
+        return this.makeNode(zone)
+      })
+      depth <= this.depthForComplexZones ?
+          component.setComplex() : component.setSimple()
+    }
+
+    const currentEdges = new Set<string>()
+    for (const edge of graph.edges) {
+      const hash = getEdgeHash(edge)
+      currentEdges.add(hash)
+      makeOrGet(this.edgeToElem, hash, () => {
+        return this.makeEdge(edge)
+      })
+    }
+
+    for (const [hash, { line }] of this.edgeToElem) {
+      if (!currentEdges.has(hash)) {
+        shrink(line).onfinish = () => {
+          line.remove()
+        }
+        this.edgeToElem.delete(hash)
+      }
+    }
+
+    this.updatePositions()
+
+    if (this.firstRender) {
+      this.forceDirectedSim.simulateFully(centerZone)
+    }
+
+    if (panToCenter) {
+      this.centerOnZone(centerZone, !this.firstRender)
+    }
+
+    this.firstRender = false
   }
 
-  private removeZone (zone: GameObject, component: MapNode) {
+  private makeNode (zone: GameObject) {
+    const node = this.newComponent(this.zoneContainer, MapNode, zone, this)
+    makeDraggable(node.element, {
+      onDown: () => {
+        this.forceDirectedSim.freeze(zone)
+      },
+      onUp: () => {
+        this.forceDirectedSim.unfreeze(zone)
+      },
+      onDrag: (e) => {
+        zone.position.x += e.movementX / this.transform.scale
+        zone.position.y += e.movementY / this.transform.scale
+        this.forceDirectedSim.animate(zone)
+      },
+    })
+    return node
+  }
+
+  private removeNode (zone: GameObject, component: MapNode) {
     shrink(component.element).onfinish = () => {
       component.remove()
     }
@@ -113,11 +141,8 @@ export default class MapComponent extends Component {
   }
 
   private makeEdge (edge: Edge) {
-    const line = createDiv(this.edgeContainer)
-    line.classList.add(edgeStyle)
-
+    const line = createDiv(this.edgeContainer, edgeStyle)
     grow(line)
-
     return { line, edge }
   }
 
@@ -191,6 +216,7 @@ function getEdgePositionAndAngle ({ source, target }: Edge) {
 const containerStyle = makeStyle({
   position: 'relative',
   contain: `strict`,
+  userSelect: `none`,
 })
 
 const mapStyle = makeStyle({

@@ -80,13 +80,13 @@ export function findClosest<T> (
 }
 
 export function mapIter<T, U> (
-    iterable: Iterable<T>, mapFn: (x: T, index: number) => U) {
+    iterable: Iterable<T>, mapFn: (x: T, index: number) => U | undefined): U[] {
   const array: U[] = []
   let i = 0
   for (const x of iterable) {
-    const fx = mapFn(x, i)
+    const fx = mapFn(x, i++)
     if (fx !== undefined) {
-      array.push(mapFn(x, i++))
+      array.push(fx)
     }
   }
   return array

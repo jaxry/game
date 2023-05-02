@@ -3,14 +3,15 @@ export class Tween {
 }
 
 export default function tween (
-    callback: (lerpProgress: (
-        start: number, end: number) => number, progress: number) => void,
+    callback: (lerpProgress: (start: number, end: number) => number) => void,
     options: KeyframeAnimationOptions): Tween {
 
   const duration = Number(options.duration) ?? 1000
   const easingFn = easingMap[options.easing ?? 'ease']
+  const delay = options.delay ?? 0
 
-  let progress = 0
+  let startTime: number
+  let progress: number
 
   function lerpProgress (start: number, end: number) {
     return start + (end - start) * progress
@@ -18,14 +19,12 @@ export default function tween (
 
   const returnObj = new Tween()
 
-  const start = performance.now()
-
   const tick = (time: number) => {
-    const elapsed = time - start
+    const elapsed = time - startTime
 
     progress = easingFn(elapsed / duration)
 
-    callback(lerpProgress, progress)
+    callback(lerpProgress)
 
     if (elapsed < duration) {
       requestAnimationFrame(tick)
@@ -34,7 +33,15 @@ export default function tween (
     }
   }
 
-  tick(start)
+  if (delay) {
+    setTimeout(() => {
+      startTime = performance.now()
+      tick(startTime)
+    }, delay)
+  } else {
+    startTime = performance.now()
+    tick(startTime)
+  }
 
   return returnObj
 }

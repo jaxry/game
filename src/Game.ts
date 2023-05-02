@@ -9,13 +9,11 @@ export default class Game {
   time = new GameTime()
   event = {
     tick: new Observable(),
-    mapPositionUpdate: new Observable(),
-    mapUpdate: new Observable(),
     playerChange: new Observable<GameObject>(),
   }
   player!: GameObject
   world!: GameObject
-  effectsAtTime = new PriorityQueue<Effect>()
+  timedEffects = new PriorityQueue<Effect>()
   energyPool = 0
 }
 

@@ -181,9 +181,7 @@ export default class Inventory extends GameComponent {
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
-
-    this.cardPhysics.simulate(true)
-    this.animateBounds()
+    this.animateBounds(duration.normal)
 
     card.element.animate({
       transform: `scale(0)`,
@@ -199,22 +197,24 @@ export default class Inventory extends GameComponent {
   private updateBounds () {
     this.targetBounds.reset()
 
+    if (this.objectToCard.size === 0) {
+      this.targetBounds.setSize(32)
+    }
+
     for (const [object, card] of this.objectToCard) {
       const x = object.position.x
       const y = object.position.y
       const { width, height } = getDimensions(card.element)
       const w = width / 2
       const h = height / 2
-      this.targetBounds.extendLeft(x - w)
-      this.targetBounds.extendRight(x + w)
-      this.targetBounds.extendTop(y - h)
-      this.targetBounds.extendBottom(y + h)
+      this.targetBounds.add(x - w, y - h)
+      this.targetBounds.add(x + w, y + h)
     }
-    this.targetBounds.setMinSize(16)
+
     this.targetBounds.expand(16)
   }
 
-  private animateBounds () {
+  private animateBounds (delay = 0) {
     if (this.tween) {
       return
     }
@@ -234,6 +234,7 @@ export default class Inventory extends GameComponent {
       this.updatePositions()
     }, {
       duration: duration.slow,
+      delay,
     })
 
     this.tween.onfinish = () => {

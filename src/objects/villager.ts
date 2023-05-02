@@ -33,9 +33,11 @@ class FindWood extends Effect {
       new TransferAction(this.object, wood, this.object).activate()
     } else {
       speak(this.object, 'No vood. Must find.')
-      new TravelAction(
-          this.object, randomElement(this.object.container.connections))
-          .activate()
+      if (this.object.container.connections?.length) {
+        new TravelAction(
+            this.object, randomElement(this.object.container.connections))
+            .activate()
+      }
     }
   }
 
