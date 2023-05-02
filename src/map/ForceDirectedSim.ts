@@ -22,19 +22,19 @@ export const renderedConnectionDistance = repelRatio / 12
 
 export default class ForceDirectedSim {
   onUpdate?: () => void
+  alpha: number
   private grid: SpatialGrid<GameObject>
   private frozen = new Set<GameObject>()
   private nodes: GameObject[] = []
   private edges: Edge[] = []
   private currentAnimation: number | null = null
 
-  alpha: number
-
   simulateFully (startingNode: GameObject, highEnergy = true) {
     this.alpha = highEnergy ? highStartAlpha : lowStartAlpha
     this.init(startingNode)
     let i = 0
-    while (this.applyForces() > minVelocity) {}
+    while (this.applyForces() > minVelocity) {
+    }
     this.onUpdate?.()
   }
 

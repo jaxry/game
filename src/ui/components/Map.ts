@@ -20,6 +20,14 @@ export default class MapComponent extends Component {
   private edgeContainer = createDiv(this.map)
   private zoneContainer = createDiv(this.map)
   private travelIcons = createDiv(this.map)
+  travelAnimation = new TravelAnimation(this.travelIcons)
+  private transform = {
+    x: 0,
+    y: 0,
+    scale: 1,
+  }
+  private zoneToComponent = new Map<GameObject, MapNode>()
+  private edgeToElem = new Map<string, { line: HTMLElement, edge: Edge }>()
   updatePositions = throttle(() => {
     const nodeScale = Math.max(1, this.transform.scale)
 
@@ -39,21 +47,24 @@ export default class MapComponent extends Component {
 
     this.travelAnimation.updateScale(nodeScale)
   })
-
-  travelAnimation = new TravelAnimation(this.travelIcons)
-
-  private transform = {
-    x: 0,
-    y: 0,
-    scale: 1,
-  }
-
-  private zoneToComponent = new Map<GameObject, MapNode>()
-  private edgeToElem = new Map<string, { line: HTMLElement, edge: Edge }>()
-
   private firstRender = true
   private activeMapAnimation: Animation | undefined
   private forceDirectedSim = new ForceDirectedSim()
+
+  constructor () {
+    super()
+
+    this.element.classList.add(containerStyle)
+
+    addPanZoom(this.element, this.transform, (updatedScale) => {
+      updatedScale && this.updatePositions()
+      this.updateTransform(false)
+    })
+
+    this.forceDirectedSim.onUpdate = () => {
+      this.updatePositions()
+    }
+  }
 
   render (centerZone: GameObject, animateToCenter = false) {
     const graph = getZoneGraph(centerZone, this.maxDepthFromCenter)
@@ -101,21 +112,6 @@ export default class MapComponent extends Component {
     }
 
     this.firstRender = false
-  }
-
-  constructor () {
-    super()
-
-    this.element.classList.add(containerStyle)
-
-    addPanZoom(this.element, this.transform, (updatedScale) => {
-      updatedScale && this.updatePositions()
-      this.updateTransform(false)
-    })
-
-    this.forceDirectedSim.onUpdate = () => {
-      this.updatePositions()
-    }
   }
 
   private makeNode (zone: GameObject) {
@@ -219,7 +215,7 @@ function getEdgePositionAndAngle ({ source, target }: Edge) {
 const containerStyle = makeStyle({
   position: 'relative',
   contain: `strict`,
-  userSelect: `none`
+  userSelect: `none`,
 })
 
 const mapStyle = makeStyle({
