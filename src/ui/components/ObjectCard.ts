@@ -5,8 +5,8 @@ import ActionComponent from './ActionComponent'
 import { game } from '../../Game'
 import Effect from '../../effects/Effect'
 import {
-  borderRadius, boxShadow, duration, objectCardColor, objectCardNameBorderColor,
-  objectCardPlayerColor,
+  borderRadius, boxShadow, fadeInAnimation, objectCardColor,
+  objectCardNameBorderColor, objectCardPlayerColor,
 } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
@@ -158,7 +158,6 @@ const containerStyle = makeStyle({
   background: objectCardColor,
   boxShadow,
   borderRadius,
-  userSelect: `none`,
 })
 
 const nameStyle = makeStyle({
@@ -171,14 +170,14 @@ const grabStyle = makeStyle({
   position: `absolute`,
   right: `0`,
   transform: `translate(50%, -50%) scaleX(-1) `,
-  fontSize: `1.5rem`,
+  fontSize: `1.25rem`,
   cursor: `grab`,
-  opacity: `0`,
-  transition: `opacity ${duration.fast}ms ease`,
+  display: 'none',
 })
 
 makeStyle(`:hover > .${grabStyle}`, {
-  opacity: `1`,
+  display: 'block',
+  animation: fadeInAnimation,
 })
 
 const playerStyle = makeStyle({

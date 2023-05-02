@@ -11,6 +11,7 @@ import MapComponent from './Map'
 import { playerTravelToZone } from '../../behavior/player'
 import Component from './Component'
 import { createDiv } from '../create'
+import { onClickNotDrag } from '../makeDraggable'
 
 export default class MapNode extends GameComponent {
   node: HTMLElement | Component
@@ -21,10 +22,9 @@ export default class MapNode extends GameComponent {
 
     this.element.classList.add(containerStyle)
 
-    this.element.addEventListener('click', () => {
+    onClickNotDrag(this.element, () => {
       playerTravelToZone(this.zone)
     })
-
   }
 
   setComplex () {
@@ -46,9 +46,11 @@ export default class MapNode extends GameComponent {
             self.map.travelAnimation.start(action)
           }
         })
-        // this.onEvent(this.object, 'itemActionEnd', ({ action }) => {
-        //   // stop animation
-        // })
+        this.onObject('actionEnd', ({ action }) => {
+          if (action instanceof TravelAction) {
+            self.map.travelAnimation.stop(action)
+          }
+        })
       }
     }, this.zone)
   }

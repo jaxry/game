@@ -21,7 +21,7 @@ export default class ObjectMessage extends Component {
     })
 
     this.element.animate({
-      opacity: `0`
+      opacity: `0`,
     }, {
       duration: lifespan,
     })
@@ -31,7 +31,7 @@ export default class ObjectMessage extends Component {
     }, {
       duration: lifespan,
       composite: `add`,
-      easing: `ease`
+      easing: `ease`,
     }).onfinish = () => {
       this.remove()
     }

@@ -40,13 +40,6 @@ export default function makeDraggable (
 
     if (options.onDrag) {
       document.body.addEventListener('mousemove', (e: MouseEvent) => {
-        // Throttle the mousemove event to the browser's requestAnimationFrame,
-        // otherwise event gets triggered way more than necessary.
-        // move() might be called after mouse up due to throttling.
-        // return if this is the case
-        if (!isDragging) {
-          return
-        }
         const { relative, difference } = calcPositionChange(e)
         options.onDrag!(e, relative, difference)
       }, { signal })

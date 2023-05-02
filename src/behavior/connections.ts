@@ -1,7 +1,7 @@
 import type GameObject from '../GameObject'
 import PriorityQueue from '../PriorityQueue'
 import { deleteElem } from '../util'
-import { renderedConnectionDistance } from '../map/forceDirectedSim'
+import { renderedConnectionDistance } from '../map/ForceDirectedSim'
 
 export function connectZones (
     source: GameObject, target: GameObject, autoPosition = true) {
@@ -58,50 +58,42 @@ export interface Edge {
 
 export interface ZoneGraph {
   nodes: Map<GameObject, number>
-  edges: Map<string, Edge>
+  edges: Set<Edge>
 }
 
 export function getZoneGraph (
     startingNode: GameObject, maxDepth = Infinity): ZoneGraph {
   const nodes = new Map<GameObject, number>()
-  const edges = new Map<string, Edge>()
-
-  function traverse (node: GameObject, depth: number) {
-    if (nodes.has(node)) {
-      nodes.set(node, Math.min(nodes.get(node)!, depth))
-      return
-    }
-
-    nodes.set(node, depth)
-
-    if (depth < maxDepth) {
-      for (const neighbor of node.connections) {
-        traverse(neighbor, depth + 1)
-      }
-    }
-  }
-
-  traverse(startingNode, 0)
-
+  const edges = new Set<Edge>()
   const visited = new Set<GameObject>()
-  for (const node of nodes.keys()) {
+
+  const queue = [startingNode]
+  nodes.set(startingNode, 0)
+
+  while (queue.length) {
+    const node = queue.shift()!
+    const depth = nodes.get(node)!
     visited.add(node)
     for (const neighbor of node.connections) {
-      if (!nodes.has(neighbor) || visited.has(neighbor)) {
+      if (visited.has(neighbor)) {
         continue
       }
-      const edge = { source: node, target: neighbor }
-      edges.set(edgeHash(edge), edge)
+
+      edges.add({ source: node, target: neighbor })
+
+      if (!nodes.has(neighbor)) {
+        nodes.set(neighbor, depth + 1)
+        if (depth < maxDepth - 1) {
+          queue.push(neighbor)
+        }
+      }
     }
   }
 
-  return {
-    nodes,
-    edges,
-  }
+  return { nodes, edges }
 }
 
-function edgeHash ({ source, target }: Edge) {
+export function getEdgeHash ({ source, target }: Edge) {
   if (source.id < target.id) {
     return `${source.id}-${target.id}`
   } else {

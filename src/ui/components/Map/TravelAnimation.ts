@@ -45,6 +45,14 @@ export default class TravelAnimation {
     }, { duration: actionDuration })
   }
 
+  stop (action: TravelAction) {
+    for (const state of this.animationState) {
+      if (state.action === action) {
+        state.animation.finish()
+      }
+    }
+  }
+
   updateScale (newScale: number) {
     this.scale = newScale
     for (const { action, animation } of this.animationState) {
