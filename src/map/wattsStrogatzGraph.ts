@@ -1,5 +1,5 @@
 import spawnZone from './spawnZone'
-import { connectZones, disconnectZones } from '../behavior/connections'
+import { connectZones } from '../behavior/connections'
 
 export default function wattsStrogatzGraph (n = 50) {
   const zones = []

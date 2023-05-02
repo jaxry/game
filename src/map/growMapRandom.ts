@@ -1,11 +1,8 @@
 import GameObject from '../GameObject'
-import { typeZone } from '../objects/zone'
 import { connectZones } from '../behavior/connections'
-import { spawn } from '../behavior/spawn'
-import Game, { game } from '../Game'
-import { find, randomElement } from '../util'
+import { game } from '../Game'
+import { randomElement } from '../util'
 import spawnZone from './spawnZone'
-import { startForceDirectedSimulation } from './forceDirectedSim'
 
 export default function growMapRandom () {
   const first = spawnZone()
@@ -18,8 +15,7 @@ export default function growMapRandom () {
     } else {
       addZone(zones)
     }
-    game.event.mapUpdate.emit()
-    startForceDirectedSimulation(first)
+    game.event.worldModified.emit()
   }, 500)
 
   return first
@@ -49,7 +45,7 @@ function connectExistingZone (zones: GameObject[]) {
     const next = randomElement(
         connectingZone.connections.filter(z => !forbidden.has(z)))
     if (!next) {
-      break;
+      break
     }
     forbidden.add(connectingZone)
     connectingZone = next

@@ -13,7 +13,6 @@ export function initGame (game: Game) {
   const zone = growMapTri()
 
   // const zone = wattsStrogatzGraph()
-  // startForceDirectedSimulation(zone)
 
   game.player = spawn(typeYou, zone)
 

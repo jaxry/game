@@ -12,11 +12,13 @@ const alphaDecay = 1
 const minVelocity = 0.05
 const maxVelocity = repelRatio * 8
 
-const highStartAlpha = 0.0006
+const highStartAlpha = 0.0005
 const lowStartAlpha = highStartAlpha / 4
 
 const maxDistance = repelRatio
 const maxDistance2 = maxDistance * maxDistance
+
+const defaultElapsedTime = 17
 
 export const renderedConnectionDistance = repelRatio / 12
 
@@ -32,8 +34,7 @@ export default class ForceDirectedSim {
   simulateFully (startingNode: GameObject, highEnergy = true) {
     this.alpha = highEnergy ? highStartAlpha : lowStartAlpha
     this.init(startingNode)
-    let i = 0
-    while (this.applyForces() > minVelocity) {
+    while (this.applyForces(defaultElapsedTime) > minVelocity) {
     }
     this.onUpdate?.()
   }
@@ -50,7 +51,8 @@ export default class ForceDirectedSim {
     let lastTime = 0
 
     const tick = (time: number) => {
-      const elapsed = Math.min(17, lastTime ? time - lastTime : 17)
+      const elapsed = Math.min(defaultElapsedTime,
+          lastTime ? time - lastTime : defaultElapsedTime)
       lastTime = time
 
       const highestVelocity = this.applyForces(elapsed)
@@ -60,6 +62,11 @@ export default class ForceDirectedSim {
     }
 
     tick(0)
+  }
+
+  stop () {
+    cancelAnimationFrame(this.currentAnimation!)
+    this.currentAnimation = null
   }
 
   freeze (node: GameObject) {
@@ -78,7 +85,7 @@ export default class ForceDirectedSim {
     this.grid = new SpatialGrid<GameObject>(2 * maxDistance)
   }
 
-  private applyForces (elapsed = 17) {
+  private applyForces (elapsed: number) {
     this.grid.clear()
     for (const node of this.nodes) {
       // add node to spatially partitioned grid
@@ -86,7 +93,6 @@ export default class ForceDirectedSim {
     }
 
     const elapsed2 = elapsed * elapsed
-
     this.repelNodes(elapsed2)
     this.attractConnectedNodes(elapsed2)
 

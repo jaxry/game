@@ -1,12 +1,11 @@
 import spawnZone from './spawnZone'
 import { connectZones, disconnectZones } from '../behavior/connections'
-import { startForceDirectedSimulation } from './forceDirectedSim'
 import GameObject from '../GameObject'
-import Game, { game } from '../Game'
+import { game } from '../Game'
 import { randomElement } from '../util'
 import Point from '../Point'
 
-export default function growMapTri() {
+export default function growMapTri () {
   const zones = [spawnZone(), spawnZone(), spawnZone()]
 
   connectZones(zones[0], zones[1])
@@ -19,16 +18,14 @@ export default function growMapTri() {
       subdivideTri(tri[0], tri[1], tri[2], zones)
     }
 
-    game.event.mapUpdate.emit()
-    startForceDirectedSimulation(zones[0])
-  }, 1000)
-
-  startForceDirectedSimulation(zones[0])
+    game.event.worldModified.emit()
+  }, 2000)
 
   return zones[0]
 }
 
-function subdivideTri (z1: GameObject, z2: GameObject, z3: GameObject, zones: GameObject[]) {
+function subdivideTri (
+    z1: GameObject, z2: GameObject, z3: GameObject, zones: GameObject[]) {
   disconnectZones(z1, z2)
   disconnectZones(z2, z3)
   disconnectZones(z3, z1)
@@ -80,7 +77,7 @@ function findTri (zones: GameObject[]) {
   return [z1, z2, z3]
 }
 
-function setAveragePosition(p1: Point, p2: Point, target: Point) {
+function setAveragePosition (p1: Point, p2: Point, target: Point) {
   target.x = (p1.x + p2.x) / 2
   target.y = (p1.y + p2.y) / 2
 }

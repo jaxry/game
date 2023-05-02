@@ -44,6 +44,10 @@ export default class GameUI extends GameComponent {
       mapEffect.setObject(game.player)
     })
 
+    this.on(game.event.worldModified, () => {
+      map.render(game.player.container, false, true)
+    })
+
     setTimeout(() => {
       map.render(game.player.container, true)
     })
