@@ -158,7 +158,6 @@ const containerStyle = makeStyle({
   background: objectCardColor,
   boxShadow,
   borderRadius,
-  userSelect: `none`,
 })
 
 const nameStyle = makeStyle({

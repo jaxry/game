@@ -34,9 +34,7 @@ export default class ForceDirectedSim {
     this.alpha = highEnergy ? highStartAlpha : lowStartAlpha
     this.init(startingNode)
     let i = 0
-    while (this.applyForces() > minVelocity) {
-      console.log(i++)
-    }
+    while (this.applyForces() > minVelocity) {}
     this.onUpdate?.()
   }
 

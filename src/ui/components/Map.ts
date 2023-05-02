@@ -219,6 +219,7 @@ function getEdgePositionAndAngle ({ source, target }: Edge) {
 const containerStyle = makeStyle({
   position: 'relative',
   contain: `strict`,
+  userSelect: `none`
 })
 
 const mapStyle = makeStyle({
