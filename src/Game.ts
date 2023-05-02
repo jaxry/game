@@ -15,7 +15,7 @@ export default class Game {
   }
   player!: GameObject
   world!: GameObject
-  effectsAtTime = new PriorityQueue<Effect>()
+  timedEffects = new PriorityQueue<Effect>()
   energyPool = 0
 }
 
