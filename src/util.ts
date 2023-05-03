@@ -92,6 +92,14 @@ export function mapIter<T, U> (
   return array
 }
 
+export function makeArray<T> (size: number, map: (i: number) => T): T[] {
+  const array = new Array(size)
+  for (let i = 0; i < size; i++) {
+    array[i] = map(i)
+  }
+  return array
+}
+
 // ---------------
 // Map functions
 // ---------------

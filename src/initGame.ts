@@ -3,16 +3,18 @@ import { makeType } from './GameObjectType'
 import Game from './Game'
 import { typeWood } from './objects/wood'
 import { typeZone } from './objects/zone'
-import growMapTri from './map/growMapTri'
+import { generateRandomGraph } from './map/generateRandomGraph'
+import generateTriGrid from './map/generateTriGrid'
 
 export function initGame (game: Game) {
   game.energyPool = 128
 
   game.world = spawn(typeZone)
 
-  const zone = growMapTri()
-
+  // const zone = growMapTri()
   // const zone = wattsStrogatzGraph()
+  const zones = generateRandomGraph(30)
+  const zone = zones[0]
 
   game.player = spawn(typeYou, zone)
 

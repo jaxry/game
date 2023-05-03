@@ -1,4 +1,5 @@
 import Vertex from './Vertex'
+import { mapIter } from '../util'
 
 export default function findLargestGraph (vertices: Vertex[]) {
   const visited = new Map<Vertex, number>()
@@ -20,31 +21,19 @@ export default function findLargestGraph (vertices: Vertex[]) {
   }
 
   function getLargestGraph () {
-    const graphSizes: number[] = []
-    for (let i = 0; i < nextGraphId; i++) {
-      graphSizes[i] = 0
-    }
+    const graphSizes = new Array(nextGraphId).fill(0)
 
     for (const graphNum of visited.values()) {
       graphSizes[graphNum]++
     }
 
-    let largestGraph = 0
-    for (let i = 0; i < graphSizes.length; i++) {
-      if (graphSizes[i] > graphSizes[largestGraph]) {
-        largestGraph = i
-      }
-    }
-    return largestGraph
+    return graphSizes.reduce((maxIndex, x, i) =>
+        x > graphSizes[maxIndex] ? i : maxIndex, 0)
   }
 
   const largestGraph = getLargestGraph()
-  const newVertices: Vertex[] = []
-  for (const [vertex, graphId] of visited) {
-    if (graphId === largestGraph) {
-      newVertices.push(vertex)
-    }
-  }
 
-  return newVertices
+  return mapIter(visited, ([vertex, graphId]) => {
+    return graphId === largestGraph ? vertex : undefined
+  })
 }

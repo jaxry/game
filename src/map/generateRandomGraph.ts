@@ -8,21 +8,15 @@ export function generateRandomGraph (vertexCount: number) {
   function tryOnce () {
     let vertices: Vertex[] = []
     for (let i = 0; i < vertexCount; i++) {
-      vertices.push({ edges: [] })
+      vertices.push(new Vertex())
     }
 
-    let edges: [Vertex, Vertex][] = []
     for (let i = 0; i < vertexCount; i++) {
       for (let j = i + 1; j < vertexCount; j++) {
         if (Math.random() < chance) {
-          edges.push([vertices[i], vertices[j]])
+          vertices[i].connect(vertices[j])
         }
       }
-    }
-
-    for (const edge of edges) {
-      edge[0].edges.push(edge[1])
-      edge[1].edges.push(edge[0])
     }
 
     return findLargestGraph(vertices)
