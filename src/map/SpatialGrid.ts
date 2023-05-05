@@ -26,8 +26,12 @@ export default class SpatialGrid<T> {
   }
 
   clear () {
-    for (const items of this.grid.values()) {
-      items.length = 0
+    for (const [key, items] of this.grid) {
+      if (items.length === 0) {
+        this.grid.delete(key)
+      } else {
+        items.length = 0
+      }
     }
   }
 }

@@ -6,16 +6,16 @@ import { clamp } from '../util'
 // repelling force is this much stronger than attracting force
 const repelRatio = 3000
 
-const velocityDecay = 0.965
+const velocityDecay = 0.97
 const alphaDecay = 1
 
-const minVelocity = 0.01
-const maxVelocity = repelRatio * 8
+const minVelocity = repelRatio * 1e-5
+const maxVelocity = repelRatio * 4
 
-const highStartAlpha = 0.0005
+const highStartAlpha = 0.0004
 const lowStartAlpha = highStartAlpha / 4
 
-const maxDistance = repelRatio
+const maxDistance = repelRatio / 3
 const maxDistance2 = maxDistance * maxDistance
 
 const defaultElapsedTime = 17
@@ -34,8 +34,10 @@ export default class ForceDirectedSim {
   simulateFully (startingNode: GameObject, highEnergy = true) {
     this.alpha = highEnergy ? highStartAlpha : lowStartAlpha
     this.init(startingNode)
+
     while (this.applyForces(defaultElapsedTime) > minVelocity) {
     }
+
     this.onUpdate?.()
   }
 
