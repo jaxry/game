@@ -9,7 +9,7 @@ const repelRatio = 3000
 const velocityDecay = 0.965
 const alphaDecay = 1
 
-const minVelocity = 0.05
+const minVelocity = 0.01
 const maxVelocity = repelRatio * 8
 
 const highStartAlpha = 0.0005
@@ -187,6 +187,6 @@ export default class ForceDirectedSim {
       position.vy *= velocityDecay ** elapsed
     }
 
-    return highestVelocity
+    return Math.sqrt(highestVelocity) / elapsed
   }
 }
