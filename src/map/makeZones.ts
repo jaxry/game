@@ -3,25 +3,16 @@ import { connectZones } from '../behavior/connections'
 import Vertex from './Vertex'
 import spawnZone from './spawnZone'
 
-export default function makeZones (vertices: Vertex[]) {
+export default function makeZones (
+    vertices: Vertex[], edges: [Vertex, Vertex][]) {
   const vertexToZone = new Map<Vertex, GameObject>()
 
   for (const vertex of vertices) {
-    const zone = spawnZone()
-    vertexToZone.set(vertex, zone)
+    vertexToZone.set(vertex, spawnZone())
   }
 
-  const visited = new Set<Vertex>()
-
-  for (const vertex of vertices) {
-    visited.add(vertex)
-    const zone = vertexToZone.get(vertex)!
-    for (const neighbor of vertex.edges) {
-      if (visited.has(neighbor)) {
-        continue
-      }
-      connectZones(zone, vertexToZone.get(neighbor)!)
-    }
+  for (const [a, b] of edges) {
+    connectZones(vertexToZone.get(a)!, vertexToZone.get(b)!)
   }
 
   return [...vertexToZone.values()]

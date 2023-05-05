@@ -11,16 +11,16 @@ export default function findLargestGraph (vertices: Vertex[]) {
   }
 
   function traverse (vertex: Vertex, graphId: number) {
-    if (visited.has(vertex)) return
-
     visited.set(vertex, graphId)
 
     for (const edge of vertex.edges) {
-      traverse(edge, graphId)
+      if (!visited.has(edge)) {
+        traverse(edge, graphId)
+      }
     }
   }
 
-  function getLargestGraph () {
+  function getLargestGraphId () {
     const graphSizes = new Array(nextGraphId).fill(0)
 
     for (const graphNum of visited.values()) {
@@ -31,9 +31,9 @@ export default function findLargestGraph (vertices: Vertex[]) {
         x > graphSizes[maxIndex] ? i : maxIndex, 0)
   }
 
-  const largestGraph = getLargestGraph()
+  const largestGraphId = getLargestGraphId()
 
   return mapIter(visited, ([vertex, graphId]) => {
-    return graphId === largestGraph ? vertex : undefined
+    return graphId === largestGraphId ? vertex : undefined
   })
 }
