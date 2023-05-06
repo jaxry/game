@@ -4,7 +4,7 @@ import { deleteElem } from '../util'
 import { renderedConnectionDistance } from '../map/ForceDirectedSim'
 
 export function connectZones (
-    source: GameObject, target: GameObject, autoPosition = true) {
+    source: GameObject, target: GameObject, autoPosition = false) {
   if (!source.connections) {
     source.connections = []
   }
