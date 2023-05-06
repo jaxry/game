@@ -105,7 +105,7 @@ export default class MapComponent extends Component {
     this.updatePositions()
 
     if (this.firstRender) {
-      this.forceDirectedSim.simulateFully(centerZone)
+      this.forceDirectedSim.animate(centerZone, true)
     } else if (startForceSim) {
       this.forceDirectedSim.stop()
       this.forceDirectedSim.animate(centerZone)

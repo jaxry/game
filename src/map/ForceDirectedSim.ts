@@ -7,20 +7,20 @@ import { clamp } from '../util'
 const repelRatio = 3000
 
 const velocityDecay = 1 - 1 / 64
-const alphaDecay = 1
+const alphaDecay = 1 - 1 / 1024
 
-const minVelocityScaled = repelRatio / 16
+const minVelocityScaled = repelRatio / 4
 const maxVelocity = repelRatio / 8
 
-const highStartAlpha = 1 / 4096
-const lowStartAlpha = highStartAlpha / 4
+const highStartAlpha = 1 / 2048
+const lowStartAlpha = highStartAlpha / 16
 
-const maxDistance = repelRatio / 4
+const maxDistance = repelRatio / 8
 const maxDistance2 = maxDistance * maxDistance
 
 const defaultElapsedTime = 17
 
-export const renderedConnectionDistance = repelRatio / 9
+export const renderedConnectionDistance = repelRatio / 10
 
 export default class ForceDirectedSim {
   onUpdate?: () => void
@@ -33,7 +33,11 @@ export default class ForceDirectedSim {
   private currentAnimation: number | null = null
 
   simulateFully (startingNode: GameObject, highEnergy = true) {
-    this.init(startingNode, highEnergy ? highStartAlpha : lowStartAlpha)
+    const startingAlpha = highEnergy ? highStartAlpha : lowStartAlpha
+    this.startingAlpha = startingAlpha
+    this.alpha = startingAlpha
+
+    this.init(startingNode)
 
     while (this.applyForces(defaultElapsedTime)) {
     }
@@ -42,10 +46,15 @@ export default class ForceDirectedSim {
   }
 
   animate (startingNode: GameObject, highEnergy = false) {
+    const startingAlpha = highEnergy ? highStartAlpha : lowStartAlpha
+    this.startingAlpha = startingAlpha
+    this.alpha = startingAlpha
+
     if (this.currentAnimation) {
       return
     }
-    this.init(startingNode, highEnergy ? highStartAlpha : lowStartAlpha)
+
+    this.init(startingNode)
 
     let lastTime = 0
 
@@ -75,14 +84,12 @@ export default class ForceDirectedSim {
     this.frozen.delete(node)
   }
 
-  private init (startingNode: GameObject, startingAlpha: number) {
+  private init (startingNode: GameObject) {
     const graph = getZoneGraph(startingNode)
 
     this.nodes = [...graph.nodes.keys()]
     this.edges = [...graph.edges.values()]
     this.grid = new SpatialGrid<GameObject>(2 * maxDistance)
-    this.startingAlpha = startingAlpha
-    this.alpha = startingAlpha
   }
 
   private applyForces (elapsed: number) {

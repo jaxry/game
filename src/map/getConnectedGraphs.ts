@@ -1,6 +1,6 @@
 import Vertex from './Vertex'
 
-function getConnectedGraphs (vertices: Vertex[]) {
+export default function getConnectedGraphs (vertices: Vertex[]) {
   const visited = new Map<Vertex, number>()
   const edges: [Vertex, Vertex][][] = []
   const connectedVertices: Vertex[][] = []
@@ -28,4 +28,6 @@ function getConnectedGraphs (vertices: Vertex[]) {
       }
     }
   }
+
+  return { connectedVertices, edges }
 }
