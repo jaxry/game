@@ -59,8 +59,8 @@ export default class ForceDirectedSim {
     let lastTime = 0
 
     const tick = (time: number) => {
-      const elapsed = Math.min(defaultElapsedTime,
-          lastTime ? time - lastTime : defaultElapsedTime)
+      const elapsed = lastTime ?
+          Math.min(time - lastTime, defaultElapsedTime) : defaultElapsedTime
       lastTime = time
 
       const repeat = this.applyForces(elapsed)

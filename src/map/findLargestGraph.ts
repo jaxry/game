@@ -1,19 +1,19 @@
-import Vertex from './Vertex'
+import Node from './Node'
 import { mapIter } from '../util'
 
-export default function findLargestGraph (vertices: Vertex[]) {
-  const visited = new Map<Vertex, number>()
+export default function findLargestGraph (nodes: Node[]) {
+  const visited = new Map<Node, number>()
 
   let nextGraphId = 0
-  for (const vertex of vertices) {
-    if (visited.has(vertex)) continue
-    traverse(vertex, nextGraphId++)
+  for (const node of nodes) {
+    if (visited.has(node)) continue
+    traverse(node, nextGraphId++)
   }
 
-  function traverse (vertex: Vertex, graphId: number) {
-    visited.set(vertex, graphId)
+  function traverse (node: Node, graphId: number) {
+    visited.set(node, graphId)
 
-    for (const edge of vertex.edges) {
+    for (const edge of node.edges) {
       if (!visited.has(edge)) {
         traverse(edge, graphId)
       }
@@ -33,7 +33,7 @@ export default function findLargestGraph (vertices: Vertex[]) {
 
   const largestGraphId = getLargestGraphId()
 
-  return mapIter(visited, ([vertex, graphId]) => {
-    return graphId === largestGraphId ? vertex : undefined
+  return mapIter(visited, ([node, graphId]) => {
+    return graphId === largestGraphId ? node : undefined
   })
 }

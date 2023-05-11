@@ -1,33 +1,33 @@
-import Vertex from './Vertex'
+import Node from './Node'
 
-export default function getConnectedGraphs (vertices: Vertex[]) {
-  const visited = new Map<Vertex, number>()
-  const edges: [Vertex, Vertex][][] = []
-  const connectedVertices: Vertex[][] = []
+export default function getConnectedGraphs (nodes: Node[]) {
+  const visited = new Map<Node, number>()
+  const edges: [Node, Node][][] = []
+  const connectedVertices: Node[][] = []
 
   let nextGraphId = 0
-  for (const vertex of vertices) {
-    if (visited.has(vertex)) continue
+  for (const node of nodes) {
+    if (visited.has(node)) continue
     edges.push([])
     connectedVertices.push([])
-    traverse(vertex, nextGraphId++)
+    traverse(node, nextGraphId++)
   }
 
-  function traverse (vertex: Vertex, graphId: number) {
-    visited.set(vertex, graphId)
-    connectedVertices[graphId].push(vertex)
+  function traverse (node: Node, graphId: number) {
+    visited.set(node, graphId)
+    connectedVertices[graphId].push(node)
 
-    for (const edge of vertex.edges) {
+    for (const edge of node.edges) {
       if (!visited.has(edge)) {
-        edges[graphId].push([vertex, edge])
+        edges[graphId].push([node, edge])
       }
     }
-    for (const edge of vertex.edges) {
+    for (const edge of node.edges) {
       if (!visited.has(edge)) {
         traverse(edge, graphId)
       }
     }
   }
 
-  return { connectedVertices, edges }
+  return { nodes, edges }
 }

@@ -1,4 +1,3 @@
-import { makeOrGet } from '../util'
 import Point from '../Point'
 
 export default class SpatialGrid<T> {
@@ -10,11 +9,16 @@ export default class SpatialGrid<T> {
   }
 
   add (position: Point, item: T) {
-    const items = makeOrGet(this.grid,
-        szudzikPairSigned(
-            Math.floor((position.x - this.center.x) / this.cellSize),
-            Math.floor((position.y - this.center.y) / this.cellSize)),
-        () => [])
+    const hash = szudzikPairSigned(
+        Math.floor((position.x - this.center.x) / this.cellSize),
+        Math.floor((position.y - this.center.y) / this.cellSize))
+
+    let items = this.grid.get(hash)
+
+    if (!items) {
+      items = []
+      this.grid.set(hash, items)
+    }
 
     items.push(item)
   }

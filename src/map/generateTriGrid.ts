@@ -1,39 +1,37 @@
-import spawnZone from './spawnZone'
-import { connectZones } from '../behavior/connections'
-import { renderedConnectionDistance } from './ForceDirectedSim'
-import GameObject from '../GameObject'
+import Node from './Node'
+import Point from '../Point'
+import findLargestGraph from './findLargestGraph'
 
 const triHeight = Math.sqrt(3) / 2
 
 export default function generateTriGrid (rows: number) {
-  const zones = []
+  const nodes: Node[] = []
 
-  function connect (a: GameObject, b: GameObject) {
+  function connect (a: Node, b: Node) {
     if (Math.random() < 0.5) {
-      connectZones(a, b)
+      a.connect(b)
     }
   }
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c <= r; c++) {
 
-      const z = spawnZone()
+      const z = new Node()
       if (c > 0) {
-        connect(zones.at(-1)!, z)
+        connect(z, nodes.at(-1)!)
       }
       if (c > 0 && r > 0) {
-        connect(zones.at(-r - 1)!, z)
+        connect(z, nodes.at(-r - 1)!)
       }
       if (c < r && r > 0) {
-        connect(zones.at(-r)!, z)
+        connect(z, nodes.at(-r)!)
       }
 
-      z.position.x = renderedConnectionDistance * (-0.5 * r + c)
-      z.position.y = renderedConnectionDistance * r * triHeight
+      z.position = new Point(-0.5 * r + c, r * triHeight)
 
-      zones.push(z)
+      nodes.push(z)
     }
   }
-  
-  return zones
+
+  return findLargestGraph(nodes)
 }

@@ -1,29 +1,29 @@
-import Vertex from './Vertex'
+import Node from './Node'
 
-export function getEdges (startingVertex: Vertex) {
-  const visited = new Set<Vertex>()
-  const edges: [Vertex, Vertex][] = []
+export function getEdges (startingNode: Node) {
+  const visited = new Set<Node>()
+  const edges: [Node, Node][] = []
 
-  function traverse (vertex: Vertex) {
-    visited.add(vertex)
+  function traverse (node: Node) {
+    visited.add(node)
 
     // First loop adds edges without recursing.
-    for (const edge of vertex.edges) {
+    for (const edge of node.edges) {
       if (!visited.has(edge)) {
-        edges.push([vertex, edge])
+        edges.push([node, edge])
       }
     }
 
     // Now we recurse.
     // Doing it in a second loop ensures no edges are skipped.
-    for (const edge of vertex.edges) {
+    for (const edge of node.edges) {
       if (!visited.has(edge)) {
         traverse(edge)
       }
     }
   }
 
-  traverse(startingVertex)
+  traverse(startingNode)
 
   return edges
 }

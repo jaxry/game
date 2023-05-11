@@ -14,7 +14,7 @@ import throttle from '../throttle'
 
 export default class MapComponent extends Component {
   maxDepthFromCenter = Infinity
-  depthForComplexZones = 0
+  depthForComplexZones = 1
 
   private map = createDiv(this.element, mapStyle)
   private edgeContainer = createDiv(this.map)

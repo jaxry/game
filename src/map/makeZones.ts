@@ -1,25 +1,25 @@
 import GameObject from '../GameObject'
 import { connectZones } from '../behavior/connections'
-import Vertex from './Vertex'
+import Node from './Node'
 import spawnZone from './spawnZone'
 import { renderedConnectionDistance } from './ForceDirectedSim'
 
 export default function makeZones (
-    vertices: Vertex[], edges: [Vertex, Vertex][]) {
-  const vertexToZone = new Map<Vertex, GameObject>()
+    nodes: Node[], edges: [Node, Node][]) {
+  const nodeToZone = new Map<Node, GameObject>()
 
-  for (const vertex of vertices) {
+  for (const node of nodes) {
     const zone = spawnZone()
-    if (vertex.position) {
-      zone.position.x = vertex.position.x * renderedConnectionDistance
-      zone.position.y = vertex.position.y * renderedConnectionDistance
+    if (node.position) {
+      zone.position.x = node.position.x * renderedConnectionDistance
+      zone.position.y = node.position.y * renderedConnectionDistance
     }
-    vertexToZone.set(vertex, zone)
+    nodeToZone.set(node, zone)
   }
 
   for (const [a, b] of edges) {
-    connectZones(vertexToZone.get(a)!, vertexToZone.get(b)!)
+    connectZones(nodeToZone.get(a)!, nodeToZone.get(b)!)
   }
 
-  return [...vertexToZone.values()]
+  return [...nodeToZone.values()]
 }

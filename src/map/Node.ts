@@ -1,10 +1,10 @@
 import Point from '../Point'
 
-export default class Vertex {
+export default class Node {
   position?: Point
-  edges: Vertex[] = []
+  edges: Node[] = []
 
-  connect (other: Vertex) {
+  connect (other: Node) {
     this.edges.push(other)
     other.edges.push(this)
   }
