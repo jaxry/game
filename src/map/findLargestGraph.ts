@@ -1,5 +1,5 @@
 import Node from './Node'
-import { mapIter } from '../util'
+import { makeArray, mapIter } from '../util'
 
 export default function findLargestGraph (nodes: Node[]) {
   const visited = new Map<Node, number>()
@@ -21,7 +21,7 @@ export default function findLargestGraph (nodes: Node[]) {
   }
 
   function getLargestGraphId () {
-    const graphSizes = new Array(nextGraphId).fill(0)
+    const graphSizes = makeArray(nextGraphId, () => 0)
 
     for (const graphNum of visited.values()) {
       graphSizes[graphNum]++

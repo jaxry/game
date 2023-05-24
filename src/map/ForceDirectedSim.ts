@@ -6,21 +6,21 @@ import { clamp } from '../util'
 // repelling force is this much stronger than attracting force
 const repelRatio = 3000
 
-const velocityDecay = 1 - 1 / 64
-const alphaDecay = 1 - 1 / 1024
+const velocityDecay = 1 - 1 / 32
+const alphaDecay = 1
 
-const minVelocityScaled = repelRatio / 4
+const minVelocityScaled = repelRatio / 8
 const maxVelocity = repelRatio / 8
 
 const highStartAlpha = 1 / 2048
 const lowStartAlpha = highStartAlpha / 16
 
-const maxDistance = repelRatio / 8
+const maxDistance = repelRatio / 4
 const maxDistance2 = maxDistance * maxDistance
 
 const defaultElapsedTime = 17
 
-export const renderedConnectionDistance = repelRatio / 10
+export const renderedConnectionDistance = repelRatio / 8
 
 export default class ForceDirectedSim {
   onUpdate?: () => void
@@ -33,9 +33,7 @@ export default class ForceDirectedSim {
   private currentAnimation: number | null = null
 
   simulateFully (startingNode: GameObject, highEnergy = true) {
-    const startingAlpha = highEnergy ? highStartAlpha : lowStartAlpha
-    this.startingAlpha = startingAlpha
-    this.alpha = startingAlpha
+    this.setAlpha(highEnergy ? highStartAlpha : lowStartAlpha)
 
     this.init(startingNode)
 
@@ -46,9 +44,7 @@ export default class ForceDirectedSim {
   }
 
   animate (startingNode: GameObject, highEnergy = false) {
-    const startingAlpha = highEnergy ? highStartAlpha : lowStartAlpha
-    this.startingAlpha = startingAlpha
-    this.alpha = startingAlpha
+    this.setAlpha(highEnergy ? highStartAlpha : lowStartAlpha)
 
     if (this.currentAnimation) {
       return
@@ -82,6 +78,11 @@ export default class ForceDirectedSim {
 
   unfreeze (node: GameObject) {
     this.frozen.delete(node)
+  }
+
+  private setAlpha (alpha: number) {
+    this.alpha = alpha
+    this.startingAlpha = alpha
   }
 
   private init (startingNode: GameObject) {

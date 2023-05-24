@@ -11,7 +11,7 @@ export function initGame (game: Game) {
 
   game.world = spawn(typeZone)
 
-  const zones = createMap(1200)
+  const zones = createMap(15)
   const zone = randomElement(zones)
 
   game.player = spawn(typeYou, zone)

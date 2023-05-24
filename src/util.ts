@@ -23,9 +23,21 @@ export function toPrecision (x: number, numDecimals = 0) {
   return Math.round(x * 10 ** numDecimals) / 10 ** numDecimals
 }
 
+export function randomCentered (scale: number) {
+  return scale * (Math.random() - 0.5)
+}
+
 // ---------------
 // array functions
 // ---------------
+export function makeArray<T> (size: number, map: (i: number) => T): T[] {
+  const array = new Array(size)
+  for (let i = 0; i < size; i++) {
+    array[i] = map(i)
+  }
+  return array
+}
+
 export function randomElement<T> (array: T[]): T {
   return array[Math.floor(Math.random() * array.length)]
 }
@@ -88,14 +100,6 @@ export function mapIter<T, U> (
     if (fx !== undefined) {
       array.push(fx)
     }
-  }
-  return array
-}
-
-export function makeArray<T> (size: number, map: (i: number) => T): T[] {
-  const array = new Array(size)
-  for (let i = 0; i < size; i++) {
-    array[i] = map(i)
   }
   return array
 }

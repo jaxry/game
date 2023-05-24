@@ -1,13 +1,11 @@
 import Node from './Node'
 import findLargestGraph from './findLargestGraph'
+import { makeArray } from '../util'
 
 export function generateRandomGraph (nodeCount: number) {
-  const chance = 2 / nodeCount
+  const chance = 1.5 / nodeCount
 
-  let nodes: Node[] = []
-  for (let i = 0; i < nodeCount; i++) {
-    nodes.push(new Node())
-  }
+  const nodes = makeArray(nodeCount, () => new Node())
 
   for (let i = 0; i < nodeCount; i++) {
     for (let j = i + 1; j < nodeCount; j++) {
