@@ -4,7 +4,7 @@ import Node from './Node'
 import spawnZone from './spawnZone'
 import { renderedConnectionDistance } from './ForceDirectedSim'
 
-export default function makeZones (
+export default function makeZonesFromNodes (
     nodes: Node[], edges: [Node, Node][]) {
   const nodeToZone = new Map<Node, GameObject>()
 

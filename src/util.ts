@@ -42,11 +42,12 @@ export function randomElement<T> (array: T[]): T {
   return array[Math.floor(Math.random() * array.length)]
 }
 
-export function shuffleArray<T> (array: T[]) {
+export function shuffle<T> (array: T[]) {
   for (let i = array.length - 1; i > 0; i--) {
     let j = Math.floor(Math.random() * (i + 1))
     swap(array, i, j)
   }
+  return array
 }
 
 export function deleteElem<T> (array: T[], elem: T) {
@@ -175,8 +176,8 @@ export function moveToTop (node: HTMLElement) {
   node.style.zIndex = (++lastZIndex).toString()
 }
 
-export function numToPixel (num: number) {
-  return num.toFixed(3)
+export function numToPixel (num: number, precision = 3) {
+  return num.toFixed(precision)
 }
 
 export function numToPx (num: number) {

@@ -13,7 +13,7 @@ import ForceDirectedSim from '../../map/ForceDirectedSim'
 import throttle from '../throttle'
 
 export default class MapComponent extends Component {
-  maxDepthFromCenter = Infinity
+  maxDepthFromCenter = 3
   depthForComplexZones = 1
 
   private map = createDiv(this.element, mapStyle)
