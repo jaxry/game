@@ -14,6 +14,7 @@ function tick (elapsedGameTime = 0) {
   while (finalTime >= game.timedEffects.peekPriority()) {
     game.time.current = game.timedEffects.peekPriority()
     const effect = game.timedEffects.pop()
+
     // effect may have been deactivated since it was added to the queue
     if (effect.isActive) {
       effect.tick!()

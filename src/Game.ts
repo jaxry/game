@@ -10,6 +10,7 @@ export default class Game {
   event = {
     tick: new Observable(),
     playerChange: new Observable<GameObject>(),
+    worldModified: new Observable(),
   }
   player!: GameObject
   world!: GameObject

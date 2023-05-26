@@ -6,23 +6,26 @@ import { clamp } from '../util'
 // repelling force is this much stronger than attracting force
 const repelRatio = 3000
 
-const velocityDecay = 0.965
+const velocityDecay = 1 - 1 / 32
 const alphaDecay = 1
 
-const minVelocity = 0.05
-const maxVelocity = repelRatio * 8
+const minVelocityScaled = repelRatio / 8
+const maxVelocity = repelRatio / 8
 
-const highStartAlpha = 0.0006
-const lowStartAlpha = highStartAlpha / 4
+const highStartAlpha = 1 / 2048
+const lowStartAlpha = highStartAlpha / 16
 
-const maxDistance = repelRatio
+const maxDistance = repelRatio / 4
 const maxDistance2 = maxDistance * maxDistance
 
-export const renderedConnectionDistance = repelRatio / 12
+const defaultElapsedTime = 17
+
+export const renderedConnectionDistance = repelRatio / 8
 
 export default class ForceDirectedSim {
   onUpdate?: () => void
   alpha: number
+  private startingAlpha: number
   private grid: SpatialGrid<GameObject>
   private frozen = new Set<GameObject>()
   private nodes: GameObject[] = []
@@ -30,16 +33,18 @@ export default class ForceDirectedSim {
   private currentAnimation: number | null = null
 
   simulateFully (startingNode: GameObject, highEnergy = true) {
-    this.alpha = highEnergy ? highStartAlpha : lowStartAlpha
+    this.setAlpha(highEnergy ? highStartAlpha : lowStartAlpha)
+
     this.init(startingNode)
-    let i = 0
-    while (this.applyForces() > minVelocity) {
+
+    while (this.applyForces(defaultElapsedTime)) {
     }
+
     this.onUpdate?.()
   }
 
   animate (startingNode: GameObject, highEnergy = false) {
-    this.alpha = highEnergy ? highStartAlpha : lowStartAlpha
+    this.setAlpha(highEnergy ? highStartAlpha : lowStartAlpha)
 
     if (this.currentAnimation) {
       return
@@ -50,16 +55,21 @@ export default class ForceDirectedSim {
     let lastTime = 0
 
     const tick = (time: number) => {
-      const elapsed = Math.min(17, lastTime ? time - lastTime : 17)
+      const elapsed = lastTime ?
+          Math.min(time - lastTime, defaultElapsedTime) : defaultElapsedTime
       lastTime = time
 
-      const highestVelocity = this.applyForces(elapsed)
+      const repeat = this.applyForces(elapsed)
       this.onUpdate?.()
-      this.currentAnimation = highestVelocity > minVelocity ?
-          requestAnimationFrame(tick) : null
+      this.currentAnimation = repeat ? requestAnimationFrame(tick) : null
     }
 
     tick(0)
+  }
+
+  stop () {
+    cancelAnimationFrame(this.currentAnimation!)
+    this.currentAnimation = null
   }
 
   freeze (node: GameObject) {
@@ -70,6 +80,11 @@ export default class ForceDirectedSim {
     this.frozen.delete(node)
   }
 
+  private setAlpha (alpha: number) {
+    this.alpha = alpha
+    this.startingAlpha = alpha
+  }
+
   private init (startingNode: GameObject) {
     const graph = getZoneGraph(startingNode)
 
@@ -78,7 +93,7 @@ export default class ForceDirectedSim {
     this.grid = new SpatialGrid<GameObject>(2 * maxDistance)
   }
 
-  private applyForces (elapsed = 17) {
+  private applyForces (elapsed: number) {
     this.grid.clear()
     for (const node of this.nodes) {
       // add node to spatially partitioned grid
@@ -86,7 +101,6 @@ export default class ForceDirectedSim {
     }
 
     const elapsed2 = elapsed * elapsed
-
     this.repelNodes(elapsed2)
     this.attractConnectedNodes(elapsed2)
 
@@ -95,7 +109,7 @@ export default class ForceDirectedSim {
 
     this.alpha *= alphaDecay ** elapsed
 
-    return highestVelocity
+    return highestVelocity > minVelocityScaled * this.startingAlpha
   }
 
   private repelNodes (elapsed: number) {
@@ -181,6 +195,6 @@ export default class ForceDirectedSim {
       position.vy *= velocityDecay ** elapsed
     }
 
-    return highestVelocity
+    return Math.sqrt(highestVelocity) / elapsed
   }
 }

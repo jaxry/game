@@ -1,24 +1,19 @@
-import { putInsideContainer } from './behavior/container'
 import { spawn } from './behavior/spawn'
-import GameTime from './GameTime'
-import { generateRandomGraph } from './map/generateRandomGraph'
 import { makeType } from './GameObjectType'
 import Game from './Game'
-import { typeVillager } from './objects/villager'
 import { typeWood } from './objects/wood'
+import { typeZone } from './objects/zone'
 import { randomElement } from './util'
+import createMap from './map/createMap'
+import { typeVillager } from './objects/villager'
 
 export function initGame (game: Game) {
-  game.energyPool = 2 * GameTime.hour
+  game.energyPool = 128
 
-  game.world = spawn(typeWorld)
+  game.world = spawn(typeZone)
 
-  const zones = generateRandomGraph(30)
-  for (const zone of zones) {
-    putInsideContainer(game.world, zone)
-  }
-
-  const zone = zones[0]
+  const zones = createMap(5)
+  const zone = randomElement(zones)
 
   game.player = spawn(typeYou, zone)
 
@@ -38,11 +33,6 @@ export function initGame (game: Game) {
   spawn(typeWood, chest)
   spawn(typeWood, chest)
 }
-
-const typeWorld = makeType({
-  name: `world`,
-  isContainer: true,
-})
 
 const typeYou = makeType({
   name: `Boof Nasty`,

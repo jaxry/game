@@ -66,7 +66,8 @@ export default class MapComponent extends Component {
     }
   }
 
-  render (centerZone: GameObject, animateToCenter = false) {
+  render (centerZone: GameObject, panToCenter = false, startForceSim = false) {
+
     const graph = getZoneGraph(centerZone, this.maxDepthFromCenter)
 
     for (const [zone, component] of this.zoneToComponent) {
@@ -105,9 +106,12 @@ export default class MapComponent extends Component {
 
     if (this.firstRender) {
       this.forceDirectedSim.simulateFully(centerZone)
+    } else if (startForceSim) {
+      this.forceDirectedSim.stop()
+      this.forceDirectedSim.animate(centerZone)
     }
 
-    if (animateToCenter) {
+    if (panToCenter) {
       this.centerOnZone(centerZone, !this.firstRender)
     }
 

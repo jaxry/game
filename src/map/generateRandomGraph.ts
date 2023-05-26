@@ -1,43 +1,19 @@
-import Vertex from './Vertex'
-import findLargestGraph from './findLargestGraph'
-import makeZones from './makeZones'
+import Node from './Node'
+import { makeArray } from '../util'
 
-export function generateRandomGraph (vertexCount: number) {
-  const chance = 2 / vertexCount
+export function generateRandomGraph (nodeCount: number) {
+  const chance = 1.5 / nodeCount
 
-  function tryOnce () {
-    let vertices: Vertex[] = []
-    for (let i = 0; i < vertexCount; i++) {
-      vertices.push({ edges: [] })
-    }
+  const nodes = makeArray(nodeCount, () => new Node())
 
-    let edges: [Vertex, Vertex][] = []
-    for (let i = 0; i < vertexCount; i++) {
-      for (let j = i + 1; j < vertexCount; j++) {
-        if (Math.random() < chance) {
-          edges.push([vertices[i], vertices[j]])
-        }
+  for (let i = 0; i < nodeCount; i++) {
+    for (let j = i + 1; j < nodeCount; j++) {
+      if (Math.random() < chance) {
+        nodes[i].connect(nodes[j])
       }
     }
-
-    for (const edge of edges) {
-      edge[0].edges.push(edge[1])
-      edge[1].edges.push(edge[0])
-    }
-
-    return findLargestGraph(vertices)
   }
 
-  let largest: Vertex[] = []
-  for (let i = 0; i < 10; i++) {
-    const vertices = tryOnce()
-    if (vertices.length >= 0.5 * vertexCount) {
-      return makeZones(vertices)
-    } else if (vertices.length > largest.length) {
-      largest = vertices
-    }
-  }
-  console.warn(`Graph generation couldn't reach desired size`)
-  return makeZones(largest)
+  return nodes
 }
 
