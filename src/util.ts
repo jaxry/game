@@ -63,6 +63,14 @@ export function deleteElemFn<T> (array: T[], fn: (elem: T) => boolean) {
   }
 }
 
+export function sortAscending<T> (array: T[], accessor: (x: T) => number) {
+  return array.sort((a, b) => accessor(a) - accessor(b))
+}
+
+export function sortDescending<T> (array: T[], accessor: (x: T) => number) {
+  return array.sort((a, b) => accessor(b) - accessor(a))
+}
+
 // ---------------
 // iterable functions
 // ---------------

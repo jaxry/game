@@ -1,9 +1,13 @@
 import generateTriGrid from './generateTriGrid'
-import { getEdges } from './getEdges'
 import makeZones from './makeZones'
+import findConnectedGraphs from './findConnectedGraphs'
+import { sortDescending } from '../util'
 
 export default function createMap (rows: number) {
   const nodes = generateTriGrid(rows)
-  const edges = getEdges(nodes[0])
-  return makeZones(nodes, edges)
+  const connectedGraphs = findConnectedGraphs(nodes)
+
+  sortDescending(connectedGraphs, (graph) => graph.nodes.length)
+
+  return makeZones(connectedGraphs[0].nodes, connectedGraphs[0].edges)
 }

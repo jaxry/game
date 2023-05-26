@@ -1,5 +1,4 @@
 import Node from './Node'
-import findLargestGraph from './findLargestGraph'
 import { makeArray } from '../util'
 
 const triHeight = Math.sqrt(3) / 2
@@ -34,5 +33,5 @@ export default function generateTriGrid (rows: number) {
     zone.position.y = row * triHeight
   }
 
-  return findLargestGraph(nodes)
+  return nodes
 }

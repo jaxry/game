@@ -1,5 +1,4 @@
 import Node from './Node'
-import findLargestGraph from './findLargestGraph'
 import { makeArray } from '../util'
 
 export function generateRandomGraph (nodeCount: number) {
@@ -15,6 +14,6 @@ export function generateRandomGraph (nodeCount: number) {
     }
   }
 
-  return findLargestGraph(nodes)
+  return nodes
 }
 
