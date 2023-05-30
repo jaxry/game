@@ -1,4 +1,4 @@
-import { createElement } from './create'
+import { createElement } from './createElement'
 
 type Style = Partial<CSSStyleDeclaration & { vectorEffect: string }>
 

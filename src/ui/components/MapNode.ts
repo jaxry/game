@@ -10,7 +10,7 @@ import TravelAction from '../../actions/Travel'
 import MapComponent from './Map'
 import { playerTravelToZone } from '../../behavior/player'
 import Component from './Component'
-import { createDiv } from '../create'
+import { createDiv } from '../createElement'
 import { onClickNotDrag } from '../makeDraggable'
 
 export default class MapNode extends GameComponent {

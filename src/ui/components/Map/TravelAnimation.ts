@@ -2,7 +2,7 @@ import TravelAction from '../../../actions/Travel'
 import { translate } from '../../../util'
 import { makeStyle } from '../../makeStyle'
 import { duration } from '../../theme'
-import { createDiv } from '../../create'
+import { createDiv } from '../../createElement'
 import GameTime from '../../../GameTime'
 
 export default class TravelAnimation {

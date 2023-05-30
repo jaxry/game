@@ -1,5 +1,5 @@
 import { numToPx } from '../util'
-import { createDiv } from './create'
+import { createDiv } from './createElement'
 import { duration } from './theme'
 import { makeStyle } from './makeStyle'
 import tween from './tween'

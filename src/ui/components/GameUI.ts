@@ -6,7 +6,7 @@ import DragAndDrop from '../DragAndDrop'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
-import { createDiv, createElement } from '../create'
+import { createDiv, createElement } from '../createElement'
 import { deleteSaveFile, saveGameToFile } from '../../saveLoad'
 import { restartGame } from '../../main'
 

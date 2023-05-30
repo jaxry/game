@@ -4,7 +4,7 @@ import { actionColor, actionTimeColor, fontColor } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameTime from '../../GameTime'
 import { game } from '../../Game'
-import { createDiv, createElement, createTextNode } from '../create'
+import { createDiv, createElement, createTextNode } from '../createElement'
 
 export default class ActionComponent extends Component {
 

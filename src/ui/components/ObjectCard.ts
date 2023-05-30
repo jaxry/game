@@ -14,7 +14,7 @@ import { onClickNotDrag } from '../makeDraggable'
 import Inventory from './Inventory'
 import { onResize } from '../onResize'
 import { dragAndDropGameObject } from './GameUI'
-import { createDiv } from '../create'
+import { createDiv } from '../createElement'
 import { grow, growDynamic, shrink } from '../smoothDom'
 import ObjectMessage from './ObjectMessage'
 
