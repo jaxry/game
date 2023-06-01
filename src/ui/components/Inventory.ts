@@ -119,7 +119,7 @@ export default class Inventory extends GameComponent {
     }
 
     const card = makeOrGet(this.objectToCard, object, () =>
-        this.newComponent(this.element, ObjectCard, object))
+        this.newComponent(ObjectCard, object).appendTo(this.element))
 
     card.element.classList.add(cardStyle)
 

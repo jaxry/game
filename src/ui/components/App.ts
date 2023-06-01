@@ -12,7 +12,7 @@ export default class App extends Component {
     this.element.classList.add(containerStyle)
 
     this.element.append(outsideElem)
-    this.newComponent(this.element, GameUI)
+    this.newComponent(GameUI).appendTo(this.element)
   }
 }
 

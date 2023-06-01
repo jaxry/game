@@ -25,7 +25,7 @@ export default class GameUI extends GameComponent {
   }
 
   private createMap () {
-    const map = this.newComponent(this.element, MapComponent)
+    const map = this.newComponent(MapComponent).appendTo(this.element)
     map.element.classList.add(mapStyle)
 
     const mapEffect = this.newEffect(class extends Effect {

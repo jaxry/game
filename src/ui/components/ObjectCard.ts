@@ -84,7 +84,7 @@ export default class ObjectCard extends GameComponent {
 
         this.onContainer('speak', ({ object, message }) => {
           if (object === this.object) {
-            self.newComponent(self.element, ObjectMessage, message)
+            self.newComponent(ObjectMessage, message).appendTo(self.element)
           }
         })
       }
@@ -117,7 +117,8 @@ export default class ObjectCard extends GameComponent {
     if (this.inventory || !this.object.contains) {
       return
     }
-    this.inventory = this.newComponent(container, Inventory, this.object)
+    this.inventory = this.newComponent(Inventory, this.object)
+        .appendTo(container)
     this.inventory!.onResize = this.onResized
   }
 
@@ -129,7 +130,8 @@ export default class ObjectCard extends GameComponent {
   private setAction (action: Action) {
     this.clearAction()
 
-    const component = this.newComponent(this.element, ActionComponent, action)
+    const component = this.newComponent(ActionComponent, action)
+        .appendTo(this.element)
     this.action = component
 
     grow(component.element)

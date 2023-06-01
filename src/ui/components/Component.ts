@@ -13,20 +13,19 @@ export default class Component<T extends Element = HTMLElement> {
   }
 
   newComponent<T extends Constructor<Component>> (
-      parent: Element | null,
-      constructor: T,
-      ...args: ConstructorParameters<T>): InstanceType<T> {
+      constructor: T, ...args: ConstructorParameters<T>) {
 
     const component = new constructor(...args)
     component.parentComponent = this
 
     this.childComponents.add(component)
 
-    if (parent) {
-      parent.append(component.element)
-    }
-
     return component as InstanceType<T>
+  }
+
+  appendTo (parent: Element) {
+    parent.append(this.element)
+    return this
   }
 
   onRemove (unsubscribe: () => void) {
@@ -52,29 +51,5 @@ export default class Component<T extends Element = HTMLElement> {
 
   on<T> (event: Observable<T>, listener: (data: T) => void) {
     this.onRemove(event.on(listener))
-  }
-
-  getContext<T> (context: Context<T>): T {
-    let component: Component<any> | undefined = this
-    while (component) {
-      const value = context.map.get(component)
-      if (value) {
-        return value
-      }
-      component = component.parentComponent
-    }
-    return context.defaultValue
-  }
-
-  setContext<T> (context: Context<T>, value: T) {
-    context.map.set(this, value)
-  }
-}
-
-export class Context<T> {
-  map = new WeakMap<any, T>()
-
-  constructor (public defaultValue: T) {
-
   }
 }

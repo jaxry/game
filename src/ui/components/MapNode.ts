@@ -33,7 +33,7 @@ export default class MapNode extends GameComponent {
     }
     this.removeSimple()
 
-    this.node = this.newComponent(this.element, Inventory, this.zone)
+    this.node = this.newComponent(Inventory, this.zone).appendTo(this.element)
     this.node.element.classList.add(zoneStyle)
 
     grow(this.node.element)

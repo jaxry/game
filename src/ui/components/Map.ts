@@ -4,7 +4,7 @@ import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import { duration, mapEdgeColor } from '../theme'
 import MapNode from './MapNode'
-import addPanZoom from '../PanZoom'
+import addPanZoom from '../addPanZoom'
 import { makeOrGet, numToPixel, numToPx, translate } from '../../util'
 import TravelAnimation from './Map/TravelAnimation'
 import { createDiv } from '../createElement'
@@ -119,7 +119,8 @@ export default class MapComponent extends Component {
   }
 
   private makeNode (zone: GameObject) {
-    const node = this.newComponent(this.zoneContainer, MapNode, zone, this)
+    const node = this.newComponent(MapNode, zone, this)
+        .appendTo(this.zoneContainer)
     makeDraggable(node.element, {
       onDown: () => {
         this.forceDirectedSim.freeze(zone)
