@@ -38,6 +38,10 @@ export function makeArray<T> (size: number, map: (i: number) => T): T[] {
   return array
 }
 
+export function castArray<T> (value: T | T[]): T[] {
+  return Array.isArray(value) ? value : [value]
+}
+
 export function randomElement<T> (array: T[]): T {
   return array[Math.floor(Math.random() * array.length)]
 }

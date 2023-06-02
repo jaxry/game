@@ -5,7 +5,7 @@ import { serializable } from '../serialize'
 import GameTime from '../GameTime'
 
 export default class TransferAction extends Action {
-  static override duration = 5 * GameTime.second
+  static override duration = 3 * GameTime.second
 
   constructor (
       object: GameObject, public item: GameObject,

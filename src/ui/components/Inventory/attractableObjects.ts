@@ -1,5 +1,6 @@
 import Action from '../../../actions/Action'
 import GameObject from '../../../GameObject'
+import { castArray } from '../../../util'
 
 export function* attractableObjects (action: Action) {
   if (!action.target) {
@@ -20,15 +21,8 @@ export function* attractableObjects (action: Action) {
     }
   }
 
-  if (Array.isArray(action.target)) {
-    for (const target of action.target) {
-      const item = findDirectChild(target)
-      if (item) {
-        yield item
-      }
-    }
-  } else {
-    const item = findDirectChild(action.target)
+  for (const target of castArray(action.target)) {
+    const item = findDirectChild(target)
     if (item) {
       yield item
     }

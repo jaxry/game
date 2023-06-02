@@ -5,6 +5,7 @@ import { makeStyle } from '../makeStyle'
 import GameTime from '../../GameTime'
 import { game } from '../../Game'
 import { createDiv, createElement, createTextNode } from '../createElement'
+import { castArray } from '../../util'
 
 export default class ActionComponent extends Component {
 
@@ -30,15 +31,10 @@ export default class ActionComponent extends Component {
 }
 
 function formatName (container: Element, action: Action) {
-  const name = action.name
-  if (typeof name === 'string') {
-    container.textContent = name
-  } else {
-    for (const n of name) {
-      typeof n === 'string' ?
-          createTextNode(container, ` ${n} `) :
-          createElement(container, 'span', objectStyle, n.type.name)
-    }
+  for (const n of castArray(action.name)) {
+    typeof n === 'string' ?
+        createTextNode(container, ` ${n} `) :
+        createElement(container, 'span', objectStyle, n.type.name)
   }
 }
 
