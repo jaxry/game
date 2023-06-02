@@ -1,7 +1,7 @@
-import Observable from '../Observable'
+
 
 export default class DragAndDrop<T> {
-  onDrag = new Observable<T | null>()
+  callbacks = new Map<Element, Callbacks<T>>()
 
   private payload: T | null = null
 
@@ -16,12 +16,16 @@ export default class DragAndDrop<T> {
         e.dataTransfer!.setDragImage(image, x, y)
       }
       this.payload = payload
-      this.onDrag.emit(this.payload)
+      for (const { isDroppable } of this.callbacks.values()) {
+        isDroppable(payload)
+      }
     })
 
     elem.addEventListener('dragend', () => {
       this.payload = null
-      this.onDrag.emit(null)
+      for (const { onDone } of this.callbacks.values()) {
+        onDone?.()
+      }
     })
 
     // stops dragging and other events on the parent element
@@ -30,21 +34,28 @@ export default class DragAndDrop<T> {
     })
   }
 
-  drop (
-      elem: HTMLElement, isDroppable: (payload: T) => DropEffect | void,
-      onDrop: (payload: T) => void) {
+  drop (element: HTMLElement, callbacks: Callbacks<T>) {
+    const { isDroppable, onDrop } = callbacks
 
-    let dropEffect: DropEffect | null = null
+    this.callbacks.set(element, callbacks)
 
-    elem.addEventListener('dragenter', (e) => {
-      dropEffect = isDroppable(this.payload!) || null
+    let dropEffect: DropEffect | false = false
+
+    element.addEventListener('dragenter', (e) => {
+      // prevent unnecessary calls to this method
+      if (e.target !== e.currentTarget) {
+        return
+      }
+
+      dropEffect = isDroppable(this.payload!)
+
       if (dropEffect) {
         e.stopPropagation()
         e.preventDefault()
       }
     })
 
-    elem.addEventListener('dragover', (e) => {
+    element.addEventListener('dragover', (e) => {
       if (dropEffect) {
         e.stopPropagation()
         e.preventDefault()
@@ -52,13 +63,24 @@ export default class DragAndDrop<T> {
       }
     })
 
-    elem.addEventListener('drop', (e) => {
+    element.addEventListener('drop', (e) => {
       e.stopPropagation()
       e.preventDefault()
-      onDrop(this.payload!)
+      if (isDroppable(this.payload!)) {
+        onDrop(this.payload!)
+      }
     })
-  }
 
+    return () => {
+      this.callbacks.delete(element)
+    }
+  }
+}
+
+interface Callbacks<T> {
+  isDroppable: (payload: T) => DropEffect | false,
+  onDrop: (payload: T) => void,
+  onDone?: () => void
 }
 
 export type DropEffect = 'copy' | 'move' | 'link'

@@ -11,7 +11,7 @@ import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import TransferAction from '../../actions/Transfer'
 import makeDraggable from '../makeDraggable'
-import { duration } from '../theme'
+import { dropBorder, duration } from '../theme'
 import CardPhysics from './Inventory/CardPhysics'
 import tween, { Tween } from '../tween'
 import throttle from '../throttle'
@@ -88,13 +88,20 @@ export default class Inventory extends GameComponent {
       }
     }, container)
 
-    dragAndDropGameObject.drop(this.element, (item) => {
-      if (new TransferAction(game.player, item, this.container).condition()) {
-        return 'move'
-      }
-    }, (item) => {
-      setPlayerEffect(new TransferAction(game.player, item, this.container))
-    })
+    this.onRemove(dragAndDropGameObject.drop(this.element, {
+      isDroppable: (item) => {
+        const canDrop = new TransferAction(game.player, item,
+            this.container).condition()
+        this.element.classList.toggle(droppableStyle, canDrop)
+        return canDrop ? 'move' : false
+      },
+      onDrop: (item) => {
+        setPlayerEffect(new TransferAction(game.player, item, this.container))
+      },
+      onDone: () => {
+        this.element.classList.remove(droppableStyle)
+      },
+    }))
 
     if (this.container.contains) {
       for (const obj of this.container.contains) {
@@ -265,6 +272,10 @@ export default class Inventory extends GameComponent {
 const containerStyle = makeStyle({
   position: `relative`,
   cursor: `pointer`,
+})
+
+const droppableStyle = makeStyle({
+  outline: dropBorder,
 })
 
 const cardStyle = makeStyle({

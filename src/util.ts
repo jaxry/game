@@ -104,7 +104,7 @@ export function findClosest<T> (
   return closestValue
 }
 
-export function mapIter<T, U> (
+export function mapFilter<T, U> (
     iterable: Iterable<T>, mapFn: (x: T, index: number) => U | undefined): U[] {
   const array: U[] = []
   let i = 0

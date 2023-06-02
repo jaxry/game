@@ -1,4 +1,4 @@
-import { makeOrGet, mapIter } from './util'
+import { makeOrGet, mapFilter } from './util'
 import { Constructor } from './types'
 
 // Serializes a complex object into a JSOn string.
@@ -66,14 +66,14 @@ export function serialize (toSerialize: any) {
     }
 
     if (object instanceof Set) {
-      const $s = mapIter(object, value => prepare(value))
+      const $s = mapFilter(object, value => prepare(value))
       return $s.length ? { $s } : undefined
     } else if (object instanceof Map) {
-      const $m = mapIter(object,
+      const $m = mapFilter(object,
           ([key, value]) => [prepare(key), prepare(value)])
       return $m.length ? { $m } : undefined
     } else if (Array.isArray(object)) {
-      const mapped = mapIter(object, value => prepare(value))
+      const mapped = mapFilter(object, value => prepare(value))
       return mapped.length ? mapped : undefined
     } else if (object.constructor === Object) {
       return prepareObjectLiteral(object)
@@ -125,7 +125,7 @@ export function serialize (toSerialize: any) {
 
   const toStringify = {
     object: prepare(toSerialize),
-    shared: mapIter(sharedObjects.usedSharedObjects,
+    shared: mapFilter(sharedObjects.usedSharedObjects,
         (object) => prepare(object, false)),
   }
 

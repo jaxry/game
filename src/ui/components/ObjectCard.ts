@@ -6,7 +6,7 @@ import { game } from '../../Game'
 import Effect from '../../effects/Effect'
 import {
   borderRadius, boxShadow, fadeInAnimation, objectCardColor,
-  objectCardNameBorderColor, objectCardPlayerColor,
+  objectCardPlayerColor,
 } from '../theme'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
@@ -165,7 +165,6 @@ const containerStyle = makeStyle({
 const nameStyle = makeStyle({
   width: `100%`,
   textAlign: `center`,
-  borderBottom: `2px solid ${objectCardNameBorderColor}`,
 })
 
 const grabStyle = makeStyle({
