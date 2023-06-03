@@ -10,15 +10,8 @@ import TransferAction from '../actions/Transfer'
 
 class FindWood extends Effect {
   override events () {
-    this.onContainer('actionEnd', ({ action }) => {
-      if (action.object === this.object) {
-        this.queueTick()
-      }
-    })
-    this.onContainer('leave', ({ object }) => {
-      if (object === this.object) {
-        this.reregisterEvents()
-      }
+    this.onObject('actionEnd', (action) => {
+      this.queueTick()
     })
   }
 
@@ -42,7 +35,6 @@ class FindWood extends Effect {
   }
 
   private queueTick () {
-    this.tickInTime(6 + 6 * Math.random())
   }
 
   private findWood () {

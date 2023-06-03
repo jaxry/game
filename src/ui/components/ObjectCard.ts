@@ -70,22 +70,16 @@ export default class ObjectCard extends GameComponent {
     const self = this
     this.newEffect(class extends Effect {
       override events () {
-        this.onContainer('actionStart', ({ action }) => {
-          if (action.object === this.object) {
-            self.setAction(action)
-          }
+        this.onObject('actionStart', (action) => {
+          self.setAction(action)
         })
 
-        this.onContainer('actionEnd', ({ action }) => {
-          if (action.object === this.object) {
-            self.clearAction()
-          }
+        this.onObject('actionEnd', (action) => {
+          self.clearAction()
         })
 
-        this.onContainer('speak', ({ object, message }) => {
-          if (object === this.object) {
-            self.newComponent(ObjectMessage, message).appendTo(self.element)
-          }
+        this.onObject('speak', (message) => {
+          self.newComponent(ObjectMessage, message).appendTo(self.element)
         })
       }
     }, object)

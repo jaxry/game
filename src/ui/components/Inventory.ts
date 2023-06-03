@@ -69,18 +69,18 @@ export default class Inventory extends GameComponent {
 
     this.newEffect(class extends Effect {
       override events () {
-        this.onObject('enter', ({ object }) => {
+        this.onObjectChildren('enter', (object) => {
           self.objectEnter(object)
         })
-        this.onObject('leave', ({ object }) => {
+        this.onObjectChildren('leave', (object) => {
           self.objectLeave(object)
         })
-        this.onObject('actionStart', ({ action }) => {
+        this.onObjectChildren('actionStart', (object, action) => {
           for (const target of attractableObjects(action)) {
             self.cardPhysics.attract(action.object, target)
           }
         })
-        this.onObject('actionEnd', ({ action }) => {
+        this.onObjectChildren('actionEnd', (object, action) => {
           for (const target of attractableObjects(action)) {
             self.cardPhysics.release(action.object, target)
           }

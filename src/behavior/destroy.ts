@@ -10,7 +10,7 @@ export function destroy (obj: GameObject) {
   removeConnections(obj)
   removeEffects(obj)
 
-  obj.emit('destroy', undefined)
+  obj.emit('destroy')
 
   if (obj.contains) {
     for (const item of obj.contains) {
