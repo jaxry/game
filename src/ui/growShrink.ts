@@ -4,7 +4,7 @@ import { duration } from './theme'
 import { makeStyle } from './makeStyle'
 import tween from './tween'
 
-class SmoothDom {
+class GrowShrink {
   onfinish?: () => void
 }
 
@@ -44,7 +44,7 @@ export function shrink (
   const dummy = replaceWithDummy(element)
   const dim = calcFromAndToDimensions(dummy, element)
 
-  const returnObj = new SmoothDom()
+  const returnObj = new GrowShrink()
 
   dummy.animate({
     width: [numToPx(dim.endWidth), numToPx(dim.startWidth)],

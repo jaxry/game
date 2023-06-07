@@ -15,7 +15,7 @@ import Inventory from './Inventory'
 import { onResize } from '../onResize'
 import { dragAndDropGameObject } from './GameUI'
 import { createDiv } from '../createElement'
-import { grow, growDynamic, shrink } from '../smoothDom'
+import { grow, growDynamic, shrink } from '../growShrink'
 import ObjectMessage from './ObjectMessage'
 
 export default class ObjectCard extends GameComponent {

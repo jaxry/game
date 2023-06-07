@@ -1,5 +1,3 @@
-
-
 export default class DragAndDrop<T> {
   callbacks = new Map<Element, Callbacks<T>>()
 
