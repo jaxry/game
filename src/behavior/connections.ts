@@ -150,7 +150,5 @@ function reconstructPath (
     current = cameFrom.get(current)!
   }
 
-  path.reverse()
-
-  return path.reverse
+  return path
 }
