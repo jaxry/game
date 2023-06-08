@@ -24,7 +24,6 @@ export default class GameObject {
   connections: GameObject[]
   position: Point
 
-  health: number
   energy: number
 
   events?: {
@@ -82,25 +81,6 @@ export default class GameObject {
   }
 }
 
-serializable(GameObject, {
-  transform: {
-    id: serializable.ignore,
-    events: serializable.ignore,
-    childEvents: serializable.ignore,
-    container: serializable.ignore, // added back in Game class
-    type: [
-      (type: GameObjectType) => getIdFromType(type),
-      (id: number) => getTypeFromId(id),
-    ],
-    position: [
-      (position: Point) => ({
-        x: toPrecision(position.x, 0),
-        y: toPrecision(position.y, 0),
-      }),
-      ({ x, y }: any) => new Point(x, y)],
-  },
-})
-
 export class GameObjectEvents {
   destroy: []
 
@@ -140,4 +120,23 @@ export class ActiveGameObjectEvent {
     this.listeners.delete(this.listener)
   }
 }
+
+serializable(GameObject, {
+  transform: {
+    id: serializable.ignore,
+    events: serializable.ignore,
+    childEvents: serializable.ignore,
+    container: serializable.ignore, // added back in Game class
+    type: [
+      (type: GameObjectType) => getIdFromType(type),
+      (id: number) => getTypeFromId(id),
+    ],
+    position: [
+      (position: Point) => ({
+        x: toPrecision(position.x, 0),
+        y: toPrecision(position.y, 0),
+      }),
+      ({ x, y }: any) => new Point(x, y)],
+  },
+})
 

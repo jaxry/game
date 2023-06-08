@@ -29,7 +29,7 @@ export default class Action extends Effect {
     this.object.activeAction = this
 
     this.time = game.time.current + this.duration
-    this.tickInTime(this.duration)
+    this.runTickIn(this.duration)
 
     this.object.emit('actionStart', this)
 

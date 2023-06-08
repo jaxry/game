@@ -95,7 +95,7 @@ export default class Effect {
     this.activate()
   }
 
-  protected tickInTime (seconds: number) {
+  protected runTickIn (seconds: number) {
     runEffectIn(this, seconds)
   }
 

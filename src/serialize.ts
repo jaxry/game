@@ -1,8 +1,8 @@
 import { makeOrGet, mapFilter } from './util'
 import { Constructor } from './types'
 
-// Serializes a complex object into a JSOn string.
-// Can deserialize and return the original object
+// Serializes a complex object into a JSON string.
+// Deserializing returns the original object
 // Supports references to shared objects, and circular references
 // Classes are preserved
 
