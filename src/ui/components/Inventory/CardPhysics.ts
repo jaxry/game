@@ -6,7 +6,7 @@ import { getDimensions } from '../../dimensionsCache'
 
 const velocityDecay = 0.995
 const minVelocityBeforeStop = 1e-4
-const repelForce = 0.0003
+const repelForce = 0.0004
 const minSimulationTime = 100
 const maxElapsedTime = 30
 
@@ -96,11 +96,7 @@ export default class CardPhysics {
 
     this.computeBoundingBoxes()
 
-    this.repelFromCenter || this.attractions.length ?
-        repelOverlappingFromCenters(
-            this.positions, this.boundingBoxes, elapsed2) :
-        repelOverlapping(
-            this.positions, this.boundingBoxes, elapsed2)
+    repelOverlapping(this.positions, this.boundingBoxes, elapsed2)
 
     for (const [i, j] of this.attractionIndices) {
       attract(this.positions[i], this.boundingBoxes[i],
@@ -159,24 +155,6 @@ export default class CardPhysics {
   }
 }
 
-function repelOverlappingFromCenters (
-    positions: Point[], bBoxes: DOMRect[], elapsed: number) {
-  for (let i = 0; i < positions.length; i++) {
-
-    for (let j = i + 1; j < positions.length; j++) {
-
-      const aBBox = bBoxes[i]
-      const bBBox = bBoxes[j]
-
-      if (intersects(aBBox, bBBox)) {
-        const a = positions[i]
-        const b = positions[j]
-        addForce(a, b, repelForce * elapsed)
-      }
-    }
-  }
-}
-
 function repelOverlapping (
     positions: Point[], bBoxes: DOMRect[], elapsed: number) {
   for (let i = 0; i < positions.length; i++) {
@@ -189,21 +167,7 @@ function repelOverlapping (
       if (intersects(aBBox, bBBox)) {
         const a = positions[i]
         const b = positions[j]
-
-        const { width, height } = rectDistance(aBBox, bBBox)
-
-        let f = repelForce * elapsed
-
-        // Move card to the closest edge to minimize distance traveled
-        if (width > height) {
-          f *= Math.sign(a.x - b.x)
-          a.vx += f
-          b.vx -= f
-        } else {
-          f *= Math.sign(a.y - b.y)
-          a.vy += f
-          b.vy -= f
-        }
+        addForce(a, b, repelForce * elapsed)
       }
     }
   }

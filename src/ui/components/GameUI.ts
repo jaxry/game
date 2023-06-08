@@ -37,7 +37,7 @@ export default class GameUI extends GameComponent {
     }, game.player)
 
     this.on(game.event.playerChange, () => {
-      mapEffect.setObject(game.player)
+      mapEffect.changeObject(game.player)
     })
 
     this.on(game.event.worldModified, () => {

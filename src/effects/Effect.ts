@@ -89,10 +89,16 @@ export default class Effect {
     return this
   }
 
-  setObject (object: GameObject) {
+  changeObject (object: GameObject) {
     this.deactivate()
     this.object = object
     this.activate()
+  }
+
+  replace (effect: Effect) {
+    effect.deactivate()
+    this.activate()
+    return this
   }
 
   protected runTickIn (seconds: number) {

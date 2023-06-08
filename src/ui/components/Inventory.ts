@@ -4,7 +4,8 @@ import GameObject from '../../GameObject'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/core'
 import {
-  copy, getAndDelete, isEqual, makeOrGet, moveToTop, numToPx, translate,
+  copy, getAndDelete, isEqual, makeOrGet, moveToTop, numToPx, randomCentered,
+  translate,
 } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { makeStyle } from '../makeStyle'
@@ -121,8 +122,8 @@ export default class Inventory extends GameComponent {
   private makeCard (object: GameObject, init?: boolean) {
     if (!init || object.position.x === 0 || object.position.y === 0) {
       const { x, y } = this.averageCardPosition()
-      object.position.x = x + (Math.random() - 0.5)
-      object.position.y = y + (Math.random() - 0.5)
+      object.position.x = x + randomCentered(1)
+      object.position.y = y + randomCentered(1)
     }
 
     const card = makeOrGet(this.objectToCard, object, () =>
