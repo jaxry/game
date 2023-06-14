@@ -189,7 +189,7 @@ export default class Inventory extends GameComponent {
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
-    this.animateBounds(duration.normal)
+    this.animateBounds(duration.slow)
 
     card.element.animate({
       transform: `scale(0)`,

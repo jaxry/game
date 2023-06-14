@@ -47,12 +47,12 @@ export default class ObjectCard extends GameComponent {
     const grab = createDiv(this.element, grabStyle, `🫳`)
     dragAndDropGameObject.drag(grab, this.object, this.name)
 
-    if (object.activeAction) {
-      // delay a frame so animation starts correctly
-      requestAnimationFrame(() => {
+    // delay a frame so animation starts correctly
+    requestAnimationFrame(() => {
+      if (object.activeAction) {
         this.setAction(object.activeAction)
-      })
-    }
+      }
+    })
 
     onClickNotDrag(this.element, (e) => {
       e.stopPropagation()

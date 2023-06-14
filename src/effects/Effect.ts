@@ -22,7 +22,7 @@ export default class Effect {
 
   onDeactivate? (): void
 
-  tick? (): void
+  run? (): void
 
   on<T extends keyof GameObjectEvents> (
       obj: GameObject, event: T, listener: GameObjectEventListener<T>) {
@@ -101,7 +101,7 @@ export default class Effect {
     return this
   }
 
-  protected runTickIn (seconds: number) {
+  protected runIn (seconds: number) {
     runEffectIn(this, seconds)
   }
 

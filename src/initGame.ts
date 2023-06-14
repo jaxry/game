@@ -15,23 +15,23 @@ export function initGame (game: Game) {
   const zones = createMap(5)
   const zone = randomElement(zones)
 
-  game.player = spawn(typeYou, zone)
+  game.player = spawn(typeVillager, zone)
 
-  for (let i = 0; i < 3; i++) {
-    spawn(typeWood, game.player)
+  for (let i = 0; i < 5; i++) {
+    spawn(typeVillager, zone)
   }
 
-  for (let i = 0; i < 30; i++) {
+  // for (let i = 0; i < 3; i++) {
+  //   spawn(typeWood, game.player)
+  // }
+
+  for (let i = 0; i < 40; i++) {
     spawn(typeWood, randomElement(zones))
   }
 
-  for (let i = 0; i < 10; i++) {
-    spawn(typeVillager, randomElement(zones))
-  }
-
-  const chest = spawn(typeChest, zone)
-  spawn(typeWood, chest)
-  spawn(typeWood, chest)
+  // const chest = spawn(typeChest, zone)
+  // spawn(typeWood, chest)
+  // spawn(typeWood, chest)
 }
 
 const typeYou = makeType({

@@ -3,7 +3,7 @@ import Effect from '../effects/Effect'
 import GameTime from '../GameTime'
 
 export function runEffectIn (effect: Effect, timeFromNow: number) {
-  if (effect.tick) {
+  if (effect.run) {
     game.timedEffects.add(effect, game.time.current + timeFromNow)
   }
 }
@@ -17,7 +17,7 @@ function tick (elapsedGameTime = 0) {
 
     // effect may have been deactivated since it was added to the queue
     if (effect.isActive) {
-      effect.tick!()
+      effect.run!()
     }
   }
 

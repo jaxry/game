@@ -3,62 +3,10 @@ import Effect from '../effects/Effect'
 import type GameObject from '../GameObject'
 import { randomElement } from '../util'
 import { makeType } from '../GameObjectType'
-import { serializable } from '../serialize'
 import { speak } from '../behavior/speak'
 import { typeWood } from './wood'
 import TransferAction from '../actions/Transfer'
-import { game } from '../Game'
 import { findShortestPath } from '../behavior/connections'
-
-class FindWood extends Effect {
-  override events () {
-    this.onObject('actionEnd', (action) => {
-      this.queueTick()
-    })
-  }
-
-  override onActivate () {
-    this.queueTick()
-  }
-
-  override tick () {
-    const wood = this.findWood()
-    if (wood) {
-      speak(this.object, 'Collect vood!')
-      new TransferAction(this.object, wood, this.object).activate()
-    } else {
-      speak(this.object, 'No vood. Must find.')
-      if (this.object.container.connections?.length) {
-        new TravelAction(
-            this.object, randomElement(this.object.container.connections))
-            .activate()
-      }
-    }
-  }
-
-  private queueTick () {
-    this.runTickIn(5 + Math.random() * 5)
-  }
-
-  private findWood () {
-    for (const object of this.object.container.contains) {
-      if (object.type === typeWood && !this.isAlreadyBeingCollected(object)) {
-        return object
-      }
-    }
-  }
-
-  private isAlreadyBeingCollected (object: GameObject) {
-    for (const o of this.object.container.contains) {
-      const collecting = o.activeAction instanceof TransferAction &&
-          o.activeAction.item === object
-      if (collecting) {
-        return true
-      }
-    }
-    return false
-  }
-}
 
 class MoveToZone extends Effect {
   path: GameObject[] = []
@@ -69,16 +17,16 @@ class MoveToZone extends Effect {
 
   override onActivate () {
     this.path = findShortestPath(this.object.container, this.target)!
-    this.runTickIn(Math.random())
+    this.runIn(Math.random())
   }
 
   override events () {
     this.onObject('enter', () => {
-      this.runTickIn(2 * Math.random() + 2)
+      this.runIn(2 * Math.random() + 2)
     })
   }
 
-  override tick () {
+  override run () {
     if (this.path.length) {
       new TravelAction(this.object, this.path.pop()!).activate()
     } else {
@@ -87,39 +35,72 @@ class MoveToZone extends Effect {
   }
 }
 
-class VillagerMove extends MoveToZone {
-  constructor (object: GameObject) {
-    super(object, VillagerMove.firstZone()!)
+class Search extends Effect {
+  home = this.object.container
+
+  override onActivate () {
+    this.runIn(1 + Math.random())
   }
 
-  static firstZone () {
-    for (const zone of game.world.contains) {
-      return zone
+  override events () {
+    this.onObject('enter', () => {
+      this.runIn(1 + Math.random())
+    })
+    this.onObjectChildren('enter', (item) => {
+      if (item.type === typeWood) {
+        new ReturnHome(this.object, this.home).replace(this)
+      }
+    })
+  }
+
+  override run () {
+    const wood = findWood(this.object.container)
+    if (wood) {
+      new TransferAction(this.object, wood, this.object).activate()
+    } else {
+      const nextZone = randomElement(this.object.container.connections!)
+      new TravelAction(this.object, nextZone).activate()
     }
+  }
+}
+
+class ReturnHome extends MoveToZone {
+  constructor (object: GameObject, home: GameObject) {
+    super(object, home)
+  }
+
+  override onActivate () {
+    super.onActivate()
+    speak(this.object, 'Return wood')
   }
 
   override onDeactivate () {
-    new VillagerSpeak(this.object).replace(this)
+    speak(this.object, 'Returned')
   }
 }
 
-class VillagerSpeak extends Effect {
-  override onActivate () {
-    this.runTickIn(1)
-  }
-
-  override tick () {
-    speak(this.object, 'Hmmmph')
-    this.deactivate()
+function findWood (zone: GameObject) {
+  for (const object of zone.contains) {
+    if (object.type === typeWood && !isAlreadyBeingCollected(object)) {
+      return object
+    }
   }
 }
 
-serializable(FindWood)
+function isAlreadyBeingCollected (item: GameObject) {
+  for (const object of item.container.contains) {
+    if (object.activeAction instanceof TransferAction &&
+        object.activeAction.item === item) {
+      return true
+    }
+  }
+  return false
+}
 
 export const typeVillager = makeType({
   name: 'villager',
   isContainer: true,
   description: 'hmmmmph',
-  effects: [VillagerMove],
+  effects: [Search],
 })
 
