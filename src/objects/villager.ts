@@ -7,6 +7,7 @@ import { speak } from '../behavior/speak'
 import { typeWood } from './wood'
 import TransferAction from '../actions/Transfer'
 import { findShortestPath } from '../behavior/connections'
+import { typeChest } from './chest'
 
 class MoveToZone extends Effect {
   path: GameObject[] = []
@@ -22,7 +23,7 @@ class MoveToZone extends Effect {
 
   override events () {
     this.onObject('enter', () => {
-      this.runIn(2 * Math.random() + 2)
+      this.runIn(Math.random())
     })
   }
 
@@ -71,11 +72,27 @@ class ReturnHome extends MoveToZone {
 
   override onActivate () {
     super.onActivate()
-    speak(this.object, 'Return wood')
+    speak(this.object, 'Returning home')
   }
 
   override onDeactivate () {
-    speak(this.object, 'Returned')
+    const chest = findChest(this.object.container)!
+    const wood = findWood(this.object)!
+    new DepositWood(this.object, wood, chest).activate()
+  }
+}
+
+class DepositWood extends TransferAction {
+  override onDeactivate () {
+    new Search(this.object).activate()
+  }
+}
+
+function findChest (zone: GameObject) {
+  for (const object of zone.contains) {
+    if (object.type === typeChest) {
+      return object
+    }
   }
 }
 
