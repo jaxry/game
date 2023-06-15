@@ -1,5 +1,6 @@
 import GameObject, {
-  ActiveGameObjectEvent, GameObjectEventListener, GameObjectEvents,
+  ActiveGameObjectEvent, GameObjectChildEventListener, GameObjectEventListener,
+  GameObjectEvents,
 } from '../GameObject'
 import { serializable } from '../serialize'
 import { runEffectIn } from '../behavior/core'
@@ -21,31 +22,26 @@ export default class Effect {
 
   onDeactivate? (): void
 
-  tick? (): void
+  run? (): void
 
-  // is deactivated
   on<T extends keyof GameObjectEvents> (
       obj: GameObject, event: T, listener: GameObjectEventListener<T>) {
-    if (!this.eventList) {
-      this.eventList = []
-    }
-
-    const activeEvent = obj.on(event, listener)
-    this.eventList.push(activeEvent)
-
-    return activeEvent
+    return this.registerEvent(obj.on(event, listener))
   }
 
-  // Adds a GameObject event that is automatically cleaned up when the effect
+  onChildren<T extends keyof GameObjectEvents> (
+      obj: GameObject, event: T, listener: GameObjectChildEventListener<T>) {
+    return this.registerEvent(obj.onChildren(event, listener))
+  }
 
   onObject<T extends keyof GameObjectEvents> (
       event: T, listener: GameObjectEventListener<T>) {
     return this.on(this.object, event, listener)
   }
 
-  onContainer<T extends keyof GameObjectEvents> (
-      event: T, listener: GameObjectEventListener<T>) {
-    return this.on(this.object.container, event, listener)
+  onObjectChildren<T extends keyof GameObjectEvents> (
+      event: T, listener: GameObjectChildEventListener<T>) {
+    return this.onChildren(this.object, event, listener)
   }
 
   // used when turning on the event after loading a save
@@ -93,25 +89,28 @@ export default class Effect {
     return this
   }
 
-  reregisterEvents () {
-    if (this.eventList) {
-      for (const event of this.eventList) {
-        event.unsubscribe()
-      }
-      this.eventList.length = 0
-    }
-
-    this.events?.()
-  }
-
-  setObject (object: GameObject) {
+  changeObject (object: GameObject) {
     this.deactivate()
     this.object = object
     this.activate()
   }
 
-  protected tickInTime (seconds: number) {
+  replace (effect: Effect) {
+    effect.deactivate()
+    this.activate()
+    return this
+  }
+
+  protected runIn (seconds: number) {
     runEffectIn(this, seconds)
+  }
+
+  private registerEvent (event: ActiveGameObjectEvent) {
+    if (!this.eventList) {
+      this.eventList = []
+    }
+    this.eventList.push(event)
+    return event
   }
 }
 

@@ -6,6 +6,7 @@ import { typeZone } from './objects/zone'
 import { randomElement } from './util'
 import createMap from './map/createMap'
 import { typeVillager } from './objects/villager'
+import { typeChest } from './objects/chest'
 
 export function initGame (game: Game) {
   game.energyPool = 128
@@ -17,30 +18,22 @@ export function initGame (game: Game) {
 
   game.player = spawn(typeYou, zone)
 
-  for (let i = 0; i < 3; i++) {
-    spawn(typeWood, game.player)
+  for (let i = 0; i < 5; i++) {
+    spawn(typeVillager, zone)
   }
 
-  for (let i = 0; i < 30; i++) {
+  // for (let i = 0; i < 3; i++) {
+  //   spawn(typeWood, game.player)
+  // }
+
+  for (let i = 0; i < 40; i++) {
     spawn(typeWood, randomElement(zones))
   }
 
-  for (let i = 0; i < 10; i++) {
-    spawn(typeVillager, randomElement(zones))
-  }
-
   const chest = spawn(typeChest, zone)
-  spawn(typeWood, chest)
-  spawn(typeWood, chest)
 }
 
 const typeYou = makeType({
   name: `Boof Nasty`,
-  isContainer: true,
-})
-
-const typeChest = makeType({
-  name: `chest`,
-  description: `A wooden chest filled with loot`,
   isContainer: true,
 })

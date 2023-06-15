@@ -9,7 +9,7 @@ const repelRatio = 3000
 const velocityDecay = 1 - 1 / 32
 const alphaDecay = 1
 
-const minVelocityScaled = repelRatio / 8
+const minVelocityScaled = repelRatio / 4
 const maxVelocity = repelRatio / 8
 
 const highStartAlpha = 1 / 2048

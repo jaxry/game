@@ -106,7 +106,7 @@ export function getEdgeHash ({ source, target }: Edge) {
 }
 
 // A* search
-export function getPath (source: GameObject, destination: GameObject) {
+export function findShortestPath (source: GameObject, destination: GameObject) {
   const cameFrom = new Map<GameObject, GameObject>()
   const costSoFar = new Map<GameObject, number>()
   const frontier = new PriorityQueue<GameObject>()

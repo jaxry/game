@@ -8,8 +8,8 @@ export function spawn (type: GameObjectType, container?: GameObject) {
 
   object.position = new Point()
 
-  if (type.health) {
-    object.health = type.health
+  if (type.energy) {
+    object.energy = type.energy
   }
 
   if (container) {

@@ -9,7 +9,6 @@ export default class GameObjectType {
 
   isContainer: boolean
 
-  health: number
   energy: number
 }
 

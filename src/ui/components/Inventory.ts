@@ -4,7 +4,8 @@ import GameObject from '../../GameObject'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/core'
 import {
-  copy, getAndDelete, isEqual, makeOrGet, moveToTop, numToPx, translate,
+  copy, getAndDelete, isEqual, makeOrGet, moveToTop, numToPx, randomCentered,
+  translate,
 } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { makeStyle } from '../makeStyle'
@@ -69,18 +70,18 @@ export default class Inventory extends GameComponent {
 
     this.newEffect(class extends Effect {
       override events () {
-        this.onObject('enter', ({ object }) => {
+        this.onObjectChildren('enter', (object) => {
           self.objectEnter(object)
         })
-        this.onObject('leave', ({ object }) => {
+        this.onObjectChildren('leave', (object) => {
           self.objectLeave(object)
         })
-        this.onObject('actionStart', ({ action }) => {
+        this.onObjectChildren('actionStart', (object, action) => {
           for (const target of attractableObjects(action)) {
             self.cardPhysics.attract(action.object, target)
           }
         })
-        this.onObject('actionEnd', ({ action }) => {
+        this.onObjectChildren('actionEnd', (object, action) => {
           for (const target of attractableObjects(action)) {
             self.cardPhysics.release(action.object, target)
           }
@@ -121,8 +122,8 @@ export default class Inventory extends GameComponent {
   private makeCard (object: GameObject, init?: boolean) {
     if (!init || object.position.x === 0 || object.position.y === 0) {
       const { x, y } = this.averageCardPosition()
-      object.position.x = x + (Math.random() - 0.5)
-      object.position.y = y + (Math.random() - 0.5)
+      object.position.x = x + randomCentered(1)
+      object.position.y = y + randomCentered(1)
     }
 
     const card = makeOrGet(this.objectToCard, object, () =>
@@ -188,7 +189,7 @@ export default class Inventory extends GameComponent {
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
-    this.animateBounds(duration.normal)
+    this.animateBounds(duration.slow)
 
     card.element.animate({
       transform: `scale(0)`,

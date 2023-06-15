@@ -24,11 +24,13 @@ export default class GameObject {
   connections: GameObject[]
   position: Point
 
-  health: number
   energy: number
 
   events?: {
     [T in GameObjectEvent]?: Set<GameObjectEventListener<T>>
+  }
+  childEvents?: {
+    [T in GameObjectEvent]?: Set<GameObjectChildEventListener<T>>
   }
 
   constructor (type: GameObjectType) {
@@ -48,13 +50,74 @@ export default class GameObject {
     return new ActiveGameObjectEvent(this.events[event]!, listener)
   }
 
-  emit<T extends keyof GameObjectEvents> (event: T, data: GameObjectEvents[T]) {
+  onChildren<T extends GameObjectEvent> (
+      event: T,
+      listener: GameObjectChildEventListener<T>): ActiveGameObjectEvent {
+    if (!this.childEvents) {
+      this.childEvents = new GameObjectEvents() as {}
+    }
+    if (!this.childEvents[event]) {
+      this.childEvents[event] = new Set() as any
+    }
+    this.childEvents[event]!.add(listener as any)
+
+    return new ActiveGameObjectEvent(this.childEvents[event]!, listener)
+  }
+
+  emit<T extends keyof GameObjectEvents> (
+      event: T, ...data: GameObjectEvents[T]) {
     const listeners = this.events?.[event]
     if (listeners) {
       for (const listener of listeners) {
-        listener(data)
+        listener(...data)
       }
     }
+    const childListeners = this.container?.childEvents?.[event]
+    if (childListeners) {
+      for (const listener of childListeners) {
+        listener(this, ...data)
+      }
+    }
+  }
+}
+
+export class GameObjectEvents {
+  destroy: []
+
+  // objects being contained or taken out of the event object
+  enter: [from?: GameObject]
+  leave: [to?: GameObject]
+
+  // actions starting/finishing on a contained object of the event object
+  actionStart: [action: Action]
+  actionEnd: [action: Action]
+
+  speak: [message: string]
+}
+
+export enum ContainedAs {
+  inside,
+  wearing
+}
+
+export type GameObjectEvent = keyof GameObjectEvents
+
+export interface GameObjectEventListener<T extends GameObjectEvent> {
+  (...args: GameObjectEvents[T]): void
+}
+
+export interface GameObjectChildEventListener<T extends GameObjectEvent> {
+  (object: GameObject, ...args: GameObjectEvents[T]): void
+}
+
+export class ActiveGameObjectEvent {
+  constructor (
+      public listeners: Set<any>,
+      public listener: any) {
+  }
+
+  unsubscribe () {
+    this.listeners.delete(this.listener)
   }
 }
 
@@ -62,6 +125,7 @@ serializable(GameObject, {
   transform: {
     id: serializable.ignore,
     events: serializable.ignore,
+    childEvents: serializable.ignore,
     container: serializable.ignore, // added back in Game class
     type: [
       (type: GameObjectType) => getIdFromType(type),
@@ -75,40 +139,4 @@ serializable(GameObject, {
       ({ x, y }: any) => new Point(x, y)],
   },
 })
-
-export class GameObjectEvents {
-  destroy: void
-
-  // objects being contained or taken out of the event object
-  enter: { object: GameObject, from?: GameObject }
-  leave: { object: GameObject, to?: GameObject }
-
-  // actions starting/finishing on a contained object of the event object
-  actionStart: { action: Action }
-  actionEnd: { action: Action }
-
-  speak: { object: GameObject, message: string }
-}
-
-export enum ContainedAs {
-  inside,
-  wearing
-}
-
-export type GameObjectEvent = keyof GameObjectEvents
-
-export interface GameObjectEventListener<T extends GameObjectEvent> {
-  (data: GameObjectEvents[T]): void
-}
-
-export class ActiveGameObjectEvent {
-  constructor (
-      public listeners: Set<GameObjectEventListener<any>>,
-      public listener: GameObjectEventListener<any>) {
-  }
-
-  unsubscribe () {
-    this.listeners.delete(this.listener)
-  }
-}
 
