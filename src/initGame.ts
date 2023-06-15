@@ -18,12 +18,15 @@ export function initGame (game: Game) {
 
   game.player = spawn(typeYou, zone)
 
-  for (let i = 0; i < 5; i++) {
+  spawn(typeWood, game.player)
+  spawn(typeWood, game.player)
+
+  for (let i = 0; i < 10; i++) {
     spawn(typeVillager, zone)
   }
 
   // for (let i = 0; i < 3; i++) {
-  //   spawn(typeWood, game.player)
+  //   spawn(typeWood, zone)
   // }
 
   for (let i = 0; i < 40; i++) {

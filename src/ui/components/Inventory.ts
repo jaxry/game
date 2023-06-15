@@ -14,7 +14,7 @@ import TransferAction from '../../actions/Transfer'
 import makeDraggable from '../makeDraggable'
 import { dropBorder, duration } from '../theme'
 import CardPhysics from './Inventory/CardPhysics'
-import tween, { Tween } from '../tween'
+import tween from '../tween'
 import throttle from '../throttle'
 import Bounds from './Inventory/Bounds'
 import { attractableObjects } from './Inventory/attractableObjects'
@@ -27,13 +27,10 @@ export default class Inventory extends GameComponent {
   private bounds = new Bounds()
   private lastBounds = new Bounds()
   private targetBounds = new Bounds()
-  private tween?: Tween
+  private offset = new Bounds()
   private updatePositions = throttle(() => {
-    this.updateBounds()
-
-    if (!this.tween) {
-      Object.assign(this.bounds, this.targetBounds)
-    }
+    this.updateTargetBounds()
+    this.bounds.addBounds(this.targetBounds, this.offset)
 
     const xDiff = (this.bounds.left - this.lastBounds.left
         + this.bounds.right - this.lastBounds.right) / 2
@@ -111,12 +108,6 @@ export default class Inventory extends GameComponent {
     }
 
     this.cardPhysics.simulate(true, true)
-
-    // If component is removed, prevent onResize from being called
-    // in a later animation frame
-    this.onRemove(() => {
-      this.onResize = undefined
-    })
   }
 
   private makeCard (object: GameObject, init?: boolean) {
@@ -131,7 +122,7 @@ export default class Inventory extends GameComponent {
 
     card.element.classList.add(cardStyle)
 
-    card.onResized = (xDiff, yDiff) => {
+    card.onResize = (xDiff, yDiff) => {
       object.position.x += xDiff
       object.position.y += yDiff
       this.cardPhysics.simulate()
@@ -189,7 +180,7 @@ export default class Inventory extends GameComponent {
 
   private objectLeave (obj: GameObject) {
     const card = getAndDelete(this.objectToCard, obj)!
-    this.animateBounds(duration.slow)
+    this.animateBounds(true)
 
     card.element.animate({
       transform: `scale(0)`,
@@ -202,12 +193,13 @@ export default class Inventory extends GameComponent {
     }
   }
 
-  private updateBounds () {
-    this.targetBounds.reset()
-
-    if (this.objectToCard.size === 0) {
-      this.targetBounds.setSize(32)
+  private updateTargetBounds () {
+    if (!this.objectToCard.size) {
+      this.targetBounds.setSize(48)
+      return
     }
+
+    this.targetBounds.reset()
 
     for (const [object, card] of this.objectToCard) {
       const x = object.position.x
@@ -215,39 +207,37 @@ export default class Inventory extends GameComponent {
       const { width, height } = getDimensions(card.element)
       const w = width / 2
       const h = height / 2
-      this.targetBounds.add(x - w, y - h)
-      this.targetBounds.add(x + w, y + h)
+      this.targetBounds.includePoint(x - w, y - h)
+      this.targetBounds.includePoint(x + w, y + h)
     }
 
     this.targetBounds.expand(16)
   }
 
-  private animateBounds (delay = 0) {
-    if (this.tween) {
+  private animateBounds (delay = false) {
+    const oldTargetBounds = copy(this.targetBounds)
+
+    this.updateTargetBounds()
+
+    if (isEqual(oldTargetBounds, this.targetBounds)) {
       return
     }
 
-    this.updateBounds()
-    if (isEqual(this.bounds, this.targetBounds)) {
-      return
-    }
+    const diff =
+        oldTargetBounds.subtractBounds(oldTargetBounds, this.targetBounds)
 
-    const start = copy(this.bounds)
+    this.offset.addBounds(this.offset, diff)
 
-    this.tween = tween((lerp) => {
-      this.bounds.left = lerp(start.left, this.targetBounds.left)
-      this.bounds.top = lerp(start.top, this.targetBounds.top)
-      this.bounds.right = lerp(start.right, this.targetBounds.right)
-      this.bounds.bottom = lerp(start.bottom, this.targetBounds.bottom)
+    tween((_, interpDiff) => {
+      this.offset.left -= interpDiff(0, diff.left)
+      this.offset.top -= interpDiff(0, diff.top)
+      this.offset.right -= interpDiff(0, diff.right)
+      this.offset.bottom -= interpDiff(0, diff.bottom)
       this.updatePositions()
     }, {
       duration: duration.slow,
-      delay,
+      delay: delay ? duration.normal : 0,
     })
-
-    this.tween.onfinish = () => {
-      this.tween = undefined
-    }
   }
 
   private averageCardPosition () {

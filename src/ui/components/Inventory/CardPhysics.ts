@@ -4,7 +4,7 @@ import { clamp, deleteElemFn } from '../../../util'
 import Point from '../../../Point'
 import { getDimensions } from '../../dimensionsCache'
 
-const velocityDecay = 0.995
+const velocityDecay = 0.993
 const minVelocityBeforeStop = 1e-4
 const repelForce = 0.0004
 const minSimulationTime = 100

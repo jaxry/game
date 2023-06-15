@@ -27,9 +27,9 @@ export function growDynamic (
   const dummy = replaceWithDummy(element)
   const dim = calcFromAndToDimensions(dummy, element)
 
-  tween((lerp) => {
-    dummy.style.width = numToPx(lerp(dim.startWidth, element.offsetWidth))
-    dummy.style.height = numToPx(lerp(dim.startHeight, element.offsetHeight))
+  tween((interp) => {
+    dummy.style.width = numToPx(interp(dim.startWidth, element.offsetWidth))
+    dummy.style.height = numToPx(interp(dim.startHeight, element.offsetHeight))
   }, { ...defaultOptions, ...options })
 
   dummy.animate({

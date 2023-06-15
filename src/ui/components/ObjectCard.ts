@@ -19,7 +19,7 @@ import { grow, growDynamic, shrink } from '../growShrink'
 import ObjectMessage from './ObjectMessage'
 
 export default class ObjectCard extends GameComponent {
-  onResized?: (xDiff: number, yDiff: number) => void
+  onResize?: (xDiff: number, yDiff: number) => void
   private name = createDiv(this.element, nameStyle)
   private expandedContainer?: HTMLDivElement
 
@@ -64,7 +64,7 @@ export default class ObjectCard extends GameComponent {
     })
 
     onResize(this.element, () => {
-      this.onResized?.(0, 0)
+      this.onResize?.(0, 0)
     })
 
     const self = this
@@ -113,7 +113,7 @@ export default class ObjectCard extends GameComponent {
     }
     this.inventory = this.newComponent(Inventory, this.object)
         .appendTo(container)
-    this.inventory!.onResize = this.onResized
+    this.inventory!.onResize = this.onResize
   }
 
   private removeInventory () {

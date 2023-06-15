@@ -3,28 +3,38 @@ export class Tween {
 }
 
 export default function tween (
-    callback: (lerpProgress: (start: number, end: number) => number) => void,
+    callback: (
+        interpolate: (start: number, end: number) => number,
+        interpolateDiff: (start: number, end: number) => number,
+    ) => void,
     options: KeyframeAnimationOptions): Tween {
 
   const duration = Number(options.duration) ?? 1000
   const easingFn = easingMap[options.easing ?? 'ease']
   const delay = options.delay ?? 0
 
-  let startTime: number
-  let progress: number
+  let startTime = 0
+  let progress = 0
+  let lastProgress = 0
 
-  function lerpProgress (start: number, end: number) {
-    return start + (end - start) * progress
+  function interpolate (start: number, end: number, p = progress) {
+    return start + (end - start) * p
+  }
+
+  function interpolateDiff (start: number, end: number) {
+    return interpolate(start, end) - interpolate(start, end, lastProgress)
   }
 
   const returnObj = new Tween()
 
-  const tick = (time: number) => {
-    const elapsed = time - startTime
+  const tick = () => {
+    const elapsed = Math.min(performance.now() - startTime, duration)
 
     progress = easingFn(elapsed / duration)
 
-    callback(lerpProgress)
+    callback(interpolate, interpolateDiff)
+
+    lastProgress = progress
 
     if (elapsed < duration) {
       requestAnimationFrame(tick)
@@ -36,11 +46,11 @@ export default function tween (
   if (delay) {
     setTimeout(() => {
       startTime = performance.now()
-      tick(startTime)
+      tick()
     }, delay)
   } else {
     startTime = performance.now()
-    tick(startTime)
+    tick()
   }
 
   return returnObj

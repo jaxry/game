@@ -25,7 +25,23 @@ export default class Bounds {
     this.bottom = size
   }
 
-  add (x: number, y: number) {
+  addBounds (b1: Bounds, b2: Bounds) {
+    this.left = b1.left + b2.left
+    this.top = b1.top + b2.top
+    this.right = b1.right + b2.right
+    this.bottom = b1.bottom + b2.bottom
+    return this
+  }
+
+  subtractBounds (b1: Bounds, b2: Bounds) {
+    this.left = b1.left - b2.left
+    this.top = b1.top - b2.top
+    this.right = b1.right - b2.right
+    this.bottom = b1.bottom - b2.bottom
+    return this
+  }
+
+  includePoint (x: number, y: number) {
     this.left = Math.min(this.left, x)
     this.top = Math.min(this.top, y)
     this.right = Math.max(this.right, x)
