@@ -1,7 +1,7 @@
 import Component from './Component'
 import Action from '../../actions/Action'
 import { actionColor, actionTimeColor, fontColor } from '../theme'
-import { makeStyle } from '../makeStyle'
+import { addStyle, makeStyle } from '../makeStyle'
 import GameTime from '../../GameTime'
 import { game } from '../../Game'
 import { createDiv, createElement, createTextNode } from '../createElement'
@@ -49,7 +49,7 @@ const nameStyle = makeStyle({
   color: actionColor,
 })
 
-makeStyle(`.${nameStyle}::first-letter`, {
+addStyle(`.${nameStyle}::first-letter`, {
   textTransform: `capitalize`,
 })
 

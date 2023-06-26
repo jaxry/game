@@ -8,7 +8,7 @@ import {
   borderRadius, boxShadow, fadeInAnimation, objectCardColor,
   objectCardPlayerColor,
 } from '../theme'
-import { makeStyle } from '../makeStyle'
+import { addStyle, makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
 import { onClickNotDrag } from '../makeDraggable'
 import Inventory from './Inventory'
@@ -170,7 +170,7 @@ const grabStyle = makeStyle({
   display: 'none',
 })
 
-makeStyle(`:hover > .${grabStyle}`, {
+addStyle(`:hover > .${grabStyle}`, {
   display: 'block',
   animation: fadeInAnimation,
 })

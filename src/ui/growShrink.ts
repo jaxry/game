@@ -1,7 +1,7 @@
 import { numToPx } from '../util'
 import { createDiv } from './createElement'
 import { duration } from './theme'
-import { makeStyle } from './makeStyle'
+import { addStyle, makeStyle } from './makeStyle'
 import tween from './tween'
 
 class GrowShrink {
@@ -113,6 +113,6 @@ const dummyStyle = makeStyle({
   alignItems: `center`,
 })
 
-makeStyle(`.${dummyStyle} > *`, {
+addStyle(`.${dummyStyle} > *`, {
   flex: `0 0 auto`,
 })

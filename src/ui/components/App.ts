@@ -1,6 +1,6 @@
 import Component from './Component'
 import GameUI from './GameUI'
-import { makeStyle } from '../makeStyle'
+import { addStyle, makeStyle } from '../makeStyle'
 import '../preflight.css'
 import { backgroundColor, fontColor } from '../theme'
 import { createDiv } from '../createElement'
@@ -30,7 +30,7 @@ const outsideElemStyle = makeStyle({
   zIndex: `99`,
 })
 
-makeStyle(`.${outsideElemStyle} > *`, {
+addStyle(`.${outsideElemStyle} > *`, {
   position: `fixed`,
 })
 
