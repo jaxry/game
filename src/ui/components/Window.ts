@@ -26,8 +26,8 @@ export default class Window extends Component {
         parentBBox.top + parentBBox.height / 2)
 
     makeDraggable(this.element, {
-      onDrag: (e, relative, difference) => {
-        this.setPosition(this.posX + difference.x, this.posY + difference.y)
+      onDrag: (e) => {
+        this.setPosition(this.posX + e.movementX, this.posY + e.movementY)
       },
     })
   }

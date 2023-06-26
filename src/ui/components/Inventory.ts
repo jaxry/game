@@ -139,11 +139,10 @@ export default class Inventory extends GameComponent {
 
     makeDraggable(card.element, {
       onDown: (e) => {
-        const { left, top, width, height }
-            = card.element.getBoundingClientRect()
+        const bbox = card.element.getBoundingClientRect()
 
-        relX = (e.clientX - left - width / 2) / this.scale()
-        relY = (e.clientY - top - height / 2) / this.scale()
+        relX = (e.clientX - bbox.left - bbox.width / 2) / this.scale()
+        relY = (e.clientY - bbox.top - bbox.height / 2) / this.scale()
 
         this.cardPhysics.ignore(object)
 

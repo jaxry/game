@@ -12,9 +12,9 @@ export default function addPanZoom (
 ) {
 
   makeDraggable(element, {
-    onDrag: (e, relative, difference) => {
-      transform.x += difference.x
-      transform.y += difference.y
+    onDrag: (e) => {
+      transform.x += e.movementX
+      transform.y += e.movementY
       onTransform(false)
     },
   })

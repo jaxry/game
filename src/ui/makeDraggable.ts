@@ -4,14 +4,11 @@ let childDragged = false
 export default function makeDraggable (
     element: Element,
     options: {
-      onDrag?: OnDrag,
-
       // if returns false, drag is aborted
       onDown?: (e: MouseEvent) => boolean | void,
-
+      onDrag?: (e: MouseEvent) => void,
       onOver?: (e: MouseEvent) => void,
-      onUp?: OnDrag,
-
+      onUp?: (e: MouseEvent) => void,
       startEnabled?: MouseEvent
     }) {
 
@@ -29,8 +26,6 @@ export default function makeDraggable (
     childDragged = true
     isDragging = false
 
-    initPositions(e)
-
     const controller = new AbortController()
     const signal = controller.signal
 
@@ -39,10 +34,7 @@ export default function makeDraggable (
     }, { once: true, signal })
 
     if (options.onDrag) {
-      document.body.addEventListener('mousemove', (e: MouseEvent) => {
-        const { relative, difference } = calcPositionChange(e)
-        options.onDrag!(e, relative, difference)
-      }, { signal })
+      document.body.addEventListener('mousemove', options.onDrag, { signal })
     }
 
     if (options.onOver) {
@@ -50,8 +42,7 @@ export default function makeDraggable (
     }
 
     window.addEventListener('mouseup', (e) => {
-      const { relative, difference } = calcPositionChange(e)
-      options.onUp?.(e, relative, difference)
+      options.onUp?.(e)
       childDragged = false
       controller.abort()
     }, { once: true })
@@ -76,38 +67,4 @@ export function onClickNotDrag (
       handler(e)
     }
   })
-}
-
-interface OnDrag {
-  (
-      e: MouseEvent,
-      mouseRelative: { x: number, y: number },
-      mouseDifference: { x: number, y: number },
-  ): void
-}
-
-let startX = 0
-let startY = 0
-let lastX = 0
-let lastY = 0
-
-function initPositions (e: MouseEvent) {
-  startX = e.clientX
-  startY = e.clientY
-  lastX = e.clientX
-  lastY = e.clientY
-}
-
-function calcPositionChange (e: MouseEvent) {
-  const relative = {
-    x: e.clientX - startX,
-    y: e.clientY - startY,
-  }
-  const difference = {
-    x: e.clientX - lastX,
-    y: e.clientY - lastY,
-  }
-  lastX = e.clientX
-  lastY = e.clientY
-  return { relative, difference }
 }
