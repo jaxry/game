@@ -17,6 +17,7 @@ import { dragAndDropGameObject } from './GameUI'
 import { createDiv } from '../createElement'
 import { grow, growDynamic, shrink } from '../growShrink'
 import ObjectMessage from './ObjectMessage'
+import { moveToTop } from '../../util'
 
 export default class ObjectCard extends GameComponent {
   onResize?: (xDiff: number, yDiff: number) => void
@@ -80,6 +81,7 @@ export default class ObjectCard extends GameComponent {
 
         this.onObject('speak', (message) => {
           self.newComponent(ObjectMessage, message).appendTo(self.element)
+          moveToTop(self.element)
         })
       }
     }, object)
@@ -90,6 +92,11 @@ export default class ObjectCard extends GameComponent {
       return
     }
     this.expandedContainer = createDiv(this.element)
+
+    if (this.object.energy) {
+      createDiv(this.expandedContainer, undefined,
+          `Energy: ${this.object.energy}`)
+    }
 
     this.addInventory(this.expandedContainer)
 

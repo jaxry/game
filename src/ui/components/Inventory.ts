@@ -2,7 +2,7 @@ import Effect from '../../effects/Effect'
 import { game } from '../../Game'
 import GameObject from '../../GameObject'
 import ObjectCard from './ObjectCard'
-import { setPlayerEffect } from '../../behavior/core'
+import { setPlayerEffect } from '../../behavior/gameLoop'
 import {
   copy, getAndDelete, isEqual, makeOrGet, moveToTop, numToPx, randomCentered,
   translate,

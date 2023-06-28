@@ -1,7 +1,7 @@
 import TravelAction from '../actions/Travel'
 import { game } from '../Game'
 import type GameObject from '../GameObject'
-import { setPlayerEffect } from './core'
+import { setPlayerEffect } from './gameLoop'
 
 export function changePlayer (object: GameObject) {
   game.player = object

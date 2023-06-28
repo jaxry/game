@@ -1,7 +1,7 @@
 import { game } from '../../Game'
 import MapComponent from './Map'
 import Effect from '../../effects/Effect'
-import { pauseGameLoop, startGameLoop } from '../../behavior/core'
+import { pauseGameLoop, startGameLoop } from '../../behavior/gameLoop'
 import DragAndDrop from '../DragAndDrop'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'

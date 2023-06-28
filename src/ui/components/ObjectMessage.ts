@@ -39,6 +39,7 @@ export default class ObjectMessage extends Component {
 }
 
 const containerStyle = makeStyle({
+  userSelect: `none`,
   position: `absolute`,
   top: `25%`,
   left: `50%`,
