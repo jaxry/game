@@ -9,7 +9,7 @@ import { serializable } from '../serialize'
 export default class SpawnTrees extends Effect {
 
   queue () {
-    this.runIn(5 * GameTime.second * (1 + randomCentered()))
+    this.runIn(8 * GameTime.second * (1 + randomCentered()))
   }
 
   override onActivate () {

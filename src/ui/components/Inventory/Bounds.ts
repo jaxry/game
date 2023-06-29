@@ -19,10 +19,10 @@ export default class Bounds {
   }
 
   setSize (size: number) {
-    this.left = 0
-    this.top = 0
-    this.right = size
-    this.bottom = size
+    this.left = -0.5 * size
+    this.top = -0.5 * size
+    this.right = 0.5 * size
+    this.bottom = 0.5 * size
   }
 
   addBounds (b1: Bounds, b2: Bounds) {

@@ -64,13 +64,15 @@ export function averageItemPosition ({ contains }: GameObject) {
   let x = 0
   let y = 0
 
-  for (const item of contains) {
-    x += item.position.x
-    y += item.position.y
-  }
+  if (contains.size) {
+    for (const item of contains) {
+      x += item.position.x
+      y += item.position.y
+    }
 
-  x /= contains.size || 1
-  y /= contains.size || 1
+    x /= contains.size
+    y /= contains.size
+  }
 
   return { x, y }
 }

@@ -9,7 +9,7 @@ import { serializable } from '../serialize'
 class Photosynthesis extends Effect {
 
   queue () {
-    this.runIn(10 * GameTime.second * (1 + randomCentered()))
+    this.runIn(4 * GameTime.second * (1 + randomCentered()))
   }
 
   override onActivate () {
