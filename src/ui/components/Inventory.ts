@@ -110,6 +110,7 @@ export default class Inventory extends GameComponent {
     this.cardPhysics.simulate(true, true)
   }
 
+  // TODO: Move object positioning to container behavior file
   private makeCard (object: GameObject, init?: boolean) {
     if (!init || object.position.x === 0 || object.position.y === 0) {
       const { x, y } = this.averageCardPosition()

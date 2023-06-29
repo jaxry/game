@@ -23,7 +23,7 @@ export function toPrecision (x: number, numDecimals = 0) {
   return Math.round(x * 10 ** numDecimals) / 10 ** numDecimals
 }
 
-export function randomCentered (scale: number) {
+export function randomCentered (scale = 1) {
   return scale * (Math.random() - 0.5)
 }
 
@@ -115,6 +115,15 @@ export function mapFilter<T, U> (
     }
   }
   return array
+}
+
+export function randomSetElement<T> (set: Set<T>) {
+  let i = Math.floor(Math.random() * set.size)
+  for (const elem of set) {
+    if (i-- === 0) {
+      return elem
+    }
+  }
 }
 
 // ---------------

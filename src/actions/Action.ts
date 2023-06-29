@@ -23,12 +23,13 @@ export default class Action extends Effect {
   do? (): void
 
   override activate () {
-    super.activate()
-
     this.object.activeAction?.deactivate()
     this.object.activeAction = this
 
     this.time = game.time.current + this.duration
+
+    super.activate()
+
     this.runIn(this.duration)
 
     this.object.emit('actionStart', this)

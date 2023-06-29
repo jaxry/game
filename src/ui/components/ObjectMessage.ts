@@ -13,21 +13,22 @@ export default class ObjectMessage extends Component {
     this.element.textContent = message
 
     this.element.animate({
-      transform: [`scale(0)`, `scale(1)`],
+      opacity: [`0`, `1`],
     }, {
       duration: duration.normal,
       easing: `ease`,
-      composite: `add`,
     })
 
     this.element.animate({
       opacity: `0`,
     }, {
-      duration: lifespan,
+      duration: lifespan - duration.normal,
+      delay: duration.normal,
+      easing: `ease-in`,
     })
 
     this.element.animate({
-      transform: `translateY(-75%)`,
+      transform: `translateY(-50%) scale(0.8)`,
     }, {
       duration: lifespan,
       composite: `add`,
@@ -39,7 +40,6 @@ export default class ObjectMessage extends Component {
 }
 
 const containerStyle = makeStyle({
-  userSelect: `none`,
   position: `absolute`,
   top: `25%`,
   left: `50%`,

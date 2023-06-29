@@ -4,13 +4,13 @@ import { clamp, deleteElemFn } from '../../../util'
 import Point from '../../../Point'
 import { getDimensions } from '../../dimensionsCache'
 
-const velocityDecay = 0.993
+const velocityDecay = 0.997
 const minVelocityBeforeStop = 1e-4
-const repelForce = 0.0004
+const repelForce = 0.0001
 const minSimulationTime = 100
 const maxElapsedTime = 30
 
-const attractionForce = 3 * repelForce
+const attractionForce = 2 * repelForce
 const attractionDistance = 16
 
 export default class CardPhysics {
