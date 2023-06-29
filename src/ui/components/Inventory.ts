@@ -227,7 +227,7 @@ export default class Inventory extends GameComponent {
       this.offset.bottom -= interpDiff(0, diff.bottom)
       this.updatePositions()
     }, {
-      duration: duration.slow,
+      duration: duration.long,
       delay: delay ? duration.normal : 0,
     })
   }

@@ -6,6 +6,7 @@ import createMap from './map/createMap'
 import { typeChest } from './objects/chest'
 import { typeWorld } from './objects/world'
 import { typeWood } from './objects/wood'
+import { typeTree } from './objects/tree'
 
 export function initGame (game: Game) {
   game.energyPool = 100
@@ -32,9 +33,9 @@ export function initGame (game: Game) {
   //   spawn(typeWood, randomElement(zones))
   // }
   //
-  // for (let i = 0; i < 3; i++) {
-  //   spawn(typeTree, zone)
-  // }
+  for (let i = 0; i < 2; i++) {
+    spawn(typeTree, zone)
+  }
 
   const chest = spawn(typeChest, zone)
 }

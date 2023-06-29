@@ -1,11 +1,11 @@
 import GameObject from '../../GameObject'
-import { isPlayer } from '../../behavior/player'
+import { getPlayerActions, isPlayer } from '../../behavior/player'
 import Action from '../../actions/Action'
 import ActionComponent from './ActionComponent'
 import { game } from '../../Game'
 import Effect from '../../effects/Effect'
 import {
-  borderRadius, boxShadow, fadeInAnimation, objectCardColor,
+  borderRadius, boxShadow, buttonStyle, fadeInAnimation, objectCardColor,
   objectCardPlayerColor,
 } from '../theme'
 import { addStyle, makeStyle } from '../makeStyle'
@@ -14,7 +14,7 @@ import { onClickNotDrag } from '../makeDraggable'
 import Inventory from './Inventory'
 import { onResize } from '../onResize'
 import { dragAndDropGameObject } from './GameUI'
-import { createDiv } from '../createElement'
+import { createDiv, createElement } from '../createElement'
 import { grow, growDynamic, shrink } from '../growShrink'
 import ObjectMessage from './ObjectMessage'
 import { moveToTop } from '../../util'
@@ -32,15 +32,10 @@ export default class ObjectCard extends GameComponent {
 
     this.element.classList.add(containerStyle)
 
-    if (isPlayer(object)) {
-      this.element.classList.add(playerStyle)
-    }
+    this.element.classList.toggle(playerStyle, isPlayer(object))
+
     this.on(game.event.playerChange, () => {
-      if (isPlayer(object)) {
-        this.element.classList.add(playerStyle)
-      } else {
-        this.element.classList.remove(playerStyle)
-      }
+      this.element.classList.toggle(playerStyle, isPlayer(object))
     })
 
     this.name.textContent = object.type.name
@@ -96,6 +91,15 @@ export default class ObjectCard extends GameComponent {
     if (this.object.energy) {
       createDiv(this.expandedContainer, undefined,
           `Energy: ${this.object.energy}`)
+    }
+
+    const actionButtons = createDiv(this.expandedContainer)
+    for (const action of getPlayerActions(this.object)) {
+      const button = createElement(
+          actionButtons, 'button', buttonStyle, action.constructor.name)
+      button.addEventListener('click', () => {
+        action.activate()
+      })
     }
 
     this.addInventory(this.expandedContainer)

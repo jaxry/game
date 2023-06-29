@@ -2,6 +2,7 @@ import TravelAction from '../actions/Travel'
 import { game } from '../Game'
 import type GameObject from '../GameObject'
 import { setPlayerEffect } from './gameLoop'
+import Eat from '../actions/Eat'
 
 export function changePlayer (object: GameObject) {
   game.player = object
@@ -20,4 +21,12 @@ export function playerTravelToZone (zone: GameObject) {
       setPlayerEffect(new TravelAction(game.player, neighbor))
     }
   }
+}
+
+export function getPlayerActions (object: GameObject) {
+  const actions = []
+  if (object.energy) {
+    actions.push(new Eat(game.player, object))
+  }
+  return actions
 }

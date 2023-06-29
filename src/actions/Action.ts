@@ -38,11 +38,11 @@ export default class Action extends Effect {
   }
 
   override deactivate () {
-    super.deactivate()
-
     if (this.object.activeAction === this) {
       this.object.activeAction = undefined as any
     }
+
+    super.deactivate()
 
     this.object.emit('actionEnd', this)
 

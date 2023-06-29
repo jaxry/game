@@ -172,7 +172,7 @@ export default class MapComponent extends Component {
       this.activeMapAnimation = this.map.animate({
         transform: transform,
       }, {
-        duration: duration.slow,
+        duration: duration.long,
         easing: 'ease-in-out',
       })
 
@@ -191,7 +191,7 @@ function grow (elem: Element) {
   return elem.animate({
     transform: ['scale(0)', 'scale(1)'],
   }, {
-    duration: duration.slow,
+    duration: duration.long,
     easing: 'ease',
     composite: 'add',
   })
@@ -201,7 +201,7 @@ function shrink (elem: Element) {
   return elem.animate({
     transform: ['scale(1)', 'scale(0)'],
   }, {
-    duration: duration.slow,
+    duration: duration.long,
     easing: 'ease-in',
     composite: 'add',
   })
