@@ -1,5 +1,6 @@
 import type GameObject from '../GameObject'
 import { ContainedAs } from '../GameObject'
+import { randomCentered } from '../util'
 
 export function moveTo (
     container: GameObject, object: GameObject, containedAs: ContainedAs) {
@@ -20,6 +21,10 @@ export function moveTo (
 
   object.container = container
   object.containedAs = containedAs
+
+  const { x, y } = averageItemPosition(container)
+  object.position.x = x + randomCentered()
+  object.position.y = y + randomCentered()
 
   container.contains.add(object)
 
@@ -53,4 +58,19 @@ export function isAncestor (ancestor: GameObject, item: GameObject) {
 
 export function isContainedWith (object: GameObject, neighbor: GameObject) {
   return object.container === neighbor.container
+}
+
+export function averageItemPosition ({ contains }: GameObject) {
+  let x = 0
+  let y = 0
+
+  for (const item of contains) {
+    x += item.position.x
+    y += item.position.y
+  }
+
+  x /= contains.size || 1
+  y /= contains.size || 1
+
+  return { x, y }
 }

@@ -4,8 +4,7 @@ import GameObject from '../../GameObject'
 import ObjectCard from './ObjectCard'
 import { setPlayerEffect } from '../../behavior/gameLoop'
 import {
-  copy, getAndDelete, isEqual, makeOrGet, moveToTop, numToPx, randomCentered,
-  translate,
+  copy, getAndDelete, isEqual, makeOrGet, moveToTop, numToPx, translate,
 } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { makeStyle } from '../makeStyle'
@@ -103,21 +102,14 @@ export default class Inventory extends GameComponent {
 
     if (this.container.contains) {
       for (const obj of this.container.contains) {
-        this.makeCard(obj, true)
+        this.makeCard(obj)
       }
     }
 
     this.cardPhysics.simulate(true, true)
   }
 
-  // TODO: Move object positioning to container behavior file
-  private makeCard (object: GameObject, init?: boolean) {
-    if (!init || object.position.x === 0 || object.position.y === 0) {
-      const { x, y } = this.averageCardPosition()
-      object.position.x = x + randomCentered(1)
-      object.position.y = y + randomCentered(1)
-    }
-
+  private makeCard (object: GameObject) {
     const card = makeOrGet(this.objectToCard, object, () =>
         this.newComponent(ObjectCard, object).appendTo(this.element))
 
@@ -238,18 +230,6 @@ export default class Inventory extends GameComponent {
       duration: duration.slow,
       delay: delay ? duration.normal : 0,
     })
-  }
-
-  private averageCardPosition () {
-    let x = 0
-    let y = 0
-    for (const object of this.objectToCard.keys()) {
-      x += object.position.x
-      y += object.position.y
-    }
-    x /= this.objectToCard.size || 1
-    y /= this.objectToCard.size || 1
-    return { x, y }
   }
 
   private scale () {
