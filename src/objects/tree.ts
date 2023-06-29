@@ -4,6 +4,7 @@ import { speak } from '../behavior/speak'
 import { takeEnergyFromWorld } from '../behavior/energy'
 import GameTime from '../GameTime'
 import { randomCentered } from '../util'
+import { serializable } from '../serialize'
 
 class Photosynthesis extends Effect {
 
@@ -25,6 +26,7 @@ class Photosynthesis extends Effect {
     this.queue()
   }
 }
+serializable(Photosynthesis)
 
 export const typeTree = makeType({
   name: 'tree',

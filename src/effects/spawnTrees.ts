@@ -4,6 +4,7 @@ import { spawn } from '../behavior/spawn'
 import { typeTree } from '../objects/tree'
 import GameTime from '../GameTime'
 import { game } from '../Game'
+import { serializable } from '../serialize'
 
 export default class SpawnTrees extends Effect {
 
@@ -25,3 +26,4 @@ export default class SpawnTrees extends Effect {
     this.queue()
   }
 }
+serializable(SpawnTrees)

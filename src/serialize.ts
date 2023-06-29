@@ -96,7 +96,8 @@ export function serialize (toSerialize: any) {
     const id = constructorToId.get(object.constructor)
     if (!id) {
       if (object.constructor.name) {
-        console.warn(`To serialize`, object, `pass class to 'serializable'`)
+        console.warn(object.constructor.name,
+            `class needs to be passed to 'serializable'`)
       }
       return // is an anonymous class that will be ignored
     }
