@@ -1,10 +1,10 @@
 import Action from './Action'
-import GameTime from '../GameTime'
 import GameObject from '../GameObject'
 import { serializable } from '../serialize'
+import { destroy } from '../behavior/destroy'
 
 export default class Eat extends Action {
-  static override duration = 3 * GameTime.second
+  static override duration = 3
 
   constructor (object: GameObject, public override target: GameObject) {
     super(object)
@@ -16,6 +16,12 @@ export default class Eat extends Action {
 
   override condition () {
     return this.target.energy !== undefined && this.target !== this.object
+  }
+
+  override do () {
+    this.object.energy += this.target.energy
+    this.target.energy = 0
+    destroy(this.target)
   }
 }
 serializable(Eat)

@@ -1,5 +1,4 @@
 import { spawn } from './behavior/spawn'
-import { makeType } from './GameObjectType'
 import Game from './Game'
 import { randomElement } from './util'
 import createMap from './map/createMap'
@@ -7,16 +6,17 @@ import { typeChest } from './objects/chest'
 import { typeWorld } from './objects/world'
 import { typeWood } from './objects/wood'
 import { typeTree } from './objects/tree'
+import { typePlayer } from './objects/player'
 
 export function initGame (game: Game) {
-  game.energyPool = 100
+  game.energyPool = 512
 
   game.world = spawn(typeWorld)
 
   const zones = createMap(3)
   const zone = randomElement(zones)
 
-  game.player = spawn(typeYou, zone)
+  game.player = spawn(typePlayer, zone)
 
   spawn(typeWood, game.player)
   spawn(typeWood, game.player)
@@ -40,7 +40,3 @@ export function initGame (game: Game) {
   const chest = spawn(typeChest, zone)
 }
 
-const typeYou = makeType({
-  name: `Boof Nasty`,
-  isContainer: true,
-})

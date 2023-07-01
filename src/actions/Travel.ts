@@ -2,10 +2,9 @@ import Action from './Action'
 import { putInsideContainer } from '../behavior/container'
 import type GameObject from '../GameObject'
 import { serializable } from '../serialize'
-import GameTime from '../GameTime'
 
 export default class TravelAction extends Action {
-  static override duration = 3 * GameTime.second
+  static override duration = 3
 
   constructor (object: GameObject, override target: GameObject) {
     super(object)

@@ -2,14 +2,13 @@ import Effect from './Effect'
 import { randomCentered, randomSetElement } from '../util'
 import { spawn } from '../behavior/spawn'
 import { typeTree } from '../objects/tree'
-import GameTime from '../GameTime'
 import { game } from '../Game'
 import { serializable } from '../serialize'
 
 export default class SpawnTrees extends Effect {
 
   queue () {
-    this.runIn(8 * GameTime.second * (1 + randomCentered()))
+    this.runIn(8 * (1 + randomCentered()))
   }
 
   override onActivate () {
