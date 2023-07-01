@@ -24,9 +24,8 @@ export function playerTravelToZone (zone: GameObject) {
 }
 
 export function getPlayerActions (object: GameObject) {
-  const actions = []
-  if (object.energy) {
-    actions.push(new Eat(game.player, object))
-  }
-  return actions
+  const actions = [
+    new Eat(game.player, object),
+  ]
+  return actions.filter(action => action.condition())
 }

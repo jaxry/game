@@ -8,7 +8,6 @@ import { createDiv, createElement, createTextNode } from '../createElement'
 import { castArray } from '../../util'
 
 export default class ActionComponent extends Component {
-
   constructor (public action: Action) {
     super()
 

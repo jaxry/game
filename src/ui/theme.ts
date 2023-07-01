@@ -31,7 +31,7 @@ export const mapEdgeColor = backgroundHue[500]
 
 export const objectCardColor = colors.sky[700]
 export const objectCardPlayerColor = colors.green[700]
-export const objectDialogueBackground = `${colors.emerald[500]}88`
+export const objectDialogueBackground = `${colors.teal[600]}bb`
 
 export const actionColor = colors.yellow[400]
 export const actionTimeColor = colors.red[400]
