@@ -3,7 +3,7 @@ import GameObject, {
   GameObjectEvents,
 } from '../GameObject'
 import { serializable } from '../serialize'
-import { runEffectIn } from '../behavior/core'
+import { runEffectIn } from '../behavior/gameLoop'
 
 export default class Effect {
   // The object associated with the effect.

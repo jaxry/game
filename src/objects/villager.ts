@@ -8,6 +8,7 @@ import { typeWood } from './wood'
 import TransferAction from '../actions/Transfer'
 import { findShortestPath } from '../behavior/connections'
 import { typeChest } from './chest'
+import { serializable } from '../serialize'
 
 class MoveToZone extends Effect {
   path: GameObject[] = []
@@ -37,9 +38,10 @@ class MoveToZone extends Effect {
 }
 
 class Search extends Effect {
-  home = this.object.container
+  home: GameObject
 
   override onActivate () {
+    this.home = this.object.container
     this.runIn(1 + Math.random())
   }
 
@@ -64,6 +66,7 @@ class Search extends Effect {
     }
   }
 }
+serializable(Search)
 
 class ReturnHome extends MoveToZone {
   constructor (object: GameObject, home: GameObject) {
@@ -81,12 +84,14 @@ class ReturnHome extends MoveToZone {
     new DepositWood(this.object, wood, chest).activate()
   }
 }
+serializable(ReturnHome)
 
 class DepositWood extends TransferAction {
   override onDeactivate () {
     new Search(this.object).activate()
   }
 }
+serializable(DepositWood)
 
 function findChest (zone: GameObject) {
   for (const object of zone.contains) {

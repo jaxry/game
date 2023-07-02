@@ -1,16 +1,16 @@
 import GameObject from '../../../GameObject'
 import Component from '../Component'
-import { clamp, deleteElemFn } from '../../../util'
+import { clamp, deleteElemFn, randomCentered } from '../../../util'
 import Point from '../../../Point'
 import { getDimensions } from '../../dimensionsCache'
 
-const velocityDecay = 0.993
+const velocityDecay = 0.997
 const minVelocityBeforeStop = 1e-4
-const repelForce = 0.0004
+const repelForce = 0.0001
 const minSimulationTime = 100
 const maxElapsedTime = 30
 
-const attractionForce = 3 * repelForce
+const attractionForce = 2 * repelForce
 const attractionDistance = 16
 
 export default class CardPhysics {
@@ -183,8 +183,9 @@ function attract (
 }
 
 function addForce (a: Point, b: Point, force: number) {
-  const dx = a.x - b.x
-  const dy = a.y - b.y
+  // add small random jitter so forces work on objects in the same position
+  const dx = a.x - b.x + randomCentered(1e-10)
+  const dy = a.y - b.y + randomCentered(1e-10)
   const d = Math.sqrt(dx * dx + dy * dy)
   const f = force / d
   a.vx += f * dx

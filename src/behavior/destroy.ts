@@ -2,15 +2,16 @@ import type GameObject from '../GameObject'
 import { removeConnections } from './connections'
 import { removeFromContainer } from './container'
 import { removeEffects } from '../effects/Effect'
-
-const destroyedSet: WeakSet<GameObject> = new WeakSet()
+import { game } from '../Game'
 
 export function destroy (obj: GameObject) {
   removeFromContainer(obj)
   removeConnections(obj)
   removeEffects(obj)
 
-  obj.emit('destroy')
+  game.energyPool += obj.energy
+
+  obj.emit('leave')
 
   if (obj.contains) {
     for (const item of obj.contains) {
@@ -18,9 +19,3 @@ export function destroy (obj: GameObject) {
     }
   }
 }
-
-export function isDestroyed (obj: GameObject) {
-  return destroyedSet.has(obj)
-}
-
-

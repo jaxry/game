@@ -2,10 +2,9 @@ import Action from './Action'
 import type GameObject from '../GameObject'
 import { isAncestor, putInsideContainer } from '../behavior/container'
 import { serializable } from '../serialize'
-import GameTime from '../GameTime'
 
 export default class TransferAction extends Action {
-  static override duration = 3 * GameTime.second
+  static override duration = 3
 
   constructor (
       object: GameObject, public item: GameObject,

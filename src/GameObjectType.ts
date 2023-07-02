@@ -7,9 +7,9 @@ export default class GameObjectType {
 
   effects: Array<typeof Effect>
 
-  isContainer: boolean
-
   energy: number
+
+  isContainer: boolean
 }
 
 const typeToId = new Map<GameObjectType, number>()

@@ -82,8 +82,6 @@ export default class GameObject {
 }
 
 export class GameObjectEvents {
-  destroy: []
-
   // objects being contained or taken out of the event object
   enter: [from?: GameObject]
   leave: [to?: GameObject]
