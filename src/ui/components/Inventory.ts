@@ -69,8 +69,8 @@ export default class Inventory extends GameComponent {
         this.onObjectChildren('enter', (object) => {
           self.objectEnter(object)
         })
-        this.onObjectChildren('leave', (object) => {
-          self.objectLeave(object)
+        this.onObjectChildren('leave', (object, to) => {
+          self.objectLeave(object, to === undefined)
         })
         this.onObjectChildren('actionStart', (object, action) => {
           for (const target of attractableObjects(action)) {
@@ -170,15 +170,19 @@ export default class Inventory extends GameComponent {
     })
   }
 
-  private objectLeave (obj: GameObject) {
+  private objectLeave (obj: GameObject, fade = false) {
     const card = getAndDelete(this.objectToCard, obj)!
     this.animateBounds(true)
 
-    card.element.animate({
+    const keyframes = fade ? {
+      opacity: `0`,
+    } : {
       transform: `scale(0)`,
-    }, {
+    }
+
+    card.element.animate(keyframes, {
       duration: duration.normal,
-      composite: `add`,
+      composite: fade ? `replace` : `add`,
       easing: `ease-in`,
     }).onfinish = () => {
       card.remove()

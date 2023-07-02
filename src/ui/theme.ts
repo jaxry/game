@@ -36,6 +36,8 @@ export const objectDialogueBackground = `${colors.teal[600]}bb`
 export const actionColor = colors.yellow[400]
 export const actionTimeColor = colors.red[400]
 
+export const gameDataColor = colors.green[300]
+
 // Properties
 
 export const borderRadius = '0.25rem'

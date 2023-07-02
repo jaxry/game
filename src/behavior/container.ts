@@ -23,8 +23,8 @@ export function moveTo (
   object.containedAs = containedAs
 
   const { x, y } = averageItemPosition(container)
-  object.position.x = x + randomCentered()
-  object.position.y = y + randomCentered()
+  object.position.x = x
+  object.position.y = y
 
   container.contains.add(object)
 

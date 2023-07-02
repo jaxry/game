@@ -9,6 +9,7 @@ import GameComponent from './GameComponent'
 import { createDiv, createElement } from '../createElement'
 import { deleteSaveFile, saveGameToFile } from '../../saveLoad'
 import { restartGame } from '../../main'
+import { gameDataColor } from '../theme'
 
 export const dragAndDropGameObject = new DragAndDrop<GameObject>()
 
@@ -19,7 +20,31 @@ export default class GameUI extends GameComponent {
     this.element.classList.add(containerStyle)
 
     this.createMap()
-    this.createSaveLoadBar()
+
+    const bar = createDiv(this.element, barStyle)
+
+    const info = createDiv(bar, infoStyle)
+
+    // energy level
+    const energy = createDiv(info, undefined, 'Energy Pool: ')
+    const energyValue = createElement(energy, 'span', energyStyle)
+
+    setInterval(() => {
+      energyValue.textContent = game.energyPool.toString()
+    }, 1000)
+
+    // save load bar
+    const saveLoadContainer = createDiv(bar, saveLoadContainerStyle)
+
+    const save = createElement(saveLoadContainer, 'button', undefined, 'Save')
+    save.addEventListener('click', saveGameToFile)
+
+    const load = createElement(saveLoadContainer, 'button', undefined, 'Load')
+    load.addEventListener('click', restartGame)
+
+    const erase = createElement(saveLoadContainer, 'button', undefined, 'Erase')
+    erase.addEventListener('click', deleteSaveFile)
+
     this.setupWindowVisibility()
     startGameLoop()
   }
@@ -61,19 +86,6 @@ export default class GameUI extends GameComponent {
       document.removeEventListener('visibilitychange', visibilityChange)
     })
   }
-
-  private createSaveLoadBar () {
-    const saveLoadContainer = createDiv(this.element, saveLoadContainerStyle)
-
-    const save = createElement(saveLoadContainer, 'button', undefined, 'Save')
-    save.addEventListener('click', saveGameToFile)
-
-    const load = createElement(saveLoadContainer, 'button', undefined, 'Load')
-    load.addEventListener('click', restartGame)
-
-    const erase = createElement(saveLoadContainer, 'button', undefined, 'Erase')
-    erase.addEventListener('click', deleteSaveFile)
-  }
 }
 
 const containerStyle = makeStyle({
@@ -81,8 +93,22 @@ const containerStyle = makeStyle({
   display: `flex`,
 })
 
-const saveLoadContainerStyle = makeStyle({
+const barStyle = makeStyle({
+  display: `flex`,
   position: `absolute`,
+  left: `0`,
+  right: `0`,
+})
+
+const infoStyle = makeStyle({
+  flex: `1 1 auto`,
+})
+
+const energyStyle = makeStyle({
+  color: gameDataColor,
+})
+
+const saveLoadContainerStyle = makeStyle({
   display: `flex`,
   gap: `1rem`,
 })

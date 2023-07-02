@@ -1,6 +1,6 @@
 import GameObject from '../../../GameObject'
 import Component from '../Component'
-import { clamp, deleteElemFn } from '../../../util'
+import { clamp, deleteElemFn, randomCentered } from '../../../util'
 import Point from '../../../Point'
 import { getDimensions } from '../../dimensionsCache'
 
@@ -183,8 +183,9 @@ function attract (
 }
 
 function addForce (a: Point, b: Point, force: number) {
-  const dx = a.x - b.x
-  const dy = a.y - b.y
+  // add small random jitter so forces work on objects in the same position
+  const dx = a.x - b.x + randomCentered(1e-10)
+  const dy = a.y - b.y + randomCentered(1e-10)
   const d = Math.sqrt(dx * dx + dy * dy)
   const f = force / d
   a.vx += f * dx
