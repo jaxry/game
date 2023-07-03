@@ -76,6 +76,9 @@ export default class Inventory extends GameComponent {
           inventory.objectLeave(object, to === undefined)
         })
         this.onObjectChildren('actionStart', (object, action) => {
+          const card = inventory.objectToCard.get(object)!
+          card.setAction(action)
+
           const attractions = attractableObjects(action)
           this.actionToAttractions.set(action, attractions)
           for (const target of attractions) {
@@ -83,10 +86,18 @@ export default class Inventory extends GameComponent {
           }
         })
         this.onObjectChildren('actionEnd', (object, action) => {
+          const card = inventory.objectToCard.get(object)!
+          card.clearAction()
+
           const attractions = getAndDelete(this.actionToAttractions, action)!
           for (const target of attractions) {
             inventory.cardPhysics.release(action.object, target)
           }
+        })
+
+        this.onObjectChildren('speak', (object, message) => {
+          const card = inventory.objectToCard.get(object)!
+          card.speak(message)
         })
       }
     }, container)

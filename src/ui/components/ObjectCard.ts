@@ -3,7 +3,6 @@ import { getPlayerActions, isPlayer } from '../../behavior/player'
 import Action from '../../actions/Action'
 import ActionComponent from './ActionComponent'
 import { game } from '../../Game'
-import Effect from '../../effects/Effect'
 import {
   actionColor, borderRadius, boxShadow, buttonStyle, duration, fadeInAnimation,
   objectCardColor, objectCardPlayerColor,
@@ -19,7 +18,7 @@ import { grow, growDynamic, shrink } from '../growShrink'
 import ObjectMessage from './ObjectMessage'
 import { castArray, moveToTop } from '../../util'
 
-export const objectCardMap = new WeakMap<GameObject, ObjectCard>()
+export const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
 export default class ObjectCard extends GameComponent {
   onResize?: (xDiff: number, yDiff: number) => void
@@ -33,10 +32,10 @@ export default class ObjectCard extends GameComponent {
   constructor (public object: GameObject) {
     super()
 
-    objectCardMap.set(object, this)
+    objectToCard.set(object, this)
     this.onRemove(() => {
-      if (objectCardMap.get(object) === this) {
-        objectCardMap.delete(object)
+      if (objectToCard.get(object) === this) {
+        objectToCard.delete(object)
       }
     })
 
@@ -72,25 +71,6 @@ export default class ObjectCard extends GameComponent {
     onResize(this.element, () => {
       this.onResize?.(0, 0)
     })
-
-    const self = this
-    this.newEffect(class extends Effect {
-      override events () {
-        this.onObject('actionStart', (action) => {
-          self.setAction(action)
-
-        })
-
-        this.onObject('actionEnd', (action) => {
-          self.clearAction()
-        })
-
-        this.onObject('speak', (message) => {
-          self.newComponent(ObjectMessage, message).appendTo(self.element)
-          moveToTop(self.element)
-        })
-      }
-    }, object)
   }
 
   expand () {
@@ -129,6 +109,11 @@ export default class ObjectCard extends GameComponent {
     }
   }
 
+  speak (message: string) {
+    this.newComponent(ObjectMessage, message).appendTo(this.element)
+    moveToTop(this.element)
+  }
+
   targetByAction (action: Action) {
     this.targetedByAction.add(action)
     this.element.classList.toggle(actionTargetStyle,
@@ -139,6 +124,42 @@ export default class ObjectCard extends GameComponent {
     this.targetedByAction.delete(action)
     this.element.classList.toggle(actionTargetStyle,
         this.targetedByAction.size > 0)
+  }
+
+  setAction (action: Action) {
+    this.clearAction()
+
+    this.actionComponent = this.newComponent(ActionComponent, action)
+        .appendTo(this.element)
+
+    for (const target of castArray(action.target)) {
+      if (objectToCard.has(target)) {
+        objectToCard.get(target)!.targetByAction(action)
+      }
+    }
+
+    grow(this.actionComponent.element)
+  }
+
+  clearAction () {
+    if (!this.actionComponent) {
+      return
+    }
+
+    const action = this.actionComponent.action
+
+    for (const target of castArray(action.target)) {
+      if (objectToCard.has(target)) {
+        objectToCard.get(target)!.clearTargetByAction(action)
+      }
+    }
+
+    const component = this.actionComponent
+    this.actionComponent = undefined
+
+    shrink(component.element).onfinish = () => {
+      component.remove()
+    }
   }
 
   private addInventory (container: Element) {
@@ -153,42 +174,6 @@ export default class ObjectCard extends GameComponent {
   private removeInventory () {
     this.inventory?.remove()
     this.inventory = undefined
-  }
-
-  private setAction (action: Action) {
-    this.clearAction()
-
-    this.actionComponent = this.newComponent(ActionComponent, action)
-        .appendTo(this.element)
-
-    for (const target of castArray(action.target)) {
-      if (objectCardMap.has(target)) {
-        objectCardMap.get(target)!.targetByAction(action)
-      }
-    }
-
-    grow(this.actionComponent.element)
-  }
-
-  private clearAction () {
-    if (!this.actionComponent) {
-      return
-    }
-
-    const action = this.actionComponent.action
-
-    for (const target of castArray(action.target)) {
-      if (objectCardMap.has(target)) {
-        objectCardMap.get(target)!.clearTargetByAction(action)
-      }
-    }
-
-    const component = this.actionComponent
-    this.actionComponent = undefined
-
-    shrink(component.element).onfinish = () => {
-      component.remove()
-    }
   }
 }
 

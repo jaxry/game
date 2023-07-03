@@ -74,6 +74,10 @@ export function getZoneGraph (
   const queue = [startingNode]
   nodes.set(startingNode, 0)
 
+  if (!startingNode.connections) {
+    return { nodes, edges }
+  }
+
   while (queue.length) {
     const node = queue.shift()!
     const depth = nodes.get(node)!
