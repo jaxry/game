@@ -1,8 +1,8 @@
 import TravelAction from '../actions/Travel'
 import { game } from '../Game'
 import type GameObject from '../GameObject'
-import { setPlayerEffect } from './gameLoop'
 import Eat from '../actions/Eat'
+import Effect from '../effects/Effect'
 
 export function changePlayer (object: GameObject) {
   game.player = object
@@ -11,6 +11,14 @@ export function changePlayer (object: GameObject) {
 
 export function isPlayer (object: GameObject) {
   return object === game.player
+}
+
+let playerEffect: Effect | null = null
+
+export function setPlayerEffect (effect: Effect) {
+  playerEffect?.deactivate()
+  playerEffect = effect
+  playerEffect.activate()
 }
 
 export function playerTravelToZone (zone: GameObject) {
@@ -29,3 +37,5 @@ export function getPlayerActions (object: GameObject) {
   ]
   return actions.filter(action => action.condition())
 }
+
+

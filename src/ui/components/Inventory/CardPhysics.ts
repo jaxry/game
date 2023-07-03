@@ -10,14 +10,13 @@ const repelForce = 0.0001
 const minSimulationTime = 100
 const maxElapsedTime = 30
 
-const attractionForce = 2 * repelForce
+const attractionForce = 3 * repelForce
 const attractionDistance = 16
 
 export default class CardPhysics {
   private animationId = 0
   private lastTime = 0
   private inactiveTime = 0
-  private repelFromCenter: boolean
   private shouldRebuild = false
 
   private positions: Point[] = []
@@ -63,7 +62,7 @@ export default class CardPhysics {
   }
 
   // Providing a new objectToCard updates the list of cards to simulate
-  simulate (rebuild = false, repelFromCenter = false) {
+  simulate (rebuild = false) {
     // card was added or removed and arrays need to be rebuilt next tick
     if (rebuild) {
       this.shouldRebuild = true
@@ -76,7 +75,6 @@ export default class CardPhysics {
     }
 
     this.lastTime = 0
-    this.repelFromCenter = repelFromCenter
     this.animationId = requestAnimationFrame(this.tick)
   }
 
@@ -114,7 +112,6 @@ export default class CardPhysics {
       this.animationId = requestAnimationFrame(this.tick)
     } else {
       this.animationId = 0
-      freezeAll(this.positions)
     }
   }
 
@@ -208,13 +205,6 @@ function applyVelocity (positions: Point[], elapsed: number) {
     }
   }
   return repeat
-}
-
-function freezeAll (positions: Point[]) {
-  for (const p of positions) {
-    p.vx = 0
-    p.vy = 0
-  }
 }
 
 function intersects (a: DOMRect, b: DOMRect) {

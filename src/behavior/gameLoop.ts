@@ -43,11 +43,3 @@ export function pauseGameLoop () {
   timeout = null
 }
 
-let playerEffect: Effect | null = null
-
-export function setPlayerEffect (effect: Effect) {
-  playerEffect?.deactivate()
-  playerEffect = effect
-  playerEffect.activate()
-}
-

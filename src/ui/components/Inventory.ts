@@ -2,7 +2,6 @@ import Effect from '../../effects/Effect'
 import { game } from '../../Game'
 import GameObject from '../../GameObject'
 import ObjectCard from './ObjectCard'
-import { setPlayerEffect } from '../../behavior/gameLoop'
 import {
   copy, getAndDelete, isEqual, makeOrGet, moveToTop, numToPx, translate,
 } from '../../util'
@@ -18,6 +17,7 @@ import throttle from '../throttle'
 import Bounds from './Inventory/Bounds'
 import { attractableObjects } from './Inventory/attractableObjects'
 import { getDimensions } from '../dimensionsCache'
+import { setPlayerEffect } from '../../behavior/player'
 
 export default class Inventory extends GameComponent {
   onResize?: (xDiff: number, yDiff: number) => void
@@ -106,7 +106,7 @@ export default class Inventory extends GameComponent {
       }
     }
 
-    this.cardPhysics.simulate(true, true)
+    this.cardPhysics.simulate(true)
   }
 
   private makeCard (object: GameObject) {

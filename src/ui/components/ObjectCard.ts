@@ -5,7 +5,9 @@ import ActionComponent from './ActionComponent'
 import { game } from '../../Game'
 import Effect from '../../effects/Effect'
 import {
-  borderRadius, boxShadow, buttonStyle, fadeInAnimation, objectCardColor,
+  actionColor,
+  borderRadius, boxShadow, buttonStyle, duration, fadeInAnimation,
+  objectCardColor,
   objectCardPlayerColor,
 } from '../theme'
 import { addStyle, makeStyle } from '../makeStyle'
@@ -17,18 +19,28 @@ import { dragAndDropGameObject } from './GameUI'
 import { createDiv, createElement } from '../createElement'
 import { grow, growDynamic, shrink } from '../growShrink'
 import ObjectMessage from './ObjectMessage'
-import { moveToTop } from '../../util'
+import { castArray, moveToTop } from '../../util'
+
+export const objectCardMap = new WeakMap<GameObject, ObjectCard>()
 
 export default class ObjectCard extends GameComponent {
   onResize?: (xDiff: number, yDiff: number) => void
   private name = createDiv(this.element, nameStyle)
   private expandedContainer?: HTMLDivElement
 
-  private action?: ActionComponent
+  private actionComponent?: ActionComponent
   private inventory?: Inventory
+  private targetedByAction = new Set<Action>()
 
   constructor (public object: GameObject) {
     super()
+
+    objectCardMap.set(object, this)
+    this.onRemove(() => {
+      if (objectCardMap.get(object) === this) {
+        objectCardMap.delete(object)
+      }
+    })
 
     this.element.classList.add(containerStyle)
 
@@ -68,6 +80,7 @@ export default class ObjectCard extends GameComponent {
       override events () {
         this.onObject('actionStart', (action) => {
           self.setAction(action)
+
         })
 
         this.onObject('actionEnd', (action) => {
@@ -135,23 +148,47 @@ export default class ObjectCard extends GameComponent {
   private setAction (action: Action) {
     this.clearAction()
 
-    const component = this.newComponent(ActionComponent, action)
+    this.actionComponent = this.newComponent(ActionComponent, action)
         .appendTo(this.element)
-    this.action = component
 
-    grow(component.element)
+    for (const target of castArray(action.target)) {
+      if (objectCardMap.has(target)) {
+        objectCardMap.get(target)!.targetByAction(action)
+      }
+    }
+
+    grow(this.actionComponent.element)
   }
 
   private clearAction () {
-    if (!this.action) {
+    if (!this.actionComponent) {
       return
     }
-    const component = this.action
-    this.action = undefined
+
+    const action = this.actionComponent.action
+
+    for (const target of castArray(action.target)) {
+      if (objectCardMap.has(target)) {
+        objectCardMap.get(target)!.clearTargetByAction(action)
+      }
+    }
+
+    const component = this.actionComponent
+    this.actionComponent = undefined
 
     shrink(component.element).onfinish = () => {
       component.remove()
     }
+  }
+
+  targetByAction (action: Action) {
+    this.targetedByAction.add(action)
+    this.element.classList.toggle(actionTargetStyle, this.targetedByAction.size > 0)
+  }
+
+  clearTargetByAction (action: Action) {
+    this.targetedByAction.delete(action)
+    this.element.classList.toggle(actionTargetStyle, this.targetedByAction.size > 0)
   }
 }
 
@@ -165,6 +202,10 @@ const containerStyle = makeStyle({
   background: objectCardColor,
   boxShadow,
   borderRadius,
+
+  // for target border
+  outline: `2px solid transparent`,
+  transition: `outline-color ${duration.short}ms`
 })
 
 const nameStyle = makeStyle({
@@ -179,6 +220,14 @@ const grabStyle = makeStyle({
   fontSize: `1.25rem`,
   cursor: `grab`,
   display: 'none',
+})
+
+const actionTargetParentStyle = makeStyle({
+
+})
+
+const actionTargetStyle = makeStyle({
+  outlineColor: actionColor,
 })
 
 addStyle(`:hover > .${grabStyle}`, {
