@@ -7,7 +7,6 @@ import { typeWorld } from './objects/world'
 import { typeWood } from './objects/wood'
 import { typeTree } from './objects/tree'
 import { typePlayer } from './objects/player'
-import { typeVillager } from './objects/villager'
 
 export function initGame (game: Game) {
   game.energyPool = 600

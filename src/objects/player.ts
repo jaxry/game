@@ -5,5 +5,5 @@ export const typePlayer = makeType({
   name: `Boof Nasty`,
   isContainer: true,
   energy: 256,
-  effects: [Metabolism]
+  effects: [Metabolism],
 })

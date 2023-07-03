@@ -18,6 +18,7 @@ import Bounds from './Inventory/Bounds'
 import { attractableObjects } from './Inventory/attractableObjects'
 import { getDimensions } from '../dimensionsCache'
 import { setPlayerEffect } from '../../behavior/player'
+import Action from '../../actions/Action'
 
 export default class Inventory extends GameComponent {
   onResize?: (xDiff: number, yDiff: number) => void
@@ -62,24 +63,29 @@ export default class Inventory extends GameComponent {
 
     this.element.classList.add(containerStyle)
 
-    const self = this
+    const inventory = this
 
     this.newEffect(class extends Effect {
+      private actionToAttractions = new Map<Action, GameObject[]>()
+
       override events () {
         this.onObjectChildren('enter', (object) => {
-          self.objectEnter(object)
+          inventory.objectEnter(object)
         })
         this.onObjectChildren('leave', (object, to) => {
-          self.objectLeave(object, to === undefined)
+          inventory.objectLeave(object, to === undefined)
         })
         this.onObjectChildren('actionStart', (object, action) => {
-          for (const target of attractableObjects(action)) {
-            self.cardPhysics.attract(action.object, target)
+          const attractions = attractableObjects(action)
+          this.actionToAttractions.set(action, attractions)
+          for (const target of attractions) {
+            inventory.cardPhysics.attract(action.object, target)
           }
         })
         this.onObjectChildren('actionEnd', (object, action) => {
-          for (const target of attractableObjects(action)) {
-            self.cardPhysics.release(action.object, target)
+          const attractions = getAndDelete(this.actionToAttractions, action)!
+          for (const target of attractions) {
+            inventory.cardPhysics.release(action.object, target)
           }
         })
       }

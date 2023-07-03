@@ -5,10 +5,8 @@ import ActionComponent from './ActionComponent'
 import { game } from '../../Game'
 import Effect from '../../effects/Effect'
 import {
-  actionColor,
-  borderRadius, boxShadow, buttonStyle, duration, fadeInAnimation,
-  objectCardColor,
-  objectCardPlayerColor,
+  actionColor, borderRadius, boxShadow, buttonStyle, duration, fadeInAnimation,
+  objectCardColor, objectCardPlayerColor,
 } from '../theme'
 import { addStyle, makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
@@ -131,6 +129,18 @@ export default class ObjectCard extends GameComponent {
     }
   }
 
+  targetByAction (action: Action) {
+    this.targetedByAction.add(action)
+    this.element.classList.toggle(actionTargetStyle,
+        this.targetedByAction.size > 0)
+  }
+
+  clearTargetByAction (action: Action) {
+    this.targetedByAction.delete(action)
+    this.element.classList.toggle(actionTargetStyle,
+        this.targetedByAction.size > 0)
+  }
+
   private addInventory (container: Element) {
     if (this.inventory || !this.object.contains) {
       return
@@ -180,16 +190,6 @@ export default class ObjectCard extends GameComponent {
       component.remove()
     }
   }
-
-  targetByAction (action: Action) {
-    this.targetedByAction.add(action)
-    this.element.classList.toggle(actionTargetStyle, this.targetedByAction.size > 0)
-  }
-
-  clearTargetByAction (action: Action) {
-    this.targetedByAction.delete(action)
-    this.element.classList.toggle(actionTargetStyle, this.targetedByAction.size > 0)
-  }
 }
 
 const containerStyle = makeStyle({
@@ -205,7 +205,7 @@ const containerStyle = makeStyle({
 
   // for target border
   outline: `2px solid transparent`,
-  transition: `outline-color ${duration.short}ms`
+  transition: `outline-color ${duration.short}ms`,
 })
 
 const nameStyle = makeStyle({
@@ -222,9 +222,7 @@ const grabStyle = makeStyle({
   display: 'none',
 })
 
-const actionTargetParentStyle = makeStyle({
-
-})
+const actionTargetParentStyle = makeStyle({})
 
 const actionTargetStyle = makeStyle({
   outlineColor: actionColor,
