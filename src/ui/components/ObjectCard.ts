@@ -9,9 +9,7 @@ import {
 } from '../theme'
 import { addStyle, makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
-import { onClickNotDrag } from '../makeDraggable'
 import Inventory from './Inventory'
-import { onResize } from '../onResize'
 import { dragAndDropGameObject } from './GameUI'
 import { createDiv, createElement } from '../createElement'
 import { grow, growDynamic, shrink } from '../growShrink'
@@ -21,7 +19,6 @@ import { castArray, moveToTop } from '../../util'
 export const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
 export default class ObjectCard extends GameComponent {
-  onResize?: (xDiff: number, yDiff: number) => void
   private name = createDiv(this.element, nameStyle)
   private expandedContainer?: HTMLDivElement
 
@@ -59,18 +56,14 @@ export default class ObjectCard extends GameComponent {
       }
     })
 
-    onClickNotDrag(this.element, (e) => {
-      e.stopPropagation()
-      if (this.expandedContainer) {
-        this.close()
-      } else {
-        this.expand()
-      }
+    this.element.addEventListener('pointerenter', () => {
+      this.expand()
+      moveToTop(this.element)
     })
 
-    onResize(this.element, () => {
-      this.onResize?.(0, 0)
-    })
+    // this.element.addEventListener('pointerleave', () => {
+    //   this.close()
+    // })
   }
 
   expand () {
@@ -172,7 +165,11 @@ export default class ObjectCard extends GameComponent {
     }
     this.inventory = this.newComponent(Inventory, this.object)
         .appendTo(container)
-    this.inventory!.onResize = this.onResize
+
+    this.inventory!.onResize = (xDiff, yDiff) => {
+      this.object.position.x += xDiff
+      this.object.position.y += yDiff
+    }
   }
 
   private removeInventory () {

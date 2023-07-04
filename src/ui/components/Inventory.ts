@@ -3,8 +3,7 @@ import { game } from '../../Game'
 import GameObject from '../../GameObject'
 import ObjectCard from './ObjectCard'
 import {
-  castArray, copy, getAndDelete, isEqual, makeOrGet, moveToTop, numToPx,
-  translate,
+  castArray, copy, getAndDelete, isEqual, makeOrGet, numToPx, translate,
 } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { makeStyle } from '../makeStyle'
@@ -20,6 +19,7 @@ import { attractableObjects } from './Inventory/attractableObjects'
 import { getDimensions } from '../dimensionsCache'
 import { setPlayerEffect } from '../../behavior/player'
 import Action from '../../actions/Action'
+import { onResize } from '../onResize'
 
 export default class Inventory extends GameComponent {
   onResize?: (xDiff: number, yDiff: number) => void
@@ -72,9 +72,11 @@ export default class Inventory extends GameComponent {
         this.onObjectChildren('enter', (object) => {
           inventory.objectEnter(object)
         })
+
         this.onObjectChildren('leave', (object, to) => {
           inventory.objectLeave(object, to === undefined)
         })
+
         this.onObjectChildren('actionStart', (object, action) => {
           const card = inventory.objectToCard.get(object)!
           card.setAction(action)
@@ -85,6 +87,7 @@ export default class Inventory extends GameComponent {
             inventory.cardPhysics.attract(action.object, target)
           }
         })
+
         this.onObjectChildren('actionEnd', (object, action) => {
           const card = inventory.objectToCard.get(object)!
           card.clearAction()
@@ -132,31 +135,26 @@ export default class Inventory extends GameComponent {
 
     card.element.classList.add(cardStyle)
 
-    card.onResize = (xDiff, yDiff) => {
-      object.position.x += xDiff
-      object.position.y += yDiff
+    onResize(card.element, () => {
       this.cardPhysics.simulate()
-    }
+      this.updatePositions()
+    })
 
-    this.makeCardDraggable(object, card)
+    card.element.addEventListener('pointerenter', () => {
+      this.cardPhysics.ignore(object)
+    })
+    card.element.addEventListener('pointerleave', () => {
+      this.cardPhysics.unignore(object)
+    })
 
-    return card
-  }
-
-  private makeCardDraggable (object: GameObject, card: ObjectCard) {
     let relX = 0
     let relY = 0
-
     makeDraggable(card.element, {
       onDown: (e) => {
         const bbox = card.element.getBoundingClientRect()
 
         relX = (e.clientX - bbox.left - bbox.width / 2) / this.scale()
         relY = (e.clientY - bbox.top - bbox.height / 2) / this.scale()
-
-        this.cardPhysics.ignore(object)
-
-        moveToTop(card.element)
       },
       onDrag: (e) => {
         const bbox = this.element.getBoundingClientRect()
@@ -166,10 +164,9 @@ export default class Inventory extends GameComponent {
             + (e.clientY - bbox.y) / this.scale() - relY
         this.updatePositions()
       },
-      onUp: () => {
-        this.cardPhysics.unignore(object)
-      },
     })
+
+    return card
   }
 
   private objectEnter (obj: GameObject) {
