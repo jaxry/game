@@ -4,58 +4,61 @@ import { duration } from './theme'
 import { addStyle, makeStyle } from './makeStyle'
 import tween from './tween'
 
-class GrowShrink {
-  onfinish?: () => void
-}
-
 export function grow (
     element: HTMLElement, options?: KeyframeAnimationOptions) {
   const dummy = replaceWithDummy(element)
-  const dim = calcFromAndToDimensions(dummy, element)
+  const dim = calcToAndFromDimensions(dummy, element)
 
-  dummy.animate({
+  const animation = dummy.animate({
     width: [numToPx(dim.startWidth), numToPx(dim.endWidth)],
     height: [numToPx(dim.startHeight), numToPx(dim.endHeight)],
     margin: [`0`, getComputedStyle(element).margin],
-  }, { ...defaultOptions, ...options }).onfinish = () => {
+  }, { ...defaultOptions, ...options })
+
+  animation.addEventListener('finish', () => {
     replaceWithOriginal(dummy, element)
-  }
+  })
+
+  return animation
 }
 
 export function growDynamic (
     element: HTMLElement, options?: KeyframeAnimationOptions) {
   const dummy = replaceWithDummy(element)
-  const dim = calcFromAndToDimensions(dummy, element)
+  const dim = calcToAndFromDimensions(dummy, element)
 
   tween((interp) => {
     dummy.style.width = numToPx(interp(dim.startWidth, element.offsetWidth))
     dummy.style.height = numToPx(interp(dim.startHeight, element.offsetHeight))
   }, { ...defaultOptions, ...options })
 
-  dummy.animate({
+  const animation = dummy.animate({
     margin: [`0`, getComputedStyle(element).margin],
-  }, { ...defaultOptions, ...options }).onfinish = () => {
+  }, { ...defaultOptions, ...options })
+
+  animation.addEventListener('finish', () => {
     replaceWithOriginal(dummy, element)
-  }
+  })
+
+  return animation
 }
 
 export function shrink (
     element: HTMLElement, options?: KeyframeAnimationOptions) {
   const dummy = replaceWithDummy(element)
-  const dim = calcFromAndToDimensions(dummy, element)
+  const dim = calcToAndFromDimensions(dummy, element)
 
-  const returnObj = new GrowShrink()
-
-  dummy.animate({
+  const animation = dummy.animate({
     width: [numToPx(dim.endWidth), numToPx(dim.startWidth)],
     height: [numToPx(dim.endHeight), numToPx(dim.startHeight)],
     margin: `0`,
-  }, { ...defaultOptions, ...options }).onfinish = () => {
-    dummy.remove()
-    returnObj.onfinish?.()
-  }
+  }, { ...defaultOptions, ...options })
 
-  return returnObj
+  animation.addEventListener('finish', () => {
+    dummy.remove()
+  })
+
+  return animation
 }
 
 function replaceWithDummy (element: Element) {
@@ -73,7 +76,7 @@ function replaceWithOriginal (dummy: Element, element: Element) {
   }
 }
 
-function calcFromAndToDimensions (dummy: HTMLElement, element: HTMLElement) {
+function calcToAndFromDimensions (dummy: HTMLElement, element: HTMLElement) {
   const parentWidthAfter = dummy.parentElement!.offsetWidth
   const parentHeightAfter = dummy.parentElement!.offsetHeight
 

@@ -5,7 +5,9 @@ import { makeStyle } from '../makeStyle'
 import { duration, mapEdgeColor } from '../theme'
 import MapNode from './MapNode'
 import addPanZoom from '../addPanZoom'
-import { makeOrGet, numToPixel, numToPx, translate } from '../../util'
+import {
+  makeOrGet, moveToTop, numToPixel, numToPx, translate,
+} from '../../util'
 import TravelAnimation from './Map/TravelAnimation'
 import { createDiv } from '../createElement'
 import makeDraggable from '../makeDraggable'
@@ -133,6 +135,9 @@ export default class MapComponent extends Component {
         zone.position.y += e.movementY / this.transform.scale
         this.forceDirectedSim.animate(zone)
       },
+    })
+    node.element.addEventListener('pointerenter', () => {
+      moveToTop(node.element)
     })
     return node
   }

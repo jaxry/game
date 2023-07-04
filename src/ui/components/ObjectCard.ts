@@ -64,6 +64,10 @@ export default class ObjectCard extends GameComponent {
     // this.element.addEventListener('pointerleave', () => {
     //   this.close()
     // })
+
+    this.element.addEventListener('click', (e) => {
+      e.stopPropagation()
+    })
   }
 
   expand () {
@@ -126,6 +130,8 @@ export default class ObjectCard extends GameComponent {
     this.actionComponent = this.newComponent(ActionComponent, action)
         .appendTo(this.element)
 
+    grow(this.actionComponent.element)
+
     for (const target of castArray(action.target)) {
       if (objectToCard.has(target)) {
         objectToCard.get(target)!.targetByAction(action)
@@ -133,8 +139,6 @@ export default class ObjectCard extends GameComponent {
         this.element.style.outlineStyle = 'dashed'
       }
     }
-
-    grow(this.actionComponent.element)
   }
 
   clearAction () {
