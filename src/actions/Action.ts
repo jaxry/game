@@ -23,12 +23,16 @@ export default class Action extends Effect {
   do? (): void
 
   override activate () {
+    if (this.isActive) {
+      return this
+    }
+
+    super.activate()
+
     this.object.activeAction?.deactivate()
     this.object.activeAction = this
 
     this.time = game.time.current + this.duration
-
-    super.activate()
 
     this.runIn(this.duration)
 
@@ -38,11 +42,15 @@ export default class Action extends Effect {
   }
 
   override deactivate () {
-    if (this.object.activeAction === this) {
-      this.object.activeAction = undefined as any
+    if (!this.isActive) {
+      return this
     }
 
     super.deactivate()
+
+    if (this.object.activeAction === this) {
+      this.object.activeAction = undefined as any
+    }
 
     this.object.emit('actionEnd', this)
 

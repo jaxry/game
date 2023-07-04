@@ -8,6 +8,7 @@ export default class Metabolism extends Effect {
   override onActivate () {
     this.run()
   }
+
   override run () {
     if (!this.object.energy || this.object.energy <= 0) {
       return destroy(this.object)

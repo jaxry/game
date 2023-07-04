@@ -1,6 +1,5 @@
 import type GameObject from '../GameObject'
 import { ContainedAs } from '../GameObject'
-import { randomCentered } from '../util'
 
 export function moveTo (
     container: GameObject, object: GameObject, containedAs: ContainedAs) {

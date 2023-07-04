@@ -3,10 +3,9 @@ import { getPlayerActions, isPlayer } from '../../behavior/player'
 import Action from '../../actions/Action'
 import ActionComponent from './ActionComponent'
 import { game } from '../../Game'
-import Effect from '../../effects/Effect'
 import {
-  borderRadius, boxShadow, buttonStyle, fadeInAnimation, objectCardColor,
-  objectCardPlayerColor,
+  actionColor, borderRadius, boxShadow, buttonStyle, duration, fadeInAnimation,
+  objectCardColor, objectCardPlayerColor,
 } from '../theme'
 import { addStyle, makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
@@ -17,18 +16,28 @@ import { dragAndDropGameObject } from './GameUI'
 import { createDiv, createElement } from '../createElement'
 import { grow, growDynamic, shrink } from '../growShrink'
 import ObjectMessage from './ObjectMessage'
-import { moveToTop } from '../../util'
+import { castArray, moveToTop } from '../../util'
+
+export const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
 export default class ObjectCard extends GameComponent {
   onResize?: (xDiff: number, yDiff: number) => void
   private name = createDiv(this.element, nameStyle)
   private expandedContainer?: HTMLDivElement
 
-  private action?: ActionComponent
+  private actionComponent?: ActionComponent
   private inventory?: Inventory
+  private targetedByAction = new Set<Action>()
 
   constructor (public object: GameObject) {
     super()
+
+    objectToCard.set(object, this)
+    this.onRemove(() => {
+      if (objectToCard.get(object) === this) {
+        objectToCard.delete(object)
+      }
+    })
 
     this.element.classList.add(containerStyle)
 
@@ -62,24 +71,6 @@ export default class ObjectCard extends GameComponent {
     onResize(this.element, () => {
       this.onResize?.(0, 0)
     })
-
-    const self = this
-    this.newEffect(class extends Effect {
-      override events () {
-        this.onObject('actionStart', (action) => {
-          self.setAction(action)
-        })
-
-        this.onObject('actionEnd', (action) => {
-          self.clearAction()
-        })
-
-        this.onObject('speak', (message) => {
-          self.newComponent(ObjectMessage, message).appendTo(self.element)
-          moveToTop(self.element)
-        })
-      }
-    }, object)
   }
 
   expand () {
@@ -118,6 +109,63 @@ export default class ObjectCard extends GameComponent {
     }
   }
 
+  speak (message: string) {
+    this.newComponent(ObjectMessage, message).appendTo(this.element)
+    moveToTop(this.element)
+  }
+
+  targetByAction (action: Action) {
+    this.targetedByAction.add(action)
+    this.element.classList.toggle(actionTargetStyle,
+        this.targetedByAction.size > 0)
+    this.element.style.outlineStyle = 'solid'
+  }
+
+  clearTargetByAction (action: Action) {
+    this.targetedByAction.delete(action)
+    this.element.classList.toggle(actionTargetStyle,
+        this.targetedByAction.size > 0)
+  }
+
+  setAction (action: Action) {
+    this.clearAction()
+
+    this.actionComponent = this.newComponent(ActionComponent, action)
+        .appendTo(this.element)
+
+    for (const target of castArray(action.target)) {
+      if (objectToCard.has(target)) {
+        objectToCard.get(target)!.targetByAction(action)
+        this.element.classList.add(actionTargetStyle)
+        this.element.style.outlineStyle = 'dashed'
+      }
+    }
+
+    grow(this.actionComponent.element)
+  }
+
+  clearAction () {
+    if (!this.actionComponent) {
+      return
+    }
+
+    const action = this.actionComponent.action
+
+    for (const target of castArray(action.target)) {
+      if (objectToCard.has(target)) {
+        objectToCard.get(target)!.clearTargetByAction(action)
+        this.element.classList.remove(actionTargetStyle)
+      }
+    }
+
+    const component = this.actionComponent
+    this.actionComponent = undefined
+
+    shrink(component.element).onfinish = () => {
+      component.remove()
+    }
+  }
+
   private addInventory (container: Element) {
     if (this.inventory || !this.object.contains) {
       return
@@ -131,28 +179,6 @@ export default class ObjectCard extends GameComponent {
     this.inventory?.remove()
     this.inventory = undefined
   }
-
-  private setAction (action: Action) {
-    this.clearAction()
-
-    const component = this.newComponent(ActionComponent, action)
-        .appendTo(this.element)
-    this.action = component
-
-    grow(component.element)
-  }
-
-  private clearAction () {
-    if (!this.action) {
-      return
-    }
-    const component = this.action
-    this.action = undefined
-
-    shrink(component.element).onfinish = () => {
-      component.remove()
-    }
-  }
 }
 
 const containerStyle = makeStyle({
@@ -165,6 +191,10 @@ const containerStyle = makeStyle({
   background: objectCardColor,
   boxShadow,
   borderRadius,
+
+  // for target border
+  outline: `2px transparent`,
+  transition: `outline-color ${duration.short}ms`,
 })
 
 const nameStyle = makeStyle({
@@ -181,6 +211,10 @@ const grabStyle = makeStyle({
   display: 'none',
 })
 
+const actionTargetStyle = makeStyle({
+  outlineColor: actionColor,
+})
+
 addStyle(`:hover > .${grabStyle}`, {
   display: 'block',
   animation: fadeInAnimation,
@@ -189,4 +223,3 @@ addStyle(`:hover > .${grabStyle}`, {
 const playerStyle = makeStyle({
   background: objectCardPlayerColor,
 })
-

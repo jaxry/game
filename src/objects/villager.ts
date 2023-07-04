@@ -66,6 +66,7 @@ class Search extends Effect {
     }
   }
 }
+
 serializable(Search)
 
 class ReturnHome extends MoveToZone {
@@ -84,6 +85,7 @@ class ReturnHome extends MoveToZone {
     new DepositWood(this.object, wood, chest).activate()
   }
 }
+
 serializable(ReturnHome)
 
 class DepositWood extends TransferAction {
@@ -91,6 +93,7 @@ class DepositWood extends TransferAction {
     new Search(this.object).activate()
   }
 }
+
 serializable(DepositWood)
 
 function findChest (zone: GameObject) {

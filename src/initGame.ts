@@ -35,5 +35,6 @@ export function initGame (game: Game) {
   }
 
   const chest = spawn(typeChest, zone)
+  spawn(typeWood, chest)
 }
 

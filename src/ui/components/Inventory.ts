@@ -2,9 +2,9 @@ import Effect from '../../effects/Effect'
 import { game } from '../../Game'
 import GameObject from '../../GameObject'
 import ObjectCard from './ObjectCard'
-import { setPlayerEffect } from '../../behavior/gameLoop'
 import {
-  copy, getAndDelete, isEqual, makeOrGet, moveToTop, numToPx, translate,
+  castArray, copy, getAndDelete, isEqual, makeOrGet, moveToTop, numToPx,
+  translate,
 } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { makeStyle } from '../makeStyle'
@@ -18,6 +18,8 @@ import throttle from '../throttle'
 import Bounds from './Inventory/Bounds'
 import { attractableObjects } from './Inventory/attractableObjects'
 import { getDimensions } from '../dimensionsCache'
+import { setPlayerEffect } from '../../behavior/player'
+import Action from '../../actions/Action'
 
 export default class Inventory extends GameComponent {
   onResize?: (xDiff: number, yDiff: number) => void
@@ -49,8 +51,7 @@ export default class Inventory extends GameComponent {
     for (const [object, card] of this.objectToCard) {
       const tx = object.position.x - this.bounds.left
       const ty = object.position.y - this.bounds.top
-      card.element.style.transform =
-          `${translate(tx, ty)} translate(-50%, -50%)`
+      card.element.style.transform = translate(tx, ty)
     }
   })
   private cardPhysics = new CardPhysics(this.objectToCard, () => {
@@ -62,25 +63,41 @@ export default class Inventory extends GameComponent {
 
     this.element.classList.add(containerStyle)
 
-    const self = this
+    const inventory = this
 
     this.newEffect(class extends Effect {
+      private actionToAttractions = new Map<Action, GameObject[]>()
+
       override events () {
         this.onObjectChildren('enter', (object) => {
-          self.objectEnter(object)
+          inventory.objectEnter(object)
         })
         this.onObjectChildren('leave', (object, to) => {
-          self.objectLeave(object, to === undefined)
+          inventory.objectLeave(object, to === undefined)
         })
         this.onObjectChildren('actionStart', (object, action) => {
-          for (const target of attractableObjects(action)) {
-            self.cardPhysics.attract(action.object, target)
+          const card = inventory.objectToCard.get(object)!
+          card.setAction(action)
+
+          const attractions = attractableObjects(action)
+          this.actionToAttractions.set(action, attractions)
+          for (const target of attractions) {
+            inventory.cardPhysics.attract(action.object, target)
           }
         })
         this.onObjectChildren('actionEnd', (object, action) => {
-          for (const target of attractableObjects(action)) {
-            self.cardPhysics.release(action.object, target)
+          const card = inventory.objectToCard.get(object)!
+          card.clearAction()
+
+          const attractions = getAndDelete(this.actionToAttractions, action)!
+          for (const target of castArray(attractions)) {
+            inventory.cardPhysics.release(action.object, target)
           }
+        })
+
+        this.onObjectChildren('speak', (object, message) => {
+          const card = inventory.objectToCard.get(object)!
+          card.speak(message)
         })
       }
     }, container)
@@ -106,7 +123,7 @@ export default class Inventory extends GameComponent {
       }
     }
 
-    this.cardPhysics.simulate(true, true)
+    this.cardPhysics.simulate(true)
   }
 
   private makeCard (object: GameObject) {
@@ -256,4 +273,5 @@ const droppableStyle = makeStyle({
 const cardStyle = makeStyle({
   position: `absolute`,
   cursor: `default`,
+  translate: `-50% -50%`,
 })

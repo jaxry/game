@@ -19,6 +19,7 @@ class Photosynthesis extends Effect {
     this.runIn(4 * (1 + randomCentered()))
   }
 }
+
 serializable(Photosynthesis)
 
 export const typeTree = makeType({

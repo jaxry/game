@@ -1,30 +1,25 @@
 import Action from '../../../actions/Action'
 import GameObject from '../../../GameObject'
-import { castArray } from '../../../util'
+import { castArray, mapFilter } from '../../../util'
 
-export function* attractableObjects (action: Action) {
+export function attractableObjects (action: Action) {
   if (!action.target) {
-    return
+    return []
   }
 
   const container = action.object.container
 
   // Find the target's ancestor that is a direct child of the container
-  function findDirectChild (item: GameObject) {
-    while (item.container) {
-      if (item.container === container) {
+  function findChildOfContainer (object: GameObject) {
+    while (object.container) {
+      if (object.container === container) {
         // Don't include if the action target and action object are the same
-        return item !== action.object ? item : undefined
+        return object !== action.object ? object : undefined
       } else {
-        item = item.container
+        object = object.container
       }
     }
   }
 
-  for (const target of castArray(action.target)) {
-    const item = findDirectChild(target)
-    if (item) {
-      yield item
-    }
-  }
+  return mapFilter(castArray(action.target), findChildOfContainer)
 }

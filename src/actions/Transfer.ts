@@ -10,6 +10,7 @@ export default class TransferAction extends Action {
       object: GameObject, public item: GameObject,
       public destination: GameObject) {
     super(object)
+
     this.target = [item, destination]
   }
 
