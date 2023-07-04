@@ -117,7 +117,7 @@ const containerStyle = makeStyle({
 
 const zoneStyle = makeStyle({
   position: `absolute`,
-  transform: `translate(-50%, -50%)`,
+  translate: `-50% -50%`,
   background: mapNodeColor,
   borderRadius,
   boxShadow,
@@ -125,7 +125,7 @@ const zoneStyle = makeStyle({
 
 const circleStyle = makeStyle({
   position: `absolute`,
-  transform: `translate(-50%, -50%)`,
+  translate: `-50% -50%`,
   width: `3rem`,
   height: `3rem`,
   borderRadius: `50%`,

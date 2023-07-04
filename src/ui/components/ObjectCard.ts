@@ -118,6 +118,7 @@ export default class ObjectCard extends GameComponent {
     this.targetedByAction.add(action)
     this.element.classList.toggle(actionTargetStyle,
         this.targetedByAction.size > 0)
+    this.element.style.outlineStyle = 'solid'
   }
 
   clearTargetByAction (action: Action) {
@@ -135,6 +136,8 @@ export default class ObjectCard extends GameComponent {
     for (const target of castArray(action.target)) {
       if (objectToCard.has(target)) {
         objectToCard.get(target)!.targetByAction(action)
+        this.element.classList.add(actionTargetStyle)
+        this.element.style.outlineStyle = 'dashed'
       }
     }
 
@@ -151,6 +154,7 @@ export default class ObjectCard extends GameComponent {
     for (const target of castArray(action.target)) {
       if (objectToCard.has(target)) {
         objectToCard.get(target)!.clearTargetByAction(action)
+        this.element.classList.remove(actionTargetStyle)
       }
     }
 
@@ -189,7 +193,7 @@ const containerStyle = makeStyle({
   borderRadius,
 
   // for target border
-  outline: `2px solid transparent`,
+  outline: `2px transparent`,
   transition: `outline-color ${duration.short}ms`,
 })
 
@@ -207,8 +211,6 @@ const grabStyle = makeStyle({
   display: 'none',
 })
 
-const actionTargetParentStyle = makeStyle({})
-
 const actionTargetStyle = makeStyle({
   outlineColor: actionColor,
 })
@@ -221,4 +223,3 @@ addStyle(`:hover > .${grabStyle}`, {
 const playerStyle = makeStyle({
   background: objectCardPlayerColor,
 })
-

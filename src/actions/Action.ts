@@ -58,11 +58,11 @@ export default class Action extends Effect {
   }
 
   override run () {
-    this.deactivate()
-
     if (this.condition()) {
       this.do?.()
     }
+
+    this.deactivate()
   }
 
   condition () {

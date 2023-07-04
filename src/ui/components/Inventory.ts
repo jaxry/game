@@ -3,7 +3,8 @@ import { game } from '../../Game'
 import GameObject from '../../GameObject'
 import ObjectCard from './ObjectCard'
 import {
-  copy, getAndDelete, isEqual, makeOrGet, moveToTop, numToPx, translate,
+  castArray, copy, getAndDelete, isEqual, makeOrGet, moveToTop, numToPx,
+  translate,
 } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { makeStyle } from '../makeStyle'
@@ -50,8 +51,7 @@ export default class Inventory extends GameComponent {
     for (const [object, card] of this.objectToCard) {
       const tx = object.position.x - this.bounds.left
       const ty = object.position.y - this.bounds.top
-      card.element.style.transform =
-          `${translate(tx, ty)} translate(-50%, -50%)`
+      card.element.style.transform = translate(tx, ty)
     }
   })
   private cardPhysics = new CardPhysics(this.objectToCard, () => {
@@ -90,7 +90,7 @@ export default class Inventory extends GameComponent {
           card.clearAction()
 
           const attractions = getAndDelete(this.actionToAttractions, action)!
-          for (const target of attractions) {
+          for (const target of castArray(attractions)) {
             inventory.cardPhysics.release(action.object, target)
           }
         })
@@ -273,4 +273,5 @@ const droppableStyle = makeStyle({
 const cardStyle = makeStyle({
   position: `absolute`,
   cursor: `default`,
+  translate: `-50% -50%`,
 })
