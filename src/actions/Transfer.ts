@@ -11,8 +11,7 @@ export default class TransferAction extends Action {
       public destination: GameObject) {
     super(object)
 
-    this.target = this.destination === this.object ? item :
-        [item, destination]
+    this.target = [item, destination]
   }
 
   override get name () {
