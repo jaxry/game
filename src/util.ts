@@ -129,15 +129,16 @@ export function randomSetElement<T> (set: Set<T>) {
 // ---------------
 // Map functions
 // ---------------
-export function getAndDelete<T, U> (map: Map<T, U>, key: T): U | undefined {
+type GenericMap<T, U> = T extends object ? WeakMap<T, U> : Map<T, U>
+
+export function getAndDelete<T, U> (map: GenericMap<T, U>, key: T) {
   const value = map.get(key)
   map.delete(key)
   return value
 }
 
 export function makeOrGet<T, U> (
-    map: T extends object ? WeakMap<T, U> : Map<T, U>,
-    key: T, makeFn: () => U): U {
+    map: GenericMap<T, U>, key: T, makeFn: () => U) {
   if (!map.has(key)) {
     map.set(key, makeFn())
   }

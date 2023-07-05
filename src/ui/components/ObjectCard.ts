@@ -61,9 +61,9 @@ export default class ObjectCard extends GameComponent {
       moveToTop(this.element)
     })
 
-    // this.element.addEventListener('pointerleave', () => {
-    //   this.close()
-    // })
+    this.element.addEventListener('pointerleave', () => {
+      this.close()
+    })
 
     this.element.addEventListener('click', (e) => {
       e.stopPropagation()
@@ -72,8 +72,9 @@ export default class ObjectCard extends GameComponent {
 
   expand () {
     if (this.expandedContainer) {
-      return
+      return grow(this.expandedContainer)
     }
+
     this.expandedContainer = createDiv(this.element)
 
     if (this.object.energy) {
@@ -90,9 +91,9 @@ export default class ObjectCard extends GameComponent {
       })
     }
 
-    this.addInventory(this.expandedContainer)
+    // this.addInventory(this.expandedContainer)
 
-    growDynamic(this.expandedContainer)
+    grow(this.expandedContainer)
   }
 
   close () {
@@ -146,20 +147,21 @@ export default class ObjectCard extends GameComponent {
       return
     }
 
-    const action = this.actionComponent.action
+    const component = this.actionComponent
+    this.actionComponent = undefined
+
+
+    shrink(component.element).onfinish = () => {
+      component.remove()
+    }
+
+    const action = component.action
 
     for (const target of castArray(action.target)) {
       if (objectToCard.has(target)) {
         objectToCard.get(target)!.clearTargetByAction(action)
         this.element.classList.remove(actionTargetStyle)
       }
-    }
-
-    const component = this.actionComponent
-    this.actionComponent = undefined
-
-    shrink(component.element).onfinish = () => {
-      component.remove()
     }
   }
 

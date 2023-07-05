@@ -30,29 +30,7 @@ export default class Inventory extends GameComponent {
   private targetBounds = new Bounds()
   private offset = new Bounds()
   private updatePositions = throttle(() => {
-    this.updateTargetBounds()
-    this.bounds.addBounds(this.targetBounds, this.offset)
-
-    const xDiff = (this.bounds.left - this.lastBounds.left
-        + this.bounds.right - this.lastBounds.right) / 2
-    const yDiff = (this.bounds.top - this.lastBounds.top
-        + this.bounds.bottom - this.lastBounds.bottom) / 2
-    const firstRender = this.lastBounds.left === 0
-
-    if ((xDiff !== 0 || yDiff !== 0) && !firstRender) {
-      this.onResize?.(xDiff, yDiff)
-    }
-
-    Object.assign(this.lastBounds, this.bounds)
-
-    this.element.style.width = numToPx(this.bounds.width())
-    this.element.style.height = numToPx(this.bounds.height())
-
-    for (const [object, card] of this.objectToCard) {
-      const tx = object.position.x - this.bounds.left
-      const ty = object.position.y - this.bounds.top
-      card.element.style.transform = translate(tx, ty)
-    }
+    this.updatePositionsInstant()
   })
   private cardPhysics = new CardPhysics(this.objectToCard, () => {
     this.updatePositions()
@@ -126,6 +104,7 @@ export default class Inventory extends GameComponent {
       }
     }
 
+    this.updatePositionsInstant()
     this.cardPhysics.simulate(true)
   }
 
@@ -200,6 +179,31 @@ export default class Inventory extends GameComponent {
       easing: `ease-in`,
     }).onfinish = () => {
       card.remove()
+    }
+  }
+
+  private updatePositionsInstant () {
+    this.updateTargetBounds()
+    this.bounds.addBounds(this.targetBounds, this.offset)
+
+    const xDiff = (this.bounds.left - this.lastBounds.left
+        + this.bounds.right - this.lastBounds.right) / 2
+    const yDiff = (this.bounds.top - this.lastBounds.top
+        + this.bounds.bottom - this.lastBounds.bottom) / 2
+
+    if (xDiff !== 0 || yDiff !== 0) {
+      this.onResize?.(xDiff, yDiff)
+    }
+
+    Object.assign(this.lastBounds, this.bounds)
+
+    this.element.style.width = numToPx(this.bounds.width())
+    this.element.style.height = numToPx(this.bounds.height())
+
+    for (const [object, card] of this.objectToCard) {
+      const tx = object.position.x - this.bounds.left
+      const ty = object.position.y - this.bounds.top
+      card.element.style.transform = translate(tx, ty)
     }
   }
 
