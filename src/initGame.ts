@@ -7,6 +7,7 @@ import { typeWorld } from './objects/world'
 import { typeWood } from './objects/wood'
 import { typeTree } from './objects/tree'
 import { typePlayer } from './objects/player'
+import { typeVillager } from './objects/villager'
 
 export function initGame (game: Game) {
   game.energyPool = 600
@@ -21,13 +22,13 @@ export function initGame (game: Game) {
   spawn(typeWood, game.player)
   spawn(typeWood, game.player)
 
-  // for (let i = 0; i < 3; i++) {
-  //   spawn(typeVillager, zone)
-  // }
+  for (let i = 0; i < 3; i++) {
+    spawn(typeVillager, zone)
+  }
 
-  // for (let i = 0; i < 20; i++) {
-  //   spawn(typeWood, randomElement(zones))
-  // }
+  for (let i = 0; i < 20; i++) {
+    spawn(typeWood, randomElement(zones))
+  }
 
   for (let i = 0; i < 2; i++) {
     spawn(typeTree, zone)

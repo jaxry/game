@@ -1,12 +1,10 @@
-import { getAndDelete, numToPx } from '../util'
+import { numToPx } from '../util'
 import { createDiv } from './createElement'
 import { duration } from './theme'
 import { addStyle, makeStyle } from './makeStyle'
 import tween from './tween'
 
 const elementToCancelAnimation = new WeakMap<Element, () => void>()
-
-// split function into none height, current height, max height
 
 export function grow (
     element: HTMLElement, options?: KeyframeAnimationOptions) {
@@ -82,8 +80,7 @@ export function shrink (
 function getDummy (element: Element) {
   if (elementToCancelAnimation.has(element)) {
     return element.parentElement!
-  }
-  else {
+  } else {
     return replaceWithDummy(element)
   }
 }
@@ -126,7 +123,7 @@ function minDimensions (dummy: HTMLElement) {
 }
 
 const defaultOptions: KeyframeAnimationOptions = {
-  duration: duration.long,
+  duration: duration.normal,
   easing: 'ease',
   fill: 'forwards',
 }
@@ -137,7 +134,6 @@ const dummyStyle = makeStyle({
   display: `flex`,
   justifyContent: `center`,
   alignItems: `center`,
-  margin: `0`
 })
 
 addStyle(`.${dummyStyle} > *`, {

@@ -150,7 +150,6 @@ export default class ObjectCard extends GameComponent {
     const component = this.actionComponent
     this.actionComponent = undefined
 
-
     shrink(component.element).onfinish = () => {
       component.remove()
     }

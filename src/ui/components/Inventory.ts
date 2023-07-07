@@ -41,47 +41,7 @@ export default class Inventory extends GameComponent {
 
     this.element.classList.add(containerStyle)
 
-    const inventory = this
-
-    this.newEffect(class extends Effect {
-      private actionToAttractions = new Map<Action, GameObject[]>()
-
-      override events () {
-        this.onObjectChildren('enter', (object) => {
-          inventory.objectEnter(object)
-        })
-
-        this.onObjectChildren('leave', (object, to) => {
-          inventory.objectLeave(object, to === undefined)
-        })
-
-        this.onObjectChildren('actionStart', (object, action) => {
-          const card = inventory.objectToCard.get(object)!
-          card.setAction(action)
-
-          const attractions = attractableObjects(action)
-          this.actionToAttractions.set(action, attractions)
-          for (const target of attractions) {
-            inventory.cardPhysics.attract(action.object, target)
-          }
-        })
-
-        this.onObjectChildren('actionEnd', (object, action) => {
-          const card = inventory.objectToCard.get(object)!
-          card.clearAction()
-
-          const attractions = getAndDelete(this.actionToAttractions, action)!
-          for (const target of castArray(attractions)) {
-            inventory.cardPhysics.release(action.object, target)
-          }
-        })
-
-        this.onObjectChildren('speak', (object, message) => {
-          const card = inventory.objectToCard.get(object)!
-          card.speak(message)
-        })
-      }
-    }, container)
+    this.setEffect()
 
     this.onRemove(dragAndDropGameObject.drop(this.element, {
       isDroppable: (item) => {
@@ -104,8 +64,50 @@ export default class Inventory extends GameComponent {
       }
     }
 
-    this.updatePositionsInstant()
     this.cardPhysics.simulate(true)
+  }
+
+  private setEffect () {
+    const self = this
+    const actionToAttractions = new Map<Action, GameObject[]>()
+
+    this.newEffect(class extends Effect {
+      override events () {
+        this.onObjectChildren('enter', (object) => {
+          self.objectEnter(object)
+        })
+
+        this.onObjectChildren('leave', (object, to) => {
+          self.objectLeave(object, to === undefined)
+        })
+
+        this.onObjectChildren('actionStart', (object, action) => {
+          const card = self.objectToCard.get(object)!
+          card.setAction(action)
+
+          const attractions = attractableObjects(action)
+          actionToAttractions.set(action, attractions)
+          for (const target of attractions) {
+            self.cardPhysics.attract(action.object, target)
+          }
+        })
+
+        this.onObjectChildren('actionEnd', (object, action) => {
+          const card = self.objectToCard.get(object)!
+          card.clearAction()
+
+          const attractions = getAndDelete(actionToAttractions, action)!
+          for (const target of castArray(attractions)) {
+            self.cardPhysics.release(action.object, target)
+          }
+        })
+
+        this.onObjectChildren('speak', (object, message) => {
+          const card = self.objectToCard.get(object)!
+          card.speak(message)
+        })
+      }
+    }, this.container)
   }
 
   private makeCard (object: GameObject) {
@@ -116,7 +118,6 @@ export default class Inventory extends GameComponent {
 
     onResize(card.element, () => {
       this.cardPhysics.simulate()
-      this.updatePositions()
     })
 
     card.element.addEventListener('pointerenter', () => {
