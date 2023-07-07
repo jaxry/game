@@ -6,27 +6,26 @@ import tween from './tween'
 
 const elementToCancelAnimation = new WeakMap<Element, () => void>()
 
+// split function into none height, current height, max height
+
 export function grow (
     element: HTMLElement, options?: KeyframeAnimationOptions) {
-  if (elementToCancelAnimation.has(element)) {
-    // debugger
-  }
+
   const dummy = getDummy(element)
-  const dim = calcToAndFromDimensions(dummy)
-  console.log(dim)
+
+  const min = elementToCancelAnimation.has(element) ? {
+    width: dummy.offsetWidth,
+    height: dummy.offsetHeight,
+  } : minDimensions(dummy)
+
   elementToCancelAnimation.get(element)?.()
 
-  console.log('grow')
-
   const animation = dummy.animate({
-    width: [numToPx(dim.startWidth), numToPx(dim.endWidth)],
-    height: [numToPx(dim.startHeight), numToPx(dim.endHeight)],
-    margin: [`0`, getComputedStyle(element).margin],
+    width: [numToPx(min.width), numToPx(element.offsetWidth)],
+    height: [numToPx(min.height), numToPx(element.offsetHeight)],
   }, { ...defaultOptions, ...options })
 
-  elementToCancelAnimation.set(element, () => {
-    animation.cancel()
-  })
+  elementToCancelAnimation.set(element, () => animation.cancel())
 
   animation.addEventListener('finish', () => {
     replaceWithOriginal(dummy, element)
@@ -39,22 +38,15 @@ export function grow (
 export function growDynamic (
     element: HTMLElement, options?: KeyframeAnimationOptions) {
   const dummy = getDummy(element)
-  const dim = calcToAndFromDimensions(dummy)
+  const min = minDimensions(dummy)
   elementToCancelAnimation.get(element)?.()
 
-  const animation = dummy.animate({
-    margin: [`0`, getComputedStyle(element).margin],
-  }, { ...defaultOptions, ...options })
-
   const t = tween((interp) => {
-    dummy.style.width = numToPx(interp(dim.startWidth, element.offsetWidth))
-    dummy.style.height = numToPx(interp(dim.startHeight, element.offsetHeight))
+    dummy.style.width = numToPx(interp(min.width, element.offsetWidth))
+    dummy.style.height = numToPx(interp(min.height, element.offsetHeight))
   }, { ...defaultOptions, ...options })
 
-  elementToCancelAnimation.set(element, () => {
-    t.cancel()
-    animation.cancel()
-  })
+  elementToCancelAnimation.set(element, () => t.cancel())
 
   t.onfinish = () => {
     replaceWithOriginal(dummy, element)
@@ -64,23 +56,20 @@ export function growDynamic (
 
 export function shrink (
     element: HTMLElement, options?: KeyframeAnimationOptions) {
-  debugger
-  
   const dummy = getDummy(element)
-  const dim = calcToAndFromDimensions(dummy)
+  const current = {
+    width: dummy.offsetWidth,
+    height: dummy.offsetHeight,
+  }
+  const min = minDimensions(dummy)
   elementToCancelAnimation.get(element)?.()
 
-  console.log('shrink')
-
   const animation = dummy.animate({
-    width: [numToPx(dim.endWidth), numToPx(dim.startWidth)],
-    height: [numToPx(dim.endHeight), numToPx(dim.startHeight)],
-    margin: `0`,
+    width: [numToPx(current.width), numToPx(min.width)],
+    height: [numToPx(current.height), numToPx(min.height)],
   }, { ...defaultOptions, ...options })
 
-  elementToCancelAnimation.set(element, () => {
-    animation.cancel()
-  })
+  elementToCancelAnimation.set(element, () => animation.cancel())
 
   animation.addEventListener('finish', () => {
     elementToCancelAnimation.delete(element)
@@ -114,10 +103,9 @@ function replaceWithOriginal (dummy: Element, element: Element) {
   }
 }
 
-function calcToAndFromDimensions (dummy: HTMLElement) {
-  const width = dummy.offsetWidth
-  const height = dummy.offsetHeight
-
+// width/height is the size of the child that
+// doesn't change the parent container's size
+function minDimensions (dummy: HTMLElement) {
   const parentWidthAfter = dummy.parentElement!.offsetWidth
   const parentHeightAfter = dummy.parentElement!.offsetHeight
 
@@ -132,12 +120,8 @@ function calcToAndFromDimensions (dummy: HTMLElement) {
   const parentHeightDiff = parentHeightAfter - parentHeightBefore
 
   return {
-    // starting width/height is the size of the child that
-    // doesn't change the parent container's size
-    startWidth: width - parentWidthDiff,
-    startHeight: height - parentHeightDiff,
-    endWidth: width,
-    endHeight: height,
+    width: dummy.offsetWidth - parentWidthDiff,
+    height: dummy.offsetHeight - parentHeightDiff,
   }
 }
 
@@ -153,6 +137,7 @@ const dummyStyle = makeStyle({
   display: `flex`,
   justifyContent: `center`,
   alignItems: `center`,
+  margin: `0`
 })
 
 addStyle(`.${dummyStyle} > *`, {

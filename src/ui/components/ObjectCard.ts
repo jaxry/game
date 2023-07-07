@@ -91,9 +91,9 @@ export default class ObjectCard extends GameComponent {
       })
     }
 
-    // this.addInventory(this.expandedContainer)
+    this.addInventory(this.expandedContainer)
 
-    grow(this.expandedContainer)
+    growDynamic(this.expandedContainer)
   }
 
   close () {
