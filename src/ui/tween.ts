@@ -1,5 +1,6 @@
 export class Tween {
   onfinish?: () => void
+  cancel: () => void
 }
 
 export default function tween (
@@ -16,6 +17,8 @@ export default function tween (
   let startTime = 0
   let progress = 0
   let lastProgress = 0
+  let animationId = 0
+  const returnObj = new Tween()
 
   function interpolate (start: number, end: number, p = progress) {
     return start + (end - start) * p
@@ -24,8 +27,6 @@ export default function tween (
   function interpolateDiff (start: number, end: number) {
     return interpolate(start, end) - interpolate(start, end, lastProgress)
   }
-
-  const returnObj = new Tween()
 
   const tick = () => {
     const elapsed = Math.min(performance.now() - startTime, duration)
@@ -37,21 +38,22 @@ export default function tween (
     lastProgress = progress
 
     if (elapsed < duration) {
-      requestAnimationFrame(tick)
+      animationId = requestAnimationFrame(tick)
     } else {
       returnObj.onfinish?.()
     }
   }
 
-  if (delay) {
-    setTimeout(() => {
-      startTime = performance.now()
-      tick()
-    }, delay)
-  } else {
+  returnObj.cancel = () => {
+    cancelAnimationFrame(animationId)
+  }
+
+  const start = () => {
     startTime = performance.now()
     tick()
   }
+
+  delay ? setTimeout(start, delay) : start()
 
   return returnObj
 }

@@ -1,6 +1,6 @@
 import GameObject from '../../../GameObject'
 import Component from '../Component'
-import { clamp, deleteElemFn, randomCentered } from '../../../util'
+import { clamp, deleteElemFn, mapFilter, randomCentered } from '../../../util'
 import Point from '../../../Point'
 import { getDimensions } from '../../dimensionsCache'
 
@@ -26,7 +26,7 @@ export default class CardPhysics {
   private attractions: [GameObject, GameObject][] = []
   private attractionIndices: [number, number][] = []
 
-  private ignoring = new WeakSet<GameObject>()
+  private ignoring = new Set<GameObject>()
 
   constructor (
       public objectToCard: Map<GameObject, Component>,
@@ -101,6 +101,11 @@ export default class CardPhysics {
           this.positions[j], this.boundingBoxes[j], elapsed2)
     }
 
+    for (const object of this.ignoring) {
+      object.position.vx = 0
+      object.position.vy = 0
+    }
+
     const repeat = applyVelocity(this.positions, elapsed)
 
     this.onUpdate()
@@ -124,31 +129,18 @@ export default class CardPhysics {
   }
 
   private rebuild () {
-    this.positions.length = 0
-    this.elements.length = 0
-
-    for (const [object, card] of this.objectToCard) {
-      if (this.ignoring.has(object)) {
-        continue
-      }
-
-      this.positions.push(object.position)
-      this.elements.push(card.element)
-    }
+    this.positions = mapFilter(this.objectToCard.keys(),
+        object => object.position)
+    this.elements = mapFilter(this.objectToCard.values(),
+        card => card.element)
 
     this.attractions = this.attractions.filter(([a, b]) =>
         this.objectToCard.has(a) && this.objectToCard.has(b))
 
-    this.attractionIndices.length = 0
-    for (const [a, b] of this.attractions) {
-      if (this.ignoring.has(a) || this.ignoring.has(b)) {
-        continue
-      }
-      this.attractionIndices.push([
-        this.positions.indexOf(a.position),
-        this.positions.indexOf(b.position),
-      ])
-    }
+    this.attractionIndices = mapFilter(this.attractions, ([a, b]) => [
+      this.positions.indexOf(a.position),
+      this.positions.indexOf(b.position),
+    ])
   }
 }
 

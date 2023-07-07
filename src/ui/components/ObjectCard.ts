@@ -9,9 +9,7 @@ import {
 } from '../theme'
 import { addStyle, makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
-import { onClickNotDrag } from '../makeDraggable'
 import Inventory from './Inventory'
-import { onResize } from '../onResize'
 import { dragAndDropGameObject } from './GameUI'
 import { createDiv, createElement } from '../createElement'
 import { grow, growDynamic, shrink } from '../growShrink'
@@ -21,7 +19,6 @@ import { castArray, moveToTop } from '../../util'
 export const objectToCard = new WeakMap<GameObject, ObjectCard>()
 
 export default class ObjectCard extends GameComponent {
-  onResize?: (xDiff: number, yDiff: number) => void
   private name = createDiv(this.element, nameStyle)
   private expandedContainer?: HTMLDivElement
 
@@ -59,24 +56,25 @@ export default class ObjectCard extends GameComponent {
       }
     })
 
-    onClickNotDrag(this.element, (e) => {
-      e.stopPropagation()
-      if (this.expandedContainer) {
-        this.close()
-      } else {
-        this.expand()
-      }
+    this.element.addEventListener('pointerenter', () => {
+      this.expand()
+      moveToTop(this.element)
     })
 
-    onResize(this.element, () => {
-      this.onResize?.(0, 0)
+    this.element.addEventListener('pointerleave', () => {
+      this.close()
+    })
+
+    this.element.addEventListener('click', (e) => {
+      e.stopPropagation()
     })
   }
 
   expand () {
     if (this.expandedContainer) {
-      return
+      return grow(this.expandedContainer)
     }
+
     this.expandedContainer = createDiv(this.element)
 
     if (this.object.energy) {
@@ -133,6 +131,8 @@ export default class ObjectCard extends GameComponent {
     this.actionComponent = this.newComponent(ActionComponent, action)
         .appendTo(this.element)
 
+    grow(this.actionComponent.element)
+
     for (const target of castArray(action.target)) {
       if (objectToCard.has(target)) {
         objectToCard.get(target)!.targetByAction(action)
@@ -140,8 +140,6 @@ export default class ObjectCard extends GameComponent {
         this.element.style.outlineStyle = 'dashed'
       }
     }
-
-    grow(this.actionComponent.element)
   }
 
   clearAction () {
@@ -149,20 +147,20 @@ export default class ObjectCard extends GameComponent {
       return
     }
 
-    const action = this.actionComponent.action
+    const component = this.actionComponent
+    this.actionComponent = undefined
+
+    shrink(component.element).onfinish = () => {
+      component.remove()
+    }
+
+    const action = component.action
 
     for (const target of castArray(action.target)) {
       if (objectToCard.has(target)) {
         objectToCard.get(target)!.clearTargetByAction(action)
         this.element.classList.remove(actionTargetStyle)
       }
-    }
-
-    const component = this.actionComponent
-    this.actionComponent = undefined
-
-    shrink(component.element).onfinish = () => {
-      component.remove()
     }
   }
 
@@ -172,7 +170,11 @@ export default class ObjectCard extends GameComponent {
     }
     this.inventory = this.newComponent(Inventory, this.object)
         .appendTo(container)
-    this.inventory!.onResize = this.onResize
+
+    this.inventory!.onResize = (xDiff, yDiff) => {
+      this.object.position.x += xDiff
+      this.object.position.y += yDiff
+    }
   }
 
   private removeInventory () {

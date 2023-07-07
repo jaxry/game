@@ -3,8 +3,7 @@ import { game } from '../../Game'
 import GameObject from '../../GameObject'
 import ObjectCard from './ObjectCard'
 import {
-  castArray, copy, getAndDelete, isEqual, makeOrGet, moveToTop, numToPx,
-  translate,
+  castArray, copy, getAndDelete, isEqual, makeOrGet, numToPx, translate,
 } from '../../util'
 import { dragAndDropGameObject } from './GameUI'
 import { makeStyle } from '../makeStyle'
@@ -20,6 +19,7 @@ import { attractableObjects } from './Inventory/attractableObjects'
 import { getDimensions } from '../dimensionsCache'
 import { setPlayerEffect } from '../../behavior/player'
 import Action from '../../actions/Action'
+import { onResize } from '../onResize'
 
 export default class Inventory extends GameComponent {
   onResize?: (xDiff: number, yDiff: number) => void
@@ -37,9 +37,8 @@ export default class Inventory extends GameComponent {
         + this.bounds.right - this.lastBounds.right) / 2
     const yDiff = (this.bounds.top - this.lastBounds.top
         + this.bounds.bottom - this.lastBounds.bottom) / 2
-    const firstRender = this.lastBounds.left === 0
 
-    if ((xDiff !== 0 || yDiff !== 0) && !firstRender) {
+    if (xDiff !== 0 || yDiff !== 0) {
       this.onResize?.(xDiff, yDiff)
     }
 
@@ -63,44 +62,7 @@ export default class Inventory extends GameComponent {
 
     this.element.classList.add(containerStyle)
 
-    const inventory = this
-
-    this.newEffect(class extends Effect {
-      private actionToAttractions = new Map<Action, GameObject[]>()
-
-      override events () {
-        this.onObjectChildren('enter', (object) => {
-          inventory.objectEnter(object)
-        })
-        this.onObjectChildren('leave', (object, to) => {
-          inventory.objectLeave(object, to === undefined)
-        })
-        this.onObjectChildren('actionStart', (object, action) => {
-          const card = inventory.objectToCard.get(object)!
-          card.setAction(action)
-
-          const attractions = attractableObjects(action)
-          this.actionToAttractions.set(action, attractions)
-          for (const target of attractions) {
-            inventory.cardPhysics.attract(action.object, target)
-          }
-        })
-        this.onObjectChildren('actionEnd', (object, action) => {
-          const card = inventory.objectToCard.get(object)!
-          card.clearAction()
-
-          const attractions = getAndDelete(this.actionToAttractions, action)!
-          for (const target of castArray(attractions)) {
-            inventory.cardPhysics.release(action.object, target)
-          }
-        })
-
-        this.onObjectChildren('speak', (object, message) => {
-          const card = inventory.objectToCard.get(object)!
-          card.speak(message)
-        })
-      }
-    }, container)
+    this.setEffect()
 
     this.onRemove(dragAndDropGameObject.drop(this.element, {
       isDroppable: (item) => {
@@ -126,37 +88,74 @@ export default class Inventory extends GameComponent {
     this.cardPhysics.simulate(true)
   }
 
+  private setEffect () {
+    const self = this
+    const actionToAttractions = new Map<Action, GameObject[]>()
+
+    this.newEffect(class extends Effect {
+      override events () {
+        this.onObjectChildren('enter', (object) => {
+          self.objectEnter(object)
+        })
+
+        this.onObjectChildren('leave', (object, to) => {
+          self.objectLeave(object, to === undefined)
+        })
+
+        this.onObjectChildren('actionStart', (object, action) => {
+          const card = self.objectToCard.get(object)!
+          card.setAction(action)
+
+          const attractions = attractableObjects(action)
+          actionToAttractions.set(action, attractions)
+          for (const target of attractions) {
+            self.cardPhysics.attract(action.object, target)
+          }
+        })
+
+        this.onObjectChildren('actionEnd', (object, action) => {
+          const card = self.objectToCard.get(object)!
+          card.clearAction()
+
+          const attractions = getAndDelete(actionToAttractions, action)!
+          for (const target of castArray(attractions)) {
+            self.cardPhysics.release(action.object, target)
+          }
+        })
+
+        this.onObjectChildren('speak', (object, message) => {
+          const card = self.objectToCard.get(object)!
+          card.speak(message)
+        })
+      }
+    }, this.container)
+  }
+
   private makeCard (object: GameObject) {
     const card = makeOrGet(this.objectToCard, object, () =>
         this.newComponent(ObjectCard, object).appendTo(this.element))
 
     card.element.classList.add(cardStyle)
 
-    card.onResize = (xDiff, yDiff) => {
-      object.position.x += xDiff
-      object.position.y += yDiff
+    onResize(card.element, () => {
       this.cardPhysics.simulate()
-    }
+    })
 
-    this.makeCardDraggable(object, card)
+    card.element.addEventListener('pointerenter', () => {
+      this.cardPhysics.ignore(object)
+    })
+    card.element.addEventListener('pointerleave', () => {
+      this.cardPhysics.unignore(object)
+    })
 
-    return card
-  }
-
-  private makeCardDraggable (object: GameObject, card: ObjectCard) {
     let relX = 0
     let relY = 0
-
     makeDraggable(card.element, {
       onDown: (e) => {
         const bbox = card.element.getBoundingClientRect()
 
         relX = (e.clientX - bbox.left - bbox.width / 2) / this.scale()
         relY = (e.clientY - bbox.top - bbox.height / 2) / this.scale()
-
-        this.cardPhysics.ignore(object)
-
-        moveToTop(card.element)
       },
       onDrag: (e) => {
         const bbox = this.element.getBoundingClientRect()
@@ -166,10 +165,9 @@ export default class Inventory extends GameComponent {
             + (e.clientY - bbox.y) / this.scale() - relY
         this.updatePositions()
       },
-      onUp: () => {
-        this.cardPhysics.unignore(object)
-      },
     })
+
+    return card
   }
 
   private objectEnter (obj: GameObject) {
