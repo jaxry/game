@@ -20,7 +20,7 @@ export default class MapComponent extends Component {
 
   private map = createDiv(this.element, mapStyle)
   private edgeContainer = createDiv(this.map)
-  private zoneContainer = createDiv(this.map)
+  private zoneContainer = createDiv(this.map, zoneContainerStyle)
   private travelIcons = createDiv(this.map)
   travelAnimation = new TravelAnimation(this.travelIcons)
   private transform = {
@@ -226,6 +226,11 @@ const containerStyle = makeStyle({
   position: 'relative',
   contain: `strict`,
   userSelect: `none`,
+})
+
+const zoneContainerStyle = makeStyle({
+  position: `relative`,
+  zIndex: `0`,
 })
 
 const mapStyle = makeStyle({
