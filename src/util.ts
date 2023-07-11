@@ -180,7 +180,7 @@ export function removeChildren (node: Node) {
 
 export function* iterChildren (node: Element) {
   for (let i = 0; i < node.children.length; i++) {
-    yield node.children[i]
+    yield node.children[i] as HTMLElement
   }
 }
 
@@ -200,10 +200,4 @@ export function numToPx (num: number) {
 
 export function translate (x: number, y: number) {
   return `translate(${numToPx(x)}, ${numToPx(y)})`
-}
-
-export function translateDiff (e1: Element, e2: Element) {
-  const e1BBox = e1.getBoundingClientRect()
-  const e2BBox = e2.getBoundingClientRect()
-  return translate(e1BBox.x - e2BBox.x, e1BBox.y - e2BBox.y)
 }

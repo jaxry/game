@@ -1,12 +1,11 @@
 import Component from './Component'
-import { grow, shrink } from '../growShrink'
 import { createDiv } from '../createElement'
-import { addStyle, makeStyle } from '../makeStyle'
+import { makeStyle } from '../makeStyle'
 import {
-  iterChildren, makeArray, mapFilter, randomCentered, randomElement, translate,
-  translateDiff,
+  iterChildren, makeArray, numToPx, randomCentered, randomElement, translate,
 } from '../../util'
 import { duration } from '../theme'
+import { grow, growDynamic, shrink } from '../growShrink'
 
 const time = 1000
 
@@ -16,29 +15,40 @@ export default class Tester extends Component {
 
     this.element.classList.add(testerStyle)
 
-    // for (let i = 0; i < 10; i++) {
-    //   this.createGuy()
-    // }
+    for (let i = 0; i < 1; i++) {
+      this.createGuy()
+    }
 
     // setTimeout(() => {
-    //   animateChanges(this.element, () => {
-    //     const elem = this.element.children[3]
-    //     elem.remove()
-    //   })
-    //
+    //   const elem = this.element.children[3] as HTMLElement
+    //   elem.animate({
+    //     opacity: `0`
+    //   }, {
+    //     duration: duration.normal,
+    //   }).onfinish = () => {
+    //     animateChanges(this.element, () => {
+    //       elem.remove()
+    //     })
+    //   }
+    // }, 1000)
+
+    // setTimeout(() => {
+    //   growDynamic(this.createGuy().element)
     // }, 1000)
 
     let interval = setInterval(() => {
-      animateChanges(this.element, () => {
-        const guy = this.createGuy()
-        guy.element.animate({
-          opacity: [`0`, `1`]
-        }, {
-          duration: duration.long,
-          easing: `ease`
-        })
-      })
-      // grow(this.createGuy().element)
+      // animateChanges(this.element, () => {
+      //   const guy = this.createGuy()
+      //   guy.element.animate({
+      //     opacity: [`0`, `1`]
+      //   }, {
+      //     duration: duration.normal,
+      //     easing: `ease`,
+      //     delay: duration.normal,
+      //     fill: `backwards`,
+      //   })
+      // })
+      growDynamic(this.createGuy().element)
     }, time * (1 + randomCentered()))
 
     this.onRemove(() => {
@@ -48,7 +58,7 @@ export default class Tester extends Component {
 
   createGuy () {
     const guy = this.newComponent(Guy)
-    const index = Math.floor(Math.random() * this.element.children.length)
+    const index = 1 + Math.floor(Math.random() * this.element.children.length)
     this.element.insertBefore(guy.element, this.element.children[index])
     return guy
   }
@@ -65,12 +75,20 @@ class Guy extends Component {
 
     createDiv(this.element, innerGuyStyle, str)
 
-    // setTimeout(() => {
-    //   // shrink(this.element).onfinish = () => {
-    //   //   this.remove()
-    //   // }
-    //   this.remove()
-    // }, 10 * time * (1 + randomCentered()))
+    setTimeout(() => {
+      // this.element.animate({
+      //   opacity: `0`
+      // }, {
+      //   duration: duration.normal,
+      // }).onfinish = () => {
+      //   animateChanges(this.element.parentElement!, () => {
+      //     this.remove()
+      //   })
+      // }
+      shrink(this.element).onfinish = () => {
+        this.remove()
+      }
+    }, 10 * time * (1 + randomCentered()))
   }
 }
 
@@ -79,6 +97,7 @@ function animateChanges (element: Element, stateChange: () => void) {
   for (const child of iterChildren(element)) {
     bboxes.set(child, child.getBoundingClientRect())
   }
+  bboxes.set(element, element.getBoundingClientRect())
 
   stateChange()
 
@@ -86,23 +105,35 @@ function animateChanges (element: Element, stateChange: () => void) {
     const newBBox = child.getBoundingClientRect()
     const dx = oldBBox.x - newBBox.x
     const dy = oldBBox.y - newBBox.y
+
+    if (dx === 0 && dy === 0) continue
+
     child.animate({
-      transform: [translate(dx, dy), 'translate(0, 0)']
+      transform: [translate(dx, dy), 'translate(0, 0)'],
     }, {
-      duration: duration.long,
+      duration: duration.normal,
       easing: `ease`,
       composite: `add`
     })
   }
 }
 
+function relativeRect (element: HTMLElement) {
+  const parent = element.offsetParent!
+  const rect = element.getBoundingClientRect()
+  const parentRect = parent.getBoundingClientRect()
+  rect.x -= parentRect.x
+  rect.y -= parentRect.y
+  return rect
+}
+
 const testerStyle = makeStyle({
-  overflow: `auto`,
   position: `relative`,
   display: `inline-flex`,
   alignItems: `center`,
   flexDirection: `column`,
   background: `#333`,
+  borderRadius: `0.5rem`,
 })
 
 const guyStyle = makeStyle({

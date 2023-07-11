@@ -4,6 +4,7 @@ import '../preflight.css'
 import { backgroundColor, fontColor } from '../theme'
 import { createDiv } from '../createElement'
 import Tester from './Tester'
+import GameUI from './GameUI'
 
 export default class App extends Component {
   constructor () {
