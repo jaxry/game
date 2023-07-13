@@ -1,15 +1,15 @@
-import './ui/components/GameUI'
-import App from './ui/components/App'
-import { loadGame } from './saveLoad'
+import './ui2/style.css'
+import Base from './ui2/Components/Base'
+import Stage from './ui2/Stage'
 
-let app: App
+new Stage(document.body, new Base())
 
-export function restartGame () {
-  loadGame().then(() => {
-    app?.remove()
-    app = new App()
-    document.body.append(app.element)
-  })
-}
-
-restartGame()
+// let app: App
+// export function restartGame () {
+//   loadGame().then(() => {
+//     app?.remove()
+//     app = new App()
+//     document.body.append(app.element)
+//   })
+// }
+// restartGame()

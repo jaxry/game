@@ -1,5 +1,5 @@
 export default class Observable<T = void> {
-  private listeners: Set<(data: T) => void> = new Set()
+  private listeners: Set<(data: T) => void | boolean> = new Set()
 
   on (listener: (data: T) => void) {
     this.listeners.add(listener)
@@ -9,8 +9,10 @@ export default class Observable<T = void> {
   }
 
   emit (data: T) {
+    let bubble = true
     for (const listener of this.listeners) {
-      listener(data)
+      bubble = (listener(data) ?? true) && bubble
     }
+    return bubble
   }
 }
