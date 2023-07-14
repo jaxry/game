@@ -52,9 +52,6 @@ export default class Component {
 
   addEventListener (
       name: keyof Events, callback: (e: PointerEvent) => boolean | void) {
-    if (!this.hitColor) {
-      this.stage.setComponentId(this)
-    }
     if (!this.events[name]) {
       this.events[name] = new Observable()
     }
@@ -67,7 +64,7 @@ export default class Component {
 
   draw () {
     this.onDraw?.(this.stage.ctx)
-    if (this.hitId && this.hitbox) {
+    if (this.hitbox) {
       this.stage.hitCtx.fillStyle = this.hitColor
       this.hitbox(this.stage.hitCtx)
     }
@@ -100,6 +97,9 @@ export class Events {
 export function addComponentToStage (component: Component, stage: Stage) {
   component.stage = stage
   component.init?.()
+  if (component.hitbox) {
+    stage.setComponentHitboxId(component)
+  }
 }
 
 

@@ -1,4 +1,5 @@
 import Component, { addComponentToStage, Events } from './Component'
+import { iterToSet } from '../util'
 
 export default class Stage {
   canvas = document.createElement('canvas')
@@ -31,7 +32,7 @@ export default class Stage {
     this.draw()
   }
 
-  setComponentId (component: Component) {
+  setComponentHitboxId (component: Component) {
     const id = this.nextNewHitId++
     this.idToComponent.set(id, component)
     component.hitId = id
@@ -56,39 +57,58 @@ export default class Stage {
       return colorToId(pixel[0], pixel[1], pixel[2])
     }
 
-    const emitAndBubble = (id: number, name: keyof Events) => {
+    const emitUntil = (id: number, name: keyof Events, stopId: number) => {
       if (!id) {
         return
       }
-      let component = this.idToComponent.get(id)!
-      let bubble = true
-      do {
-        bubble = component.events[name]?.emit({}) ?? true
-        component = component.parentComponent!
-      } while (bubble && component)
+      const stopBranch = stopId ?
+          iterToSet(ancestors(this.idToComponent.get(stopId)!)) :
+          undefined
+
+      for (const component of ancestors(this.idToComponent.get(id)!)) {
+        if (stopBranch?.has(component)) {
+          return
+        }
+        const bubble = component.events[name]?.emit({}) ?? true
+        if (!bubble) {
+          return
+        }
+      }
+    }
+
+    const emit = (id: number, name: keyof Events) => {
+      if (!id) {
+        return
+      }
+      for (const component of ancestors(this.idToComponent.get(id)!)) {
+        const bubble = component.events[name]?.emit({}) ?? true
+        if (!bubble) {
+          return
+        }
+      }
     }
 
     let downId = 0
     this.canvas.addEventListener('pointerdown', (e) => {
       downId = getIdAtPointer(e)
-      emitAndBubble(downId, 'pointerdown')
+      emit(downId, 'pointerdown')
     })
 
     this.canvas.addEventListener('pointerup', (e) => {
       const id = getIdAtPointer(e)
-      emitAndBubble(id, 'pointerup')
-      if (id === downId) {
-        emitAndBubble(id, 'click')
-      }
+      emit(id, 'pointerup')
+      // if (id === downId) {
+      //   emitAndBubble(id, 'click')
+      // }
     })
 
-    let lastHitId = 0
+    let lastId = 0
     this.canvas.addEventListener('pointermove', (e) => {
       const id = getIdAtPointer(e)
-      if (id !== lastHitId) {
-        emitAndBubble(lastHitId, 'pointerout')
-        emitAndBubble(id, 'pointerenter')
-        lastHitId = id
+      if (id !== lastId) {
+        emitUntil(lastId, 'pointerout', id)
+        emitUntil(id, 'pointerenter', lastId)
+        lastId = id
       }
     })
   }
@@ -119,4 +139,11 @@ export function idToColor (id: number) {
 
 export function colorToId (r: number, g: number, b: number) {
   return r * 256 * 256 + g * 256 + b
+}
+
+function* ancestors (component: Component) {
+  do {
+    yield component
+    component = component.parentComponent!
+  } while (component)
 }

@@ -117,6 +117,14 @@ export function mapFilter<T, U> (
   return array
 }
 
+export function iterToSet<T> (iterable: Iterable<T>) {
+  const set = new Set<T>()
+  for (const elem of iterable) {
+    set.add(elem)
+  }
+  return set
+}
+
 export function randomSetElement<T> (set: Set<T>) {
   let i = Math.floor(Math.random() * set.size)
   for (const elem of set) {
