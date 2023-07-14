@@ -9,16 +9,18 @@ const elementToCancelAnimation = new WeakMap<Element, () => void>()
 export function grow (
     element: HTMLElement, options?: KeyframeAnimationOptions) {
 
-  const { offsetWidth, offsetHeight } = element
-
   const dummy = getDummy(element)
+
+  const min = elementToCancelAnimation.has(element) ? {
+    width: dummy.offsetWidth,
+    height: dummy.offsetHeight,
+  } : minDimensions(dummy)
 
   elementToCancelAnimation.get(element)?.()
 
   const animation = dummy.animate({
-    width: [`0`, numToPx(offsetWidth)],
-    height: [`0`, numToPx(offsetHeight)],
-    scale: [`0`, `1`]
+    width: [numToPx(min.width), numToPx(element.offsetWidth)],
+    height: [numToPx(min.height), numToPx(element.offsetHeight)],
   }, { ...defaultOptions, ...options })
 
   elementToCancelAnimation.set(element, () => animation.cancel())
@@ -33,55 +35,46 @@ export function grow (
 
 export function growDynamic (
     element: HTMLElement, options?: KeyframeAnimationOptions) {
-  const min = minDimensions(element)
+  const dummy = getDummy(element)
+  const min = minDimensions(dummy)
   elementToCancelAnimation.get(element)?.()
 
-  element.style.overflow = 'hidden'
-
   const t = tween((interp) => {
-    element.style.width = ''
-    element.style.height = ''
-    const width = element.offsetWidth
-    const height = element.offsetHeight
-    element.style.width = numToPx(interp(min.width, width))
-    element.style.height = numToPx(interp(min.height, height))
+    dummy.style.width = numToPx(interp(min.width, element.offsetWidth))
+    dummy.style.height = numToPx(interp(min.height, element.offsetHeight))
   }, { ...defaultOptions, ...options })
 
   elementToCancelAnimation.set(element, () => t.cancel())
 
   t.onfinish = () => {
+    replaceWithOriginal(dummy, element)
     elementToCancelAnimation.delete(element)
   }
 }
 
 export function shrink (
     element: HTMLElement, options?: KeyframeAnimationOptions) {
+  const dummy = getDummy(element)
+  const current = {
+    width: dummy.offsetWidth,
+    height: dummy.offsetHeight,
+  }
+  const min = minDimensions(dummy)
   elementToCancelAnimation.get(element)?.()
 
-  const width = element.offsetWidth
-  const height = element.offsetHeight
-
-  const t = tween((interp) => {
-    element.style.width = ''
-    element.style.height = ''
-    const min = minDimensions(element)
-    element.style.width = numToPx(interp(width, 0))
-    element.style.height = numToPx(interp(height, 0))
+  const animation = dummy.animate({
+    width: [numToPx(current.width), numToPx(min.width)],
+    height: [numToPx(current.height), numToPx(min.height)],
   }, { ...defaultOptions, ...options })
 
+  elementToCancelAnimation.set(element, () => animation.cancel())
 
-  elementToCancelAnimation.set(element, () => t.cancel())
-
-  const returnObj: any = {
-    onFinish: undefined
-  }
-
-  t.onfinish = () => {
+  animation.addEventListener('finish', () => {
     elementToCancelAnimation.delete(element)
-    returnObj.onfinish()
-  }
+    dummy.remove()
+  })
 
-  return returnObj
+  return animation
 }
 
 function getDummy (element: Element) {
@@ -109,23 +102,23 @@ function replaceWithOriginal (dummy: Element, element: Element) {
 
 // width/height is the size of the child that
 // doesn't change the parent container's size
-function minDimensions (element: HTMLElement) {
-  const parentWidthAfter = element.parentElement!.offsetWidth
-  const parentHeightAfter = element.parentElement!.offsetHeight
+function minDimensions (dummy: HTMLElement) {
+  const parentWidthAfter = dummy.parentElement!.offsetWidth
+  const parentHeightAfter = dummy.parentElement!.offsetHeight
 
-  element.style.display = `none`
+  dummy.style.display = `none`
 
-  const parentWidthBefore = element.parentElement!.offsetWidth
-  const parentHeightBefore = element.parentElement!.offsetHeight
+  const parentWidthBefore = dummy.parentElement!.offsetWidth
+  const parentHeightBefore = dummy.parentElement!.offsetHeight
 
-  element.style.display = ''
+  dummy.style.display = ''
 
   const parentWidthDiff = parentWidthAfter - parentWidthBefore
   const parentHeightDiff = parentHeightAfter - parentHeightBefore
 
   return {
-    width: element.offsetWidth - parentWidthDiff,
-    height: element.offsetHeight - parentHeightDiff,
+    width: dummy.offsetWidth - parentWidthDiff,
+    height: dummy.offsetHeight - parentHeightDiff,
   }
 }
 

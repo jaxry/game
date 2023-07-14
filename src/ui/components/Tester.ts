@@ -1,21 +1,38 @@
 import Component from './Component'
-import { createDiv } from '../createElement'
+import { createDiv, createTextNode } from '../createElement'
 import { makeStyle } from '../makeStyle'
-import {
-  iterChildren, makeArray, numToPx, randomCentered, randomElement, translate,
-} from '../../util'
+import { makeArray, numToPx, randomCentered, randomElement } from '../../util'
 import { duration } from '../theme'
-import { grow, growDynamic, shrink } from '../growShrink'
+import { onResize } from '../onResize'
+import { animatable, animateChanges } from './animateChanges'
 
 const time = 1000
 
 export default class Tester extends Component {
+
+  background = createDiv(this.element, backgroundStyle)
+
   constructor () {
     super()
 
-    this.element.classList.add(testerStyle)
+    this.element.classList.add(testerStyle, animatable)
 
-    for (let i = 0; i < 1; i++) {
+    onResize(this.element, () => {
+      this.background.animate({
+        width: [
+          numToPx(this.background.offsetWidth),
+          numToPx(this.element.offsetWidth)],
+        height: [
+          numToPx(this.background.offsetHeight),
+          numToPx(this.element.offsetHeight)],
+      }, {
+        fill: `forwards`,
+        duration: duration.normal,
+        easing: `ease`,
+      })
+    })
+
+    for (let i = 0; i < 3; i++) {
       this.createGuy()
     }
 
@@ -33,27 +50,35 @@ export default class Tester extends Component {
     // }, 1000)
 
     // setTimeout(() => {
-    //   growDynamic(this.createGuy().element)
+    //   const guy = this.createGuy()
+    //   // animateChanges(this.items, () => {
+    //   //   const guy = this.createGuy()
+    //   //   guy.element.animate({
+    //   //     opacity: [`0`, `1`]
+    //   //   }, {
+    //   //     duration: duration.normal,
+    //   //     easing: `ease`,
+    //   //     delay: duration.normal,
+    //   //     fill: `backwards`,
+    //   //   })
+    //   // })
     // }, 1000)
+    //
+    // let interval = setInterval(() => {
+    //   animateChanges(() => {
+    //     const guy = this.createGuy()
+    //     guy.element.animate({
+    //       opacity: [`0`, `1`]
+    //     }, {
+    //       duration: duration.normal,
+    //       easing: `ease`,
+    //     })
+    //   })
+    // }, time * (1 + randomCentered()))
 
-    let interval = setInterval(() => {
-      // animateChanges(this.element, () => {
-      //   const guy = this.createGuy()
-      //   guy.element.animate({
-      //     opacity: [`0`, `1`]
-      //   }, {
-      //     duration: duration.normal,
-      //     easing: `ease`,
-      //     delay: duration.normal,
-      //     fill: `backwards`,
-      //   })
-      // })
-      growDynamic(this.createGuy().element)
-    }, time * (1 + randomCentered()))
-
-    this.onRemove(() => {
-      clearInterval(interval)
-    })
+    // this.onRemove(() => {
+    //   clearInterval(interval)
+    // })
   }
 
   createGuy () {
@@ -65,58 +90,59 @@ export default class Tester extends Component {
 }
 
 class Guy extends Component {
+
+  background = createDiv(this.element, guyBackgroundStyle)
+
   constructor () {
     super()
-    this.element.classList.add(guyStyle)
+    this.element.classList.add(guyStyle, animatable)
+
+    onResize(this.element, () => {
+      this.background.animate({
+        width: [
+          numToPx(this.background.offsetWidth),
+          numToPx(this.element.offsetWidth)],
+        height: [
+          numToPx(this.background.offsetHeight),
+          numToPx(this.element.offsetHeight)],
+      }, {
+        fill: `forwards`,
+        duration: duration.normal,
+        easing: `ease`,
+      })
+    })
+
+    this.element.addEventListener('pointerenter', () => {
+      animateChanges(() => {
+        this.element.style.height = `10rem`
+      })
+    })
+    this.element.addEventListener('pointerleave', () => {
+      animateChanges(() => {
+        this.element.style.height = ``
+      })
+    })
 
     const char = `abcdefghijklmnopqrstuvwxyz`.split('')
-    const len = Math.floor(20 * (1 + randomCentered()))
+    const len = Math.floor(15 * (1 + randomCentered()))
     const str = makeArray(len, () => randomElement(char)).join('')
 
-    createDiv(this.element, innerGuyStyle, str)
+    createTextNode(this.element, str)
 
-    setTimeout(() => {
-      // this.element.animate({
-      //   opacity: `0`
-      // }, {
-      //   duration: duration.normal,
-      // }).onfinish = () => {
-      //   animateChanges(this.element.parentElement!, () => {
-      //     this.remove()
-      //   })
-      // }
-      shrink(this.element).onfinish = () => {
-        this.remove()
-      }
-    }, 10 * time * (1 + randomCentered()))
+    // setTimeout(() => {
+    //   this.element.animate({
+    //     opacity: `0`
+    //   }, {
+    //     duration: duration.normal,
+    //   }).onfinish = () => {
+    //     animateChanges(() => {
+    //       this.remove()
+    //     })
+    //   }
+    // }, 10 * time * (1 + randomCentered()))
   }
 }
 
-function animateChanges (element: Element, stateChange: () => void) {
-  const bboxes = new Map<Element, DOMRect>()
-  for (const child of iterChildren(element)) {
-    bboxes.set(child, child.getBoundingClientRect())
-  }
-  bboxes.set(element, element.getBoundingClientRect())
-
-  stateChange()
-
-  for (const [child, oldBBox] of bboxes) {
-    const newBBox = child.getBoundingClientRect()
-    const dx = oldBBox.x - newBBox.x
-    const dy = oldBBox.y - newBBox.y
-
-    if (dx === 0 && dy === 0) continue
-
-    child.animate({
-      transform: [translate(dx, dy), 'translate(0, 0)'],
-    }, {
-      duration: duration.normal,
-      easing: `ease`,
-      composite: `add`
-    })
-  }
-}
 
 function relativeRect (element: HTMLElement) {
   const parent = element.offsetParent!
@@ -130,19 +156,28 @@ function relativeRect (element: HTMLElement) {
 const testerStyle = makeStyle({
   position: `relative`,
   display: `inline-flex`,
-  alignItems: `center`,
   flexDirection: `column`,
+  // alignItems: `center`,
+})
+
+const backgroundStyle = makeStyle({
+  position: `absolute`,
+  inset: `0`,
   background: `#333`,
   borderRadius: `0.5rem`,
+  zIndex: `-1`,
 })
 
 const guyStyle = makeStyle({
-  flex: `0 0 auto`,
-  padding: `0.5rem`,
+  position: `relative`,
+  padding: `1rem`,
+  margin: `0.5rem`,
 })
 
-const innerGuyStyle = makeStyle({
+const guyBackgroundStyle = makeStyle({
+  position: `absolute`,
+  inset: `0`,
   background: `purple`,
-  padding: `1rem`,
   borderRadius: `0.5rem`,
+  zIndex: `-1`,
 })
