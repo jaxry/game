@@ -1,4 +1,6 @@
 import Component, { initComponent } from './Component'
+import Observable from '../Observable'
+import { KeysMatching } from '../types'
 
 export default class Stage {
   canvas = document.createElement('canvas')
@@ -9,7 +11,8 @@ export default class Stage {
     alpha: false,
     willReadFrequently: true,
   })!
-  nextHitId = 1
+  nextNewHitId = 1
+  lastHitId = 0
 
   baseComponent: Component
 
@@ -26,6 +29,16 @@ export default class Stage {
     this.resize()
     window.addEventListener('resize', this.resize)
 
+    const emitAndBubble = (
+        id: number, name: KeysMatching<Component, Observable>) => {
+      let component = this.idToComponent.get(id)!
+      let bubble = true
+      do {
+        bubble = component[name]?.emit()
+        component = component.parentComponent!
+      } while (bubble && component)
+    }
+
     this.canvas.addEventListener('click', (e) => {
       const x = e.clientX * devicePixelRatio
       const y = e.clientY * devicePixelRatio
@@ -34,20 +47,20 @@ export default class Stage {
 
       if (id === 0) return
 
-      let component = this.idToComponent.get(id)!
-      let bubble = true
-      do {
-        bubble = component.clickObserver.emit()
-        component = component.parentComponent!
-      } while (bubble && component)
+      emitAndBubble(id, 'clickObserver')
     })
 
-    // this.canvas.addEventListener('pointermove', (e) => {
-    //   const x = e.clientX * devicePixelRatio
-    //   const y = e.clientY * devicePixelRatio
-    //   const pixel = this.hitCtx.getImageData(x, y, 1, 1).data
-    //   const id = colorToId(pixel[0], pixel[1], pixel[2])
-    // })
+    this.canvas.addEventListener('pointermove', (e) => {
+      const x = e.clientX * devicePixelRatio
+      const y = e.clientY * devicePixelRatio
+      const pixel = this.hitCtx.getImageData(x, y, 1, 1).data
+      const id = colorToId(pixel[0], pixel[1], pixel[2])
+      if (id !== this.lastHitId) {
+        this.lastHitId && emitAndBubble(this.lastHitId, 'pointerOutObserver')
+        id && emitAndBubble(id, 'pointerEnterObserver')
+        this.lastHitId = id
+      }
+    })
 
     this.draw()
   }
@@ -59,7 +72,7 @@ export default class Stage {
   }
 
   registerComponent (component: Component) {
-    const id = this.nextHitId++
+    const id = this.nextNewHitId++
     this.idToComponent.set(id, component)
     component.hitColor = idToColor(id)
   }

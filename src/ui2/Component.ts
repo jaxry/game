@@ -1,4 +1,4 @@
-import { Constructor } from '../types'
+import { Constructor, KeysMatching } from '../types'
 import Observable from '../Observable'
 import Stage from './Stage'
 
@@ -9,6 +9,9 @@ export default class Component {
   hitColor: string
 
   clickObserver: Observable<void>
+  pointerEnterObserver: Observable<void>
+  pointerOutObserver: Observable<void>
+
   private onRemoveCallbacks: (() => void)[] = []
 
   newComponent<T extends Constructor<Component>> (
@@ -44,18 +47,19 @@ export default class Component {
   }
 
   onClick (callback: () => boolean | void) {
-    if (!this.clickObserver) {
-      this.clickObserver = new Observable()
-    }
-    this.clickObserver.on(callback)
+    addObserver(this, 'clickObserver', callback)
+  }
+
+  onPointerEnter (callback: () => boolean | void) {
+    addObserver(this, 'pointerEnterObserver', callback)
+  }
+
+  onPointerOut (callback: () => boolean | void) {
+    addObserver(this, 'pointerOutObserver', callback)
   }
 
   onRemove (unsubscribe: () => void) {
     this.onRemoveCallbacks.push(unsubscribe)
-  }
-
-  on<T> (event: Observable<T>, listener: (data: T) => void) {
-    this.onRemove(event.on(listener))
   }
 
   draw () {
@@ -83,3 +87,13 @@ export function initComponent (component: Component, stage: Stage) {
   stage.registerComponent(component)
   component.init?.()
 }
+
+function addObserver (
+    component: Component,
+    name: KeysMatching<Component, Observable>, callback: () => boolean | void) {
+  if (!component[name]) {
+    component[name] = new Observable()
+  }
+  component[name].on(callback)
+}
+
