@@ -4,7 +4,7 @@ import throttle from '../throttle'
 
 export const animatable = 'animatable'
 
-const stateChanges: ( () => void )[] = []
+const stateChanges: (() => void)[] = []
 const elements = new Set<HTMLElement>()
 
 export function animateChanges (element: HTMLElement, stateChange: () => void) {
@@ -36,7 +36,7 @@ const queueAnimation = throttle(() => {
     }, {
       duration: duration.normal,
       easing: `ease`,
-      composite: `accumulate`
+      composite: `accumulate`,
     })
   }
 

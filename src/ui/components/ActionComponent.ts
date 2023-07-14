@@ -42,6 +42,7 @@ const containerStyle = makeStyle({
   flexDirection: `column`,
   justifyContent: `center`,
   alignItems: `center`,
+  opacity: `0`,
 })
 
 const nameStyle = makeStyle({

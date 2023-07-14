@@ -1,15 +1,16 @@
 import Component from './Component'
 import { createDiv, createTextNode } from '../createElement'
 import { makeStyle } from '../makeStyle'
-import { makeArray, numToPx, randomCentered, randomElement } from '../../util'
-import { duration } from '../theme'
-import { onResize } from '../onResize'
+import { makeArray, randomCentered, randomElement } from '../../util'
 import { animatable, animateChanges } from './animateChanges'
+import animatedBackground, {
+  animatedBackgroundTemplate,
+} from '../animatedBackground'
 
 const time = 1000
 
 export default class TesterContainer extends Component {
-  constructor() {
+  constructor () {
     super()
 
     this.element.classList.add(testerContainerStyle)
@@ -38,28 +39,12 @@ const columnStyle = makeStyle({
 })
 
 class Tester extends Component {
-
-  background = createDiv(this.element, backgroundStyle)
-
   constructor () {
     super()
 
     this.element.classList.add(testerStyle, animatable)
 
-    onResize(this.element, (box) => {
-      this.background.animate({
-        width: [
-          numToPx(this.background.offsetWidth),
-          numToPx(box.borderBoxSize[0].inlineSize)],
-        height: [
-          numToPx(this.background.offsetHeight),
-          numToPx(box.borderBoxSize[0].blockSize)],
-      }, {
-        fill: `forwards`,
-        duration: duration.normal,
-        easing: `ease`,
-      })
-    })
+    animatedBackground(this.element, backgroundStyle)
 
     for (let i = 0; i < 3; i++) {
       this.createGuy()
@@ -126,35 +111,17 @@ const testerStyle = makeStyle({
 })
 
 const backgroundStyle = makeStyle({
-  position: `absolute`,
-  inset: `0`,
+  ...animatedBackgroundTemplate,
   background: `#333`,
   borderRadius: `0.5rem`,
-  zIndex: `-1`,
 })
 
 class Guy extends Component {
-
-  background = createDiv(this.element, guyBackgroundStyle)
-
   constructor () {
     super()
     this.element.classList.add(guyStyle, animatable)
 
-    onResize(this.element, (box) => {
-      this.background.animate({
-        width: [
-          numToPx(this.background.offsetWidth),
-          numToPx(box.borderBoxSize[0].inlineSize)],
-        height: [
-          numToPx(this.background.offsetHeight),
-          numToPx(box.borderBoxSize[0].blockSize)],
-      }, {
-        fill: `forwards`,
-        duration: duration.normal,
-        easing: `ease`,
-      })
-    })
+    animatedBackground(this.element, guyBackgroundStyle)
 
     this.element.addEventListener('pointerenter', () => {
       animateChanges(this.element.parentElement!, () => {
@@ -194,9 +161,7 @@ const guyStyle = makeStyle({
 })
 
 const guyBackgroundStyle = makeStyle({
-  position: `absolute`,
-  inset: `0`,
+  ...animatedBackgroundTemplate,
   background: `purple`,
   borderRadius: `0.5rem`,
-  zIndex: `-1`,
 })
