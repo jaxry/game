@@ -1,6 +1,4 @@
-import Component, { initComponent } from './Component'
-import Observable from '../Observable'
-import { KeysMatching } from '../types'
+import Component, { Events, initComponent } from './Component'
 
 export default class Stage {
   canvas = document.createElement('canvas')
@@ -30,11 +28,14 @@ export default class Stage {
     window.addEventListener('resize', this.resize)
 
     const emitAndBubble = (
-        id: number, name: KeysMatching<Component, Observable>) => {
+        id: number, name: keyof Events) => {
+      if (!id) {
+        return
+      }
       let component = this.idToComponent.get(id)!
       let bubble = true
       do {
-        bubble = component[name]?.emit()
+        bubble = component.events[name]?.emit({}) ?? true
         component = component.parentComponent!
       } while (bubble && component)
     }
@@ -44,9 +45,6 @@ export default class Stage {
       const y = e.clientY * devicePixelRatio
       const pixel = this.hitCtx.getImageData(x, y, 1, 1).data
       const id = colorToId(pixel[0], pixel[1], pixel[2])
-
-      if (id === 0) return
-
       emitAndBubble(id, 'clickObserver')
     })
 
@@ -56,8 +54,8 @@ export default class Stage {
       const pixel = this.hitCtx.getImageData(x, y, 1, 1).data
       const id = colorToId(pixel[0], pixel[1], pixel[2])
       if (id !== this.lastHitId) {
-        this.lastHitId && emitAndBubble(this.lastHitId, 'pointerOutObserver')
-        id && emitAndBubble(id, 'pointerEnterObserver')
+        emitAndBubble(this.lastHitId, 'pointerOutObserver')
+        emitAndBubble(id, 'pointerEnterObserver')
         this.lastHitId = id
       }
     })

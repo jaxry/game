@@ -1,4 +1,4 @@
-import { Constructor, KeysMatching } from '../types'
+import { Constructor } from '../types'
 import Observable from '../Observable'
 import Stage from './Stage'
 
@@ -8,9 +8,7 @@ export default class Component {
   stage: Stage
   hitColor: string
 
-  clickObserver: Observable<void>
-  pointerEnterObserver: Observable<void>
-  pointerOutObserver: Observable<void>
+  events = new Events()
 
   private onRemoveCallbacks: (() => void)[] = []
 
@@ -47,15 +45,15 @@ export default class Component {
   }
 
   onClick (callback: () => boolean | void) {
-    addObserver(this, 'clickObserver', callback)
+    addEventListener(this.events, 'clickObserver', callback)
   }
 
   onPointerEnter (callback: () => boolean | void) {
-    addObserver(this, 'pointerEnterObserver', callback)
+    addEventListener(this.events, 'pointerEnterObserver', callback)
   }
 
   onPointerOut (callback: () => boolean | void) {
-    addObserver(this, 'pointerOutObserver', callback)
+    addEventListener(this.events, 'pointerOutObserver', callback)
   }
 
   onRemove (unsubscribe: () => void) {
@@ -82,18 +80,29 @@ export default class Component {
   hitbox? (ctx: CanvasRenderingContext2D): void
 }
 
+interface PointerEvent {
+
+}
+
+export class Events {
+  clickObserver?: Observable<PointerEvent>
+  pointerEnterObserver?: Observable<PointerEvent>
+  pointerOutObserver?: Observable<PointerEvent>
+}
+
+function addEventListener (
+    events: Events, name: keyof Events,
+    callback: (e: PointerEvent) => boolean | void) {
+  if (!events[name]) {
+    events[name] = new Observable()
+  }
+  events[name]!.on(callback)
+}
+
 export function initComponent (component: Component, stage: Stage) {
   component.stage = stage
   stage.registerComponent(component)
   component.init?.()
 }
 
-function addObserver (
-    component: Component,
-    name: KeysMatching<Component, Observable>, callback: () => boolean | void) {
-  if (!component[name]) {
-    component[name] = new Observable()
-  }
-  component[name].on(callback)
-}
 
