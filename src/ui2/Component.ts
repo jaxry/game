@@ -6,6 +6,8 @@ export default class Component {
   parentComponent?: Component
   childComponents?: Set<Component>
   stage: Stage
+
+  hitId: number
   hitColor: string
 
   events = new Events()
@@ -17,7 +19,7 @@ export default class Component {
 
     const component = new constructor(...args)
     component.parentComponent = this
-    initComponent(component, this.stage)
+    addComponentToStage(component, this.stage)
 
     if (!this.childComponents) {
       this.childComponents = new Set()
@@ -42,26 +44,21 @@ export default class Component {
       }
       this.childComponents.clear()
     }
+
+    if (this.hitId) {
+      this.stage.removeComponentId(this)
+    }
   }
 
-  onClick (callback: () => boolean | void) {
-    addEventListener(this.events, 'clickObserver', callback)
-  }
-
-  onPointerEnter (callback: () => boolean | void) {
-    addEventListener(this.events, 'pointerEnterObserver', callback)
-  }
-
-  onPointerOut (callback: () => boolean | void) {
-    addEventListener(this.events, 'pointerOutObserver', callback)
-  }
-
-  onPointerDown (callback: () => boolean | void) {
-    addEventListener(this.events, 'pointerDownObserver', callback)
-  }
-
-  onPointerUp (callback: () => boolean | void) {
-    addEventListener(this.events, 'pointerUpObserver', callback)
+  addEventListener (
+      name: keyof Events, callback: (e: PointerEvent) => boolean | void) {
+    if (!this.hitColor) {
+      this.stage.setComponentId(this)
+    }
+    if (!this.events[name]) {
+      this.events[name] = new Observable()
+    }
+    this.events[name]!.on(callback)
   }
 
   onRemove (unsubscribe: () => void) {
@@ -70,9 +67,9 @@ export default class Component {
 
   draw () {
     this.onDraw?.(this.stage.ctx)
-    if (this.hitbox) {
-      this.stage.hitCtx.fillStyle = this.hitColor!
-      this.hitbox?.(this.stage.hitCtx)
+    if (this.hitId && this.hitbox) {
+      this.stage.hitCtx.fillStyle = this.hitColor
+      this.hitbox(this.stage.hitCtx)
     }
     if (this.childComponents) {
       for (const component of this.childComponents) {
@@ -93,25 +90,15 @@ interface PointerEvent {
 }
 
 export class Events {
-  clickObserver?: Observable<PointerEvent>
-  pointerEnterObserver?: Observable<PointerEvent>
-  pointerOutObserver?: Observable<PointerEvent>
-  pointerDownObserver?: Observable<PointerEvent>
-  pointerUpObserver?: Observable<PointerEvent>
+  click?: Observable<PointerEvent>
+  pointerenter?: Observable<PointerEvent>
+  pointerout?: Observable<PointerEvent>
+  pointerdown?: Observable<PointerEvent>
+  pointerup?: Observable<PointerEvent>
 }
 
-function addEventListener (
-    events: Events, name: keyof Events,
-    callback: (e: PointerEvent) => boolean | void) {
-  if (!events[name]) {
-    events[name] = new Observable()
-  }
-  events[name]!.on(callback)
-}
-
-export function initComponent (component: Component, stage: Stage) {
+export function addComponentToStage (component: Component, stage: Stage) {
   component.stage = stage
-  stage.registerComponent(component)
   component.init?.()
 }
 

@@ -16,7 +16,7 @@ export default class Base extends Component {
     box.x = em(10)
     box.y = em(5)
 
-    this.onClick(() => {
+    this.addEventListener('pointerout', () => {
       this.x += em(1)
       this.y += em(1)
     })

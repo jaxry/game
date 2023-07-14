@@ -6,25 +6,9 @@ export default class Box extends Component {
   y = 0
 
   override init () {
-    this.onClick(() => {
+    this.addEventListener('click', () => {
       this.x += em(2)
       this.y += em(1)
-    })
-
-    this.onPointerDown(() => {
-      console.log('down')
-    })
-
-    this.onPointerUp(() => {
-      console.log('up')
-    })
-
-    this.onPointerEnter(() => {
-      console.log('enter')
-    })
-
-    this.onPointerOut(() => {
-      console.log('out')
     })
   }
 
