@@ -56,6 +56,14 @@ export default class Component {
     addEventListener(this.events, 'pointerOutObserver', callback)
   }
 
+  onPointerDown (callback: () => boolean | void) {
+    addEventListener(this.events, 'pointerDownObserver', callback)
+  }
+
+  onPointerUp (callback: () => boolean | void) {
+    addEventListener(this.events, 'pointerUpObserver', callback)
+  }
+
   onRemove (unsubscribe: () => void) {
     this.onRemoveCallbacks.push(unsubscribe)
   }
@@ -88,6 +96,8 @@ export class Events {
   clickObserver?: Observable<PointerEvent>
   pointerEnterObserver?: Observable<PointerEvent>
   pointerOutObserver?: Observable<PointerEvent>
+  pointerDownObserver?: Observable<PointerEvent>
+  pointerUpObserver?: Observable<PointerEvent>
 }
 
 function addEventListener (

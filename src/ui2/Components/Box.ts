@@ -10,6 +10,22 @@ export default class Box extends Component {
       this.x += em(2)
       this.y += em(1)
     })
+
+    this.onPointerDown(() => {
+      console.log('down')
+    })
+
+    this.onPointerUp(() => {
+      console.log('up')
+    })
+
+    this.onPointerEnter(() => {
+      console.log('enter')
+    })
+
+    this.onPointerOut(() => {
+      console.log('out')
+    })
   }
 
   override onDraw (ctx: CanvasRenderingContext2D) {

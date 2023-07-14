@@ -10,7 +10,6 @@ export default class Stage {
     willReadFrequently: true,
   })!
   nextNewHitId = 1
-  lastHitId = 0
 
   baseComponent: Component
 
@@ -27,8 +26,13 @@ export default class Stage {
     this.resize()
     window.addEventListener('resize', this.resize)
 
-    const emitAndBubble = (
-        id: number, name: keyof Events) => {
+    this.setupEvents()
+
+    this.draw()
+  }
+
+  private setupEvents () {
+    const emitAndBubble = (id: number, name: keyof Events) => {
       if (!id) {
         return
       }
@@ -40,27 +44,36 @@ export default class Stage {
       } while (bubble && component)
     }
 
-    this.canvas.addEventListener('click', (e) => {
+    const getIdAtPointer = (e: PointerEvent) => {
       const x = e.clientX * devicePixelRatio
       const y = e.clientY * devicePixelRatio
       const pixel = this.hitCtx.getImageData(x, y, 1, 1).data
-      const id = colorToId(pixel[0], pixel[1], pixel[2])
-      emitAndBubble(id, 'clickObserver')
+      return colorToId(pixel[0], pixel[1], pixel[2])
+    }
+
+    let downId = 0
+    this.canvas.addEventListener('pointerdown', (e) => {
+      downId = getIdAtPointer(e)
+      emitAndBubble(downId, 'pointerDownObserver')
     })
 
-    this.canvas.addEventListener('pointermove', (e) => {
-      const x = e.clientX * devicePixelRatio
-      const y = e.clientY * devicePixelRatio
-      const pixel = this.hitCtx.getImageData(x, y, 1, 1).data
-      const id = colorToId(pixel[0], pixel[1], pixel[2])
-      if (id !== this.lastHitId) {
-        emitAndBubble(this.lastHitId, 'pointerOutObserver')
-        emitAndBubble(id, 'pointerEnterObserver')
-        this.lastHitId = id
+    this.canvas.addEventListener('pointerup', (e) => {
+      const id = getIdAtPointer(e)
+      emitAndBubble(id, 'pointerUpObserver')
+      if (id === downId) {
+        emitAndBubble(id, 'clickObserver')
       }
     })
 
-    this.draw()
+    let lastHitId = 0
+    this.canvas.addEventListener('pointermove', (e) => {
+      const id = getIdAtPointer(e)
+      if (id !== lastHitId) {
+        emitAndBubble(lastHitId, 'pointerOutObserver')
+        emitAndBubble(id, 'pointerEnterObserver')
+        lastHitId = id
+      }
+    })
   }
 
   remove () {
