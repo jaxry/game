@@ -4,6 +4,7 @@ import '../preflight.css'
 import { backgroundColor, fontColor } from '../theme'
 import { createDiv } from '../createElement'
 import Tester from './Tester'
+import TesterContainer from './Tester'
 
 export default class App extends Component {
   constructor () {
@@ -13,15 +14,7 @@ export default class App extends Component {
 
     this.element.append(outsideElem)
     // this.newComponent(GameUI).appendTo(this.element)
-
-    const c1 = createDiv(this.element, columnStyle)
-    const c2 = createDiv(this.element, columnStyle)
-    this.newComponent(Tester).appendTo(c1)
-    this.newComponent(Tester).appendTo(c1)
-
-    this.newComponent(Tester).appendTo(c2)
-    this.newComponent(Tester).appendTo(c2)
-
+    this.newComponent(TesterContainer).appendTo(this.element)
   }
 }
 
@@ -32,16 +25,9 @@ const containerStyle = makeStyle({
   color: fontColor,
   height: `100vh`,
   contain: `strict`,
-  display: `flex`,
-  justifyContent: `center`,
-  alignItems: `center`,
 })
 
-const columnStyle = makeStyle({
-  display: `flex`,
-  flexDirection: `column`,
-  alignItems: `center`,
-})
+
 
 const outsideElemStyle = makeStyle({
   position: `fixed`,

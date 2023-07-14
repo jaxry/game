@@ -1,52 +1,37 @@
-import { translate } from '../../util'
+import { iterChildren, mapFilter, translate } from '../../util'
 import { duration } from '../theme'
 import throttle from '../throttle'
 
 export const animatable = 'animatable'
 
-const bboxes = new Map<Element, DOMRect>()
 const stateChanges: ( () => void )[] = []
+const elements = new Set<HTMLElement>()
 
-export function animateChanges (stateChange: () => void) {
+export function animateChanges (element: HTMLElement, stateChange: () => void) {
   stateChanges.push(stateChange)
+  elements.add(element)
   queueAnimation()
 }
 
-
-let changingState = false
-const observer = new MutationObserver((mutations) => {
-  console.log(changingState, mutations)
-})
-
-observer.observe(document.body, {
-  subtree: true,
-  childList: true,
-  attributes: true,
-  characterData: true
-})
-
-
 const queueAnimation = throttle(() => {
-  bboxes.clear()
-  document.querySelectorAll(`.animatable`).forEach(element => {
-    bboxes.set(element, element.getBoundingClientRect())
+  const affectedElements = getAffectedElements()
+  const bboxes = mapFilter(affectedElements, (element) => {
+    return { x: element.offsetLeft, y: element.offsetTop }
   })
 
-  changingState = true
   for (const stateChange of stateChanges) {
     stateChange()
   }
-  stateChanges.length = 0
-  changingState = false
 
-  for (const [child, oldBBox] of bboxes) {
-    const newBBox = child.getBoundingClientRect()
-    const dx = oldBBox.x - newBBox.x
-    const dy = oldBBox.y - newBBox.y
+  let i = 0
+  for (const element of affectedElements) {
+    const bbox = bboxes[i++]
+    const dx = bbox.x - element.offsetLeft
+    const dy = bbox.y - element.offsetTop
 
     if (dx === 0 && dy === 0) continue
 
-    child.animate({
+    element.animate({
       transform: [translate(dx, dy), 'translate(0, 0)'],
     }, {
       duration: duration.normal,
@@ -54,4 +39,34 @@ const queueAnimation = throttle(() => {
       composite: `accumulate`
     })
   }
+
+  elements.clear()
 })
+
+function relativePosition (element: HTMLElement) {
+  const elementBBox = element.getBoundingClientRect()
+  const parentBBox = element.offsetParent?.getBoundingClientRect()
+  if (parentBBox) {
+    elementBBox.x -= parentBBox.x
+    elementBBox.y -= parentBBox.y
+  }
+
+  return elementBBox
+}
+
+function getAffectedElements () {
+  const affectedElements = new Set<HTMLElement>()
+
+  for (let element of elements) {
+    do {
+      for (const child of iterChildren(element)) {
+        if (child.classList.contains(animatable)) {
+          affectedElements.add(child)
+        }
+      }
+      element = element.parentElement!
+    } while (element)
+  }
+
+  return affectedElements
+}

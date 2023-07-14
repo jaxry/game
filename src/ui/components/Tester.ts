@@ -8,7 +8,36 @@ import { animatable, animateChanges } from './animateChanges'
 
 const time = 1000
 
-export default class Tester extends Component {
+export default class TesterContainer extends Component {
+  constructor() {
+    super()
+
+    this.element.classList.add(testerContainerStyle)
+
+    const c1 = createDiv(this.element, columnStyle)
+    const c2 = createDiv(this.element, columnStyle)
+    this.newComponent(Tester).appendTo(c1)
+    this.newComponent(Tester).appendTo(c1)
+
+    this.newComponent(Tester).appendTo(c2)
+    this.newComponent(Tester).appendTo(c2)
+  }
+}
+
+const testerContainerStyle = makeStyle({
+  display: `flex`,
+  justifyContent: `center`,
+  alignItems: `center`,
+  height: `100%`,
+})
+
+const columnStyle = makeStyle({
+  display: `flex`,
+  flexDirection: `column`,
+  alignItems: `center`,
+})
+
+class Tester extends Component {
 
   background = createDiv(this.element, backgroundStyle)
 
@@ -17,14 +46,14 @@ export default class Tester extends Component {
 
     this.element.classList.add(testerStyle, animatable)
 
-    onResize(this.element, () => {
+    onResize(this.element, (box) => {
       this.background.animate({
         width: [
           numToPx(this.background.offsetWidth),
-          numToPx(this.element.offsetWidth)],
+          numToPx(box.borderBoxSize[0].inlineSize)],
         height: [
           numToPx(this.background.offsetHeight),
-          numToPx(this.element.offsetHeight)],
+          numToPx(box.borderBoxSize[0].blockSize)],
       }, {
         fill: `forwards`,
         duration: duration.normal,
@@ -89,6 +118,21 @@ export default class Tester extends Component {
   }
 }
 
+const testerStyle = makeStyle({
+  position: `relative`,
+  display: `inline-flex`,
+  flexDirection: `column`,
+  // alignItems: `center`,
+})
+
+const backgroundStyle = makeStyle({
+  position: `absolute`,
+  inset: `0`,
+  background: `#333`,
+  borderRadius: `0.5rem`,
+  zIndex: `-1`,
+})
+
 class Guy extends Component {
 
   background = createDiv(this.element, guyBackgroundStyle)
@@ -97,14 +141,14 @@ class Guy extends Component {
     super()
     this.element.classList.add(guyStyle, animatable)
 
-    onResize(this.element, () => {
+    onResize(this.element, (box) => {
       this.background.animate({
         width: [
           numToPx(this.background.offsetWidth),
-          numToPx(this.element.offsetWidth)],
+          numToPx(box.borderBoxSize[0].inlineSize)],
         height: [
           numToPx(this.background.offsetHeight),
-          numToPx(this.element.offsetHeight)],
+          numToPx(box.borderBoxSize[0].blockSize)],
       }, {
         fill: `forwards`,
         duration: duration.normal,
@@ -113,12 +157,12 @@ class Guy extends Component {
     })
 
     this.element.addEventListener('pointerenter', () => {
-      animateChanges(() => {
+      animateChanges(this.element.parentElement!, () => {
         this.element.style.height = `10rem`
       })
     })
     this.element.addEventListener('pointerleave', () => {
-      animateChanges(() => {
+      animateChanges(this.element.parentElement!, () => {
         this.element.style.height = ``
       })
     })
@@ -142,31 +186,6 @@ class Guy extends Component {
     // }, 10 * time * (1 + randomCentered()))
   }
 }
-
-
-function relativeRect (element: HTMLElement) {
-  const parent = element.offsetParent!
-  const rect = element.getBoundingClientRect()
-  const parentRect = parent.getBoundingClientRect()
-  rect.x -= parentRect.x
-  rect.y -= parentRect.y
-  return rect
-}
-
-const testerStyle = makeStyle({
-  position: `relative`,
-  display: `inline-flex`,
-  flexDirection: `column`,
-  // alignItems: `center`,
-})
-
-const backgroundStyle = makeStyle({
-  position: `absolute`,
-  inset: `0`,
-  background: `#333`,
-  borderRadius: `0.5rem`,
-  zIndex: `-1`,
-})
 
 const guyStyle = makeStyle({
   position: `relative`,
