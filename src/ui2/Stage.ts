@@ -57,10 +57,23 @@ export default class Stage {
       return colorToId(pixel[0], pixel[1], pixel[2])
     }
 
+    const emit = (id: number, name: keyof Events) => {
+      if (!id) {
+        return
+      }
+      for (const component of ancestors(this.idToComponent.get(id)!)) {
+        const bubble = component.events[name]?.emit({}) ?? true
+        if (!bubble) {
+          return
+        }
+      }
+    }
+
     const emitUntil = (id: number, name: keyof Events, stopId: number) => {
       if (!id) {
         return
       }
+
       const stopBranch = stopId ?
           iterToSet(ancestors(this.idToComponent.get(stopId)!)) :
           undefined
@@ -76,11 +89,18 @@ export default class Stage {
       }
     }
 
-    const emit = (id: number, name: keyof Events) => {
+    const emitShared = (id: number, name: keyof Events, sharedId: number) => {
       if (!id) {
         return
       }
+
+      const shareBranch = iterToSet(
+          ancestors(this.idToComponent.get(sharedId)!))
+
       for (const component of ancestors(this.idToComponent.get(id)!)) {
+        if (!shareBranch.has(component)) {
+          continue
+        }
         const bubble = component.events[name]?.emit({}) ?? true
         if (!bubble) {
           return
@@ -97,9 +117,9 @@ export default class Stage {
     this.canvas.addEventListener('pointerup', (e) => {
       const id = getIdAtPointer(e)
       emit(id, 'pointerup')
-      // if (id === downId) {
-      //   emitAndBubble(id, 'click')
-      // }
+      if (downId) {
+        emitShared(id, 'click', downId)
+      }
     })
 
     let lastId = 0

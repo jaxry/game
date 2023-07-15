@@ -11,7 +11,6 @@ export default class Thing extends Component {
   override init () {
 
     const box2 = this.newComponent(Box)
-    box2.color = `#ffa`
     box2.x = em(4)
     box2.y = em(5)
 
@@ -20,7 +19,7 @@ export default class Thing extends Component {
     box.y = em(0)
 
 
-    this.addEventListener('pointerdown', () => {
+    this.addEventListener('pointerenter', () => {
       // this.x += em(1)
       // this.y += em(1)
       console.log('enter')
@@ -30,6 +29,10 @@ export default class Thing extends Component {
       // this.x += em(1)
       // this.y += em(1)
       console.log('leave')
+    })
+
+    this.addEventListener('click', () => {
+      console.log('click')
     })
   }
 

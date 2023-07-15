@@ -19,12 +19,13 @@ export default class Component {
 
     const component = new constructor(...args)
     component.parentComponent = this
-    addComponentToStage(component, this.stage)
 
     if (!this.childComponents) {
       this.childComponents = new Set()
     }
     this.childComponents.add(component)
+
+    addComponentToStage(component, this.stage)
 
     return component as InstanceType<T>
   }
@@ -50,16 +51,16 @@ export default class Component {
     }
   }
 
+  onRemove (unsubscribe: () => void) {
+    this.onRemoveCallbacks.push(unsubscribe)
+  }
+
   addEventListener (
       name: keyof Events, callback: (e: PointerEvent) => boolean | void) {
     if (!this.events[name]) {
       this.events[name] = new Observable()
     }
     this.events[name]!.on(callback)
-  }
-
-  onRemove (unsubscribe: () => void) {
-    this.onRemoveCallbacks.push(unsubscribe)
   }
 
   draw () {
@@ -96,10 +97,10 @@ export class Events {
 
 export function addComponentToStage (component: Component, stage: Stage) {
   component.stage = stage
-  component.init?.()
   if (component.hitbox) {
     stage.setComponentHitboxId(component)
   }
+  component.init?.()
 }
 
 
