@@ -1,4 +1,6 @@
-import Component, { addComponentToStage, Events } from './Component'
+import Component, {
+  CanvasPointerEvent, Events, initComponent,
+} from './Component'
 import { iterToSet } from '../util'
 
 export default class Stage {
@@ -22,7 +24,7 @@ export default class Stage {
     parent.appendChild(this.canvas)
 
     this.baseComponent = baseComponent
-    addComponentToStage(baseComponent, this)
+    initComponent(baseComponent, this)
 
     this.resize()
     window.addEventListener('resize', this.resize)
@@ -32,6 +34,12 @@ export default class Stage {
     this.draw()
   }
 
+  remove () {
+    window.removeEventListener('resize', this.resize)
+    cancelAnimationFrame(this.animationId)
+    this.canvas.remove()
+  }
+
   setComponentHitboxId (component: Component) {
     const id = this.nextNewHitId++
     this.idToComponent.set(id, component)
@@ -39,96 +47,96 @@ export default class Stage {
     component.hitColor = idToColor(id)
   }
 
-  remove () {
-    window.removeEventListener('resize', this.resize)
-    cancelAnimationFrame(this.animationId)
-    this.canvas.remove()
-  }
-
-  removeComponentId (component: Component) {
+  removeComponentHitboxId (component: Component) {
     this.idToComponent.delete(component.hitId)
   }
 
   private setupEvents () {
-    const getIdAtPointer = (e: PointerEvent) => {
+    const makePointerEvent = (e: PointerEvent): CanvasPointerEvent => {
       const x = e.clientX * devicePixelRatio
       const y = e.clientY * devicePixelRatio
       const pixel = this.hitCtx.getImageData(x, y, 1, 1).data
-      return colorToId(pixel[0], pixel[1], pixel[2])
+      const id = colorToId(pixel[0], pixel[1], pixel[2])
+
+      return {
+        x: e.clientX * devicePixelRatio,
+        y: e.clientY * devicePixelRatio,
+        target: this.idToComponent.get(id)!,
+      }
     }
 
-    const emit = (id: number, name: keyof Events) => {
-      if (!id) {
+    const emit = (event: CanvasPointerEvent, name: keyof Events) => {
+      if (!event.target) {
         return
       }
-      for (const component of ancestors(this.idToComponent.get(id)!)) {
-        const bubble = component.events[name]?.emit({}) ?? true
-        if (!bubble) {
+      for (const component of ancestors(event.target)) {
+        if (component.events[name]?.emit(event) === false) {
           return
         }
       }
     }
 
-    const emitUntil = (id: number, name: keyof Events, stopId: number) => {
-      if (!id) {
+    const emitUntil = (
+        event: CanvasPointerEvent, name: keyof Events,
+        stopComponent?: Component) => {
+      if (!event.target) {
         return
       }
 
-      const stopBranch = stopId ?
-          iterToSet(ancestors(this.idToComponent.get(stopId)!)) :
+      const stopBranch = stopComponent ?
+          iterToSet(ancestors(stopComponent)) :
           undefined
 
-      for (const component of ancestors(this.idToComponent.get(id)!)) {
-        if (stopBranch?.has(component)) {
-          return
-        }
-        const bubble = component.events[name]?.emit({}) ?? true
-        if (!bubble) {
+      for (const component of ancestors(event.target)) {
+        if (stopBranch?.has(component) ||
+            component.events[name]?.emit(event) === false) {
           return
         }
       }
     }
 
-    const emitShared = (id: number, name: keyof Events, sharedId: number) => {
-      if (!id) {
+    const emitShared = (
+        event: CanvasPointerEvent, name: keyof Events,
+        sharedComponent: Component) => {
+      if (!event.target) {
         return
       }
 
-      const shareBranch = iterToSet(
-          ancestors(this.idToComponent.get(sharedId)!))
+      const shareBranch = iterToSet(ancestors(sharedComponent))
 
-      for (const component of ancestors(this.idToComponent.get(id)!)) {
+      for (const component of ancestors(event.target)) {
         if (!shareBranch.has(component)) {
           continue
         }
-        const bubble = component.events[name]?.emit({}) ?? true
-        if (!bubble) {
+        if (component.events[name]?.emit(event) === false) {
           return
         }
       }
     }
 
-    let downId = 0
+    let downComponent: Component
     this.canvas.addEventListener('pointerdown', (e) => {
-      downId = getIdAtPointer(e)
-      emit(downId, 'pointerdown')
+      const event = makePointerEvent(e)
+      downComponent = event.target
+      emit(event, 'pointerdown')
     })
 
     this.canvas.addEventListener('pointerup', (e) => {
-      const id = getIdAtPointer(e)
-      emit(id, 'pointerup')
-      if (downId) {
-        emitShared(id, 'click', downId)
+      const pointerEvent = makePointerEvent(e)
+      emit(pointerEvent, 'pointerup')
+      if (downComponent) {
+        emitShared(pointerEvent, 'click', downComponent)
       }
     })
 
-    let lastId = 0
+    let lastComponent: Component
     this.canvas.addEventListener('pointermove', (e) => {
-      const id = getIdAtPointer(e)
-      if (id !== lastId) {
-        emitUntil(lastId, 'pointerout', id)
-        emitUntil(id, 'pointerenter', lastId)
-        lastId = id
+      const event = makePointerEvent(e)
+      if (event.target !== lastComponent) {
+        emitUntil({ ...event, target: lastComponent }, 'pointerout',
+            event.target)
+        emitUntil(event, 'pointerenter', lastComponent)
+        lastComponent = event.target
       }
     })
   }
@@ -141,8 +149,8 @@ export default class Stage {
   }
 
   private resize = () => {
-    const width = this.canvas.offsetWidth * devicePixelRatio
-    const height = this.canvas.offsetHeight * devicePixelRatio
+    const width = this.canvas.clientWidth * devicePixelRatio
+    const height = this.canvas.clientHeight * devicePixelRatio
     this.canvas.width = width
     this.canvas.height = height
     this.hitCtx.canvas.width = width

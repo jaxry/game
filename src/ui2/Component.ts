@@ -25,7 +25,7 @@ export default class Component {
     }
     this.childComponents.add(component)
 
-    addComponentToStage(component, this.stage)
+    initComponent(component, this.stage)
 
     return component as InstanceType<T>
   }
@@ -39,15 +39,15 @@ export default class Component {
     }
     this.onRemoveCallbacks.length = 0
 
+    if (this.hitbox) {
+      this.stage.removeComponentHitboxId(this)
+    }
+
     if (this.childComponents) {
       for (const component of this.childComponents) {
         component.remove()
       }
       this.childComponents.clear()
-    }
-
-    if (this.hitId) {
-      this.stage.removeComponentId(this)
     }
   }
 
@@ -56,7 +56,7 @@ export default class Component {
   }
 
   addEventListener (
-      name: keyof Events, callback: (e: PointerEvent) => boolean | void) {
+      name: keyof Events, callback: (e: CanvasPointerEvent) => boolean | void) {
     if (!this.events[name]) {
       this.events[name] = new Observable()
     }
@@ -83,19 +83,21 @@ export default class Component {
   hitbox? (ctx: CanvasRenderingContext2D): void
 }
 
-interface PointerEvent {
-
+export interface CanvasPointerEvent {
+  x: number,
+  y: number,
+  target: Component
 }
 
 export class Events {
-  click?: Observable<PointerEvent>
-  pointerenter?: Observable<PointerEvent>
-  pointerout?: Observable<PointerEvent>
-  pointerdown?: Observable<PointerEvent>
-  pointerup?: Observable<PointerEvent>
+  click?: Observable<CanvasPointerEvent>
+  pointerenter?: Observable<CanvasPointerEvent>
+  pointerout?: Observable<CanvasPointerEvent>
+  pointerdown?: Observable<CanvasPointerEvent>
+  pointerup?: Observable<CanvasPointerEvent>
 }
 
-export function addComponentToStage (component: Component, stage: Stage) {
+export function initComponent (component: Component, stage: Stage) {
   component.stage = stage
   if (component.hitbox) {
     stage.setComponentHitboxId(component)

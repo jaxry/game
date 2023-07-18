@@ -6,8 +6,6 @@ export default class Thing extends Component {
   x = em(1)
   y = em(1)
 
-  // str = makeArray(Math.floor(32 * (1 + randomCentered())), () => randomElement(chars)).join('')
-
   override init () {
 
     const box2 = this.newComponent(Box)
@@ -18,21 +16,16 @@ export default class Thing extends Component {
     box.x = em(4)
     box.y = em(0)
 
-
-    this.addEventListener('pointerenter', () => {
-      // this.x += em(1)
-      // this.y += em(1)
-      console.log('enter')
+    this.addEventListener('pointerenter', (e) => {
+      console.log('enter', e.target?.hitId)
     })
 
-    this.addEventListener('pointerout', () => {
-      // this.x += em(1)
-      // this.y += em(1)
-      console.log('leave')
+    this.addEventListener('pointerout', (e) => {
+      console.log('leave', e.target?.hitId)
     })
 
-    this.addEventListener('click', () => {
-      console.log('click')
+    this.addEventListener('click', (e) => {
+      console.log('click', e.target?.hitId)
     })
   }
 
