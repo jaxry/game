@@ -2,6 +2,7 @@ import Component, {
   CanvasPointerEvent, Events, initComponent,
 } from './Component'
 import { iterToSet } from '../util'
+import { runAnimations } from './Animate'
 
 export default class Stage {
   canvas = document.createElement('canvas')
@@ -23,21 +24,15 @@ export default class Stage {
   constructor (parent: HTMLElement, baseComponent: Component) {
     parent.appendChild(this.canvas)
 
-    this.baseComponent = baseComponent
-    initComponent(baseComponent, this)
-
     this.resize()
     window.addEventListener('resize', this.resize)
 
     this.setupEvents()
 
-    this.draw()
-  }
+    this.baseComponent = baseComponent
+    initComponent(baseComponent, this)
 
-  remove () {
-    window.removeEventListener('resize', this.resize)
-    cancelAnimationFrame(this.animationId)
-    this.canvas.remove()
+    this.draw()
   }
 
   setComponentHitboxId (component: Component) {
@@ -76,6 +71,7 @@ export default class Stage {
       }
     }
 
+    // emit until an ancestor of stopComponent is encountered
     const emitUntil = (
         event: CanvasPointerEvent, name: keyof Events,
         stopComponent?: Component) => {
@@ -95,6 +91,7 @@ export default class Stage {
       }
     }
 
+    // emit only if an ancestor of sharedComponent is encountered
     const emitShared = (
         event: CanvasPointerEvent, name: keyof Events,
         sharedComponent: Component) => {
@@ -142,6 +139,7 @@ export default class Stage {
   }
 
   private draw = () => {
+    runAnimations()
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
     this.hitCtx.clearRect(0, 0, this.canvas.width, this.canvas.height)
     this.baseComponent.draw()

@@ -1,17 +1,31 @@
 import Component from '../Component'
-import Thing from './Thing'
 import { em } from '../units'
 import Box from './Box'
+import { randomCentered } from '../../util'
 
 export default class Base extends Component {
   override init () {
-    this.newComponent(Thing)
+    for (let i = 0; i < 100; i++) {
+      this.makeBox()
+    }
+
+    setInterval(() => {
+      this.makeBox()
+    }, 50)
+  }
+
+  makeBox () {
     const box = this.newComponent(Box)
-    box.y = em(7)
+    box.x = Math.floor((this.stage.canvas.width - box.width) * Math.random())
+    box.y = Math.floor((this.stage.canvas.height - box.height) * Math.random())
+    setTimeout(() => {
+      box.shrink()
+    }, 10000 * (1 + randomCentered()))
   }
 
   override onDraw (ctx: CanvasRenderingContext2D) {
     ctx.font = `${em(1)}px monospace`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
   }
 }
-
