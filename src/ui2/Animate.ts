@@ -56,27 +56,29 @@ export abstract class Tween extends Animate {
     return start + (end - start) * progress
   }
 
-  interpolateDiff (start: number, end: number) {
-    return this.interpolate(start, end) - this.interpolate(start, end, this.lastProgress)
+  interpolateDiff (amount: number) {
+    return amount * (this.progress - this.lastProgress)
   }
 
   abstract onProgress (): void
 }
 
-export function linear (x: number): number {
+export function linear (x: number) {
   return x
 }
 
-export function easeInOutCubic (x: number): number {
+export function easeInOutCubic (x: number) {
   return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2
 }
 
-export function easeInCubic (x: number): number {
+export function easeInCubic (x: number) {
   return x * x * x
 }
 
-export function easeOutCubic (x: number): number {
+export function easeOutCubic (x: number) {
   return 1 - Math.pow(1 - x, 3)
 }
 
-export const ease = easeOutCubic
+export function ease (x: number) {
+  return x * x * x * (3 * x * (2 * x - 5) + 10)
+}

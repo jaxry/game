@@ -21,5 +21,4 @@ export default class BenchmarkCanvas extends Component {
       box.y = Math.floor(Math.random() * height)
     }
   }
-
 }

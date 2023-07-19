@@ -4,6 +4,7 @@ import { randomElement } from '../../util'
 import makeCanvas from '../makeCanvas'
 import { duration } from '../../ui/theme'
 import { Animate, Tween } from '../Animate'
+import makeDraggable from '../makeDraggable'
 
 const c = '0123456789abcdef'.split('')
 export default class Box extends Component {
@@ -29,7 +30,7 @@ export default class Box extends Component {
   override init () {
     this.addEventListener('pointerenter', (e) => {
       this.hover = true
-      document.body.style.cursor = 'pointer'
+      document.body.style.cursor = 'grab'
     })
     this.addEventListener('pointerout', () => {
       this.hover = false
@@ -42,9 +43,16 @@ export default class Box extends Component {
 
     this.drawLayer(this.layer)
 
-    new Grow(this).onEnd = () => {
-      new Wobble(this)
-    }
+    new Grow(this)
+    new Wobble(this)
+
+    makeDraggable(this, {
+      onDrag: (e) => {
+        this.x += e.movementX
+        this.y += e.movementY
+      },
+    })
+
   }
 
   drawLayer (ctx: CanvasRenderingContext2D) {
@@ -102,8 +110,9 @@ class Wobble extends Animate {
   }
 
   override tick (time: number) {
+    this.component.scale -= this.offset
     this.offset = Math.sin(this.elapsed * 0.005) * 0.05
-    this.component.scale = 1 + this.offset
+    this.component.scale += this.offset
   }
 }
 
@@ -112,10 +121,11 @@ class Grow extends Tween {
 
   constructor (public component: Component & { scale: number }) {
     super()
+    this.component.scale = 0
   }
 
   override onProgress () {
-    this.component.scale = this.interpolate(0, 1)
+    this.component.scale += this.interpolateDiff(1)
   }
 }
 
@@ -127,7 +137,7 @@ class Shrink extends Tween {
   }
 
   override onProgress () {
-    this.component.scale = this.interpolate(1, 0)
+    this.component.scale += this.interpolateDiff(-1)
   }
 
   override onEnd () {
