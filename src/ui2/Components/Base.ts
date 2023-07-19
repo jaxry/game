@@ -5,9 +5,11 @@ import { randomCentered } from '../../util'
 
 export default class Base extends Component {
   override init () {
-    for (let i = 0; i < 100; i++) {
-      this.makeBox()
-    }
+    // for (let i = 0; i < 100; i++) {
+    //   this.makeBox()
+    // }
+
+    // this.makeBox()
 
     setInterval(() => {
       this.makeBox()

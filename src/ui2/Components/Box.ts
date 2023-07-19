@@ -3,7 +3,7 @@ import { em } from '../units'
 import { randomElement } from '../../util'
 import makeCanvas from '../makeCanvas'
 import { duration } from '../../ui/theme'
-import { Tween } from '../Animate'
+import { Animate, Tween } from '../Animate'
 
 const c = '0123456789abcdef'.split('')
 export default class Box extends Component {
@@ -36,9 +36,15 @@ export default class Box extends Component {
       document.body.style.cursor = ''
     })
 
+    this.addEventListener('click', () => {
+      console.log('clicked', this.hitId)
+    })
+
     this.drawLayer(this.layer)
 
-    new Grow(this).start()
+    new Grow(this).onEnd = () => {
+      new Wobble(this)
+    }
   }
 
   drawLayer (ctx: CanvasRenderingContext2D) {
@@ -61,17 +67,19 @@ export default class Box extends Component {
           this.cx * (1 - this.scale), this.cy * (1 - this.scale))
     }
 
+    if (this.hover) {
+      ctx.filter = `drop-shadow(0 0 ${em(1)}px ${this.color})`
+    }
+
     // this.drawLayer(ctx)
     ctx.drawImage(this.layer.canvas, this.x, this.y)
 
+    if (this.hover) {
+      ctx.filter = `none`
+    }
     if (this.scale !== 1) {
       ctx.resetTransform()
     }
-
-    // if (this.hover) {
-    //   ctx.filter = `drop-shadow(0 0 ${em(0.25)}px ${this.color})`
-    // }
-
   }
 
   override hitbox (ctx: CanvasRenderingContext2D) {
@@ -79,34 +87,50 @@ export default class Box extends Component {
   }
 
   shrink () {
-    new Shrink(this).start()
+    new Shrink(this)
+  }
+}
+
+class Wobble extends Animate {
+  offset = 0
+
+  constructor (public component: Component & { scale: number }) {
+    super()
+    component.onRemove(() => {
+      this.end()
+    })
+  }
+
+  override tick (time: number) {
+    this.offset = Math.sin(this.elapsed * 0.005) * 0.05
+    this.component.scale = 1 + this.offset
   }
 }
 
 class Grow extends Tween {
   override duration = duration.long
 
-  constructor (public box: Component & { scale: number }) {
+  constructor (public component: Component & { scale: number }) {
     super()
   }
 
-  override onTick () {
-    this.box.scale = this.interpolate(0, 1)
+  override onProgress () {
+    this.component.scale = this.interpolate(0, 1)
   }
 }
 
 class Shrink extends Tween {
   override duration = duration.long
 
-  constructor (public box: Component & { scale: number }) {
+  constructor (public component: Component & { scale: number }) {
     super()
   }
 
-  override onTick () {
-    this.box.scale = this.interpolate(1, 0)
+  override onProgress () {
+    this.component.scale = this.interpolate(1, 0)
   }
 
   override onEnd () {
-    this.box.remove()
+    this.component.remove()
   }
 }

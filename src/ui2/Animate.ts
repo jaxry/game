@@ -1,29 +1,27 @@
 const animations = new Set<Animate>()
 
 let time = performance.now()
-let elapsed = 0
-let lastTime = 0
 
 export function runAnimations () {
   time = performance.now()
-  const elapsed = time - lastTime
-  lastTime = time
 
   for (const animation of animations) {
-    animation.tick(time, elapsed)
+    animation.tick(time)
   }
 }
 
 export abstract class Animate {
-  startTime: number
+  startTime = time
 
-  abstract tick(time: number, elapsed: number): void
-
-  start () {
-    this.startTime = time
+  constructor () {
     animations.add(this)
-    return this
   }
+
+  get elapsed () {
+    return time - this.startTime
+  }
+
+  abstract tick (time: number): void
 
   end () {
     animations.delete(this)
@@ -31,10 +29,8 @@ export abstract class Animate {
     return this
   }
 
-  onEnd?(): void
+  onEnd? (): void
 }
-
-
 
 export abstract class Tween extends Animate {
   duration = 0
@@ -42,12 +38,12 @@ export abstract class Tween extends Animate {
   progress = 0
   lastProgress = 0
 
-  tick () {
+  tick (time: number) {
     const elapsed = Math.min(time - this.startTime, this.duration)
 
     this.progress = this.easing(elapsed / this.duration)
 
-    this.onTick()
+    this.onProgress()
 
     if (elapsed >= this.duration) {
       this.end()
@@ -64,7 +60,7 @@ export abstract class Tween extends Animate {
     return this.interpolate(start, end) - this.interpolate(start, end, this.lastProgress)
   }
 
-  abstract onTick(): void
+  abstract onProgress (): void
 }
 
 export function linear (x: number): number {
@@ -84,5 +80,3 @@ export function easeOutCubic (x: number): number {
 }
 
 export const ease = easeOutCubic
-
-
