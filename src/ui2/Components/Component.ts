@@ -1,6 +1,6 @@
-import { Constructor } from '../types'
-import Observable from '../Observable'
-import Stage from './Stage'
+import { Constructor } from '../../types'
+import Observable from '../../Observable'
+import Stage from '../Stage'
 
 export default class Component {
   parentComponent?: Component

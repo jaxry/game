@@ -1,21 +1,14 @@
-import Component, { CanvasPointerEvent } from './Component'
+import Component, { CanvasPointerEvent } from './Components/Component'
 
 let isDragging = false
 let childDragged = false
-
-interface PointerMoveEvent {
-  x: number
-  y: number
-  movementX: number
-  movementY: number
-}
 
 export default function makeDraggable (
     component: Component,
     options: {
       // if returns false, drag is aborted
       onDown?: (e: CanvasPointerEvent) => boolean | void,
-      onDrag?: (e: PointerMoveEvent) => void,
+      onDrag?: (e: PointerEvent) => void,
       onUp?: (e: PointerEvent) => void,
     }) {
 
@@ -41,14 +34,7 @@ export default function makeDraggable (
     }, { once: true, signal })
 
     if (options.onDrag) {
-      document.body.addEventListener('pointermove', (e) => {
-        options.onDrag!({
-          x: e.clientX * devicePixelRatio,
-          y: e.clientY * devicePixelRatio,
-          movementX: e.movementX * devicePixelRatio,
-          movementY: e.movementY * devicePixelRatio,
-        })
-      }, { signal })
+      document.body.addEventListener('pointermove', options.onDrag, { signal })
     }
 
     window.addEventListener('pointerup', (e) => {

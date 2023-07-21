@@ -1,6 +1,6 @@
 import Component, {
   CanvasPointerEvent, Events, initComponent,
-} from './Component'
+} from './Components/Component'
 import { iterToSet } from '../util'
 import { runAnimations } from './Animate'
 
@@ -47,79 +47,16 @@ export default class Stage {
   }
 
   private setupEvents () {
-    const makePointerEvent = (e: PointerEvent): CanvasPointerEvent => {
-      const x = e.clientX * devicePixelRatio
-      const y = e.clientY * devicePixelRatio
-      const pixel = this.hitCtx.getImageData(x, y, 1, 1).data
-      const id = colorToId(pixel[0], pixel[1], pixel[2])
-
-      return {
-        x: e.clientX * devicePixelRatio,
-        y: e.clientY * devicePixelRatio,
-        target: this.idToComponent.get(id)!,
-      }
-    }
-
-    const emit = (event: CanvasPointerEvent, name: keyof Events) => {
-      if (!event.target) {
-        return
-      }
-      for (const component of ancestors(event.target)) {
-        if (component.events[name]?.emit(event) === false) {
-          return
-        }
-      }
-    }
-
-    // emit until an ancestor of stopComponent is encountered
-    const emitUntil = (
-        event: CanvasPointerEvent, name: keyof Events,
-        stopComponent?: Component) => {
-      if (!event.target) {
-        return
-      }
-
-      const stopBranch = stopComponent ?
-          iterToSet(ancestors(stopComponent)) :
-          undefined
-
-      for (const component of ancestors(event.target)) {
-        if (stopBranch?.has(component) ||
-            component.events[name]?.emit(event) === false) {
-          return
-        }
-      }
-    }
-
-    // emit only if an ancestor of sharedComponent is encountered
-    const emitShared = (
-        event: CanvasPointerEvent, name: keyof Events,
-        sharedComponent: Component) => {
-      if (!event.target) {
-        return
-      }
-
-      const shareBranch = iterToSet(ancestors(sharedComponent))
-
-      for (const component of ancestors(event.target)) {
-        if (!shareBranch.has(component)) {
-          continue
-        }
-        if (component.events[name]?.emit(event) === false) {
-          return
-        }
-      }
-    }
 
     let downComponent: Component
     this.canvas.addEventListener('pointerdown', (e) => {
-      const event = makePointerEvent(e)
+      const event = makePointerEvent(this, e)
       downComponent = event.target
       emit(event, 'pointerdown')
     })
 
     this.canvas.addEventListener('pointerup', (e) => {
-      const pointerEvent = makePointerEvent(e)
+      const pointerEvent = makePointerEvent(this, e)
       emit(pointerEvent, 'pointerup')
       if (downComponent) {
         emitShared(pointerEvent, 'click', downComponent)
@@ -128,7 +65,7 @@ export default class Stage {
 
     let lastComponent: Component
     this.canvas.addEventListener('pointermove', (e) => {
-      const event = makePointerEvent(e)
+      const event = makePointerEvent(this, e)
       if (event.target !== lastComponent) {
         emitUntil({ ...event, target: lastComponent }, 'pointerout',
             event.target)
@@ -173,3 +110,69 @@ function* ancestors (component: Component) {
     component = component.parentComponent!
   } while (component)
 }
+
+const makePointerEvent = (
+    stage: Stage, e: PointerEvent): CanvasPointerEvent => {
+  const x = e.clientX * devicePixelRatio
+  const y = e.clientY * devicePixelRatio
+  const pixel = stage.hitCtx.getImageData(x, y, 1, 1).data
+  const id = colorToId(pixel[0], pixel[1], pixel[2])
+
+  return {
+    x: e.clientX * devicePixelRatio,
+    y: e.clientY * devicePixelRatio,
+    target: stage.idToComponent.get(id)!,
+  }
+}
+
+const emit = (event: CanvasPointerEvent, name: keyof Events) => {
+  if (!event.target) {
+    return
+  }
+  for (const component of ancestors(event.target)) {
+    if (component.events[name]?.emit(event) === false) {
+      return
+    }
+  }
+}
+
+// emit until an ancestor of stopComponent is encountered
+const emitUntil = (
+    event: CanvasPointerEvent, name: keyof Events,
+    stopComponent?: Component) => {
+  if (!event.target) {
+    return
+  }
+
+  const stopBranch = stopComponent ?
+      iterToSet(ancestors(stopComponent)) :
+      undefined
+
+  for (const component of ancestors(event.target)) {
+    if (stopBranch?.has(component) ||
+        component.events[name]?.emit(event) === false) {
+      return
+    }
+  }
+}
+
+// emit only if an ancestor of sharedComponent is encountered
+const emitShared = (
+    event: CanvasPointerEvent, name: keyof Events,
+    sharedComponent: Component) => {
+  if (!event.target) {
+    return
+  }
+
+  const shareBranch = iterToSet(ancestors(sharedComponent))
+
+  for (const component of ancestors(event.target)) {
+    if (!shareBranch.has(component)) {
+      continue
+    }
+    if (component.events[name]?.emit(event) === false) {
+      return
+    }
+  }
+}
+

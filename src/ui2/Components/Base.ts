@@ -1,6 +1,6 @@
-import Component from '../Component'
+import Component from './Component'
 import { em } from '../units'
-import Box from './Box'
+import ColorBox from './ColorBox'
 import { randomCentered } from '../../util'
 
 export default class Base extends Component {
@@ -17,7 +17,7 @@ export default class Base extends Component {
   }
 
   makeBox () {
-    const box = this.newComponent(Box)
+    const box = this.newComponent(ColorBox)
     box.x = Math.floor((this.stage.canvas.width - box.width) * Math.random())
     box.y = Math.floor((this.stage.canvas.height - box.height) * Math.random())
     setTimeout(() => {
