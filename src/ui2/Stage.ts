@@ -1,5 +1,5 @@
 import Component, {
-  CanvasPointerEvent, Events, initComponent,
+  CanvasPointerEvent, ComponentEvents,
 } from './Components/Component'
 import { iterToSet } from '../util'
 import { runAnimations } from './Animate'
@@ -30,7 +30,7 @@ export default class Stage {
     this.setupEvents()
 
     this.baseComponent = baseComponent
-    initComponent(baseComponent, this)
+    this.baseComponent.init(this)
 
     this.draw()
   }
@@ -125,7 +125,7 @@ const makePointerEvent = (
   }
 }
 
-const emit = (event: CanvasPointerEvent, name: keyof Events) => {
+const emit = (event: CanvasPointerEvent, name: keyof ComponentEvents) => {
   if (!event.target) {
     return
   }
@@ -138,7 +138,7 @@ const emit = (event: CanvasPointerEvent, name: keyof Events) => {
 
 // emit until an ancestor of stopComponent is encountered
 const emitUntil = (
-    event: CanvasPointerEvent, name: keyof Events,
+    event: CanvasPointerEvent, name: keyof ComponentEvents,
     stopComponent?: Component) => {
   if (!event.target) {
     return
@@ -158,7 +158,7 @@ const emitUntil = (
 
 // emit only if an ancestor of sharedComponent is encountered
 const emitShared = (
-    event: CanvasPointerEvent, name: keyof Events,
+    event: CanvasPointerEvent, name: keyof ComponentEvents,
     sharedComponent: Component) => {
   if (!event.target) {
     return

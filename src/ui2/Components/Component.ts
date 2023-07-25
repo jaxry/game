@@ -10,9 +10,17 @@ export default class Component {
   hitId: number
   hitColor: string
 
-  events = new Events()
+  events = new ComponentEvents()
 
   private onRemoveCallbacks: (() => void)[] = []
+
+  init (stage: Stage) {
+    this.stage = stage
+    if (this.hitbox) {
+      stage.setComponentHitboxId(this)
+    }
+    this.onInit?.()
+  }
 
   newComponent<T extends Constructor<Component>> (
       constructor: T, ...args: ConstructorParameters<T>) {
@@ -25,7 +33,7 @@ export default class Component {
     }
     this.childComponents.add(component)
 
-    initComponent(component, this.stage)
+    component.init(this.stage)
 
     return component as InstanceType<T>
   }
@@ -56,7 +64,8 @@ export default class Component {
   }
 
   addEventListener (
-      name: keyof Events, callback: (e: CanvasPointerEvent) => boolean | void) {
+      name: keyof ComponentEvents,
+      callback: (e: CanvasPointerEvent) => boolean | void) {
     if (!this.events[name]) {
       this.events[name] = new Observable()
     }
@@ -76,7 +85,7 @@ export default class Component {
     }
   }
 
-  init? (): void
+  onInit? (): void
 
   onDraw? (ctx: CanvasRenderingContext2D): void
 
@@ -89,20 +98,12 @@ export interface CanvasPointerEvent {
   target: Component
 }
 
-export class Events {
+export class ComponentEvents {
   click?: Observable<CanvasPointerEvent>
   pointerenter?: Observable<CanvasPointerEvent>
   pointerout?: Observable<CanvasPointerEvent>
   pointerdown?: Observable<CanvasPointerEvent>
   pointerup?: Observable<CanvasPointerEvent>
-}
-
-export function initComponent (component: Component, stage: Stage) {
-  component.stage = stage
-  if (component.hitbox) {
-    stage.setComponentHitboxId(component)
-  }
-  component.init?.()
 }
 
 

@@ -1,6 +1,6 @@
 import Component from './Component'
 import { em } from '../units'
-import { randomElement } from '../../util'
+import { randomCentered, randomElement } from '../../util'
 import makeCanvas from '../makeCanvas'
 import { duration } from '../../ui/theme'
 import { Animate, Tween } from '../Animate'
@@ -17,9 +17,9 @@ export default class ColorBox extends Box {
   hover = false
   scale = 1
 
-  override init () {
-    this.width = em(5)
-    this.height = em(5)
+  override onInit () {
+    this.width = em(Math.floor(10 * (1 + randomCentered(1))))
+    this.height = em(Math.floor(10 * (1 + randomCentered(1))))
     this.layer = makeCanvas(this.width, this.height, true)
     this.drawLayer(this.layer)
 
@@ -101,9 +101,9 @@ class Wobble extends Animate {
   }
 
   override tick (time: number) {
-    this.component.scale -= this.offset
+    const oldOffset = this.offset
     this.offset = this.component.scale * Math.sin(this.elapsed * 0.005) * 0.05
-    this.component.scale += this.offset
+    this.component.scale += this.offset - oldOffset
   }
 }
 
