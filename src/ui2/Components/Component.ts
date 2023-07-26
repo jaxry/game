@@ -3,14 +3,18 @@ import Observable from '../../Observable'
 import Stage from '../Stage'
 
 export default class Component {
-  parentComponent?: Component
+  parentComponent: Component
   childComponents?: Set<Component>
   stage: Stage
 
   hitId: number
   hitColor: string
 
-  events = new ComponentEvents()
+  click = new Observable<CanvasPointerEvent>()
+  pointerenter = new Observable<CanvasPointerEvent>()
+  pointerout = new Observable<CanvasPointerEvent>()
+  pointerdown = new Observable<CanvasPointerEvent>()
+  pointerup = new Observable<CanvasPointerEvent>()
 
   private onRemoveCallbacks: (() => void)[] = []
 
@@ -39,8 +43,7 @@ export default class Component {
   }
 
   remove () {
-    this.parentComponent?.childComponents!.delete(this)
-    this.parentComponent = undefined
+    this.parentComponent.childComponents!.delete(this)
 
     for (const callback of this.onRemoveCallbacks) {
       callback()
@@ -61,15 +64,6 @@ export default class Component {
 
   onRemove (unsubscribe: () => void) {
     this.onRemoveCallbacks.push(unsubscribe)
-  }
-
-  addEventListener (
-      name: keyof ComponentEvents,
-      callback: (e: CanvasPointerEvent) => boolean | void) {
-    if (!this.events[name]) {
-      this.events[name] = new Observable()
-    }
-    this.events[name]!.on(callback)
   }
 
   draw () {
@@ -97,13 +91,4 @@ export interface CanvasPointerEvent {
   y: number,
   target: Component
 }
-
-export class ComponentEvents {
-  click?: Observable<CanvasPointerEvent>
-  pointerenter?: Observable<CanvasPointerEvent>
-  pointerout?: Observable<CanvasPointerEvent>
-  pointerdown?: Observable<CanvasPointerEvent>
-  pointerup?: Observable<CanvasPointerEvent>
-}
-
 

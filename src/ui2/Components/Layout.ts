@@ -1,5 +1,4 @@
 import Box from './Box'
-import Component from './Component'
 import { Constructor } from '../../types'
 
 export default class Layout extends Box {

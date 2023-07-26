@@ -13,4 +13,8 @@ export default class Box extends Component {
   get centerY () {
     return this.y + this.height * 0.5
   }
+
+  override onInit () {
+
+  }
 }

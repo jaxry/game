@@ -1,8 +1,8 @@
-import Component, {
-  CanvasPointerEvent, ComponentEvents,
-} from './Components/Component'
+import Component, { CanvasPointerEvent } from './Components/Component'
 import { iterToSet } from '../util'
 import { runAnimations } from './Animate'
+import { KeysOfType } from '../types'
+import Observable from '../Observable'
 
 export default class Stage {
   canvas = document.createElement('canvas')
@@ -125,12 +125,14 @@ const makePointerEvent = (
   }
 }
 
-const emit = (event: CanvasPointerEvent, name: keyof ComponentEvents) => {
+type Key = KeysOfType<Component, Observable<any>>
+
+const emit = (event: CanvasPointerEvent, name: Key) => {
   if (!event.target) {
     return
   }
   for (const component of ancestors(event.target)) {
-    if (component.events[name]?.emit(event) === false) {
+    if (component[name].emit(event) === false) {
       return
     }
   }
@@ -138,8 +140,7 @@ const emit = (event: CanvasPointerEvent, name: keyof ComponentEvents) => {
 
 // emit until an ancestor of stopComponent is encountered
 const emitUntil = (
-    event: CanvasPointerEvent, name: keyof ComponentEvents,
-    stopComponent?: Component) => {
+    event: CanvasPointerEvent, name: Key, stopComponent?: Component) => {
   if (!event.target) {
     return
   }
@@ -150,7 +151,7 @@ const emitUntil = (
 
   for (const component of ancestors(event.target)) {
     if (stopBranch?.has(component) ||
-        component.events[name]?.emit(event) === false) {
+        component[name].emit(event) === false) {
       return
     }
   }
@@ -158,8 +159,7 @@ const emitUntil = (
 
 // emit only if an ancestor of sharedComponent is encountered
 const emitShared = (
-    event: CanvasPointerEvent, name: keyof ComponentEvents,
-    sharedComponent: Component) => {
+    event: CanvasPointerEvent, name: Key, sharedComponent: Component) => {
   if (!event.target) {
     return
   }
@@ -170,7 +170,7 @@ const emitShared = (
     if (!shareBranch.has(component)) {
       continue
     }
-    if (component.events[name]?.emit(event) === false) {
+    if (component[name].emit(event) === false) {
       return
     }
   }
