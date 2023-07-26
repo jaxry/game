@@ -2,15 +2,16 @@
   "name": "gui-test",
   "private": true,
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
+    "dev": "parcel index.html",
+    "build": "parcel build index.html",
     "test": "vitest"
   },
   "devDependencies": {
-    "typescript": "^4.9.3",
-    "vite": "^3.2.4",
-    "vitest": "^0.30.1"
+    "@parcel/transformer-typescript-tsc": "^2.9.3",
+    "parcel": "^2.9.3",
+    "typescript": "^5.1.6",
+    "vitest": "^0.33.0"
   }
 }
