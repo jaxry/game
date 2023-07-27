@@ -44,12 +44,12 @@ export default function makeDraggable (
     }, { once: true })
   }
 
-  component.pointerdown.on(down)
+  component.addEventListener('pointerdown', down)
 }
 
 export function onClickNotDrag (
     component: Component, handler: (e: CanvasPointerEvent) => void) {
-  component.click.on((e) => {
+  component.addEventListener('click', (e) => {
     if (!isDragging) {
       handler(e)
     }

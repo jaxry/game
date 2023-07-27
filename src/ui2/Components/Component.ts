@@ -10,11 +10,7 @@ export default class Component {
   hitId: number
   hitColor: string
 
-  click = new Observable<CanvasPointerEvent>()
-  pointerenter = new Observable<CanvasPointerEvent>()
-  pointerout = new Observable<CanvasPointerEvent>()
-  pointerdown = new Observable<CanvasPointerEvent>()
-  pointerup = new Observable<CanvasPointerEvent>()
+  events: Record<string, Observable<any>> = {}
 
   private onRemoveCallbacks: (() => void)[] = []
 
@@ -64,6 +60,13 @@ export default class Component {
 
   onRemove (unsubscribe: () => void) {
     this.onRemoveCallbacks.push(unsubscribe)
+  }
+
+  addEventListener (name: any, callback: (...args: any) => void) {
+    if (!this.events[name]) {
+      this.events[name] = new Observable()
+    }
+    this.events[name].on(callback)
   }
 
   draw () {

@@ -23,16 +23,16 @@ export default class ColorBox extends Box {
     this.layer = makeCanvas(this.width, this.height, true)
     this.drawLayer(this.layer)
 
-    this.pointerenter.on((e) => {
+    this.addEventListener('pointerenter', (e) => {
       this.hover = true
       document.body.style.cursor = 'grab'
     })
-    this.pointerout.on(() => {
+    this.addEventListener('pointerout', () => {
       this.hover = false
       document.body.style.cursor = ''
     })
 
-    this.click.on(() => {
+    this.addEventListener('click', () => {
       console.log('clicked', this.hitId)
     })
 
