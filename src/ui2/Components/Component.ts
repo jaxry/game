@@ -1,14 +1,13 @@
 import { Constructor } from '../../types'
 import Observable from '../../Observable'
 import Stage from '../Stage'
+import { Canvas } from 'canvaskit-wasm'
 
 export default class Component {
   parentComponent: Component
   childComponents?: Set<Component>
-  stage: Stage
 
-  hitId: number
-  hitColor: string
+  stage: Stage
 
   events: Record<string, Observable<any>> = {}
 
@@ -16,9 +15,6 @@ export default class Component {
 
   init (stage: Stage) {
     this.stage = stage
-    if (this.hitbox) {
-      stage.setComponentHitboxId(this)
-    }
     this.onInit?.()
   }
 
@@ -46,10 +42,6 @@ export default class Component {
     }
     this.onRemoveCallbacks.length = 0
 
-    if (this.hitbox) {
-      this.stage.removeComponentHitboxId(this)
-    }
-
     if (this.childComponents) {
       for (const component of this.childComponents) {
         component.remove()
@@ -69,24 +61,20 @@ export default class Component {
     this.events[name].on(callback)
   }
 
-  draw () {
-    this.onDraw?.(this.stage.ctx)
-    if (this.hitbox) {
-      this.stage.hitCtx.fillStyle = this.hitColor
-      this.hitbox(this.stage.hitCtx)
-    }
+  draw (canvas: Canvas) {
+    this.onDraw?.(canvas)
     if (this.childComponents) {
       for (const component of this.childComponents) {
-        component.draw()
+        component.draw(canvas)
       }
     }
   }
 
   onInit? (): void
 
-  onDraw? (ctx: CanvasRenderingContext2D): void
+  onDraw? (canvas: Canvas): void
 
-  hitbox? (ctx: CanvasRenderingContext2D): void
+  hitbox? (): void
 }
 
 export interface CanvasPointerEvent {

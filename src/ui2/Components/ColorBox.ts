@@ -23,7 +23,7 @@ export default class ColorBox extends Box {
     this.layer = makeCanvas(this.width, this.height, true)
     this.drawLayer(this.layer)
 
-    this.addEventListener('pointerenter', (e) => {
+    this.addEventListener('pointerenter', () => {
       this.hover = true
       document.body.style.cursor = 'grab'
     })
@@ -86,7 +86,7 @@ export default class ColorBox extends Box {
   }
 
   override hitbox (ctx: CanvasRenderingContext2D) {
-    ctx.fillRect(this.x, this.y, this.width, this.height)
+
   }
 }
 

@@ -1,59 +1,38 @@
 import Component, { CanvasPointerEvent } from './Components/Component'
 import { iterToSet } from '../util'
 import { runAnimations } from './Animate'
+import { canvasKit } from './canvasKit.ts'
+import { Canvas, Surface } from 'canvaskit-wasm'
 
 export default class Stage {
-  canvas = document.createElement('canvas')
-  ctx = this.canvas.getContext('2d', {
-    alpha: false,
-  })!
-  hitCtx = document.createElement('canvas').getContext('2d', {
-    alpha: false,
-    willReadFrequently: true,
-  })!
-  nextNewHitId = 1
+  canvasElement = document.createElement('canvas')
+  surface: Surface
+  animationId = 0
 
   baseComponent: Component
 
-  idToComponent = new Map<number, Component>()
-
-  private animationId: number
-
   constructor (parent: HTMLElement, baseComponent: Component) {
-    parent.appendChild(this.canvas)
+    parent.appendChild(this.canvasElement)
 
-    this.resize()
-    window.addEventListener('resize', this.resize)
+    this.createSurface()
+    window.addEventListener('resize', this.createSurface)
 
-    this.setupEvents()
+    // this.setupEvents()
 
     this.baseComponent = baseComponent
     this.baseComponent.init(this)
-
-    this.draw()
-  }
-
-  setComponentHitboxId (component: Component) {
-    const id = this.nextNewHitId++
-    this.idToComponent.set(id, component)
-    component.hitId = id
-    component.hitColor = idToColor(id)
-  }
-
-  removeComponentHitboxId (component: Component) {
-    this.idToComponent.delete(component.hitId)
   }
 
   private setupEvents () {
 
     let downComponent: Component
-    this.canvas.addEventListener('pointerdown', (e) => {
+    this.canvasElement.addEventListener('pointerdown', (e) => {
       const event = makePointerEvent(this, e)
       downComponent = event.target
       emit(event, 'pointerdown')
     })
 
-    this.canvas.addEventListener('pointerup', (e) => {
+    this.canvasElement.addEventListener('pointerup', (e) => {
       const pointerEvent = makePointerEvent(this, e)
       emit(pointerEvent, 'pointerup')
       if (downComponent) {
@@ -62,7 +41,7 @@ export default class Stage {
     })
 
     let lastComponent: Component
-    this.canvas.addEventListener('pointermove', (e) => {
+    this.canvasElement.addEventListener('pointermove', (e) => {
       const event = makePointerEvent(this, e)
       if (event.target !== lastComponent) {
         emitUntil({ ...event, target: lastComponent }, 'pointerout',
@@ -73,21 +52,29 @@ export default class Stage {
     })
   }
 
-  private draw = () => {
-    runAnimations()
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-    this.hitCtx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-    this.baseComponent.draw()
-    this.animationId = requestAnimationFrame(this.draw)
+  private queueDraw () {
+    this.animationId = this.surface.requestAnimationFrame(this.draw)
   }
 
-  private resize = () => {
-    const width = this.canvas.clientWidth * devicePixelRatio
-    const height = this.canvas.clientHeight * devicePixelRatio
-    this.canvas.width = width
-    this.canvas.height = height
-    this.hitCtx.canvas.width = width
-    this.hitCtx.canvas.height = height
+  private draw = (canvas: Canvas) => {
+    runAnimations()
+    // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+    this.baseComponent.draw(canvas)
+    this.queueDraw()
+  }
+
+  private createSurface = () => {
+    const width = this.canvasElement.clientWidth * devicePixelRatio
+    const height = this.canvasElement.clientHeight * devicePixelRatio
+    this.canvasElement.width = width
+    this.canvasElement.height = height
+
+    this.surface?.delete()
+    this.surface = canvasKit.MakeWebGLCanvasSurface(
+        this.canvasElement, undefined, { alpha: 0 })!
+
+    cancelAnimationFrame(this.animationId)
+    this.queueDraw()
   }
 }
 
