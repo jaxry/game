@@ -5,7 +5,7 @@ import { Canvas } from 'canvaskit-wasm'
 
 export default class Component {
   parentComponent: Component
-  childComponents?: Set<Component>
+  childComponents = new Set<Component>()
 
   stage: Stage
 
@@ -18,20 +18,18 @@ export default class Component {
     this.onInit?.()
   }
 
-  newComponent<T extends Constructor<Component>> (
-      constructor: T, ...args: ConstructorParameters<T>) {
+  newComponent<T extends Component> (
+      constructor: Constructor<T>,
+      ...args: ConstructorParameters<Constructor<T>>) {
 
     const component = new constructor(...args)
     component.parentComponent = this
 
-    if (!this.childComponents) {
-      this.childComponents = new Set()
-    }
     this.childComponents.add(component)
 
     component.init(this.stage)
 
-    return component as InstanceType<T>
+    return component
   }
 
   remove () {
@@ -42,19 +40,30 @@ export default class Component {
     }
     this.onRemoveCallbacks.length = 0
 
-    if (this.childComponents) {
-      for (const component of this.childComponents) {
-        component.remove()
-      }
-      this.childComponents.clear()
+    for (const component of this.childComponents) {
+      component.remove()
     }
+    this.childComponents.clear()
   }
 
   onRemove (unsubscribe: () => void) {
     this.onRemoveCallbacks.push(unsubscribe)
   }
 
-  addEventListener (name: any, callback: (...args: any) => void) {
+  new<T extends { delete (): any }> (constructor: Constructor<T>): T {
+    const instance = new constructor()
+    this.onRemove(() => instance.delete())
+    return instance
+  }
+
+  make<T extends (...args: any) => { delete (): any }> (
+      factory: T, ...args: Parameters<T>): ReturnType<T> {
+    const instance = factory(...args as any)
+    this.onRemove(() => instance.delete())
+    return instance as any
+  }
+
+  addEventListener (name: string, callback: (...args: any) => void) {
     if (!this.events[name]) {
       this.events[name] = new Observable()
     }
@@ -63,18 +72,30 @@ export default class Component {
 
   draw (canvas: Canvas) {
     this.onDraw?.(canvas)
-    if (this.childComponents) {
-      for (const component of this.childComponents) {
-        component.draw(canvas)
-      }
+    for (const component of this.childComponents) {
+      component.draw(canvas)
     }
+  }
+
+  hit (x: number, y: number): Component | null {
+    let hitComponent: Component | null = null
+
+    for (const child of this.childComponents) {
+      hitComponent = child.hit(x, y) || hitComponent
+    }
+
+    if (!hitComponent && this.hitArea) {
+      hitComponent = this.hitArea(x, y) ? this : null
+    }
+
+    return hitComponent
   }
 
   onInit? (): void
 
   onDraw? (canvas: Canvas): void
 
-  hitbox? (): void
+  hitArea? (x: number, y: number): boolean
 }
 
 export interface CanvasPointerEvent {

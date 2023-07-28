@@ -17,10 +17,18 @@ export default class Stage {
     this.createSurface()
     window.addEventListener('resize', this.createSurface)
 
-    // this.setupEvents()
+    this.setupEvents()
 
     this.baseComponent = baseComponent
     this.baseComponent.init(this)
+  }
+
+  get width () {
+    return this.canvasElement.width
+  }
+
+  get height () {
+    return this.canvasElement.height
   }
 
   private setupEvents () {
@@ -78,17 +86,6 @@ export default class Stage {
   }
 }
 
-export function idToColor (id: number) {
-  const b = id % 256
-  const g = Math.floor(id / 256) % 256
-  const r = Math.floor(id / 256 / 256)
-  return `rgb(${r},${g},${b})`
-}
-
-export function colorToId (r: number, g: number, b: number) {
-  return r * 256 * 256 + g * 256 + b
-}
-
 function* ancestors (component: Component) {
   do {
     yield component
@@ -100,13 +97,11 @@ const makePointerEvent = (
     stage: Stage, e: PointerEvent): CanvasPointerEvent => {
   const x = e.clientX * devicePixelRatio
   const y = e.clientY * devicePixelRatio
-  const pixel = stage.hitCtx.getImageData(x, y, 1, 1).data
-  const id = colorToId(pixel[0], pixel[1], pixel[2])
 
   return {
-    x: e.clientX * devicePixelRatio,
-    y: e.clientY * devicePixelRatio,
-    target: stage.idToComponent.get(id)!,
+    x,
+    y,
+    target: stage.baseComponent.hit(x, y),
   }
 }
 

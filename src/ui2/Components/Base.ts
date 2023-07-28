@@ -1,54 +1,73 @@
 import Component from './Component'
-import ColorBox from './ColorBox'
-import { randomCentered } from '../../util'
-import { Canvas } from 'canvaskit-wasm'
-import { canvasKit } from '../canvasKit.ts'
+import ColoredBox from './ColoredBox.ts'
+import { Animate } from '../Animate.ts'
+import Box from './Box.ts'
+import { em } from '../units.ts'
+import makeDraggable, { onClickNotDrag } from '../makeDraggable.ts'
 
 export default class Base extends Component {
-  x = 0
-  y = 0
-  paint = new canvasKit.Paint()
-  rect = canvasKit.XYWHRect(0, 0, 100, 100)
-
   override onInit () {
-    // for (let i = 0; i < 100; i++) {
+
+    // for (let i = 0; i < 5; i++) {
     //   this.makeBox()
     // }
 
-    // this.makeBox()
-
-    // setInterval(() => {
-    //   this.makeBox()
-    // }, 50)
+    setInterval(() => {
+      this.makeBox()
+    }, 50)
 
     // const layout = this.newComponent(Layout)
     // layout.x = em(3)
     // layout.y = em(3)
-    // layout.addToLayout(ColorBox)
-    // layout.addToLayout(ColorBox)
-    // layout.addToLayout(ColorBox)
-    this.paint.setColorComponents(Math.random(), Math.random(), Math.random(),
-        1)
-    this.paint.setAntiAlias(true)
+    // layout.addToLayout(ColoredBoxOld)
+    // layout.addToLayout(ColoredBoxOld)
+    // layout.addToLayout(ColoredBoxOld)
   }
 
   makeBox () {
-    const box = this.newComponent(ColorBox)
+    const box = this.newComponent(ColoredBox)
     box.x =
-        Math.floor((this.stage.canvasElement.width - box.width) * Math.random())
+        Math.floor((this.stage.width - box.width) * Math.random())
     box.y = Math.floor(
-        (this.stage.canvasElement.height - box.height) * Math.random())
+        (this.stage.height - box.height) * Math.random())
+
+    makeDraggable(box, {
+      onDrag: (e) => {
+        box.x += e.movementX * devicePixelRatio
+        box.y += e.movementY * devicePixelRatio
+      },
+    })
+
+    onClickNotDrag(box, (e) => {
+      console.log('click', box.id)
+    })
+
+    const wobble = new Wobble(box)
+    box.onRemove(() => {
+      wobble.end()
+    })
+
     setTimeout(() => {
-      box.shrink()
-    }, 10000 * (1 + randomCentered()))
+      box.remove()
+    }, 10000)
+  }
+}
+
+class Wobble extends Animate {
+  offsetX = 0
+  offsetY = 0
+  waveOffset = Math.PI * 2 * Math.random()
+
+  constructor (public box: Box) {
+    super()
   }
 
-  override onDraw (canvas: Canvas) {
-    canvas.drawRect(this.rect, this.paint)
-    this.rect[0] += 0.1
-    this.rect[1] += 0.1
-    this.rect[2] += 0.1
-    this.rect[3] += 0.1
-
+  override tick () {
+    const oldOffsetX = this.offsetX
+    const oldOffsetY = this.offsetY
+    this.offsetX = Math.sin(this.waveOffset + this.elapsed * 0.002) * em(1)
+    this.offsetY = Math.cos(this.waveOffset + this.elapsed * 0.002) * em(1)
+    this.box.x += this.offsetX - oldOffsetX
+    this.box.y += this.offsetY - oldOffsetY
   }
 }

@@ -9,7 +9,7 @@ import Box from './Box'
 
 const c = '0123456789abcdef'.split('')
 
-export default class ColorBox extends Box {
+export default class ColoredBoxOld extends Box {
   color = `#${randomElement(c)}${randomElement(c)}${randomElement(c)}`
 
   layer: CanvasRenderingContext2D
