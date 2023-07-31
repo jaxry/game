@@ -12,6 +12,8 @@ export default class Base extends Component {
     //   this.makeBox()
     // }
 
+    // this.makeBox()
+
     setInterval(() => {
       this.makeBox()
     }, 50)
@@ -39,7 +41,7 @@ export default class Base extends Component {
     })
 
     onClickNotDrag(box, (e) => {
-      console.log('click', box.id)
+      console.log('click', e)
     })
 
     const wobble = new Wobble(box)

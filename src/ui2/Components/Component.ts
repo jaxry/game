@@ -50,8 +50,10 @@ export default class Component {
     this.onRemoveCallbacks.push(unsubscribe)
   }
 
-  new<T extends { delete (): any }> (constructor: Constructor<T>): T {
-    const instance = new constructor()
+  new<T extends { delete (): any }> (
+      constructor: Constructor<T>,
+      ...args: ConstructorParameters<Constructor<T>>) {
+    const instance = new constructor(...args)
     this.onRemove(() => instance.delete())
     return instance
   }

@@ -5,14 +5,21 @@ export default class Box extends Component {
   y = 0
   width = 0
   height = 0
-  id = Math.random()
 
   get centerX () {
     return this.x + this.width * 0.5
   }
 
+  set centerX (value) {
+    this.x = value - this.width * 0.5
+  }
+
   get centerY () {
     return this.y + this.height * 0.5
+  }
+
+  set centerY (value) {
+    this.y = value - this.height * 0.5
   }
 
   get left () {

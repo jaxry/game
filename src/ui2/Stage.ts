@@ -101,7 +101,7 @@ const makePointerEvent = (
   return {
     x,
     y,
-    target: stage.baseComponent.hit(x, y),
+    target: stage.baseComponent.hit(x, y)!,
   }
 }
 
