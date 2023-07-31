@@ -1,6 +1,6 @@
-import { iterChildren, mapFilter, translate } from '../../util'
-import { duration } from '../theme'
-import throttle from '../throttle'
+import { iterChildren, mapFilter, translate } from '../util'
+import { duration } from './theme'
+import throttle from './throttle'
 
 export const animatable = 'animatable'
 
@@ -14,7 +14,7 @@ export function animateChanges (element: HTMLElement, stateChange: () => void) {
 }
 
 const queueAnimation = throttle(() => {
-  const affectedElements = getAffectedElements()
+  const affectedElements = queryElements(`.${animatable}`)
   const bboxes = mapFilter(affectedElements, (element) => {
     return { x: element.offsetLeft, y: element.offsetTop }
   })
@@ -54,19 +54,6 @@ function relativePosition (element: HTMLElement) {
   return elementBBox
 }
 
-function getAffectedElements () {
-  const affectedElements = new Set<HTMLElement>()
-
-  for (let element of elements) {
-    do {
-      for (const child of iterChildren(element)) {
-        if (child.classList.contains(animatable)) {
-          affectedElements.add(child)
-        }
-      }
-      element = element.parentElement!
-    } while (element)
-  }
-
-  return affectedElements
+function queryElements (selector: string) {
+  return Array.from(document.querySelectorAll(selector)) as HTMLElement[]
 }

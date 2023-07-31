@@ -2,7 +2,7 @@ import Component from './Component'
 import { createDiv, createTextNode } from '../createElement'
 import { makeStyle } from '../makeStyle'
 import { makeArray, randomCentered, randomElement } from '../../util'
-import { animatable, animateChanges } from './animateChanges'
+import { animatable, animateChanges } from '../animateChanges'
 import animatedBackground, {
   animatedBackgroundTemplate,
 } from '../animatedBackground'

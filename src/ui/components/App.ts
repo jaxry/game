@@ -3,18 +3,15 @@ import { addStyle, makeStyle } from '../makeStyle'
 import '../preflight.css'
 import { backgroundColor, fontColor } from '../theme'
 import { createDiv } from '../createElement'
-import Tester from './Tester'
-import TesterContainer from './Tester'
+import Base from '../testing/base'
 
 export default class App extends Component {
-  constructor () {
-    super()
-
+  override onInit () {
     this.element.classList.add(containerStyle)
 
     this.element.append(outsideElem)
     // this.newComponent(GameUI).appendTo(this.element)
-    this.newComponent(TesterContainer).appendTo(this.element)
+    this.newComponent(Base).appendTo(this.element)
   }
 }
 

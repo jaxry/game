@@ -25,6 +25,7 @@ export default class Component<T extends Element = HTMLElement> {
 
   appendTo (parent: Element) {
     parent.append(this.element)
+    this.onInit?.()
     return this
   }
 
@@ -52,4 +53,6 @@ export default class Component<T extends Element = HTMLElement> {
   on<T> (event: Observable<T>, listener: (data: T) => void) {
     this.onRemove(event.on(listener))
   }
+
+  onInit?(): void
 }
