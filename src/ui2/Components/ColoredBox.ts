@@ -21,7 +21,7 @@ export default class ColoredBox extends Box {
 
     this.textPaint.setColorComponents(1, 1, 1, 1)
 
-    const layer = this.stage.surface.makeSurface({
+    const layer = this.make(this.stage.surface.makeSurface.bind(this.stage.surface), {
       width: 200,
       height: 20,
       alphaType: canvasKit.AlphaType.Premul,
@@ -30,14 +30,13 @@ export default class ColoredBox extends Box {
     })
 
     layer.getCanvas().drawText('hey there', 0, em(1), this.textPaint, this.font)
-    this.image = layer.makeImageSnapshot()
-
+    this.image = this.make(layer.makeImageSnapshot.bind(layer))
   }
 
   override onDraw (canvas: Canvas) {
     canvas.drawRect4f(this.left, this.top, this.right, this.bottom, this.paint)
     // canvas.drawTextBlob(this.text, this.left, this.top, this.textPaint)
-    // canvas.drawText('hey there', this.left, this.top, this.textPaint, this.font)
-    canvas.drawImage(this.image, this.left, this.top)
+    canvas.drawText('hey there', this.left, this.top, this.textPaint, this.font)
+    // canvas.drawImage(this.image, this.left, this.top)
   }
 }
