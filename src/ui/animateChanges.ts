@@ -1,15 +1,13 @@
-import { iterChildren, mapFilter, translate } from '../util'
+import { mapFilter, translate } from '../util'
 import { duration } from './theme'
 import throttle from './throttle'
 
 export const animatable = 'animatable'
 
 const stateChanges: (() => void)[] = []
-const elements = new Set<HTMLElement>()
 
-export function animateChanges (element: HTMLElement, stateChange: () => void) {
+export function animateChanges (stateChange: () => void) {
   stateChanges.push(stateChange)
-  elements.add(element)
   queueAnimation()
 }
 
@@ -39,8 +37,6 @@ const queueAnimation = throttle(() => {
       composite: `accumulate`,
     })
   }
-
-  elements.clear()
 })
 
 function relativePosition (element: HTMLElement) {
