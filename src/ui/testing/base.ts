@@ -3,7 +3,7 @@ import { makeStyle } from '../makeStyle'
 import { numToPx, randomElement } from '../../util'
 import makeDraggable from '../makeDraggable'
 import { createElement } from '../createElement'
-import animateContents from '../animateContents'
+import animatingContents from '../animatingContents'
 import AnimatedSize from './AnimatedSize'
 
 const chars = '0123456789abcdef'.split('')
@@ -64,23 +64,21 @@ export class Box extends AnimatedSize {
 
     createElement(this.content, 'span', undefined, color)
 
+    animatingContents(this.content)
+
     let extender: Extender | null = null
     this.element.addEventListener('pointerenter', () => {
-      animateContents(this.content, () => {
-        if (extender) {
-          this.cancelAnimatedRemove(extender.element)
-        } else {
-          extender = this.newComponent(Extender).appendTo(this.content)
-        }
-      })
+      if (extender) {
+        this.cancelAnimatedRemove(extender.element)
+      } else {
+        extender = this.newComponent(Extender).appendTo(this.content)
+      }
     })
 
     this.element.addEventListener('pointerleave', () => {
-      animateContents(this.content, () => {
-        this.animatedRemove(extender!.element, () => {
-          extender!.remove()
-          extender = null
-        })
+      this.animatedRemove(extender!.element, () => {
+        extender!.remove()
+        extender = null
       })
     })
   }

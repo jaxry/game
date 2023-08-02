@@ -178,12 +178,6 @@ export function removeChildren (node: Node) {
   }
 }
 
-export function* iterChildren (node: Element) {
-  for (let i = 0; i < node.children.length; i++) {
-    yield node.children[i] as HTMLElement
-  }
-}
-
 let lastZIndex = 0
 
 export function moveToTop (node: HTMLElement) {
