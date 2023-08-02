@@ -1,9 +1,10 @@
 export function onResize (
     element: Element,
-    callback: (entry: ResizeObserverEntry) => void) {
+    callback: (width: number, height: number) => void) {
 
   const observer = new ResizeObserver((entries) => {
-    callback(entries[0])
+    const { inlineSize, blockSize } = entries[0].borderBoxSize[0]
+    callback(inlineSize, blockSize)
   })
 
   observer.observe(element)

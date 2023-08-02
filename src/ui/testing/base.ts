@@ -2,10 +2,9 @@ import Component from '../components/Component'
 import { makeStyle } from '../makeStyle'
 import { numToPx, randomElement } from '../../util'
 import makeDraggable from '../makeDraggable'
-import { animatedBackgroundTemplate } from '../animatedBackground'
-import { createDiv, createElement } from '../createElement'
-import { onResize } from '../onResize'
-import { duration } from '../theme'
+import { createElement } from '../createElement'
+import animateContents from '../animateContents'
+import AnimatedSize from './AnimatedSize'
 
 const chars = '0123456789abcdef'.split('')
 const randomColor = () => {
@@ -45,30 +44,15 @@ const containerStyle = makeStyle({
   userSelect: `none`
 })
 
-export class Box extends Component {
+export class Box extends AnimatedSize {
   x = 0
   y = 0
-  list = createDiv(this.element, listStyle)
 
   override onInit () {
-    this.element.classList.add(boxStyle)
     const color = randomColor()
     this.element.style.background = color
 
-    onResize(this.list, (box) => {
-      // this.element.style.width = numToPx(this.list.scrollWidth)
-      // this.element.style.height = numToPx(this.list.scrollHeight)
-      this.element.animate({
-        width: [
-          numToPx(this.element.offsetWidth), numToPx(this.list.scrollWidth)],
-        height: [
-          numToPx(this.element.offsetHeight), numToPx(this.list.scrollHeight)],
-      }, {
-        duration: duration.long,
-        easing: `ease`,
-        fill: `forwards`,
-      })
-    })
+    this.content.classList.add(contentStyle)
 
     makeDraggable(this.element, {
       onDrag: (e) => {
@@ -78,19 +62,27 @@ export class Box extends Component {
       },
     })
 
-    createElement(this.list, 'span', undefined, color)
+    createElement(this.content, 'span', undefined, color)
 
-    let extender: Extender
+    let extender: Extender | null = null
     this.element.addEventListener('pointerenter', () => {
-      // extender = this.addComponent(Extender)
-      extender = this.newComponent(Extender).appendTo(this.list)
+      animateContents(this.content, () => {
+        if (extender) {
+          this.cancelAnimatedRemove(extender.element)
+        } else {
+          extender = this.newComponent(Extender).appendTo(this.content)
+        }
+      })
     })
 
     this.element.addEventListener('pointerleave', () => {
-      extender.remove()
+      animateContents(this.content, () => {
+        this.animatedRemove(extender!.element, () => {
+          extender!.remove()
+          extender = null
+        })
+      })
     })
-
-    // this.arrangeElements()
   }
 
   updatePosition () {
@@ -105,21 +97,11 @@ export class Box extends Component {
   }
 }
 
-const boxStyle = makeStyle({
-  position: `absolute`,
-  overflow: `hidden`,
-})
-
-const listStyle = makeStyle({
-  position: `absolute`,
+const contentStyle = makeStyle({
   display: `flex`,
   flexDirection: `column`,
   alignItems: `center`,
   justifyContent: `center`,
-})
-
-const backgroundStyle = makeStyle({
-  ...animatedBackgroundTemplate,
 })
 
 class Extender extends Component {
