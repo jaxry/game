@@ -3,15 +3,14 @@ import { addStyle, makeStyle } from '../makeStyle'
 import '../preflight.css'
 import { backgroundColor, fontColor } from '../theme'
 import { createDiv } from '../createElement'
-import Base from '../testing/base'
+import GameUI from './GameUI'
 
 export default class App extends Component {
   override onInit () {
     this.element.classList.add(containerStyle)
 
     this.element.append(outsideElem)
-    // this.newComponent(GameUI).appendTo(this.element)
-    this.newComponent(Base).appendTo(this.element)
+    this.newComponent(GameUI).appendTo(this.element)
   }
 }
 

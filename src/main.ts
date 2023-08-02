@@ -1,16 +1,13 @@
 import App from './ui/components/App'
+import { loadGame } from './saveLoad'
 
-// let app: App
-//
-// export function restartGame () {
-//   loadGame().then(() => {
-//     app?.remove()
-//     app = new App()
-//     document.body.append(app.element)
-//   })
-// }
-//
-// restartGame()
+let app: App
 
-const app = new App()
-app.appendTo(document.body)
+export function restartGame () {
+  loadGame().then(() => {
+    app?.remove()
+    app = new App().appendTo(document.body)
+  })
+}
+
+restartGame()

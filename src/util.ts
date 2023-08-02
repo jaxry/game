@@ -184,12 +184,8 @@ export function moveToTop (node: HTMLElement) {
   node.style.zIndex = (++lastZIndex).toString()
 }
 
-export function numToPixel (num: number, precision = 3) {
-  return num.toFixed(precision)
-}
-
 export function numToPx (num: number) {
-  return `${numToPixel(num)}px`
+  return `${num}px`
 }
 
 export function translate (x: number, y: number) {

@@ -16,7 +16,7 @@ const mutationObserver = new MutationObserver((mutationList) => {
   }
 })
 
-export default function animatingContents (container: HTMLElement) {
+export default function animatedContents (container: HTMLElement) {
   for (const element of container.children as Iterable<HTMLElement>) {
     positions.set(element, {
       left: element.offsetLeft,

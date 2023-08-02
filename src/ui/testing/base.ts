@@ -3,7 +3,7 @@ import { makeStyle } from '../makeStyle'
 import { numToPx, randomElement } from '../../util'
 import makeDraggable from '../makeDraggable'
 import { createElement } from '../createElement'
-import animatingContents from '../animatingContents'
+import animatedContents from '../animatedContents'
 import AnimatedSize from './AnimatedSize'
 
 const chars = '0123456789abcdef'.split('')
@@ -64,7 +64,7 @@ export class Box extends AnimatedSize {
 
     createElement(this.content, 'span', undefined, color)
 
-    animatingContents(this.content)
+    animatedContents(this.content)
 
     let extender: Extender | null = null
     this.element.addEventListener('pointerenter', () => {

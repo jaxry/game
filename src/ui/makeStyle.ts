@@ -1,6 +1,6 @@
 import { createElement } from './createElement'
 
-type Style = Partial<CSSStyleDeclaration & { vectorEffect: string }>
+type Style = Partial<CSSStyleDeclaration>
 
 const sheet = createElement(document.head, 'style').sheet!
 

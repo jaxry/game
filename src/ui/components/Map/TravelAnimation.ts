@@ -1,81 +1,73 @@
 import TravelAction from '../../../actions/Travel'
-import { translate } from '../../../util'
+import { getAndDelete } from '../../../util'
 import { makeStyle } from '../../makeStyle'
 import { duration } from '../../theme'
 import { createDiv } from '../../createElement'
 import GameTime from '../../../GameTime'
 
 export default class TravelAnimation {
-  scale = 1
-
-  animationState = new Set<{
-    animation: Animation,
-    action: TravelAction
-  }>()
+  actionToElement = new WeakMap<TravelAction, HTMLElement>()
+  scale = `1`
 
   constructor (public container: HTMLElement) {
   }
 
   start (action: TravelAction) {
-    const icon = createDiv(this.container, iconStyle, action.object.type.name)
+
+    const container = createDiv(this.container, containerStyle)
+
+    container.style.scale = this.scale
+
+    this.actionToElement.set(action, container)
+
+    createDiv(container, iconStyle, action.object.type.name)
+
+    const from = action.object.container.position
+    const to = action.target.position
 
     const actionDuration = action.duration / GameTime.millisecond
 
-    const animation = icon.animate([], {
+    container.animate({
+      translate: [
+        `${from.x}px ${from.y}px`,
+        `${to.x}px ${to.y}px`,
+      ],
+    }, {
       duration: actionDuration,
       easing: 'ease-in-out',
       composite: 'accumulate',
-    })
-
-    const animationState = { animation, action }
-    this.animationState.add(animationState)
-
-    animation.onfinish = () => {
-      icon.remove()
-      this.animationState.delete(animationState)
+    }).onfinish = () => {
+      this.actionToElement.delete(action)
+      container.remove()
     }
-
-    this.setKeyframes(action, animation)
 
     // fade animation
     const fadeDuration = duration.normal / actionDuration
-    icon.animate({
+    container.animate({
       opacity: [0, 1, 1, 0],
       offset: [0, fadeDuration, 1 - fadeDuration],
     }, { duration: actionDuration })
   }
 
   stop (action: TravelAction) {
-    for (const state of this.animationState) {
-      if (state.action === action) {
-        state.animation.finish()
-      }
-    }
+    getAndDelete(this.actionToElement, action)?.remove()
   }
 
-  updateScale (newScale: number) {
-    this.scale = newScale
-    for (const { action, animation } of this.animationState) {
-      this.setKeyframes(action, animation)
+  setScale (scale: string) {
+    this.scale = scale
+    for (const elem of this.container.children as Iterable<HTMLElement>) {
+      elem.style.scale = this.scale
     }
-  }
-
-  private setKeyframes (action: TravelAction, animation: Animation) {
-    const from = action.object.container.position
-    const to = action.target.position
-    const scale = this.scale
-
-    const effect = animation.effect as KeyframeEffect
-    effect.setKeyframes({
-      transform: [
-        `${translate(from.x * scale, from.y * scale)}`,
-        `${translate(to.x * scale, to.y * scale)}`],
-    })
   }
 }
 
-const iconStyle = makeStyle({
+const containerStyle = makeStyle({
   position: `absolute`,
   pointerEvents: 'none',
+  transformOrigin: `center center`,
+})
+
+const iconStyle = makeStyle({
+  position: `absolute`,
   transform: `translate(-50%, -50%)`,
 })

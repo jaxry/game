@@ -4,12 +4,12 @@ import SpatialGrid from './SpatialGrid'
 import { clamp } from '../util'
 
 // repelling force is this much stronger than attracting force
-const repelRatio = 3000
+const repelRatio = 4000
 
 const velocityDecay = 1 - 1 / 32
 const alphaDecay = 1
 
-const minVelocityScaled = repelRatio / 4
+const minVelocityScaled = repelRatio / 8
 const maxVelocity = repelRatio / 8
 
 const highStartAlpha = 1 / 2048

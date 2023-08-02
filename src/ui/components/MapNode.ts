@@ -63,7 +63,25 @@ export default class MapNode extends GameComponent {
 
     this.node = createDiv(this.element, circleStyle)
 
+    this.node.textContent = 'hey hey'
+
     grow(this.node)
+
+    const self = this
+    this.zoneEffect = this.newEffect(class extends Effect {
+      override events () {
+        this.onObjectChildren('actionStart', (object, action) => {
+          if (action instanceof TravelAction) {
+            self.map.travelAnimation.start(action)
+          }
+        })
+        this.onObjectChildren('actionEnd', (object, action) => {
+          if (action instanceof TravelAction) {
+            self.map.travelAnimation.stop(action)
+          }
+        })
+      }
+    }, this.zone)
   }
 
   private removeComplex () {
@@ -107,7 +125,7 @@ function shrink (elem: HTMLElement) {
   }, {
     duration: duration.normal,
     composite: 'add',
-    easing: 'ease-in',
+    easing: 'ease',
   })
 }
 

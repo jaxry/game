@@ -14,9 +14,7 @@ import { gameDataColor } from '../theme'
 export const dragAndDropGameObject = new DragAndDrop<GameObject>()
 
 export default class GameUI extends GameComponent {
-  constructor () {
-    super()
-
+  override onInit () {
     this.element.classList.add(containerStyle)
 
     this.createMap()
