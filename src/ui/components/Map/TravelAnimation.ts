@@ -13,37 +13,33 @@ export default class TravelAnimation {
   }
 
   start (action: TravelAction) {
+    const elem = createDiv(this.container, containerStyle,
+        action.object.type.name)
+    elem.style.scale = this.scale
 
-    const container = createDiv(this.container, containerStyle)
-
-    container.style.scale = this.scale
-
-    this.actionToElement.set(action, container)
-
-    createDiv(container, iconStyle, action.object.type.name)
+    this.actionToElement.set(action, elem)
 
     const from = action.object.container.position
     const to = action.target.position
 
     const actionDuration = action.duration / GameTime.millisecond
 
-    container.animate({
+    elem.animate({
       translate: [
         `${from.x}px ${from.y}px`,
         `${to.x}px ${to.y}px`,
       ],
     }, {
       duration: actionDuration,
-      easing: 'ease-in-out',
-      composite: 'accumulate',
+      easing: 'ease',
+      composite: 'add',
     }).onfinish = () => {
-      this.actionToElement.delete(action)
-      container.remove()
+      this.stop(action)
     }
 
     // fade animation
-    const fadeDuration = duration.normal / actionDuration
-    container.animate({
+    const fadeDuration = duration.short / actionDuration
+    elem.animate({
       opacity: [0, 1, 1, 0],
       offset: [0, fadeDuration, 1 - fadeDuration],
     }, { duration: actionDuration })
@@ -65,9 +61,5 @@ const containerStyle = makeStyle({
   position: `absolute`,
   pointerEvents: 'none',
   transformOrigin: `center center`,
-})
-
-const iconStyle = makeStyle({
-  position: `absolute`,
-  transform: `translate(-50%, -50%)`,
+  translate: `-50% -50%`,
 })

@@ -1,21 +1,16 @@
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
-import {
-  borderRadius, boxShadow, duration, mapNodeColor, mapNodeDistantColor,
-} from '../theme'
-import Inventory from './Inventory'
+import { boxShadow, mapNodeDistantColor } from '../theme'
 import GameComponent from './GameComponent'
 import Effect from '../../effects/Effect'
 import TravelAction from '../../actions/Travel'
 import MapComponent from './Map'
 import { playerTravelToZone } from '../../behavior/player'
-import Component from './Component'
 import { createDiv } from '../createElement'
 import { onClickNotDrag } from '../makeDraggable'
 
 export default class MapNode extends GameComponent {
-  node: HTMLElement | Component
-  zoneEffect?: Effect
+
 
   constructor (public zone: GameObject, public map: MapComponent) {
     super()
@@ -25,120 +20,34 @@ export default class MapNode extends GameComponent {
     onClickNotDrag(this.element, () => {
       playerTravelToZone(this.zone)
     })
-  }
 
-  setComplex () {
-    if (this.node instanceof Component) {
-      return
-    }
-    this.removeSimple()
+    this.newEffect(TravelAnimationEffect, this.zone, this.map)
 
-    this.node = this.newComponent(Inventory, this.zone).appendTo(this.element)
-    this.node.element.classList.add(zoneStyle)
-
-    grow(this.node.element)
-
-    const self = this
-    this.zoneEffect = this.newEffect(class extends Effect {
-      override events () {
-        this.onObjectChildren('actionStart', (object, action) => {
-          if (action instanceof TravelAction) {
-            self.map.travelAnimation.start(action)
-          }
-        })
-        this.onObjectChildren('actionEnd', (object, action) => {
-          if (action instanceof TravelAction) {
-            self.map.travelAnimation.stop(action)
-          }
-        })
-      }
-    }, this.zone)
-  }
-
-  setSimple () {
-    if (this.node instanceof HTMLElement) {
-      return
-    }
-    this.removeComplex()
-
-    this.node = createDiv(this.element, circleStyle)
-
-    this.node.textContent = 'hey hey'
-
-    grow(this.node)
-
-    const self = this
-    this.zoneEffect = this.newEffect(class extends Effect {
-      override events () {
-        this.onObjectChildren('actionStart', (object, action) => {
-          if (action instanceof TravelAction) {
-            self.map.travelAnimation.start(action)
-          }
-        })
-        this.onObjectChildren('actionEnd', (object, action) => {
-          if (action instanceof TravelAction) {
-            self.map.travelAnimation.stop(action)
-          }
-        })
-      }
-    }, this.zone)
-  }
-
-  private removeComplex () {
-    if (!this.node) {
-      return
-    }
-
-    const node = this.node as Component
-    shrink(node.element).onfinish = () => {
-      node.remove()
-    }
-
-    this.zoneEffect!.deactivate()
-  }
-
-  private removeSimple () {
-    if (!this.node) {
-      return
-    }
-
-    const node = this.node as HTMLElement
-    shrink(node).onfinish = () => {
-      node.remove()
-    }
+    createDiv(this.element, circleStyle)
   }
 }
 
-function grow (elem: HTMLElement) {
-  return elem.animate({
-    transform: [`scale(0)`, `scale(1)`],
-  }, {
-    duration: duration.normal,
-    composite: 'add',
-    easing: 'ease',
-  })
-}
+class TravelAnimationEffect extends Effect {
+  constructor (zone: GameObject, public map: MapComponent) {
+    super(zone)
+  }
 
-function shrink (elem: HTMLElement) {
-  return elem.animate({
-    transform: [`scale(1)`, `scale(0)`],
-  }, {
-    duration: duration.normal,
-    composite: 'add',
-    easing: 'ease',
-  })
+  override events () {
+    this.onObjectChildren('actionStart', (object, action) => {
+      if (action instanceof TravelAction) {
+        this.map.travelAnimation.start(action)
+      }
+    })
+    this.onObjectChildren('actionEnd', (object, action) => {
+      if (action instanceof TravelAction) {
+        this.map.travelAnimation.stop(action)
+      }
+    })
+  }
 }
 
 const containerStyle = makeStyle({
   position: `absolute`,
-})
-
-const zoneStyle = makeStyle({
-  position: `absolute`,
-  translate: `-50% -50%`,
-  background: mapNodeColor,
-  borderRadius,
-  boxShadow,
 })
 
 const circleStyle = makeStyle({

@@ -27,7 +27,7 @@ export const windowColor = backgroundHue[700]
 export const mapNodeColor = backgroundHue[700]
 export const mapNodeDistantColor = colors.zinc[700]
 
-export const mapEdgeColor = backgroundHue[500]
+export const mapEdgeColor = backgroundHue[600]
 
 export const objectCardColor = colors.sky[700]
 export const objectCardPlayerColor = colors.green[700]

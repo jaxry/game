@@ -66,9 +66,7 @@ export default class MapComponent extends Component {
       const component = makeOrGet(this.zoneToComponent, zone, () => {
         return this.makeNode(zone)
       })
-      // depth <= this.depthForComplexZones ?
-      //     component.setComplex() : component.setSimple()
-      component.setSimple()
+      // component.setDepth(depth)
     }
 
     for (const [zone, component] of this.zoneToComponent) {
@@ -235,6 +233,7 @@ const mapStyle = makeStyle({
 
 const edgeStyle = makeStyle({
   position: `absolute`,
-  borderTop: `${edgeWidth}px solid ${mapEdgeColor}`,
+  background: mapEdgeColor,
+  height: `${edgeWidth}px`,
   transformOrigin: `center center`,
 })
