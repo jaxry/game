@@ -11,10 +11,11 @@ import { onClickNotDrag } from '../makeDraggable'
 
 export default class MapNode extends GameComponent {
 
-
   constructor (public zone: GameObject, public map: MapComponent) {
     super()
+  }
 
+  override onInit () {
     this.element.classList.add(containerStyle)
 
     onClickNotDrag(this.element, () => {

@@ -3,14 +3,15 @@ import { addStyle, makeStyle } from '../makeStyle'
 import '../preflight.css'
 import { backgroundColor, fontColor } from '../theme'
 import { createDiv } from '../createElement'
-import GameUI from './GameUI'
+import Base from '../testing/base'
 
 export default class App extends Component {
   override onInit () {
     this.element.classList.add(containerStyle)
 
     this.element.append(outsideElem)
-    this.newComponent(GameUI).appendTo(this.element)
+    // this.newComponent(GameUI).appendTo(this.element)
+    this.newComponent(Base).appendTo(this.element)
   }
 }
 
@@ -22,8 +23,6 @@ const containerStyle = makeStyle({
   height: `100vh`,
   contain: `strict`,
 })
-
-
 
 const outsideElemStyle = makeStyle({
   position: `fixed`,
