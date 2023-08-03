@@ -47,7 +47,7 @@ const containerStyle = makeStyle({
 })
 
 const holderStyle = makeStyle({
-  width: `25rem`,
+  width: `30rem`,
   display: `flex`,
   flexDirection: `row`,
   flexWrap: `wrap`,
@@ -65,19 +65,22 @@ export class Box extends Component {
     createElement(this.element, 'span', undefined, color)
 
     let extender: Extender | null = null
+    let fadeOutCancel: (() => void) | null = null
+
     this.element.addEventListener('click', () => {
-      if (extender) {
-        let oldExtender = extender
-        extender = null
-        fadeOutElement(oldExtender.element, () => {
-          oldExtender.remove()
+      if (fadeOutCancel) {
+        fadeOutCancel()
+        fadeOutCancel = null
+      } else if (extender) {
+        fadeOutCancel = fadeOutElement(extender.element, () => {
+          extender?.remove()
+          extender = null
+          fadeOutCancel = null
         })
       } else {
         extender = this.newComponent(Extender).appendTo(this.element)
       }
     })
-
-    // this.element.style.background = color
 
     const background = animatedBackground(this.element, backgroundStyle)
     background.style.background = color

@@ -9,7 +9,7 @@ export const animatedBackgroundTemplate = {
   zIndex: `-1`,
 }
 
-const activeAnimations = new WeakMap<any, Animation>()
+const latestAnimation = new WeakMap<any, Animation>()
 
 export default function animatedBackground (element: HTMLElement, style: string) {
   const background = createDiv(element, style)
@@ -23,29 +23,36 @@ export default function animatedBackground (element: HTMLElement, style: string)
   const borderRadius = getComputedStyle(background).borderRadius
 
   onResize(element, (width, height) => {
+    element.style.clipPath = `inset(0 round ${borderRadius})`
+
     const dw = width - currentWidth
     const dh = height - currentHeight
     const animation = element.animate({
       clipPath: [
-        `inset(0 ${dw}px ${dh}px 0 round ${borderRadius})`,
-        `inset(0 0 0 0 round ${borderRadius})`
-      ]
+        `inset(0 ${dw}px ${dh}px 0)`,
+        `inset(0 0 0 0)`,
+      ],
     }, {
       duration: duration.normal,
       easing: `ease`,
+      composite: `accumulate`,
     })
 
-    activeAnimations.get(element)?.cancel()
-    activeAnimations.set(element, animation)
+    latestAnimation.set(element, animation)
 
     const setDimensions = () => {
       background.style.width = numToPx(width)
       background.style.height = numToPx(height)
     }
 
-    if (currentWidth > width && currentHeight > height) {
-      animation.onfinish = setDimensions
-    } else {
+    animation.onfinish = () => {
+      if (latestAnimation.get(element) === animation) {
+        element.style.clipPath = ``
+        setDimensions()
+      }
+    }
+
+    if (currentWidth < width || currentHeight < height) {
       setDimensions()
     }
 
