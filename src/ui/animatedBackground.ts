@@ -19,6 +19,13 @@ export default function animatedBackground (
   let currentWidth = element.offsetWidth
   let currentHeight = element.offsetHeight
 
+  const setRenderedDimensions = () => {
+    background.style.width = px(currentWidth)
+    background.style.height = px(currentHeight)
+  }
+
+  setRenderedDimensions()
+
   const borderRadius = getComputedStyle(background).borderRadius
 
   onResize(element, (width, height) => {
@@ -34,13 +41,13 @@ export default function animatedBackground (
       composite: `accumulate`,
     })
 
-    const setDimensions = () => {
-      background.style.width = px(width)
-      background.style.height = px(height)
-    }
+    const oldWidth = currentWidth
+    const oldHeight = currentHeight
+    currentWidth = width
+    currentHeight = height
 
-    if (currentWidth < width || currentHeight < height) {
-      setDimensions()
+    if (oldWidth < currentWidth || oldHeight < currentHeight) {
+      setRenderedDimensions()
     }
 
     latestAnimation.set(element, animation)
@@ -48,12 +55,9 @@ export default function animatedBackground (
     animation.onfinish = () => {
       if (latestAnimation.get(element) === animation) {
         element.style.clipPath = ``
-        setDimensions()
+        setRenderedDimensions()
       }
     }
-
-    currentWidth = width
-    currentHeight = height
   })
 
   return background

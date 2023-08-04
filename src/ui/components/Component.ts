@@ -12,16 +12,16 @@ export default class Component<T extends Element = HTMLElement> {
     this.element = element
   }
 
-  newComponent<T extends Component> (
-      constructor: Constructor<T>,
-      ...args: ConstructorParameters<Constructor<T>>) {
+  newComponent<T extends Constructor<Component>> (
+      constructor: T,
+      ...args: ConstructorParameters<T>) {
 
     const component = new constructor(...args)
     component.parentComponent = this
 
     this.childComponents.add(component)
 
-    return component
+    return component as InstanceType<T>
   }
 
   appendTo (parent: Element) {

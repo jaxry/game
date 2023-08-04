@@ -9,12 +9,12 @@ import TravelAction from '../../actions/Travel'
 import MapComponent from './Map'
 import { playerTravelToZone } from '../../behavior/player'
 import { onClickNotDrag } from '../makeDraggable'
-import { Holder } from '../testing/base'
 import { animatedElement } from '../animatedContents'
 import animatedBackground, {
   animatedBackgroundTemplate,
 } from '../animatedBackground'
 import { moveToTop } from '../../util'
+import Inventory from './Inventory'
 
 export default class MapNode extends GameComponent {
 
@@ -36,12 +36,12 @@ export default class MapNode extends GameComponent {
     this.newEffect(TravelAnimationEffect, this.zone, this.map)
 
     // createDiv(this.element, circleStyle)
-    const holder = this.newComponent(Holder).appendTo(this.element)
-    holder.element.classList.add(holderStyle)
+    const inventory = this.newComponent(Inventory, this.zone)
+        .appendTo(this.element)
+    inventory.element.classList.add(inventoryStyle)
 
-    animatedElement(holder.element)
-    animatedBackground(holder.element, backgroundStyle)
-
+    animatedElement(inventory.element)
+    animatedBackground(inventory.element, backgroundStyle)
   }
 }
 
@@ -68,7 +68,7 @@ const containerStyle = makeStyle({
   position: `absolute`,
 })
 
-const holderStyle = makeStyle({
+const inventoryStyle = makeStyle({
   position: `absolute`,
   translate: `-50% -50%`,
 })

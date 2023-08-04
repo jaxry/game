@@ -33,3 +33,11 @@ export function makeKeyframes (from: Style, to: Style): string {
 
   return name
 }
+
+export function childStyle (className: string, style: Style) {
+  addStyle(`.${className} > *`, style)
+}
+
+export function hoverStyle (className: string, style: Style) {
+  addStyle(`.${className}:hover`, style)
+}

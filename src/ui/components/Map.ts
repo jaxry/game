@@ -13,7 +13,7 @@ import ForceDirectedSim from '../../map/ForceDirectedSim'
 import throttle from '../throttle'
 
 export default class MapComponent extends Component {
-  maxDepthFromCenter = 3
+  maxDepthFromCenter = 2
   depthForComplexZones = 1
 
   private map = createDiv(this.element, mapStyle)
@@ -179,27 +179,27 @@ export default class MapComponent extends Component {
       duration: animate ? duration.long : 0,
       easing: 'ease-in-out',
       fill: 'forwards',
-    })
+    }).commitStyles()
   }
 }
 
 function grow (elem: Element) {
   return elem.animate({
-    transform: ['scale(0)', 'scale(1)'],
+    scale: ['0', `1`],
   }, {
     duration: duration.long,
     easing: 'ease',
-    composite: 'add',
+    composite: `accumulate`,
   })
 }
 
 function shrink (elem: Element) {
   return elem.animate({
-    transform: ['scale(1)', 'scale(0)'],
+    scale: ['1', `0`],
   }, {
     duration: duration.long,
-    easing: 'ease-in',
-    composite: 'add',
+    easing: 'ease',
+    composite: `accumulate`,
   })
 }
 

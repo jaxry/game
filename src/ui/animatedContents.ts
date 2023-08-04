@@ -14,7 +14,7 @@ export default function animatedContents (container: HTMLElement) {
     }
 
     for (const element of container.children as Iterable<HTMLElement>) {
-      if (isAbsolutePositioned(element)) {
+      if (isAbsolutePositioned(element) || !document.contains(element)) {
         continue
       }
       animate(element, offsetPosition)
@@ -49,6 +49,9 @@ export default function animatedContents (container: HTMLElement) {
 
 export function animatedElement (element: HTMLElement) {
   onResize(element, () => {
+    if (!document.contains(element)) {
+      return
+    }
     animate(element, relativePosition)
   })
   positions.set(element, relativePosition(element))
@@ -57,11 +60,7 @@ export function animatedElement (element: HTMLElement) {
 function animate (
     element: HTMLElement,
     positionFn: (element: HTMLElement) => { x: number, y: number }) {
-  const previousPosition = positions.get(element)
-
-  if (!previousPosition) {
-    return
-  }
+  const previousPosition = positions.get(element)!
 
   const { x, y } = positionFn(element)
 
