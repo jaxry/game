@@ -1,59 +1,69 @@
 import { duration } from './theme'
+import { onResize } from './onResize'
 
-const positions = new WeakMap<HTMLElement, { left: number, top: number }>()
+const positions = new WeakMap<HTMLElement, { x: number, y: number }>()
 
 export default function animatedContents (container: HTMLElement) {
-
-  function moveElement (element: HTMLElement) {
-    const bbox = positions.get(element)!
-
-    const { offsetLeft, offsetTop } = element
-
-    const dx = bbox.left - offsetLeft
-    const dy = bbox.top - offsetTop
-
-    bbox.left = element.offsetLeft
-    bbox.top = element.offsetTop
-
-    if (dx === 0 && dy === 0) return
-
-    element.animate({
-      translate: [`${dx}px ${dy}px`, '0 0'],
-    }, {
-      duration: duration.normal,
-      easing: `ease`,
-      composite: `accumulate`,
-    })
-  }
-
-  const resizeObserver = new ResizeObserver(() => {
+  onResize(container, () => {
     for (const element of container.children as Iterable<HTMLElement>) {
-      moveElement(element)
+      if (getComputedStyle(element).position === `absolute`) {
+        continue
+      }
+      animate(element)
     }
   })
 
   function initElement (element: HTMLElement) {
-    positions.set(element, {
-      left: element.offsetLeft,
-      top: element.offsetTop,
-    })
-    resizeObserver.observe(element)
+    positions.set(element, relativePosition(element))
   }
 
-  const mutationObserver = new MutationObserver((mutationList) => {
+  new MutationObserver((mutationList) => {
     for (const mutation of mutationList) {
       for (const element of mutation.addedNodes as Iterable<HTMLElement>) {
         initElement(element)
       }
     }
-  })
-
-  mutationObserver.observe(container, {
+  }).observe(container, {
     childList: true,
     attributes: false,
   })
+}
 
-  for (const element of container.children as Iterable<HTMLElement>) {
-    initElement(element)
+export function animatedElement (element: HTMLElement) {
+  onResize(element, () => {
+    animate(element)
+  })
+  positions.set(element, relativePosition(element))
+}
+
+function animate (element: HTMLElement) {
+  const bbox = positions.get(element)!
+
+  const { x, y } = relativePosition(element)
+
+  const dx = bbox.x - x
+  const dy = bbox.y - y
+
+  bbox.x = x
+  bbox.y = y
+
+  if (dx * dx + dy * dy < 0.01) return
+
+  element.animate({
+    translate: [`${dx}px ${dy}px`, '0 0'],
+  }, {
+    duration: duration.normal,
+    easing: `ease`,
+    composite: `accumulate`,
+  })
+}
+
+function relativePosition (element: HTMLElement) {
+  const bbox = element.getBoundingClientRect()
+  const parentBBox = element.parentElement!.getBoundingClientRect()
+
+  return {
+    x: bbox.x - parentBBox.x,
+    y: bbox.y - parentBBox.y,
   }
 }

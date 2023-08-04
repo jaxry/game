@@ -1,13 +1,19 @@
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
-import { boxShadow, mapNodeDistantColor } from '../theme'
+import {
+  borderRadius, boxShadow, mapNodeColor, mapNodeDistantColor,
+} from '../theme'
 import GameComponent from './GameComponent'
 import Effect from '../../effects/Effect'
 import TravelAction from '../../actions/Travel'
 import MapComponent from './Map'
 import { playerTravelToZone } from '../../behavior/player'
-import { createDiv } from '../createElement'
 import { onClickNotDrag } from '../makeDraggable'
+import { Holder } from '../testing/base'
+import { animatedElement } from '../animatedContents'
+import animatedBackground, {
+  animatedBackgroundTemplate,
+} from '../animatedBackground'
 
 export default class MapNode extends GameComponent {
 
@@ -24,7 +30,13 @@ export default class MapNode extends GameComponent {
 
     this.newEffect(TravelAnimationEffect, this.zone, this.map)
 
-    createDiv(this.element, circleStyle)
+    // createDiv(this.element, circleStyle)
+    const holder = this.newComponent(Holder).appendTo(this.element)
+    holder.element.classList.add(holderStyle)
+
+    animatedElement(holder.element)
+    animatedBackground(holder.element, backgroundStyle)
+
   }
 }
 
@@ -49,6 +61,17 @@ class TravelAnimationEffect extends Effect {
 
 const containerStyle = makeStyle({
   position: `absolute`,
+})
+
+const holderStyle = makeStyle({
+  position: `absolute`,
+  translate: `-50% -50%`,
+})
+
+const backgroundStyle = makeStyle({
+  ...animatedBackgroundTemplate,
+  background: mapNodeColor,
+  borderRadius,
 })
 
 const circleStyle = makeStyle({

@@ -184,10 +184,10 @@ export function moveToTop (node: HTMLElement) {
   node.style.zIndex = (++lastZIndex).toString()
 }
 
-export function numToPx (num: number) {
+export function px (num: number) {
   return `${num}px`
 }
 
 export function translate (x: number, y: number) {
-  return `translate(${numToPx(x)}, ${numToPx(y)})`
+  return `translate(${px(x)}, ${px(y)})`
 }

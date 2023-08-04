@@ -1,39 +1,20 @@
 import Component from '../components/Component'
 import { makeStyle } from '../makeStyle'
 import { randomElement } from '../../util'
-import { createDiv, createElement } from '../createElement'
+import { createElement } from '../createElement'
 import animatedContents from '../animatedContents'
 import animatedBackground, {
   animatedBackgroundTemplate, fadeOutElement,
 } from '../animatedBackground'
 import { duration } from '../theme'
 
-const chars = '0123456789abcdef'.split('')
-const randomColor = () => {
-  return `#${randomElement(chars)}${randomElement(chars)}${randomElement(
-      chars)}`
-}
-
 export default class Base extends Component {
   override onInit () {
     this.element.classList.add(containerStyle)
 
-    const holder = createDiv(this.element, holderStyle)
+    animatedContents(this.element)
 
-    animatedContents(holder)
-
-    const boxes: Box[] = []
-    for (let i = 0; i < 20; i++) {
-      boxes.push(this.newComponent(Box).appendTo(holder))
-    }
-
-    // const tick = () => {
-    //   for (const box of boxes) {
-    //     box.setPosition(Math.random() * w, Math.random() * h)
-    //   }
-    //   requestAnimationFrame(tick)
-    // }
-    // tick()
+    this.newComponent(Holder).appendTo(this.element)
   }
 }
 
@@ -46,14 +27,37 @@ const containerStyle = makeStyle({
   justifyContent: `center`,
 })
 
+export class Holder extends Component {
+  override onInit () {
+    this.element.classList.add(holderStyle)
+
+    animatedContents(this.element)
+
+    for (let i = 0; i < 13; i++) {
+      this.newComponent(Box).appendTo(this.element)
+    }
+
+    setTimeout(() => {
+      this.newComponent(Box).appendTo(this.element)
+    }, 2000)
+  }
+}
+
 const holderStyle = makeStyle({
-  width: `30rem`,
+  width: `25rem`,
   display: `flex`,
   flexDirection: `row`,
   flexWrap: `wrap`,
   alignItems: `center`,
-  gap: `1rem`,
+  gap: `0.5rem`,
+  padding: `1rem`,
 })
+
+const chars = '0123456789abcdef'.split('')
+const randomColor = () => {
+  return `#${randomElement(chars)}${randomElement(chars)}${randomElement(
+      chars)}`
+}
 
 export class Box extends Component {
   override onInit () {

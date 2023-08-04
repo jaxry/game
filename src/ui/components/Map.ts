@@ -5,7 +5,7 @@ import { makeStyle } from '../makeStyle'
 import { duration, mapEdgeColor } from '../theme'
 import MapNode from './MapNode'
 import addPanZoom from '../addPanZoom'
-import { makeOrGet, moveToTop, numToPx, translate } from '../../util'
+import { makeOrGet, moveToTop, px, translate } from '../../util'
 import TravelAnimation from './Map/TravelAnimation'
 import { createDiv } from '../createElement'
 import makeDraggable from '../makeDraggable'
@@ -13,7 +13,7 @@ import ForceDirectedSim from '../../map/ForceDirectedSim'
 import throttle from '../throttle'
 
 export default class MapComponent extends Component {
-  maxDepthFromCenter = 3
+  maxDepthFromCenter = 1
   depthForComplexZones = 1
 
   private map = createDiv(this.element, mapStyle)
@@ -39,7 +39,7 @@ export default class MapComponent extends Component {
       const { x, y, angle, length } = getEdgePositionAndAngle(edge)
       line.style.translate = `${x}px ${y}px`
       line.style.rotate = `${angle}rad`
-      line.style.width = numToPx(length)
+      line.style.width = px(length)
     }
   })
   private firstRender = true
@@ -161,11 +161,11 @@ export default class MapComponent extends Component {
       component.element.style.scale = invScale
     }
 
-    this.travelAnimation.setScale(invScale)
-
     for (const { line } of this.edgeToElem.values()) {
       line.style.scale = `1 ${invScale}`
     }
+
+    this.travelAnimation.setScale(invScale)
   }
 
   private updateTransform (animate = true) {
