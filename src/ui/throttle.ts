@@ -1,16 +1,16 @@
-export default function throttle<T extends (...args: any) => any> (fn: T): T {
+export default function throttle<T extends () => void> (fn: T): T {
   let queued = 0
-  let latestArgs: any
 
-  const throttledFn = (...args: any[]) => {
-    latestArgs = args
+  const callFn = () => {
+    queued = 0
+    fn()
+  }
 
-    if (!queued) {
-      queued = requestAnimationFrame(() => {
-        queued = 0
-        return fn(...latestArgs)
-      })
+  const throttledFn = () => {
+    if (queued) {
+      return
     }
+    queued = requestAnimationFrame(callFn)
   }
 
   return throttledFn as T

@@ -14,6 +14,7 @@ import { animatedElement } from '../animatedContents'
 import animatedBackground, {
   animatedBackgroundTemplate,
 } from '../animatedBackground'
+import { moveToTop } from '../../util'
 
 export default class MapNode extends GameComponent {
 
@@ -23,6 +24,10 @@ export default class MapNode extends GameComponent {
 
   override onInit () {
     this.element.classList.add(containerStyle)
+
+    this.element.addEventListener('pointerenter', () => {
+      moveToTop(this.element)
+    })
 
     onClickNotDrag(this.element, () => {
       playerTravelToZone(this.zone)

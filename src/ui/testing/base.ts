@@ -4,7 +4,7 @@ import { randomElement } from '../../util'
 import { createElement } from '../createElement'
 import animatedContents from '../animatedContents'
 import animatedBackground, {
-  animatedBackgroundTemplate, fadeOutElement,
+  animatedBackgroundTemplate,
 } from '../animatedBackground'
 import { duration } from '../theme'
 
@@ -31,15 +31,15 @@ export class Holder extends Component {
   override onInit () {
     this.element.classList.add(holderStyle)
 
-    animatedContents(this.element)
-
-    for (let i = 0; i < 13; i++) {
+    for (let i = 0; i < 5; i++) {
       this.newComponent(Box).appendTo(this.element)
     }
 
-    setTimeout(() => {
-      this.newComponent(Box).appendTo(this.element)
-    }, 2000)
+    // setTimeout(() => {
+    //   this.newComponent(Box).appendTo(this.element)
+    // }, 2000)
+    animatedContents(this.element)
+
   }
 }
 
@@ -61,33 +61,43 @@ const randomColor = () => {
 
 export class Box extends Component {
   override onInit () {
-
     const color = randomColor()
 
     this.element.classList.add(boxStyle)
 
-    createElement(this.element, 'span', undefined, color)
+    const label = createElement(this.element, 'span', undefined, color)
+
+    label.addEventListener('click', (e) => {
+      this.remove()
+    })
 
     let extender: Extender | null = null
     let fadeOutCancel: (() => void) | null = null
 
-    this.element.addEventListener('click', () => {
-      if (fadeOutCancel) {
-        fadeOutCancel()
-        fadeOutCancel = null
-      } else if (extender) {
-        fadeOutCancel = fadeOutElement(extender.element, () => {
-          extender?.remove()
-          extender = null
-          fadeOutCancel = null
-        })
-      } else {
-        extender = this.newComponent(Extender).appendTo(this.element)
-      }
+    // this.element.addEventListener('click', () => {
+    //   if (fadeOutCancel) {
+    //     fadeOutCancel()
+    //     fadeOutCancel = null
+    //   } else if (extender) {
+    //     fadeOutCancel = fadeOutElement(extender.element, () => {
+    //       extender?.remove()
+    //       extender = null
+    //       fadeOutCancel = null
+    //     })
+    //   } else {
+    //     extender = this.newComponent(Extender).appendTo(this.element)
+    //   }
+    // })
+
+    this.element.addEventListener('click', (e) => {
+      if (e.target !== this.element) return
+      this.newComponent(Box).appendTo(this.element)
     })
 
     const background = animatedBackground(this.element, backgroundStyle)
     background.style.background = color
+
+    animatedContents(this.element)
   }
 }
 

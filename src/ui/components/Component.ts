@@ -40,20 +40,23 @@ export default class Component<T extends Element = HTMLElement> {
     this.parentComponent?.childComponents.delete(this)
     this.parentComponent = undefined
 
+    this.runDestroyCallbacks()
+  }
+
+  onInit? (): void
+
+  on<T> (event: Observable<T>, listener: (data: T) => void) {
+    this.onRemove(event.on(listener))
+  }
+
+  private runDestroyCallbacks () {
     for (const callback of this.destroyCallbacks) {
       callback()
     }
     this.destroyCallbacks.length = 0
 
     for (const component of this.childComponents) {
-      component.remove()
+      component.runDestroyCallbacks()
     }
-    this.childComponents.clear()
   }
-
-  on<T> (event: Observable<T>, listener: (data: T) => void) {
-    this.onRemove(event.on(listener))
-  }
-
-  onInit?(): void
 }

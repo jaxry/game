@@ -3,18 +3,32 @@ import { onResize } from './onResize'
 
 const positions = new WeakMap<HTMLElement, { x: number, y: number }>()
 
+//TODO: deleting the outer element of a nested element errors
+
 export default function animatedContents (container: HTMLElement) {
-  onResize(container, () => {
+  let first = true
+  const animateChildren = () => {
+    // ResizeObserver is called on element creation. Ignore this event.
+    if (first) {
+      return first = false
+    }
+
     for (const element of container.children as Iterable<HTMLElement>) {
-      if (getComputedStyle(element).position === `absolute`) {
+      if (isAbsolutePositioned(element)) {
         continue
       }
-      animate(element)
+      animate(element, offsetPosition)
     }
-  })
+  }
+
+  const resizeObserver = new ResizeObserver(animateChildren)
 
   function initElement (element: HTMLElement) {
-    positions.set(element, relativePosition(element))
+    if (isAbsolutePositioned(element)) {
+      return
+    }
+    positions.set(element, offsetPosition(element))
+    resizeObserver.observe(element)
   }
 
   new MutationObserver((mutationList) => {
@@ -27,25 +41,35 @@ export default function animatedContents (container: HTMLElement) {
     childList: true,
     attributes: false,
   })
+
+  for (const element of container.children as Iterable<HTMLElement>) {
+    initElement(element)
+  }
 }
 
 export function animatedElement (element: HTMLElement) {
   onResize(element, () => {
-    animate(element)
+    animate(element, relativePosition)
   })
   positions.set(element, relativePosition(element))
 }
 
-function animate (element: HTMLElement) {
-  const bbox = positions.get(element)!
+function animate (
+    element: HTMLElement,
+    positionFn: (element: HTMLElement) => { x: number, y: number }) {
+  const previousPosition = positions.get(element)
 
-  const { x, y } = relativePosition(element)
+  if (!previousPosition) {
+    return
+  }
 
-  const dx = bbox.x - x
-  const dy = bbox.y - y
+  const { x, y } = positionFn(element)
 
-  bbox.x = x
-  bbox.y = y
+  const dx = previousPosition.x - x
+  const dy = previousPosition.y - y
+
+  previousPosition.x = x
+  previousPosition.y = y
 
   if (dx * dx + dy * dy < 0.01) return
 
@@ -61,9 +85,21 @@ function animate (element: HTMLElement) {
 function relativePosition (element: HTMLElement) {
   const bbox = element.getBoundingClientRect()
   const parentBBox = element.parentElement!.getBoundingClientRect()
+  const scale = element.offsetWidth / bbox.width
 
   return {
-    x: bbox.x - parentBBox.x,
-    y: bbox.y - parentBBox.y,
+    x: scale * (bbox.x - parentBBox.x),
+    y: scale * (bbox.y - parentBBox.y),
   }
+}
+
+function offsetPosition (element: HTMLElement) {
+  return {
+    x: element.offsetLeft,
+    y: element.offsetTop,
+  }
+}
+
+function isAbsolutePositioned (element: HTMLElement) {
+  return getComputedStyle(element).position === `absolute`
 }
