@@ -21,10 +21,6 @@ export function moveTo (
   object.container = container
   object.containedAs = containedAs
 
-  const { x, y } = averageItemPosition(container)
-  object.position.x = x
-  object.position.y = y
-
   container.contains.add(object)
 
   object.emit('enter', from)
@@ -57,21 +53,4 @@ export function isAncestor (ancestor: GameObject, item: GameObject) {
 
 export function isContainedWith (object: GameObject, neighbor: GameObject) {
   return object.container === neighbor.container
-}
-
-export function averageItemPosition ({ contains }: GameObject) {
-  let x = 0
-  let y = 0
-
-  if (contains.size) {
-    for (const item of contains) {
-      x += item.position.x
-      y += item.position.y
-    }
-
-    x /= contains.size
-    y /= contains.size
-  }
-
-  return { x, y }
 }
