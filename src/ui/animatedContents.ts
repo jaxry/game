@@ -14,7 +14,7 @@ export default function animatedContents (container: HTMLElement) {
     }
 
     for (const element of container.children as Iterable<HTMLElement>) {
-      if (isAbsolutePositioned(element) || !document.contains(element)) {
+      if (!document.contains(element) || isAbsolutePositioned(element)) {
         continue
       }
       animate(element, offsetPosition)

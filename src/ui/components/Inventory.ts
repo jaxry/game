@@ -1,18 +1,15 @@
-import Component from './Component'
-import { childStyle, makeStyle } from '../makeStyle'
+import { makeStyle } from '../makeStyle'
 import GameObject from '../../GameObject'
 import { createDiv } from '../createElement'
 import ObjectCard from './ObjectCard'
-import { getAndDelete, makeOrGet, px } from '../../util'
-import animatedContents from '../animatedContents'
+import { getAndDelete, makeOrGet } from '../../util'
 import Effect from '../../effects/Effect'
 import GameComponent from './GameComponent'
-import { onResize } from '../onResize'
-import { duration, mapNodeColor } from '../theme'
-import { fadeOutElement } from '../animatedBackground'
+import { duration } from '../theme'
 
 export default class Inventory extends GameComponent {
   objectToCard = new Map<GameObject, ObjectCard>()
+  rows: HTMLElement[] = []
 
   constructor (public object: GameObject) {
     super()
@@ -20,6 +17,8 @@ export default class Inventory extends GameComponent {
 
   override onInit () {
     this.element.classList.add(containerStyle)
+
+    this.makeRow()
 
     if (this.object.contains) {
       for (const child of this.object.contains) {
@@ -29,20 +28,32 @@ export default class Inventory extends GameComponent {
 
     this.newEffect(InventoryEffect, this.object, this)
 
-    animatedContents(this.element)
+    // animatedContents(this.element)
+  }
+
+  makeRow () {
+    const newRow = createDiv(this.element, rowStyle)
+    this.rows.push(newRow)
+    return newRow
+  }
+
+  getShortestRow () {
+    const { element, width } = shortestElement(this.rows)
+    return width > this.element.offsetHeight ? this.makeRow() : element
   }
 
   makeCard (object: GameObject) {
     const card = makeOrGet(this.objectToCard, object, () => {
-      return this.newComponent(ObjectCard, object).appendTo(this.element)
+      return this.newComponent(ObjectCard, object)
+          .appendTo(this.getShortestRow())
     })
-    card.element.animate({
-      opacity: [`0`, `1`],
-      scale: [`0`, `1`]
-    }, {
-      duration: duration.normal,
-      easing: `ease`
-    })
+    // card.element.animate({
+    //   opacity: [`0`, `1`],
+    //   scale: [`0`, `1`]
+    // }, {
+    //   duration: duration.normal,
+    //   easing: `ease`
+    // })
   }
 
   removeCard (object: GameObject) {
@@ -74,21 +85,23 @@ class InventoryEffect extends Effect {
   }
 }
 
+function shortestElement (elements: HTMLElement[]) {
+  return elements.reduce((shortest, element) => {
+    const width = element.offsetWidth
+    return width < shortest.width ? { width, element } : shortest
+  }, { width: Infinity, element: null as any as HTMLElement })
+}
+
 const containerStyle = makeStyle({
   position: `relative`,
 
-  display: `inline-flex`,
-  flexDirection: `row`,
-  flexWrap: `wrap`,
-  alignItems: `flex-start`,
-  justifyContent: `center`,
-  alignContent: `center`,
-
-  gap: `0.5rem`,
   padding: `0.5rem`,
 
   minWidth: `4rem`,
   minHeight: `4rem`,
+})
+
+const rowStyle = makeStyle({
+  display: `flex`,
   width: `max-content`,
-  maxWidth: `30vw`,
 })
