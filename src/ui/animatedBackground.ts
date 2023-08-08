@@ -64,8 +64,8 @@ export function fadeOutElement (element: HTMLElement, onFinish: () => void) {
   element.style.position = `absolute`
 
   const animation = element.animate({
-    scale: `0`,
     opacity: `0`,
+    scale: `0`,
   }, {
     duration: duration.normal,
     easing: `ease`,

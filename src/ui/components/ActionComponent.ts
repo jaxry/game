@@ -38,11 +38,11 @@ function formatName (container: Element, action: Action) {
 }
 
 const containerStyle = makeStyle({
+  width: `max-content`,
   display: `flex`,
-  flexDirection: `column`,
-  justifyContent: `center`,
-  alignItems: `center`,
-  opacity: `0`,
+  flexDirection: `row`,
+  gap: `0.5rem`,
+  transformOrigin: `top left`
 })
 
 const nameStyle = makeStyle({

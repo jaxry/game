@@ -78,6 +78,7 @@ export default class Inventory extends GameComponent {
 }
 
 class InventoryEffect extends Effect {
+  static ignoreSerialize = true
   constructor(object: GameObject, public inventory: Inventory) {
     super(object)
   }
@@ -88,6 +89,12 @@ class InventoryEffect extends Effect {
     })
     this.onObjectChildren('leave', (child) => {
       this.inventory.removeCard(child)
+    })
+    this.onObjectChildren('actionStart', (child) => {
+      this.inventory.objectToCard.get(child)!.showAction()
+    })
+    this.onObjectChildren('actionEnd', (child) => {
+      this.inventory.objectToCard.get(child)!.hideAction()
     })
   }
 }
@@ -114,7 +121,8 @@ const rowsContainerStyle = makeStyle({
 
 const rowStyle = makeStyle({
   position: `relative`,
-  display: `flex`,
   width: `max-content`,
+  display: `flex`,
+  alignItems: `flex-start`,
   gap: `0.5rem`,
 })
