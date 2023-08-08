@@ -1,5 +1,5 @@
-import colors from './colors'
 import { addStyle, makeKeyframes, makeStyle } from './makeStyle'
+import { mod, randomSign } from '../util'
 
 // Animation duration
 
@@ -17,26 +17,39 @@ export const fadeInAnimation = `${fadeInKeyframes} ${duration.short}ms both`
 
 // Colors
 
-const backgroundHue = colors.slate
+function lch (l: number, c: number, h: number) {
+  return `oklch(${l}% ${c * 0.37 / 100} ${mod(h, 1) * 360})`
+}
 
-export const backgroundColor = backgroundHue[900]
-export const fontColor = colors.green[100]
+const backgroundL = 25
+const backgroundC = 5
+const backgroundH = Math.random()
 
-export const windowColor = backgroundHue[700]
+const objectL = 50
+const objectC = 10
+const objectH = backgroundH + randomSign() / 3
 
-export const mapNodeColor = backgroundHue[700]
-export const mapNodeDistantColor = colors.zinc[700]
+export const backgroundColor = lch(backgroundL, backgroundC, backgroundH)
+export const fontColor = lch(95, backgroundC, backgroundH)
 
-export const mapEdgeColor = backgroundHue[600]
+export const windowColor = `#faa`
 
-export const objectCardColor = colors.sky[700]
-export const objectCardPlayerColor = colors.green[700]
-export const objectDialogueBackground = `${colors.teal[600]}bb`
+export const mapNodeColor = lch(backgroundL + 10, backgroundC, backgroundH)
+export const mapNodeDistantColor = `#faa`
 
-export const actionColor = colors.yellow[400]
-export const actionTimeColor = colors.red[400]
+export const mapEdgeColor = lch(backgroundL + 20, backgroundC, backgroundH)
 
-export const gameDataColor = colors.green[300]
+export const objectCardColor = lch(objectL, objectC, objectH)
+export const objectCardPlayerColor = `#faa`
+export const objectDialogueBackground = `#faa`
+
+const actionL = 90
+const actionC = 30
+const actionH = objectH + randomSign() / 3
+export const actionColor = lch(actionL, actionC, actionH)
+export const actionTimeColor = lch(actionL, actionC, actionH + randomSign() / 6)
+
+export const gameDataColor = lch(90, 30, backgroundH + randomSign() / 4)
 
 // Properties
 
@@ -51,7 +64,7 @@ export const boxShadowLarge = `0.5rem 0.5rem 1rem #0006`
 
 export const buttonStyle = makeStyle({
   padding: `0.25rem 0.5rem`,
-  color: colors.fuchsia[200],
+  color: `#faa`,
 })
 
 addStyle(`.${buttonStyle}:hover`, {

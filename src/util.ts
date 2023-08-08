@@ -27,6 +27,10 @@ export function randomCentered (scale = 1) {
   return scale * (Math.random() - 0.5)
 }
 
+export function randomSign () {
+  return Math.random() < 0.5 ? -1 : 1
+}
+
 // ---------------
 // array functions
 // ---------------

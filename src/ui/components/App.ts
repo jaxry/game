@@ -1,9 +1,9 @@
 import Component from './Component'
 import { addStyle, makeStyle } from '../makeStyle'
-import '../preflight.css'
 import { backgroundColor, fontColor } from '../theme'
 import { createDiv } from '../createElement'
 import GameUI from './GameUI'
+import '../main.css'
 
 export default class App extends Component {
   override onInit () {
