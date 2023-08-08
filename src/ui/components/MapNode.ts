@@ -1,7 +1,7 @@
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import {
-  borderRadius, boxShadow, mapNodeColor, mapNodeDistantColor,
+  borderRadius, boxShadow, duration, mapNodeColor, mapNodeDistantColor,
 } from '../theme'
 import GameComponent from './GameComponent'
 import Effect from '../../effects/Effect'
@@ -9,12 +9,12 @@ import TravelAction from '../../actions/Travel'
 import MapComponent from './Map'
 import { playerTravelToZone } from '../../behavior/player'
 import { onClickNotDrag } from '../makeDraggable'
-import { animatedElement } from '../animatedContents'
 import animatedBackground, {
   animatedBackgroundTemplate,
 } from '../animatedBackground'
-import { moveToTop } from '../../util'
+import { moveToTop, translate } from '../../util'
 import Inventory from './Inventory'
+import { onResize } from '../onResize'
 
 export default class MapNode extends GameComponent {
 
@@ -38,10 +38,20 @@ export default class MapNode extends GameComponent {
     // createDiv(this.element, circleStyle)
     const inventory = this.newComponent(Inventory, this.zone)
         .appendTo(this.element)
-    inventory.element.classList.add(inventoryStyle)
 
-    animatedElement(inventory.element)
+    inventory.element.classList.add(childStyle)
     animatedBackground(inventory.element, backgroundStyle)
+
+    // animate container to new centered position
+    onResize(inventory.element, (width, height, dw, dh) => {
+      this.element.animate({
+        transform: [translate(dw / 2, dh / 2), `translate(0, 0)`],
+      }, {
+        composite: `add`,
+        easing: `ease`,
+        duration: duration.normal,
+      })
+    })
   }
 }
 
@@ -68,7 +78,7 @@ const containerStyle = makeStyle({
   position: `absolute`,
 })
 
-const inventoryStyle = makeStyle({
+const childStyle = makeStyle({
   position: `absolute`,
   translate: `-50% -50%`,
 })

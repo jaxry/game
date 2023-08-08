@@ -59,7 +59,6 @@ export default class MapComponent extends Component {
   }
 
   render (centerZone: GameObject, panToCenter = false, startForceSim = false) {
-
     const graph = getZoneGraph(centerZone, this.maxDepthFromCenter)
 
     for (const [zone, depth] of graph.nodes) {
@@ -106,6 +105,7 @@ export default class MapComponent extends Component {
   private makeNode (zone: GameObject) {
     const node = this.newComponent(MapNode, zone, this)
         .appendTo(this.zoneContainer)
+
     makeDraggable(node.element, {
       onDown: () => {
         this.forceDirectedSim.freeze(zone)

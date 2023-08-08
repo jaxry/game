@@ -1,6 +1,7 @@
 import { onResize } from './onResize'
 import { px } from '../util'
 import { duration } from './theme'
+import { createDiv } from './createElement'
 
 export const animatedBackgroundTemplate = {
   position: `absolute`,
@@ -8,31 +9,27 @@ export const animatedBackgroundTemplate = {
   zIndex: `-1`,
 }
 
-const latestAnimation = new WeakMap<any, Animation>()
+const currentAnimation = new WeakMap<any, Animation>()
 
 export default function animatedBackground (
     element: HTMLElement, backgroundStyle: string) {
-  const background = document.createElement(`div`)
-  background.classList.add(backgroundStyle)
+  const background = createDiv(null, backgroundStyle)
   element.prepend(background)
 
-  let currentWidth = element.offsetWidth
-  let currentHeight = element.offsetHeight
-
-  const setRenderedDimensions = () => {
-    background.style.width = px(currentWidth)
-    background.style.height = px(currentHeight)
+  const setDimensions = (width: number, height: number) => {
+    background.style.width = px(width)
+    background.style.height = px(height)
   }
 
-  setRenderedDimensions()
+  setDimensions(element.offsetWidth, element.offsetHeight)
 
   const borderRadius = getComputedStyle(background).borderRadius
 
-  onResize(element, (width, height) => {
-    element.style.clipPath = `inset(0 round ${borderRadius})`
+  onResize(element, (width, height, dw, dh) => {
+    if (!element.style.clipPath) {
+      element.style.clipPath = `inset(0 round ${borderRadius})`
+    }
 
-    const dw = width - currentWidth
-    const dh = height - currentHeight
     const animation = element.animate({
       clipPath: [`inset(0 ${dw}px ${dh}px 0)`, `inset(0)`],
     }, {
@@ -41,23 +38,21 @@ export default function animatedBackground (
       composite: `accumulate`,
     })
 
-    const oldWidth = currentWidth
-    const oldHeight = currentHeight
-    currentWidth = width
-    currentHeight = height
-
-    if (oldWidth < currentWidth || oldHeight < currentHeight) {
-      setRenderedDimensions()
+    if (dw > 0 || dh > 0) {
+      setDimensions(width, height)
     }
-
-    latestAnimation.set(element, animation)
 
     animation.onfinish = () => {
-      if (latestAnimation.get(element) === animation) {
-        element.style.clipPath = ``
-        setRenderedDimensions()
-      }
+      element.style.clipPath = ``
+      setDimensions(width, height)
     }
+
+    const oldAnimation = currentAnimation.get(element)
+    if (oldAnimation) {
+      (oldAnimation.onfinish as any) = undefined
+    }
+
+    currentAnimation.set(element, animation)
   })
 
   return background

@@ -1,5 +1,4 @@
 import { duration } from './theme'
-import { onResize } from './onResize'
 
 const positions = new WeakMap<HTMLElement, { x: number, y: number }>()
 
@@ -9,15 +8,13 @@ export default function animatedContents (container: HTMLElement) {
   let first = true
   const animateChildren = () => {
     // ResizeObserver is called on element creation. Ignore this event.
-    if (first) {
-      return first = false
-    }
+    if (first) return first = false
 
     for (const element of container.children as Iterable<HTMLElement>) {
       if (!document.contains(element) || isAbsolutePositioned(element)) {
         continue
       }
-      animate(element, offsetPosition)
+      animate(element)
     }
   }
 
@@ -47,22 +44,10 @@ export default function animatedContents (container: HTMLElement) {
   }
 }
 
-export function animatedElement (element: HTMLElement) {
-  onResize(element, () => {
-    if (!document.contains(element)) {
-      return
-    }
-    animate(element, relativePosition)
-  })
-  positions.set(element, relativePosition(element))
-}
-
-function animate (
-    element: HTMLElement,
-    positionFn: (element: HTMLElement) => { x: number, y: number }) {
+function animate (element: HTMLElement) {
   const previousPosition = positions.get(element)!
 
-  const { x, y } = positionFn(element)
+  const { x, y } = offsetPosition(element)
 
   const dx = previousPosition.x - x
   const dy = previousPosition.y - y
@@ -79,17 +64,6 @@ function animate (
     easing: `ease`,
     composite: `accumulate`,
   })
-}
-
-function relativePosition (element: HTMLElement) {
-  const bbox = element.getBoundingClientRect()
-  const parentBBox = element.parentElement!.getBoundingClientRect()
-  const scale = element.offsetWidth / bbox.width
-
-  return {
-    x: scale * (bbox.x - parentBBox.x),
-    y: scale * (bbox.y - parentBBox.y),
-  }
 }
 
 function offsetPosition (element: HTMLElement) {

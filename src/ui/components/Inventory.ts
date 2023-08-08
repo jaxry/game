@@ -6,10 +6,11 @@ import { getAndDelete, makeOrGet } from '../../util'
 import Effect from '../../effects/Effect'
 import GameComponent from './GameComponent'
 import { duration } from '../theme'
+import animatedContents from '../animatedContents'
 
 export default class Inventory extends GameComponent {
   objectToCard = new Map<GameObject, ObjectCard>()
-  rows: HTMLElement[] = []
+  rows = createDiv(this.element, rowsContainerStyle)
 
   constructor (public object: GameObject) {
     super()
@@ -17,8 +18,6 @@ export default class Inventory extends GameComponent {
 
   override onInit () {
     this.element.classList.add(containerStyle)
-
-    this.makeRow()
 
     if (this.object.contains) {
       for (const child of this.object.contains) {
@@ -28,18 +27,22 @@ export default class Inventory extends GameComponent {
 
     this.newEffect(InventoryEffect, this.object, this)
 
-    // animatedContents(this.element)
+    animatedContents(this.rows)
   }
 
   makeRow () {
-    const newRow = createDiv(this.element, rowStyle)
-    this.rows.push(newRow)
-    return newRow
+    const row = createDiv(this.rows, rowStyle)
+    animatedContents(row)
+    return row
   }
 
   getShortestRow () {
-    const { element, width } = shortestElement(this.rows)
-    return width > this.element.offsetHeight ? this.makeRow() : element
+    if (!this.rows.children.length) {
+      return this.makeRow()
+    }
+    const { element, width } = shortestElement(
+        [...this.rows.children] as HTMLElement[])
+    return width > this.rows.offsetHeight ? this.makeRow() : element
   }
 
   makeCard (object: GameObject) {
@@ -47,17 +50,18 @@ export default class Inventory extends GameComponent {
       return this.newComponent(ObjectCard, object)
           .appendTo(this.getShortestRow())
     })
-    // card.element.animate({
-    //   opacity: [`0`, `1`],
-    //   scale: [`0`, `1`]
-    // }, {
-    //   duration: duration.normal,
-    //   easing: `ease`
-    // })
+    card.element.animate({
+      opacity: [`0`, `1`],
+      scale: [`0`, `1`],
+    }, {
+      duration: duration.normal,
+      easing: `ease`,
+    })
   }
 
   removeCard (object: GameObject) {
     const card = getAndDelete(this.objectToCard, object)!
+    const row = card.element.parentElement!
     card.element.animate({
       opacity: [`1`, `0`],
       scale: [`1`, `0`]
@@ -66,6 +70,9 @@ export default class Inventory extends GameComponent {
       easing: `ease`
     }).onfinish = () => {
       card.remove()
+      if (!row.children.length) {
+        row.remove()
+      }
     }
   }
 }
@@ -94,14 +101,20 @@ function shortestElement (elements: HTMLElement[]) {
 
 const containerStyle = makeStyle({
   position: `relative`,
+})
 
+const rowsContainerStyle = makeStyle({
+  minWidth: `3rem`,
+  minHeight: `3rem`,
   padding: `0.5rem`,
-
-  minWidth: `4rem`,
-  minHeight: `4rem`,
+  display: `flex`,
+  flexDirection: `column`,
+  gap: `0.5rem`,
 })
 
 const rowStyle = makeStyle({
+  position: `relative`,
   display: `flex`,
   width: `max-content`,
+  gap: `0.5rem`,
 })
