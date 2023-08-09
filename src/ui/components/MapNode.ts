@@ -1,8 +1,6 @@
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
-import {
-  borderRadius, boxShadow, duration, mapNodeColor, mapNodeDistantColor,
-} from '../theme'
+import { borderRadius, boxShadow, duration, mapNodeColor } from '../theme'
 import GameComponent from './GameComponent'
 import Effect from '../../effects/Effect'
 import TravelAction from '../../actions/Travel'
@@ -15,6 +13,7 @@ import animatedBackground, {
 import { moveToTop, translate } from '../../util'
 import Inventory from './Inventory'
 import { onResize } from '../onResize'
+import { createDiv } from '../createElement'
 
 export default class MapNode extends GameComponent {
 
@@ -35,15 +34,14 @@ export default class MapNode extends GameComponent {
 
     this.newEffect(TravelAnimationEffect, this.zone, this.map)
 
-    // createDiv(this.element, circleStyle)
-    const inventory = this.newComponent(Inventory, this.zone)
-        .appendTo(this.element)
+    const content = createDiv(this.element, contentStyle)
 
-    inventory.element.classList.add(childStyle)
-    animatedBackground(inventory.element, backgroundStyle)
+    this.newComponent(Inventory, this.zone).appendTo(content)
+
+    animatedBackground(content, backgroundStyle)
 
     // animate container to new centered position
-    onResize(inventory.element, (width, height, dw, dh) => {
+    onResize(content, (width, height, dw, dh) => {
       this.element.animate({
         transform: [translate(dw / 2, dh / 2), `translate(0, 0)`],
       }, {
@@ -79,7 +77,7 @@ const containerStyle = makeStyle({
   position: `absolute`,
 })
 
-const childStyle = makeStyle({
+const contentStyle = makeStyle({
   position: `absolute`,
   translate: `-50% -50%`,
 })
@@ -88,15 +86,6 @@ const backgroundStyle = makeStyle({
   ...animatedBackgroundTemplate,
   background: mapNodeColor,
   borderRadius,
-})
-
-const circleStyle = makeStyle({
-  position: `absolute`,
-  translate: `-50% -50%`,
-  width: `3rem`,
-  height: `3rem`,
-  borderRadius: `50%`,
-  background: mapNodeDistantColor,
   boxShadow,
 })
 

@@ -135,7 +135,6 @@ const extenderStyle = makeStyle({
   background: `#eee`,
   color: `#000`,
   width: `max-content`,
-  transformOrigin: `top left`,
 })
 
 

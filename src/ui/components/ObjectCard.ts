@@ -1,11 +1,12 @@
 import Component from './Component'
 import GameObject from '../../GameObject'
-import { borderRadius, duration, objectCardColor } from '../theme'
+import { borderRadius, boxShadow, fadeIn, objectCardColor } from '../theme'
 import { makeStyle } from '../makeStyle'
 import ActionComponent from './ActionComponent'
 import animatedBackground, {
-  animatedBackgroundTemplate, fadeOutElement,
+  animatedBackgroundTemplate, fadeOutAbsolute,
 } from '../animatedBackground'
+import Inventory from './Inventory'
 
 export default class ObjectCard extends Component {
   actionComponent?: ActionComponent
@@ -20,25 +21,34 @@ export default class ObjectCard extends Component {
     this.element.textContent = this.object.type.name
 
     animatedBackground(this.element, backgroundStyle)
+
+    let inventory: Inventory | undefined
+    this.element.addEventListener('click', () => {
+      if (!inventory) {
+        inventory = this.newComponent(Inventory, this.object)
+            .appendTo(this.element)
+        fadeIn(inventory.element)
+      } else {
+        const thisInventory = inventory
+        inventory = undefined
+        fadeOutAbsolute(thisInventory.element, () => {
+          thisInventory.remove()
+        })
+      }
+    })
   }
 
   showAction () {
     this.actionComponent =
         this.newComponent(ActionComponent, this.object.activeAction)
             .appendTo(this.element)
-    this.actionComponent.element.animate({
-      opacity: [`0`, `1`],
-      scale: [`0`, `1`],
-    }, {
-      duration: duration.normal,
-      easing: `ease`,
-    })
+    fadeIn(this.actionComponent.element)
   }
 
   hideAction () {
     const actionComponent = this.actionComponent!
     if (!actionComponent) return
-    fadeOutElement(actionComponent.element, () => {
+    fadeOutAbsolute(actionComponent.element, () => {
       actionComponent.remove()
     })
   }
@@ -54,4 +64,5 @@ const backgroundStyle = makeStyle({
   ...animatedBackgroundTemplate,
   background: objectCardColor,
   borderRadius,
+  boxShadow,
 })

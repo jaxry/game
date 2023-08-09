@@ -1,11 +1,12 @@
 import { onResize } from './onResize'
 import { px } from '../util'
-import { duration } from './theme'
+import { duration, fadeOut } from './theme'
 import { createDiv } from './createElement'
 
 export const animatedBackgroundTemplate = {
   position: `absolute`,
-  inset: `0`,
+  top: `0`,
+  left: `0`,
   zIndex: `-1`,
 }
 
@@ -16,62 +17,34 @@ export default function animatedBackground (
   const background = createDiv(null, backgroundStyle)
   element.prepend(background)
 
-  const setDimensions = (width: number, height: number) => {
-    background.style.width = px(width)
-    background.style.height = px(height)
-  }
+  background.style.width = px(element.offsetWidth)
+  background.style.height = px(element.offsetHeight)
 
-  setDimensions(element.offsetWidth, element.offsetHeight)
-
-  const borderRadius = getComputedStyle(background).borderRadius
-
-  onResize(element, (width, height, dw, dh) => {
-    if (!element.style.clipPath) {
-      element.style.clipPath = `inset(0 round ${borderRadius})`
-    }
-
-    const animation = element.animate({
-      clipPath: [`inset(0 ${dw}px ${dh}px 0)`, `inset(0)`],
+  onResize(element, (width, height) => {
+    const animation = background.animate({
+      width: [px(background.offsetWidth), px(width)],
+      height: [px(background.offsetHeight), px(height)],
     }, {
       duration: duration.normal,
       easing: `ease`,
-      composite: `accumulate`,
+      fill: `forwards`,
     })
 
-    if (dw > 0 || dh > 0) {
-      setDimensions(width, height)
-    }
+    animation.commitStyles()
 
-    animation.onfinish = () => {
-      element.style.clipPath = ``
-      setDimensions(width, height)
-    }
-
-    const oldAnimation = currentAnimation.get(element)
-    if (oldAnimation) {
-      (oldAnimation.onfinish as any) = undefined
-    }
-
+    currentAnimation.get(element)?.cancel()
     currentAnimation.set(element, animation)
   })
 
   return background
 }
 
-export function fadeOutElement (element: HTMLElement, onFinish: () => void) {
+export function fadeOutAbsolute (element: HTMLElement, onFinish: () => void) {
   element.style.left = px(element.offsetLeft)
   element.style.top = px(element.offsetTop)
   element.style.position = `absolute`
 
-  const animation = element.animate({
-    opacity: `0`,
-    scale: `0`,
-  }, {
-    duration: duration.normal,
-    easing: `ease`,
-  })
-
-  animation.onfinish = onFinish
+  const animation = fadeOut(element, onFinish)
 
   return () => {
     element.style.position = ``

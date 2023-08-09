@@ -42,7 +42,6 @@ const containerStyle = makeStyle({
   display: `flex`,
   flexDirection: `row`,
   gap: `0.5rem`,
-  transformOrigin: `top left`
 })
 
 const nameStyle = makeStyle({

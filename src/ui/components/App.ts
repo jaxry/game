@@ -1,5 +1,5 @@
 import Component from './Component'
-import { addStyle, makeStyle } from '../makeStyle'
+import { childStyle, makeStyle } from '../makeStyle'
 import { backgroundColor, fontColor } from '../theme'
 import { createDiv } from '../createElement'
 import GameUI from './GameUI'
@@ -29,7 +29,7 @@ const outsideElemStyle = makeStyle({
   zIndex: `99`,
 })
 
-addStyle(`.${outsideElemStyle} > *`, {
+childStyle(outsideElemStyle, {
   position: `fixed`,
 })
 

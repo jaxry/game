@@ -5,12 +5,11 @@ import ObjectCard from './ObjectCard'
 import { getAndDelete, makeOrGet } from '../../util'
 import Effect from '../../effects/Effect'
 import GameComponent from './GameComponent'
-import { duration } from '../theme'
+import { fadeIn, fadeOut } from '../theme'
 import animatedContents from '../animatedContents'
 
 export default class Inventory extends GameComponent {
   objectToCard = new Map<GameObject, ObjectCard>()
-  rows = createDiv(this.element, rowsContainerStyle)
 
   constructor (public object: GameObject) {
     super()
@@ -21,59 +20,47 @@ export default class Inventory extends GameComponent {
 
     if (this.object.contains) {
       for (const child of this.object.contains) {
-        this.makeCard(child)
+        this.makeCard(child, false)
       }
     }
 
     this.newEffect(InventoryEffect, this.object, this)
 
-    animatedContents(this.rows)
+    animatedContents(this.element)
   }
 
   makeRow () {
-    const row = createDiv(this.rows, rowStyle)
+    const row = createDiv(this.element, rowStyle)
     animatedContents(row)
     return row
   }
 
   getShortestRow () {
-    if (!this.rows.children.length) {
+    if (!this.element.children.length) {
       return this.makeRow()
     }
     const { element, width } = shortestElement(
-        [...this.rows.children] as HTMLElement[])
-    return width > this.rows.offsetHeight ? this.makeRow() : element
+        [...this.element.children] as HTMLElement[])
+    return width > this.element.offsetHeight ? this.makeRow() : element
   }
 
-  makeCard (object: GameObject) {
+  makeCard (object: GameObject, animate = true) {
     const card = makeOrGet(this.objectToCard, object, () => {
       return this.newComponent(ObjectCard, object)
           .appendTo(this.getShortestRow())
     })
-    card.element.animate({
-      opacity: [`0`, `1`],
-      scale: [`0`, `1`],
-    }, {
-      duration: duration.normal,
-      easing: `ease`,
-    })
+    animate && fadeIn(card.element)
   }
 
   removeCard (object: GameObject) {
     const card = getAndDelete(this.objectToCard, object)!
     const row = card.element.parentElement!
-    card.element.animate({
-      opacity: [`1`, `0`],
-      scale: [`1`, `0`]
-    }, {
-      duration: duration.normal,
-      easing: `ease`
-    }).onfinish = () => {
+    fadeOut(card.element, () => {
       card.remove()
       if (!row.children.length) {
         row.remove()
       }
-    }
+    })
   }
 }
 
@@ -108,9 +95,6 @@ function shortestElement (elements: HTMLElement[]) {
 
 const containerStyle = makeStyle({
   position: `relative`,
-})
-
-const rowsContainerStyle = makeStyle({
   minWidth: `3rem`,
   minHeight: `3rem`,
   padding: `0.5rem`,

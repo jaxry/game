@@ -228,7 +228,6 @@ const zoneContainerStyle = makeStyle({
 
 const mapStyle = makeStyle({
   position: `absolute`,
-  transformOrigin: `top left`,
 })
 
 const edgeStyle = makeStyle({

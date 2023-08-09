@@ -15,10 +15,34 @@ export const duration = {
 const fadeInKeyframes = makeKeyframes({ opacity: `0` }, { opacity: `1` })
 export const fadeInAnimation = `${fadeInKeyframes} ${duration.short}ms both`
 
+export function fadeIn (element: HTMLElement) {
+  return element.animate({
+    opacity: [`0`, `1`],
+    scale: [`0`, `1`],
+  }, {
+    duration: duration.normal,
+    easing: `ease`,
+  })
+}
+
+export function fadeOut (element: HTMLElement, onFinish: () => void) {
+  const animation = element.animate({
+    opacity: `0`,
+    scale: `0`,
+  }, {
+    duration: duration.normal,
+    easing: `ease`,
+  })
+
+  animation.onfinish = onFinish
+
+  return animation
+}
+
 // Colors
 
 function lch (l: number, c: number, h: number) {
-  return `oklch(${l}% ${c * 0.37 / 100} ${mod(h, 1) * 360})`
+  return `oklch(${l}% ${c * 0.4 / 100} ${mod(h, 1) * 360})`
 }
 
 const backgroundL = 25
@@ -27,7 +51,7 @@ const backgroundH = Math.random()
 
 const objectL = 50
 const objectC = 10
-const objectH = backgroundH + randomSign() / 3
+const objectH = backgroundH + randomSign() / 2
 
 export const backgroundColor = lch(backgroundL, backgroundC, backgroundH)
 export const fontColor = lch(95, backgroundC, backgroundH)
