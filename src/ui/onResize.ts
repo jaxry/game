@@ -9,6 +9,7 @@ export function onResize (
 
   const observer = new ResizeObserver((entries) => {
     if (first || !document.contains(element)) return first = false
+
     const width = entries[0].borderBoxSize[0].inlineSize
     const height = entries[0].borderBoxSize[0].blockSize
 

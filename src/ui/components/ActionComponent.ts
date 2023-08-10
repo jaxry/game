@@ -42,6 +42,7 @@ const containerStyle = makeStyle({
   display: `flex`,
   flexDirection: `row`,
   gap: `0.5rem`,
+  fontWeight: `bold`,
 })
 
 const nameStyle = makeStyle({
@@ -54,6 +55,7 @@ addStyle(`.${nameStyle}::first-letter`, {
 
 const objectStyle = makeStyle({
   color: fontColor,
+  fontWeight: `normal`,
 })
 
 const timeStyle = makeStyle({

@@ -2,7 +2,7 @@ import Component from './Component'
 import { Edge, getEdgeHash, getZoneGraph } from '../../behavior/connections'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
-import { duration, mapEdgeColor } from '../theme'
+import { duration, fadeIn, fadeOut, mapEdgeColor } from '../theme'
 import MapNode from './MapNode'
 import addPanZoom from '../addPanZoom'
 import { makeOrGet, px, translate } from '../../util'
@@ -120,28 +120,28 @@ export default class MapComponent extends Component {
       },
     })
 
-    grow(node.element)
+    fadeIn(node.element)
 
     return node
   }
 
   private removeNode (zone: GameObject, component: MapNode) {
-    shrink(component.element).onfinish = () => {
+    fadeOut(component.element, () => {
       component.remove()
-    }
+    })
     this.zoneToComponent.delete(zone)
   }
 
   private makeEdge (edge: Edge) {
     const line = createDiv(this.edgeContainer, edgeStyle)
-    grow(line)
+    fadeIn(line)
     return { line, edge }
   }
 
-  private removeEdge (hash: string, line: Element) {
-    shrink(line).onfinish = () => {
+  private removeEdge (hash: string, line: HTMLElement) {
+    fadeOut(line, () => {
       line.remove()
-    }
+    })
     this.edgeToElem.delete(hash)
   }
 
@@ -158,11 +158,11 @@ export default class MapComponent extends Component {
     const invScale = (1 / this.transform.scale).toString()
     // const invScale = `1`
     for (const component of this.zoneToComponent.values()) {
-      component.element.style.scale = invScale
+      component.element.style.transform = `scale(${invScale})`
     }
 
     for (const { line } of this.edgeToElem.values()) {
-      line.style.scale = `1 ${invScale}`
+      line.style.scale = `scale(1, ${invScale})`
     }
 
     this.travelAnimation.setScale(invScale)
@@ -181,26 +181,6 @@ export default class MapComponent extends Component {
       fill: 'forwards',
     }).commitStyles()
   }
-}
-
-function grow (elem: Element) {
-  return elem.animate({
-    scale: ['0', `1`],
-  }, {
-    duration: duration.long,
-    easing: 'ease',
-    composite: `accumulate`,
-  })
-}
-
-function shrink (elem: Element) {
-  return elem.animate({
-    scale: ['1', `0`],
-  }, {
-    duration: duration.long,
-    easing: 'ease',
-    composite: `accumulate`,
-  })
 }
 
 const edgeWidth = 2

@@ -1,5 +1,6 @@
 import { addStyle, makeKeyframes, makeStyle } from './makeStyle'
 import { mod, randomSign } from '../util'
+import LCH from './LCH'
 
 // Animation duration
 
@@ -14,6 +15,8 @@ export const duration = {
 
 const fadeInKeyframes = makeKeyframes({ opacity: `0` }, { opacity: `1` })
 export const fadeInAnimation = `${fadeInKeyframes} ${duration.short}ms both`
+
+// Element.animate presets
 
 export function fadeIn (element: HTMLElement) {
   return element.animate({
@@ -41,39 +44,30 @@ export function fadeOut (element: HTMLElement, onFinish: () => void) {
 
 // Colors
 
-function lch (l: number, c: number, h: number) {
-  return `oklch(${l}% ${c * 0.4 / 100} ${mod(h, 1) * 360})`
-}
+export const backgroundColor = new LCH(25, 5, Math.random())
 
-const backgroundL = 25
-const backgroundC = 5
-const backgroundH = Math.random()
-
-const objectL = 50
-const objectC = 10
-const objectH = backgroundH + randomSign() / 2
-
-export const backgroundColor = lch(backgroundL, backgroundC, backgroundH)
-export const fontColor = lch(95, backgroundC, backgroundH)
+export const fontColor = backgroundColor.setL(90)
 
 export const windowColor = `#faa`
 
-export const mapNodeColor = lch(backgroundL + 10, backgroundC, backgroundH)
+export const mapNodeColor = backgroundColor.addL(10)
 export const mapNodeDistantColor = `#faa`
 
-export const mapEdgeColor = lch(backgroundL + 20, backgroundC, backgroundH)
+export const mapEdgeColor = backgroundColor.addL(20)
 
-export const objectCardColor = lch(objectL, objectC, objectH)
-export const objectCardPlayerColor = `#faa`
-export const objectDialogueBackground = `#faa`
+export const objectCardColor = new LCH(
+    50, 10, backgroundColor.h + randomSign() / 2)
 
-const actionL = 90
-const actionC = 30
-const actionH = objectH + randomSign() / 3
-export const actionColor = lch(actionL, actionC, actionH)
-export const actionTimeColor = lch(actionL, actionC, actionH + randomSign() / 6)
+export const objectCardPlayerColor = objectCardColor.addC(25)
 
-export const gameDataColor = lch(90, 30, backgroundH + randomSign() / 4)
+export const objectSpeakColor = objectCardColor.setL(fontColor.l)
+
+export const actionColor = new LCH(fontColor.l, 30,
+    objectCardColor.h + randomSign() / 4)
+export const actionTimeColor = actionColor.addH(randomSign() / 8)
+
+export const gameDataColor = new LCH(fontColor.l, 30,
+    backgroundColor.h + randomSign() / 4)
 
 // Properties
 
@@ -81,8 +75,8 @@ export const borderRadius = '0.25rem'
 
 export const dropBorder = `2px dashed #fff8`
 
-export const boxShadow = `0.25rem 0.25rem 0.5rem #0003`
-export const boxShadowLarge = `0.5rem 0.5rem 1rem #0006`
+export const boxShadow = `0rem 0.25rem 0.5rem #0003`
+export const boxShadowLarge = `0rem 0.25rem 1rem #0003`
 
 // Styles
 

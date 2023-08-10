@@ -1,7 +1,8 @@
 import { createElement } from './createElement'
 
-type Style = Partial<CSSStyleDeclaration>
-
+type Style = {
+  [key in keyof CSSStyleDeclaration]?: string | { toString (): string }
+}
 const sheet = createElement(document.head, 'style').sheet!
 
 let nextId = 1

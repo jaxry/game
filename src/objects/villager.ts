@@ -60,9 +60,11 @@ class Search extends Effect {
     const wood = findWood(this.object.container)
     if (wood) {
       new TransferAction(this.object, wood, this.object).activate()
+      speak(this.object, 'Found me some wood.')
     } else {
       const nextZone = randomElement(this.object.container.connections!)
       new TravelAction(this.object, nextZone).activate()
+      speak(this.object, 'No wood, must explore.')
     }
   }
 }
@@ -76,13 +78,14 @@ class ReturnHome extends MoveToZone {
 
   override onActivate () {
     super.onActivate()
-    speak(this.object, 'Returning home')
+    speak(this.object, 'Returning wood to home.')
   }
 
   override onDeactivate () {
     const chest = findChest(this.object.container)!
     const wood = findWood(this.object)!
     new DepositWood(this.object, wood, chest).activate()
+    speak(this.object, 'Depositing wood.')
   }
 }
 
@@ -91,6 +94,7 @@ serializable(ReturnHome)
 class DepositWood extends TransferAction {
   override onDeactivate () {
     new Search(this.object).activate()
+    speak(this.object, 'Back to searching.')
   }
 }
 

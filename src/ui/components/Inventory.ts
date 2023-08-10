@@ -66,7 +66,8 @@ export default class Inventory extends GameComponent {
 
 class InventoryEffect extends Effect {
   static ignoreSerialize = true
-  constructor(object: GameObject, public inventory: Inventory) {
+
+  constructor (object: GameObject, public inventory: Inventory) {
     super(object)
   }
 
@@ -78,10 +79,13 @@ class InventoryEffect extends Effect {
       this.inventory.removeCard(child)
     })
     this.onObjectChildren('actionStart', (child) => {
-      this.inventory.objectToCard.get(child)!.showAction()
+      this.inventory.objectToCard.get(child)!.showAction(child.activeAction)
     })
     this.onObjectChildren('actionEnd', (child) => {
       this.inventory.objectToCard.get(child)!.hideAction()
+    })
+    this.onObjectChildren('speak', (child, message) => {
+      this.inventory.objectToCard.get(child)!.showMessage(message)
     })
   }
 }
