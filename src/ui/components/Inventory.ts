@@ -5,7 +5,7 @@ import ObjectCard from './ObjectCard'
 import { getAndDelete, makeOrGet } from '../../util'
 import Effect from '../../effects/Effect'
 import GameComponent from './GameComponent'
-import { fadeIn, fadeOut } from '../theme'
+import { duration, fadeIn, fadeOut } from '../theme'
 import animatedContents from '../animatedContents'
 
 export default class Inventory extends GameComponent {
@@ -26,12 +26,12 @@ export default class Inventory extends GameComponent {
 
     this.newEffect(InventoryEffect, this.object, this)
 
-    animatedContents(this.element)
+    animatedContents(this.element, duration.extraLong)
   }
 
   makeRow () {
     const row = createDiv(this.element, rowStyle)
-    animatedContents(row)
+    animatedContents(row, duration.extraLong)
     return row
   }
 

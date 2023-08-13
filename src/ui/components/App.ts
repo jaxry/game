@@ -22,6 +22,7 @@ const containerStyle = makeStyle({
   color: textColor,
   height: `100vh`,
   contain: `strict`,
+  userSelect: `none`,
 })
 
 const outsideElemStyle = makeStyle({

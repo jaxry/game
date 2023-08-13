@@ -6,9 +6,10 @@ import LCH from './LCH'
 
 const baseSpeed = 800
 export const duration = {
-  short: baseSpeed / 2,
-  normal: baseSpeed,
+  short: 150,
+  normal: 800,
   long: baseSpeed * 2,
+  extraLong: baseSpeed * 3,
 }
 
 // Animations
@@ -50,10 +51,9 @@ export const backgroundColor = new LCH(25, 5, Math.random())
 
 export const textColor = backgroundColor.setL(90)
 
-export const windowColor = `#faa`
+export const windowColor = backgroundColor.addL(10).addC(4)
 
 export const mapNodeColor = backgroundColor.addL(10)
-export const mapNodeDistantColor = `#faa`
 
 export const mapEdgeColor = backgroundColor.addL(20)
 
@@ -64,12 +64,11 @@ export const objectCardPlayerColor = objectCardColor.addC(25)
 
 export const objectSpeakColor = objectCardColor.setL(textColor.l)
 
-export const actionColor = new LCH(textColor.l, 30,
-    objectCardColor.h + randomSign() / 4)
+export const actionColor = objectCardColor.setL(textColor.l)
+    .addC(25).addH(randomSign() / 4)
 export const actionTimeColor = actionColor.addH(randomSign() / 8)
 
-export const gameDataColor = new LCH(textColor.l, 30,
-    backgroundColor.h + randomSign() / 4)
+export const gameDataColor = textColor.addC(25).addH(randomSign() / 4)
 
 // Properties
 
@@ -78,21 +77,15 @@ export const borderRadius = '0.25rem'
 export const dropBorder = `2px dashed #fff8`
 
 export const boxShadow = `0rem 0.1rem 0.5rem #0003`
-export const boxShadowLarge = `0rem 0.1rem 1rem #0003`
+export const boxShadowLarge = `0rem 0.5rem 2rem #0004`
 
 // Styles
-
-const buttonColor = new LCH(50, 10, backgroundColor.h)
 
 export const buttonStyle = makeStyle({
   color: `inherit`,
   font: `inherit`,
   width: `max-content`,
   padding: `0.25rem 0.5rem`,
-  // background: `#fff2`,
-  background: `none`,
-  // border: `none`,
-  // border: `2px solid ${buttonColor.addL(8)}`,
   border: `2px solid #fff3`,
   borderRadius,
 })

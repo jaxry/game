@@ -11,9 +11,11 @@ export default class ObjectCardExpanded extends Window {
 
   override onInit () {
     createSpan(this.element, undefined, this.object.type.name)
+
     if (this.object.type.isContainer) {
       this.newComponent(Inventory, this.object).appendTo(this.element)
     }
-    const pickUp = createElement(this.element, 'button', buttonStyle, `Pick up`)
+
+    createElement(this.element, 'button', buttonStyle, `Pick up`)
   }
 }

@@ -13,7 +13,8 @@ export const animatedBackgroundTemplate = {
 const currentAnimation = new WeakMap<any, Animation>()
 
 export default function animatedBackground (
-    element: HTMLElement, backgroundStyle: string) {
+    element: HTMLElement, backgroundStyle: string,
+    animDuration = duration.normal) {
   const background = createDiv(null, backgroundStyle)
   element.prepend(background)
 
@@ -25,7 +26,7 @@ export default function animatedBackground (
       width: [px(background.offsetWidth), px(width)],
       height: [px(background.offsetHeight), px(height)],
     }, {
-      duration: duration.normal,
+      duration: animDuration,
       easing: `ease`,
       fill: `forwards`,
     })

@@ -4,7 +4,8 @@ const positions = new WeakMap<HTMLElement, { x: number, y: number }>()
 
 //TODO: deleting the outer element of a nested element errors
 
-export default function animatedContents (container: HTMLElement) {
+export default function animatedContents (
+    container: HTMLElement, animDuration = duration.normal) {
   let first = true
   const animateChildren = () => {
     // ResizeObserver is called on element creation. Ignore this event.
@@ -14,7 +15,7 @@ export default function animatedContents (container: HTMLElement) {
       if (!document.contains(element) || isAbsolutePositioned(element)) {
         continue
       }
-      animate(element)
+      animate(element, animDuration)
     }
   }
 
@@ -44,7 +45,7 @@ export default function animatedContents (container: HTMLElement) {
   }
 }
 
-function animate (element: HTMLElement) {
+function animate (element: HTMLElement, animDuration: number) {
   const previousPosition = positions.get(element)!
 
   const { x, y } = offsetPosition(element)
@@ -60,7 +61,7 @@ function animate (element: HTMLElement) {
   element.animate({
     translate: [`${dx}px ${dy}px`, '0 0'],
   }, {
-    duration: duration.normal,
+    duration: animDuration,
     easing: `ease`,
     composite: `accumulate`,
   })

@@ -1,6 +1,6 @@
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
-import { borderRadius, boxShadowLarge, duration, mapNodeColor } from '../theme'
+import { borderRadius, boxShadow, duration, mapNodeColor } from '../theme'
 import GameComponent from './GameComponent'
 import Effect from '../../effects/Effect'
 import TravelAction from '../../actions/Travel'
@@ -47,7 +47,7 @@ export default class MapNode extends GameComponent {
       }, {
         composite: `add`,
         easing: `ease`,
-        duration: duration.normal,
+        duration: duration.extraLong,
       })
     })
   }
@@ -89,6 +89,6 @@ const backgroundStyle = makeStyle({
   ...animatedBackgroundTemplate,
   background: mapNodeColor,
   borderRadius,
-  boxShadow: boxShadowLarge,
+  boxShadow: boxShadow,
 })
 

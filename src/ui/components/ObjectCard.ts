@@ -15,7 +15,6 @@ import animatedContents from '../animatedContents'
 import { isPlayer } from '../../behavior/player'
 import { onClickNotDrag } from '../makeDraggable'
 import ObjectCardExpanded from './ObjectCardExpanded'
-import { getFixedRect } from '../getFixedRect'
 
 export default class ObjectCard extends Component {
   title = createDiv(this.element)
@@ -36,14 +35,12 @@ export default class ObjectCard extends Component {
 
     onClickNotDrag(this.element, (e) => {
       // this.expanded ? this.collapse() : this.expand()
-      this.expand()
+      this.expand(e.clientX, e.clientY)
     })
   }
 
-  expand () {
-    const expanded = this.newComponent(ObjectCardExpanded, this.object)
-    const { x, y } = getFixedRect(this.element)
-    expanded.setPosition(x, y)
+  expand (x: number, y: number) {
+    this.newComponent(ObjectCardExpanded, this.object).renderAt(x, y)
   }
 
   showMessage (message: string) {

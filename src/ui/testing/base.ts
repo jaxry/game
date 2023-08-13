@@ -21,7 +21,6 @@ export default class Base extends Component {
 const containerStyle = makeStyle({
   position: `relative`,
   height: '100%',
-  userSelect: `none`,
   display: `flex`,
   alignItems: `center`,
   justifyContent: `center`,

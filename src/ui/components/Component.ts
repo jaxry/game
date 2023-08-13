@@ -4,8 +4,8 @@ import { Constructor } from '../../types'
 export default class Component<T extends Element = HTMLElement> {
   element: T
 
-  private parentComponent?: Component<Element>
-  private childComponents = new Set<Component<Element>>()
+  parentComponent?: Component<Element>
+  childComponents = new Set<Component<Element>>()
   private destroyCallbacks: Array<() => void> = []
 
   constructor (element: T = document.createElement('div') as any) {
@@ -49,26 +49,22 @@ export default class Component<T extends Element = HTMLElement> {
   remove () {
     this.element.remove()
 
-    this.parentComponent?.childComponents.delete(this)
-    this.parentComponent = undefined
-
-    this.runDestroyCallbacks()
-  }
-
-  onInit? (): void
-
-  on<T> (event: Observable<T>, listener: (data: T) => void) {
-    this.onRemove(event.on(listener))
-  }
-
-  private runDestroyCallbacks () {
     for (const callback of this.destroyCallbacks) {
       callback()
     }
     this.destroyCallbacks.length = 0
 
     for (const component of this.childComponents) {
-      component.runDestroyCallbacks()
+      component.remove()
     }
+
+    this.parentComponent?.childComponents.delete(this)
+    this.parentComponent = undefined
+  }
+
+  onInit? (): void
+
+  on<T> (event: Observable<T>, listener: (data: T) => void) {
+    this.onRemove(event.on(listener))
   }
 }
