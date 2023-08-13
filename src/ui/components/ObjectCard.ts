@@ -9,13 +9,16 @@ import ActionComponent from './ActionComponent'
 import animatedBackground, {
   animatedBackgroundTemplate, fadeOutAbsolute,
 } from '../animatedBackground'
-import Inventory from './Inventory'
 import Action from '../../actions/Action'
-import { createElement } from '../createElement'
+import { createDiv, createElement } from '../createElement'
 import animatedContents from '../animatedContents'
 import { isPlayer } from '../../behavior/player'
+import { onClickNotDrag } from '../makeDraggable'
+import ObjectCardExpanded from './ObjectCardExpanded'
+import { getFixedRect } from '../getFixedRect'
 
 export default class ObjectCard extends Component {
+  title = createDiv(this.element)
   actionComponent?: ActionComponent
 
   constructor (public object: GameObject) {
@@ -26,25 +29,21 @@ export default class ObjectCard extends Component {
     this.element.classList.add(containerStyle)
     this.element.classList.toggle(playerStyle, isPlayer(this.object))
 
-    this.element.textContent = this.object.type.name
+    this.title.textContent = this.object.type.name
 
     animatedBackground(this.element, backgroundStyle)
     animatedContents(this.element)
 
-    let inventory: Inventory | undefined
-    this.element.addEventListener('click', () => {
-      if (!inventory) {
-        inventory = this.newComponent(Inventory, this.object)
-            .appendTo(this.element)
-        fadeIn(inventory.element)
-      } else {
-        const thisInventory = inventory
-        inventory = undefined
-        fadeOutAbsolute(thisInventory.element, () => {
-          thisInventory.remove()
-        })
-      }
+    onClickNotDrag(this.element, (e) => {
+      // this.expanded ? this.collapse() : this.expand()
+      this.expand()
     })
+  }
+
+  expand () {
+    const expanded = this.newComponent(ObjectCardExpanded, this.object)
+    const { x, y } = getFixedRect(this.element)
+    expanded.setPosition(x, y)
   }
 
   showMessage (message: string) {
@@ -53,7 +52,7 @@ export default class ObjectCard extends Component {
     element.animate({
       opacity: [`1`, `0`],
     }, {
-      duration: 5000,
+      duration: 4000,
       easing: `ease-in`,
     }).onfinish = () => {
       element.remove()

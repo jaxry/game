@@ -120,7 +120,7 @@ export default class MapComponent extends Component {
       },
     })
 
-    fadeIn(node.element)
+    fadeIn(node.element, duration.long)
 
     return node
   }
@@ -128,20 +128,20 @@ export default class MapComponent extends Component {
   private removeNode (zone: GameObject, component: MapNode) {
     fadeOut(component.element, () => {
       component.remove()
-    })
+    }, duration.long)
     this.zoneToComponent.delete(zone)
   }
 
   private makeEdge (edge: Edge) {
     const line = createDiv(this.edgeContainer, edgeStyle)
-    fadeIn(line)
+    fadeIn(line, duration.long)
     return { line, edge }
   }
 
   private removeEdge (hash: string, line: HTMLElement) {
     fadeOut(line, () => {
       line.remove()
-    })
+    }, duration.long)
     this.edgeToElem.delete(hash)
   }
 
@@ -156,13 +156,13 @@ export default class MapComponent extends Component {
 
   private updateScale () {
     const invScale = (1 / this.transform.scale).toString()
-    // const invScale = `1`
+
     for (const component of this.zoneToComponent.values()) {
       component.element.style.transform = `scale(${invScale})`
     }
 
     for (const { line } of this.edgeToElem.values()) {
-      line.style.scale = `scale(1, ${invScale})`
+      line.style.transform = `scale(1, ${invScale})`
     }
 
     this.travelAnimation.setScale(invScale)

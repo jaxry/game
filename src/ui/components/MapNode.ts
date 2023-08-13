@@ -81,6 +81,8 @@ const containerStyle = makeStyle({
 const contentStyle = makeStyle({
   position: `absolute`,
   translate: `-50% -50%`,
+  minWidth: `3rem`,
+  minHeight: `3rem`,
 })
 
 const backgroundStyle = makeStyle({

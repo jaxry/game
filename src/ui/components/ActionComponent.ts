@@ -1,6 +1,6 @@
 import Component from './Component'
 import Action from '../../actions/Action'
-import { actionColor, actionTimeColor, fontColor } from '../theme'
+import { actionColor, actionTimeColor, textColor } from '../theme'
 import { addStyle, makeStyle } from '../makeStyle'
 import GameTime from '../../GameTime'
 import { game } from '../../Game'
@@ -54,7 +54,7 @@ addStyle(`.${nameStyle}::first-letter`, {
 })
 
 const objectStyle = makeStyle({
-  color: fontColor,
+  color: textColor,
   fontWeight: `normal`,
 })
 

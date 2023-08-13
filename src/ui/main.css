@@ -6,3 +6,10 @@
 body {
   margin: 0;
 }
+
+button {
+  font: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+}

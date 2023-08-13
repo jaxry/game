@@ -99,8 +99,6 @@ function shortestElement (elements: HTMLElement[]) {
 
 const containerStyle = makeStyle({
   position: `relative`,
-  minWidth: `3rem`,
-  minHeight: `3rem`,
   padding: `0.5rem`,
   display: `flex`,
   flexDirection: `column`,

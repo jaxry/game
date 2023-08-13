@@ -2,28 +2,26 @@ import Component from './Component'
 import { outsideElem } from './App'
 import clickOutside from '../clickOutside'
 import { makeStyle } from '../makeStyle'
-import { translate } from '../../util'
 import makeDraggable from '../makeDraggable'
-import { boxShadowLarge, windowColor } from '../theme'
+import { boxShadowLarge, duration, fadeIn, fadeOut } from '../theme'
 
 export default class Window extends Component {
   posX = 0
   posY = 0
+  rendered = false
 
-  constructor (parentBBox: DOMRect) {
+  constructor () {
     super()
 
     this.element.classList.add(containerStyle)
 
     this.onRemove(clickOutside(this.element, () => {
-      this.remove()
+      fadeOut(this.element, () => {
+        this.remove()
+      }, duration.short)
     }))
 
     outsideElem.append(this.element)
-
-    this.setPosition(
-        parentBBox.left + parentBBox.width / 2,
-        parentBBox.top + parentBBox.height / 2)
 
     makeDraggable(this.element, {
       onDrag: (e) => {
@@ -33,13 +31,22 @@ export default class Window extends Component {
   }
 
   setPosition (x: number, y: number) {
+    if (!this.rendered) {
+      this.rendered = true
+      this.onInit?.()
+      fadeIn(this.element, duration.short)
+    }
+
     this.posX = x
     this.posY = y
-    this.element.style.transform = translate(this.posX, this.posY)
+    this.element.style.translate = `${this.posX}px ${this.posY}px`
   }
 }
 
 const containerStyle = makeStyle({
-  background: windowColor,
+  position: `fixed`,
+  top: `0`,
+  left: `0`,
+  // background: windowColor,
   boxShadow: boxShadowLarge,
 })
