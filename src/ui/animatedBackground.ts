@@ -15,29 +15,34 @@ const currentAnimation = new WeakMap<any, Animation>()
 export default function animatedBackground (
     element: HTMLElement, backgroundStyle: string,
     animDuration = duration.normal) {
+
   const background = createDiv(null, backgroundStyle)
   element.prepend(background)
 
-  background.style.width = px(element.offsetWidth)
-  background.style.height = px(element.offsetHeight)
+  // microtask runs after the element has been fully
+  // initialized with all its children
+  queueMicrotask(() => {
+    background.style.width = px(element.offsetWidth)
+    background.style.height = px(element.offsetHeight)
 
-  onResize(element, (width, height) => {
-    const oldWidth = background.offsetWidth
-    const oldHeight = background.offsetHeight
+    onResize(element, (width, height) => {
+      const oldWidth = background.offsetWidth
+      const oldHeight = background.offsetHeight
 
-    const animation = background.animate({
-      width: [px(oldWidth), px(width)],
-      height: [px(oldHeight), px(height)],
-    }, {
-      duration: animDuration,
-      easing: `ease`,
-      fill: `forwards`,
+      const animation = background.animate({
+        width: [px(oldWidth), px(width)],
+        height: [px(oldHeight), px(height)],
+      }, {
+        duration: animDuration,
+        easing: `ease`,
+        fill: `forwards`,
+      })
+
+      animation.commitStyles()
+
+      currentAnimation.get(element)?.cancel()
+      currentAnimation.set(element, animation)
     })
-
-    animation.commitStyles()
-
-    currentAnimation.get(element)?.cancel()
-    currentAnimation.set(element, animation)
   })
 
   return background

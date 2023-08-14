@@ -7,7 +7,8 @@ const positions = new WeakMap<HTMLElement, { x: number, y: number }>()
 export default function animatedContents (
     container: HTMLElement, animDuration = duration.normal) {
   let first = true
-  const animateChildren = () => {
+
+  const resizeObserver = new ResizeObserver(() => {
     // ResizeObserver is called on element creation. Ignore this event.
     if (first) return first = false
 
@@ -17,9 +18,7 @@ export default function animatedContents (
       }
       animate(element, animDuration)
     }
-  }
-
-  const resizeObserver = new ResizeObserver(animateChildren)
+  })
 
   function initElement (element: HTMLElement) {
     if (isAbsolutePositioned(element)) {
@@ -29,20 +28,26 @@ export default function animatedContents (
     resizeObserver.observe(element)
   }
 
-  new MutationObserver((mutationList) => {
+  const mutationObserver = new MutationObserver((mutationList) => {
     for (const mutation of mutationList) {
       for (const element of mutation.addedNodes as Iterable<HTMLElement>) {
         initElement(element)
       }
     }
-  }).observe(container, {
-    childList: true,
-    attributes: false,
   })
 
-  for (const element of container.children as Iterable<HTMLElement>) {
-    initElement(element)
-  }
+  // microtask runs after the element has been fully
+  // initialized with all its children
+  queueMicrotask(() => {
+    mutationObserver.observe(container, {
+      childList: true,
+      attributes: false,
+    })
+
+    for (const element of container.children as Iterable<HTMLElement>) {
+      initElement(element)
+    }
+  })
 }
 
 function animate (element: HTMLElement, animDuration: number) {
