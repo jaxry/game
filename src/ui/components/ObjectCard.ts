@@ -13,7 +13,7 @@ import Action from '../../actions/Action'
 import { createDiv, createElement } from '../createElement'
 import animatedContents from '../animatedContents'
 import { isPlayer } from '../../behavior/player'
-import { onClickNotDrag } from '../makeDraggable'
+import { cancelDrag } from '../makeDraggable'
 import ObjectCardExpanded from './ObjectCardExpanded'
 
 export default class ObjectCard extends Component {
@@ -32,8 +32,9 @@ export default class ObjectCard extends Component {
 
     animatedBackground(this.element, backgroundStyle)
     animatedContents(this.element)
+    cancelDrag(this.element)
 
-    onClickNotDrag(this.element, (e) => {
+    this.element.addEventListener('pointerdown', (e) => {
       // this.expanded ? this.collapse() : this.expand()
       this.expand(e.clientX, e.clientY)
     })

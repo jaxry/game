@@ -6,10 +6,9 @@ import LCH from './LCH'
 
 const baseSpeed = 800
 export const duration = {
-  short: 150,
-  normal: 800,
+  short: 200,
+  normal: baseSpeed,
   long: baseSpeed * 2,
-  extraLong: baseSpeed * 3,
 }
 
 // Animations

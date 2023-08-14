@@ -46,8 +46,8 @@ export default class MapNode extends GameComponent {
         transform: [translate(dw / 2, dh / 2), `translate(0, 0)`],
       }, {
         composite: `add`,
-        easing: `ease`,
-        duration: duration.extraLong,
+        easing: `ease-in-out`,
+        duration: duration.normal,
       })
     })
   }

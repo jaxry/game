@@ -25,7 +25,7 @@ export default function animatedContents (
     if (isAbsolutePositioned(element)) {
       return
     }
-    positions.set(element, offsetPosition(element))
+    positions.set(element, position(element))
     resizeObserver.observe(element)
   }
 
@@ -48,7 +48,7 @@ export default function animatedContents (
 function animate (element: HTMLElement, animDuration: number) {
   const previousPosition = positions.get(element)!
 
-  const { x, y } = offsetPosition(element)
+  const { x, y } = position(element)
 
   const dx = previousPosition.x - x
   const dy = previousPosition.y - y
@@ -67,7 +67,7 @@ function animate (element: HTMLElement, animDuration: number) {
   })
 }
 
-function offsetPosition (element: HTMLElement) {
+function position (element: HTMLElement) {
   return {
     x: element.offsetLeft,
     y: element.offsetTop,

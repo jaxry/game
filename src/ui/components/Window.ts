@@ -29,6 +29,7 @@ export default class Window extends Component {
 
     this.element.animate({
       opacity: [`0`, `1`],
+      scale: [`1 0`, `1 1`],
     }, {
       duration: duration.short,
       easing: `ease`,
@@ -38,6 +39,7 @@ export default class Window extends Component {
   animateOut () {
     this.element.animate({
       opacity: [`1`, `0`],
+      scale: [`1 1`, `1 0`],
     }, {
       duration: duration.short,
       easing: `ease`,

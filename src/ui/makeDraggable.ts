@@ -43,7 +43,6 @@ export default function makeDraggable (
 
     window.addEventListener('pointerup', (e) => {
       options.onUp?.(e)
-      childDragged = false
       controller.abort()
     }, { once: true })
   }
@@ -59,11 +58,21 @@ export default function makeDraggable (
   }
 }
 
+window.addEventListener('pointerup', () => {
+  childDragged = false
+})
+
 export function onClickNotDrag (
     element: HTMLElement, handler: (e: MouseEvent) => void) {
   element.addEventListener('click', (e) => {
     if (!isDragging) {
       handler(e)
     }
+  })
+}
+
+export function cancelDrag (element: Element) {
+  element.addEventListener('pointerdown', (e) => {
+    childDragged = true
   })
 }

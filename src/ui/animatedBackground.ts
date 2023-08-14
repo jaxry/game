@@ -22,9 +22,12 @@ export default function animatedBackground (
   background.style.height = px(element.offsetHeight)
 
   onResize(element, (width, height) => {
+    const oldWidth = background.offsetWidth
+    const oldHeight = background.offsetHeight
+
     const animation = background.animate({
-      width: [px(background.offsetWidth), px(width)],
-      height: [px(background.offsetHeight), px(height)],
+      width: [px(oldWidth), px(width)],
+      height: [px(oldHeight), px(height)],
     }, {
       duration: animDuration,
       easing: `ease`,
