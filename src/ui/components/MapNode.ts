@@ -38,7 +38,7 @@ export default class MapNode extends GameComponent {
 
     this.newComponent(Inventory, this.zone).appendTo(content)
 
-    animatedBackground(content, backgroundStyle)
+    animatedBackground(content, backgroundStyle, duration.long)
 
     // animate container to new centered position
     onResize(content, (width, height, dw, dh) => {
@@ -47,7 +47,7 @@ export default class MapNode extends GameComponent {
       }, {
         composite: `add`,
         easing: `ease-in-out`,
-        duration: duration.normal,
+        duration: duration.long,
       })
     })
   }

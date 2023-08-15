@@ -29,13 +29,16 @@ export default function animatedBackground (
       const oldWidth = background.offsetWidth
       const oldHeight = background.offsetHeight
 
+      const expanding = width > oldWidth || height > oldHeight
+
       const animation = background.animate({
         width: [px(oldWidth), px(width)],
         height: [px(oldHeight), px(height)],
       }, {
         duration: animDuration,
         easing: `ease`,
-        fill: `forwards`,
+        fill: `both`,
+        delay: expanding ? 0 : animDuration / 4,
       })
 
       animation.commitStyles()

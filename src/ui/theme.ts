@@ -50,7 +50,7 @@ export const backgroundColor = new LCH(25, 5, Math.random())
 
 export const textColor = backgroundColor.setL(90)
 
-export const windowColor = backgroundColor.addL(10).addC(4)
+export const windowColor = backgroundColor.addL(15).addC(4)
 
 export const mapNodeColor = backgroundColor.addL(10)
 

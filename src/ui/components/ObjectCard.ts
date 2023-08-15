@@ -4,7 +4,7 @@ import {
   borderRadius, boxShadow, fadeIn, objectCardColor, objectCardPlayerColor,
   objectSpeakColor,
 } from '../theme'
-import { addStyle, makeStyle } from '../makeStyle'
+import { addStyle, hoverStyle, makeStyle } from '../makeStyle'
 import ActionComponent from './ActionComponent'
 import animatedBackground, {
   animatedBackgroundTemplate, fadeOutAbsolute,
@@ -14,7 +14,7 @@ import { createDiv, createElement } from '../createElement'
 import animatedContents from '../animatedContents'
 import { isPlayer } from '../../behavior/player'
 import { cancelDrag } from '../makeDraggable'
-import ObjectCardExpanded from './ObjectCardExpanded'
+import ObjectCardWindow from './ObjectCardWindow'
 
 export default class ObjectCard extends Component {
   title = createDiv(this.element)
@@ -35,13 +35,12 @@ export default class ObjectCard extends Component {
     cancelDrag(this.element)
 
     this.element.addEventListener('pointerdown', (e) => {
-      // this.expanded ? this.collapse() : this.expand()
-      this.expand(e.clientX, e.clientY)
+      this.showWindow(e.clientX, e.clientY)
     })
   }
 
-  expand (x: number, y: number) {
-    this.newComponent(ObjectCardExpanded, this.object).renderAt(x, y)
+  showWindow (x: number, y: number) {
+    this.newComponent(ObjectCardWindow, this.object).renderAt(x, y)
   }
 
   showMessage (message: string) {
@@ -76,6 +75,10 @@ const containerStyle = makeStyle({
   position: `relative`,
   padding: `0.5rem`,
   width: `max-content`,
+})
+
+hoverStyle(containerStyle, {
+  filter: `brightness(1.1)`,
 })
 
 const playerStyle = makeStyle({})
