@@ -1,6 +1,6 @@
 import GameObject from '../../GameObject'
 import Inventory from './Inventory'
-import { createDiv, createElement, createSpan } from '../createElement'
+import { createDiv, createElement } from '../createElement'
 import { buttonStyle } from '../theme'
 import Window from './Window'
 

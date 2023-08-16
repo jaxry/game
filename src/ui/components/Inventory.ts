@@ -57,9 +57,7 @@ export default class Inventory extends GameComponent {
     const row = card.element.parentElement!
     fadeOut(card.element, () => {
       card.remove()
-      if (!row.children.length) {
-        row.remove()
-      }
+      !row.children.length && row.remove()
     })
   }
 }

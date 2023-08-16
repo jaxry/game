@@ -4,12 +4,10 @@ import { makeStyle } from '../makeStyle'
 import makeDraggable from '../makeDraggable'
 import { borderRadius, boxShadowLarge, duration, windowColor } from '../theme'
 
-const windows = new Set<Window>
-
 export default class Window extends Component {
   posX = 0
   posY = 0
-  clicked = false
+  focused = false
 
   constructor () {
     super()
@@ -57,23 +55,20 @@ export default class Window extends Component {
   }
 
   private setupRemoveEvents () {
-    windows.add(this)
-    this.onRemove(() => windows.delete(this))
-
     this.element.addEventListener('pointerenter', (e) => {
       for (const window of ancestorWindows(this)) {
-        window.clicked = true
+        window.focused = true
       }
     })
 
     this.element.addEventListener('pointerleave', (e) => {
-      this.clicked = false
+      this.focused = false
       setTimeout(() => {
-        for (const window of windows) {
-          if (!window.clicked) {
+        for (const window of ancestorWindows(this)) {
+          if (!window.focused) {
             window.animateOut()
           } else {
-            window.clicked = false
+            window.focused = false
           }
         }
       })

@@ -12,8 +12,10 @@ export function onResize (
 
     const width = entries[0].borderBoxSize[0].inlineSize
     const height = entries[0].borderBoxSize[0].blockSize
+    const dw = width - oldWidth
+    const dh = height - oldHeight
 
-    callback(width, height, width - oldWidth, height - oldHeight)
+    callback(width, height, dw, dh)
     oldWidth = width
     oldHeight = height
   })
