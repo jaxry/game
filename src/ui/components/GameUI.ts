@@ -8,9 +8,6 @@ import { createDiv, createElement } from '../createElement'
 import { deleteSaveFile, saveGameToFile } from '../../saveLoad'
 import { restartGame } from '../../main'
 import { gameDataColor, textButtonStyle } from '../theme'
-import Selector from '../Selector'
-
-export const selector = new Selector()
 
 export default class GameUI extends GameComponent {
   override onInit () {

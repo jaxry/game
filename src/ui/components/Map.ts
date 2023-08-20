@@ -11,7 +11,6 @@ import { createDiv } from '../createElement'
 import makeDraggable from '../makeDraggable'
 import ForceDirectedSim from '../../map/ForceDirectedSim'
 import throttle from '../throttle'
-import { selector } from './GameUI'
 
 export default class MapComponent extends Component {
   maxDepthFromCenter = 2
@@ -57,11 +56,6 @@ export default class MapComponent extends Component {
     this.forceDirectedSim.onUpdate = () => {
       this.updatePositions()
     }
-
-    this.element.addEventListener('click', (e) => {
-      if (e.target !== e.currentTarget) return
-      selector.selectionEnd.emit()
-    })
   }
 
   render (centerZone: GameObject, panToCenter = false, startForceSim = false) {

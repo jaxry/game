@@ -15,7 +15,6 @@ import animatedContents from '../animatedContents'
 import { isPlayer } from '../../behavior/player'
 import { cancelDrag } from '../makeDraggable'
 import ObjectCardWindow from './ObjectCardWindow'
-import { selector } from './GameUI'
 
 export default class ObjectCard extends Component {
   title = createDiv(this.element)
@@ -37,15 +36,6 @@ export default class ObjectCard extends Component {
 
     this.element.addEventListener('pointerdown', (e) => {
       this.showWindow(e.clientX, e.clientY)
-    })
-
-    let selectionIcon: HTMLElement | undefined
-    selector.selectionStart.on(() => {
-      selectionIcon = createDiv(this.element, selectableStyle, '●')
-    })
-    selector.selectionEnd.on(() => {
-      selectionIcon?.remove()
-      selectionIcon = undefined
     })
   }
 
