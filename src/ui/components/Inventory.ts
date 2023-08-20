@@ -97,10 +97,10 @@ function shortestElement (elements: HTMLElement[]) {
 
 const containerStyle = makeStyle({
   position: `relative`,
-  padding: `0.5rem`,
   display: `flex`,
   flexDirection: `column`,
-  gap: `0.5rem`,
+  gap: `0.75rem`,
+  padding: `0.75rem`,
 })
 
 const rowStyle = makeStyle({
@@ -108,5 +108,5 @@ const rowStyle = makeStyle({
   width: `max-content`,
   display: `flex`,
   alignItems: `flex-start`,
-  gap: `0.5rem`,
+  gap: `0.75rem`,
 })

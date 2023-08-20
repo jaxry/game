@@ -3,6 +3,7 @@ import Inventory from './Inventory'
 import { createDiv, createElement } from '../createElement'
 import { buttonStyle } from '../theme'
 import Window from './Window'
+import { selector } from './GameUI'
 
 export default class ObjectCardWindow extends Window {
   constructor (public object: GameObject) {
@@ -16,6 +17,9 @@ export default class ObjectCardWindow extends Window {
       this.newComponent(Inventory, this.object).appendTo(this.element)
     }
 
-    createElement(this.element, 'button', buttonStyle, `Pick up`)
+    const button = createElement(this.element, 'button', buttonStyle, `Move`)
+    button.addEventListener('click', () => {
+      selector.selectionStart.emit()
+    })
   }
 }

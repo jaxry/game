@@ -13,7 +13,7 @@ export default function animatedContents (
     if (first) return first = false
 
     for (const element of container.children as Iterable<HTMLElement>) {
-      if (!document.contains(element) || isAbsolutePositioned(element)) {
+      if (!document.contains(element)) {
         continue
       }
       animate(element, animDuration, smooth)
@@ -21,9 +21,6 @@ export default function animatedContents (
   })
 
   function initElement (element: HTMLElement) {
-    if (isAbsolutePositioned(element)) {
-      return
-    }
     positions.set(element, position(element))
     resizeObserver.observe(element)
   }
@@ -77,8 +74,4 @@ function position (element: HTMLElement) {
     x: element.offsetLeft,
     y: element.offsetTop,
   }
-}
-
-function isAbsolutePositioned (element: HTMLElement) {
-  return getComputedStyle(element).position === `absolute`
 }

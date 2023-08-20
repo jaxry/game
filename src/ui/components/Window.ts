@@ -1,5 +1,5 @@
 import Component from './Component'
-import { outsideElem } from './App'
+import { outsideElement } from './App'
 import { makeStyle } from '../makeStyle'
 import makeDraggable from '../makeDraggable'
 import { borderRadius, boxShadowLarge, duration, windowColor } from '../theme'
@@ -13,7 +13,7 @@ export default class Window extends Component {
     super()
     this.element.classList.add(containerStyle)
 
-    outsideElem.append(this.element)
+    outsideElement.append(this.element)
 
     this.setupRemoveEvents()
 
@@ -34,7 +34,7 @@ export default class Window extends Component {
     })
   }
 
-  animateOut () {
+  animateRemove () {
     this.element.animate({
       opacity: [`1`, `0`],
       scale: [`1 1`, `1 0`],
@@ -66,7 +66,7 @@ export default class Window extends Component {
       setTimeout(() => {
         for (const window of ancestorWindows(this)) {
           if (!window.focused) {
-            window.animateOut()
+            window.animateRemove()
           } else {
             window.focused = false
           }

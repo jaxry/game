@@ -15,6 +15,7 @@ import animatedContents from '../animatedContents'
 import { isPlayer } from '../../behavior/player'
 import { cancelDrag } from '../makeDraggable'
 import ObjectCardWindow from './ObjectCardWindow'
+import { selector } from './GameUI'
 
 export default class ObjectCard extends Component {
   title = createDiv(this.element)
@@ -36,6 +37,15 @@ export default class ObjectCard extends Component {
 
     this.element.addEventListener('pointerdown', (e) => {
       this.showWindow(e.clientX, e.clientY)
+    })
+
+    let selectionIcon: HTMLElement | undefined
+    selector.selectionStart.on(() => {
+      selectionIcon = createDiv(this.element, selectableStyle, '●')
+    })
+    selector.selectionEnd.on(() => {
+      selectionIcon?.remove()
+      selectionIcon = undefined
     })
   }
 
@@ -63,8 +73,9 @@ export default class ObjectCard extends Component {
   }
 
   hideAction () {
-    const actionComponent = this.actionComponent!
-    if (!actionComponent) return
+    if (!this.actionComponent) return
+    const actionComponent = this.actionComponent
+    this.actionComponent = undefined
     fadeOutAbsolute(actionComponent.element, () => {
       actionComponent.remove()
     })
@@ -97,4 +108,14 @@ addStyle(`.${playerStyle} > .${backgroundStyle}`, {
 const messageStyle = makeStyle({
   display: `block`,
   color: objectSpeakColor,
+})
+
+const selectableStyle = makeStyle({
+  position: `absolute`,
+  top: `-1.75rem`,
+  right: `-0.75rem`,
+  fontSize: `3rem`,
+})
+hoverStyle(selectableStyle, {
+  color: `#fff`,
 })

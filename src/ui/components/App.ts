@@ -10,7 +10,7 @@ export default class App extends Component {
     this.element.classList.add(containerStyle)
 
     this.newComponent(GameUI).appendTo(this.element)
-    this.element.append(outsideElem)
+    this.element.append(outsideElement)
     // this.newComponent(Base).appendTo(this.element)
   }
 }
@@ -29,4 +29,4 @@ const outsideElemStyle = makeStyle({
   zIndex: `99`,
 })
 
-export const outsideElem = createDiv(null, outsideElemStyle)
+export const outsideElement = createDiv(null, outsideElemStyle)

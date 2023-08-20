@@ -81,15 +81,18 @@ export const boxShadowLarge = `0rem 0.5rem 2rem #0004`
 // Styles
 
 export const buttonStyle = makeStyle({
-  color: `inherit`,
-  font: `inherit`,
   width: `max-content`,
   padding: `0.25rem 0.5rem`,
   border: `2px solid #fff3`,
   borderRadius,
 })
-
 hoverStyle(buttonStyle, {
   background: `#fff1`,
 })
+
+export const textButtonStyle = makeStyle({})
+hoverStyle(textButtonStyle, {
+  color: `#fff`,
+})
+
 

@@ -30,13 +30,13 @@ export default class Component<T extends Element = HTMLElement> {
     return this
   }
 
-  before (element: Element) {
+  putBefore (element: Element) {
     element.before(this.element)
     this.onInit?.()
     return this
   }
 
-  after (element: Element) {
+  putAfter (element: Element) {
     element.after(this.element)
     this.onInit?.()
     return this
