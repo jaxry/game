@@ -1,18 +1,17 @@
 import Component from './Component'
-import GameUI from './GameUI'
-import { addStyle, makeStyle } from '../makeStyle'
-import '../preflight.css'
-import { backgroundColor, fontColor } from '../theme'
+import { makeStyle } from '../makeStyle'
+import { backgroundColor, textColor } from '../theme'
 import { createDiv } from '../createElement'
+import GameUI from './GameUI'
+import '../main.css'
 
 export default class App extends Component {
-  constructor () {
-    super()
-
+  override onInit () {
     this.element.classList.add(containerStyle)
 
-    this.element.append(outsideElem)
     this.newComponent(GameUI).appendTo(this.element)
+    this.element.append(outsideElement)
+    // this.newComponent(Base).appendTo(this.element)
   }
 }
 
@@ -20,18 +19,14 @@ const containerStyle = makeStyle({
   fontFamily: `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`,
   colorScheme: `dark`,
   background: backgroundColor,
-  color: fontColor,
+  color: textColor,
   height: `100vh`,
   contain: `strict`,
+  userSelect: `none`,
 })
 
 const outsideElemStyle = makeStyle({
-  position: `fixed`,
   zIndex: `99`,
 })
 
-addStyle(`.${outsideElemStyle} > *`, {
-  position: `fixed`,
-})
-
-export const outsideElem = createDiv(null, outsideElemStyle)
+export const outsideElement = createDiv(null, outsideElemStyle)

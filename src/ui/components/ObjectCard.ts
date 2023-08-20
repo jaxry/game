@@ -1,227 +1,111 @@
+import Component from './Component'
 import GameObject from '../../GameObject'
-import { getPlayerActions, isPlayer } from '../../behavior/player'
-import Action from '../../actions/Action'
-import ActionComponent from './ActionComponent'
-import { game } from '../../Game'
 import {
-  actionColor, borderRadius, boxShadow, buttonStyle, duration, fadeInAnimation,
-  objectCardColor, objectCardPlayerColor,
+  borderRadius, boxShadow, fadeIn, objectCardColor, objectCardPlayerColor,
+  objectSpeakColor,
 } from '../theme'
-import { addStyle, makeStyle } from '../makeStyle'
-import GameComponent from './GameComponent'
-import Inventory from './Inventory'
-import { dragAndDropGameObject } from './GameUI'
+import { addStyle, hoverStyle, makeStyle } from '../makeStyle'
+import ActionComponent from './ActionComponent'
+import animatedBackground, {
+  animatedBackgroundTemplate, fadeOutAbsolute,
+} from '../animatedBackground'
+import Action from '../../actions/Action'
 import { createDiv, createElement } from '../createElement'
-import { grow, growDynamic, shrink } from '../growShrink'
-import ObjectMessage from './ObjectMessage'
-import { castArray, moveToTop } from '../../util'
+import animatedContents from '../animatedContents'
+import { isPlayer } from '../../behavior/player'
+import { cancelDrag } from '../makeDraggable'
+import ObjectCardWindow from './ObjectCardWindow'
 
-export const objectToCard = new WeakMap<GameObject, ObjectCard>()
-
-export default class ObjectCard extends GameComponent {
-  private name = createDiv(this.element, nameStyle)
-  private expandedContainer?: HTMLDivElement
-
-  private actionComponent?: ActionComponent
-  private inventory?: Inventory
-  private targetedByAction = new Set<Action>()
+export default class ObjectCard extends Component {
+  title = createDiv(this.element)
+  actionComponent?: ActionComponent
 
   constructor (public object: GameObject) {
     super()
+  }
 
-    objectToCard.set(object, this)
-    this.onRemove(() => {
-      if (objectToCard.get(object) === this) {
-        objectToCard.delete(object)
-      }
-    })
-
+  override onInit () {
     this.element.classList.add(containerStyle)
+    this.element.classList.toggle(playerStyle, isPlayer(this.object))
 
-    this.element.classList.toggle(playerStyle, isPlayer(object))
+    this.title.textContent = this.object.type.name
 
-    this.on(game.event.playerChange, () => {
-      this.element.classList.toggle(playerStyle, isPlayer(object))
-    })
+    animatedBackground(this.element, backgroundStyle)
+    animatedContents(this.element)
+    cancelDrag(this.element)
 
-    this.name.textContent = object.type.name
-
-    const grab = createDiv(this.element, grabStyle, `🫳`)
-    dragAndDropGameObject.drag(grab, this.object, this.name)
-
-    // delay a frame so animation starts correctly
-    requestAnimationFrame(() => {
-      if (object.activeAction) {
-        this.setAction(object.activeAction)
-      }
-    })
-
-    this.element.addEventListener('pointerenter', () => {
-      this.expand()
-      moveToTop(this.element)
-    })
-
-    this.element.addEventListener('pointerleave', () => {
-      this.close()
-    })
-
-    this.element.addEventListener('click', (e) => {
-      e.stopPropagation()
+    this.element.addEventListener('pointerdown', (e) => {
+      this.showWindow(e.clientX, e.clientY)
     })
   }
 
-  expand () {
-    if (this.expandedContainer) {
-      return grow(this.expandedContainer)
-    }
-
-    this.expandedContainer = createDiv(this.element)
-
-    if (this.object.energy) {
-      createDiv(this.expandedContainer, undefined,
-          `Energy: ${this.object.energy}`)
-    }
-
-    const actionButtons = createDiv(this.expandedContainer)
-    for (const action of getPlayerActions(this.object)) {
-      const button = createElement(
-          actionButtons, 'button', buttonStyle, action.constructor.name)
-      button.addEventListener('click', () => {
-        action.activate()
-      })
-    }
-
-    this.addInventory(this.expandedContainer)
-
-    growDynamic(this.expandedContainer)
+  showWindow (x: number, y: number) {
+    this.newComponent(ObjectCardWindow, this.object).renderAt(x, y)
   }
 
-  close () {
-    if (!this.expandedContainer) {
-      return
-    }
-    shrink(this.expandedContainer).onfinish = () => {
-      this.removeInventory()
-      this.expandedContainer?.remove()
-      this.expandedContainer = undefined
+  showMessage (message: string) {
+    const element = createElement(this.element, 'q', messageStyle, message)
+    fadeIn(element)
+    element.animate({
+      opacity: [`1`, `0`],
+    }, {
+      duration: 4000,
+      easing: `ease-in`,
+    }).onfinish = () => {
+      element.remove()
     }
   }
 
-  speak (message: string) {
-    this.newComponent(ObjectMessage, message).appendTo(this.element)
-    moveToTop(this.element)
+  showAction (action: Action) {
+    this.actionComponent =
+        this.newComponent(ActionComponent, action).appendTo(this.element)
+    fadeIn(this.actionComponent.element)
   }
 
-  targetByAction (action: Action) {
-    this.targetedByAction.add(action)
-    this.element.classList.toggle(actionTargetStyle,
-        this.targetedByAction.size > 0)
-    this.element.style.outlineStyle = 'solid'
-  }
-
-  clearTargetByAction (action: Action) {
-    this.targetedByAction.delete(action)
-    this.element.classList.toggle(actionTargetStyle,
-        this.targetedByAction.size > 0)
-  }
-
-  setAction (action: Action) {
-    this.clearAction()
-
-    this.actionComponent = this.newComponent(ActionComponent, action)
-        .appendTo(this.element)
-
-    grow(this.actionComponent.element)
-
-    for (const target of castArray(action.target)) {
-      if (objectToCard.has(target)) {
-        objectToCard.get(target)!.targetByAction(action)
-        this.element.classList.add(actionTargetStyle)
-        this.element.style.outlineStyle = 'dashed'
-      }
-    }
-  }
-
-  clearAction () {
-    if (!this.actionComponent) {
-      return
-    }
-
-    const component = this.actionComponent
+  hideAction () {
+    if (!this.actionComponent) return
+    const actionComponent = this.actionComponent
     this.actionComponent = undefined
-
-    shrink(component.element).onfinish = () => {
-      component.remove()
-    }
-
-    const action = component.action
-
-    for (const target of castArray(action.target)) {
-      if (objectToCard.has(target)) {
-        objectToCard.get(target)!.clearTargetByAction(action)
-        this.element.classList.remove(actionTargetStyle)
-      }
-    }
-  }
-
-  private addInventory (container: Element) {
-    if (this.inventory || !this.object.contains) {
-      return
-    }
-    this.inventory = this.newComponent(Inventory, this.object)
-        .appendTo(container)
-
-    this.inventory!.onResize = (xDiff, yDiff) => {
-      this.object.position.x += xDiff
-      this.object.position.y += yDiff
-    }
-  }
-
-  private removeInventory () {
-    this.inventory?.remove()
-    this.inventory = undefined
+    fadeOutAbsolute(actionComponent.element, () => {
+      actionComponent.remove()
+    })
   }
 }
 
 const containerStyle = makeStyle({
   position: `relative`,
+  padding: `0.5rem`,
   width: `max-content`,
-  display: `flex`,
-  flexDirection: `column`,
-  alignItems: `center`,
-  padding: `0.25rem`,
+})
+
+hoverStyle(containerStyle, {
+  filter: `brightness(1.1)`,
+})
+
+const playerStyle = makeStyle({})
+
+const backgroundStyle = makeStyle({
+  ...animatedBackgroundTemplate,
   background: objectCardColor,
-  boxShadow,
   borderRadius,
-
-  // for target border
-  outline: `2px transparent`,
-  transition: `outline-color ${duration.short}ms`,
+  boxShadow,
 })
 
-const nameStyle = makeStyle({
-  width: `100%`,
-  textAlign: `center`,
-})
-
-const grabStyle = makeStyle({
-  position: `absolute`,
-  right: `0`,
-  transform: `translate(50%, -50%) scaleX(-1) `,
-  fontSize: `1.25rem`,
-  cursor: `grab`,
-  display: 'none',
-})
-
-const actionTargetStyle = makeStyle({
-  outlineColor: actionColor,
-})
-
-addStyle(`:hover > .${grabStyle}`, {
-  display: 'block',
-  animation: fadeInAnimation,
-})
-
-const playerStyle = makeStyle({
+addStyle(`.${playerStyle} > .${backgroundStyle}`, {
   background: objectCardPlayerColor,
+})
+
+const messageStyle = makeStyle({
+  display: `block`,
+  color: objectSpeakColor,
+})
+
+const selectableStyle = makeStyle({
+  position: `absolute`,
+  top: `-1.75rem`,
+  right: `-0.75rem`,
+  fontSize: `3rem`,
+})
+hoverStyle(selectableStyle, {
+  color: `#fff`,
 })

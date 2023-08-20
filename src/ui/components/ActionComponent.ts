@@ -1,6 +1,6 @@
 import Component from './Component'
 import Action from '../../actions/Action'
-import { actionColor, actionTimeColor, fontColor } from '../theme'
+import { actionColor, actionTimeColor, textColor } from '../theme'
 import { addStyle, makeStyle } from '../makeStyle'
 import GameTime from '../../GameTime'
 import { game } from '../../Game'
@@ -38,10 +38,11 @@ function formatName (container: Element, action: Action) {
 }
 
 const containerStyle = makeStyle({
+  width: `max-content`,
   display: `flex`,
-  flexDirection: `column`,
-  justifyContent: `center`,
-  alignItems: `center`,
+  flexDirection: `row`,
+  gap: `0.5rem`,
+  fontWeight: `bold`,
 })
 
 const nameStyle = makeStyle({
@@ -53,7 +54,8 @@ addStyle(`.${nameStyle}::first-letter`, {
 })
 
 const objectStyle = makeStyle({
-  color: fontColor,
+  color: textColor,
+  fontWeight: `normal`,
 })
 
 const timeStyle = makeStyle({

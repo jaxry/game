@@ -4,8 +4,8 @@ import { Constructor } from '../../types'
 export default class Component<T extends Element = HTMLElement> {
   element: T
 
-  private parentComponent?: Component<Element>
-  private childComponents = new Set<Component<Element>>()
+  parentComponent?: Component<Element>
+  childComponents = new Set<Component<Element>>()
   private destroyCallbacks: Array<() => void> = []
 
   constructor (element: T = document.createElement('div') as any) {
@@ -13,7 +13,8 @@ export default class Component<T extends Element = HTMLElement> {
   }
 
   newComponent<T extends Constructor<Component>> (
-      constructor: T, ...args: ConstructorParameters<T>) {
+      constructor: T,
+      ...args: ConstructorParameters<T>) {
 
     const component = new constructor(...args)
     component.parentComponent = this
@@ -25,6 +26,19 @@ export default class Component<T extends Element = HTMLElement> {
 
   appendTo (parent: Element) {
     parent.append(this.element)
+    this.onInit?.()
+    return this
+  }
+
+  putBefore (element: Element) {
+    element.before(this.element)
+    this.onInit?.()
+    return this
+  }
+
+  putAfter (element: Element) {
+    element.after(this.element)
+    this.onInit?.()
     return this
   }
 
@@ -35,9 +49,6 @@ export default class Component<T extends Element = HTMLElement> {
   remove () {
     this.element.remove()
 
-    this.parentComponent?.childComponents.delete(this)
-    this.parentComponent = undefined
-
     for (const callback of this.destroyCallbacks) {
       callback()
     }
@@ -46,8 +57,12 @@ export default class Component<T extends Element = HTMLElement> {
     for (const component of this.childComponents) {
       component.remove()
     }
-    this.childComponents.clear()
+
+    this.parentComponent?.childComponents.delete(this)
+    this.parentComponent = undefined
   }
+
+  onInit? (): void
 
   on<T> (event: Observable<T>, listener: (data: T) => void) {
     this.onRemove(event.on(listener))

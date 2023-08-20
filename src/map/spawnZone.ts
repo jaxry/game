@@ -1,7 +1,10 @@
 import { spawn } from '../behavior/spawn'
 import { typeZone } from '../objects/zone'
 import { game } from '../Game'
+import Point from '../Point'
 
 export default function spawnZone () {
-  return spawn(typeZone, game.world)
+  const zone = spawn(typeZone, game.world)
+  zone.position = new Point()
+  return zone
 }

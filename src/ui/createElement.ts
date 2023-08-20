@@ -22,6 +22,11 @@ export function createDiv (
   return createElement(parent, 'div', cls, text)
 }
 
+export function createSpan (
+    parent: Element | null, cls?: string, text?: string) {
+  return createElement(parent, 'span', cls, text)
+}
+
 export function createTextNode (parent: Element, text: string) {
   const node = document.createTextNode(text)
   parent.append(document.createTextNode(text))

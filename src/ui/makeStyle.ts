@@ -1,7 +1,8 @@
 import { createElement } from './createElement'
 
-type Style = Partial<CSSStyleDeclaration & { vectorEffect: string }>
-
+type Style = {
+  [key in keyof CSSStyleDeclaration]?: string | { toString (): string }
+}
 const sheet = createElement(document.head, 'style').sheet!
 
 let nextId = 1
@@ -32,4 +33,12 @@ export function makeKeyframes (from: Style, to: Style): string {
   Object.assign(toKeyframe.style, to)
 
   return name
+}
+
+export function childStyle (className: string, style: Style) {
+  addStyle(`.${className} > *`, style)
+}
+
+export function hoverStyle (className: string, style: Style) {
+  addStyle(`.${className}:hover`, style)
 }

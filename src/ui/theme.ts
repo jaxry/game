@@ -1,11 +1,12 @@
-import colors from './colors'
-import { addStyle, makeKeyframes, makeStyle } from './makeStyle'
+import { hoverStyle, makeKeyframes, makeStyle } from './makeStyle'
+import { randomSign } from '../util'
+import LCH from './LCH'
 
 // Animation duration
 
-const baseSpeed = 600
+const baseSpeed = 800
 export const duration = {
-  short: baseSpeed / 2,
+  short: 200,
   normal: baseSpeed,
   long: baseSpeed * 2,
 }
@@ -15,28 +16,58 @@ export const duration = {
 const fadeInKeyframes = makeKeyframes({ opacity: `0` }, { opacity: `1` })
 export const fadeInAnimation = `${fadeInKeyframes} ${duration.short}ms both`
 
+// Element.animate presets
+
+export function fadeIn (element: HTMLElement, animDuration = duration.normal) {
+  return element.animate({
+    opacity: [`0`, `1`],
+    scale: [`0`, `1`],
+  }, {
+    duration: animDuration,
+    easing: `ease`,
+  })
+}
+
+export function fadeOut (
+    element: HTMLElement, onFinish: () => void,
+    animDuration = duration.normal) {
+  const animation = element.animate({
+    opacity: `0`,
+    scale: `0`,
+  }, {
+    duration: animDuration,
+    easing: `ease`,
+  })
+
+  animation.onfinish = onFinish
+
+  return animation
+}
+
 // Colors
 
-const backgroundHue = colors.slate
+export const backgroundColor = new LCH(25, 5, Math.random())
 
-export const backgroundColor = backgroundHue[900]
-export const fontColor = colors.green[100]
+export const textColor = backgroundColor.setL(90)
 
-export const windowColor = backgroundHue[700]
+export const windowColor = backgroundColor.addL(15).addC(4)
 
-export const mapNodeColor = backgroundHue[700]
-export const mapNodeDistantColor = colors.zinc[700]
+export const mapNodeColor = backgroundColor.addL(10)
 
-export const mapEdgeColor = backgroundHue[500]
+export const mapEdgeColor = backgroundColor.addL(20)
 
-export const objectCardColor = colors.sky[700]
-export const objectCardPlayerColor = colors.green[700]
-export const objectDialogueBackground = `${colors.teal[600]}bb`
+export const objectCardColor = new LCH(
+    50, 10, backgroundColor.h + randomSign() / 2)
 
-export const actionColor = colors.yellow[400]
-export const actionTimeColor = colors.red[400]
+export const objectCardPlayerColor = objectCardColor.addC(25)
 
-export const gameDataColor = colors.green[300]
+export const objectSpeakColor = objectCardColor.setL(textColor.l)
+
+export const actionColor = objectCardColor.setL(textColor.l)
+    .addC(25).addH(randomSign() / 4)
+export const actionTimeColor = actionColor.addH(randomSign() / 8)
+
+export const gameDataColor = textColor.addC(25).addH(randomSign() / 4)
 
 // Properties
 
@@ -44,18 +75,24 @@ export const borderRadius = '0.25rem'
 
 export const dropBorder = `2px dashed #fff8`
 
-export const boxShadow = `0.25rem 0.25rem 0.5rem #0003`
-export const boxShadowLarge = `0.5rem 0.5rem 1rem #0006`
+export const boxShadow = `0rem 0.1rem 0.5rem #0003`
+export const boxShadowLarge = `0rem 0.5rem 2rem #0004`
 
 // Styles
 
 export const buttonStyle = makeStyle({
+  width: `max-content`,
   padding: `0.25rem 0.5rem`,
-  color: colors.fuchsia[200],
-})
-
-addStyle(`.${buttonStyle}:hover`, {
-  background: `#fff2`,
+  border: `2px solid #fff3`,
   borderRadius,
 })
+hoverStyle(buttonStyle, {
+  background: `#fff1`,
+})
+
+export const textButtonStyle = makeStyle({})
+hoverStyle(textButtonStyle, {
+  color: `#fff`,
+})
+
 

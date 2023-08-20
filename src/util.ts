@@ -27,6 +27,10 @@ export function randomCentered (scale = 1) {
   return scale * (Math.random() - 0.5)
 }
 
+export function randomSign () {
+  return Math.random() < 0.5 ? -1 : 1
+}
+
 // ---------------
 // array functions
 // ---------------
@@ -178,32 +182,16 @@ export function removeChildren (node: Node) {
   }
 }
 
-export function* iterChildren (node: Element) {
-  for (let i = 0; i < node.children.length; i++) {
-    yield node.children[i]
-  }
-}
-
 let lastZIndex = 0
 
 export function moveToTop (node: HTMLElement) {
   node.style.zIndex = (++lastZIndex).toString()
 }
 
-export function numToPixel (num: number, precision = 3) {
-  return num.toFixed(precision)
-}
-
-export function numToPx (num: number) {
-  return `${numToPixel(num)}px`
+export function px (num: number) {
+  return `${num}px`
 }
 
 export function translate (x: number, y: number) {
-  return `translate(${numToPx(x)}, ${numToPx(y)})`
-}
-
-export function translateDiff (e1: Element, e2: Element) {
-  const e1BBox = e1.getBoundingClientRect()
-  const e2BBox = e2.getBoundingClientRect()
-  return translate(e1BBox.x - e2BBox.x, e1BBox.y - e2BBox.y)
+  return `translate(${px(x)}, ${px(y)})`
 }

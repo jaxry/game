@@ -2,12 +2,10 @@ import Component from './Component'
 import { Edge, getEdgeHash, getZoneGraph } from '../../behavior/connections'
 import GameObject from '../../GameObject'
 import { makeStyle } from '../makeStyle'
-import { duration, mapEdgeColor } from '../theme'
+import { duration, fadeIn, fadeOut, mapEdgeColor } from '../theme'
 import MapNode from './MapNode'
 import addPanZoom from '../addPanZoom'
-import {
-  makeOrGet, moveToTop, numToPixel, numToPx, translate,
-} from '../../util'
+import { makeOrGet, px, translate } from '../../util'
 import TravelAnimation from './Map/TravelAnimation'
 import { createDiv } from '../createElement'
 import makeDraggable from '../makeDraggable'
@@ -15,7 +13,7 @@ import ForceDirectedSim from '../../map/ForceDirectedSim'
 import throttle from '../throttle'
 
 export default class MapComponent extends Component {
-  maxDepthFromCenter = 3
+  maxDepthFromCenter = 2
   depthForComplexZones = 1
 
   private map = createDiv(this.element, mapStyle)
@@ -31,35 +29,27 @@ export default class MapComponent extends Component {
   private zoneToComponent = new Map<GameObject, MapNode>()
   private edgeToElem = new Map<string, { line: HTMLElement, edge: Edge }>()
   updatePositions = throttle(() => {
-    const nodeScale = Math.max(1, this.transform.scale)
 
     for (const [zone, component] of this.zoneToComponent) {
-      const x = zone.position.x * nodeScale
-      const y = zone.position.y * nodeScale
-      component.element.style.transform = translate(x, y)
+      component.element.style.translate =
+          `${zone.position.x}px ${zone.position.y}px`
     }
 
     for (const { line, edge } of this.edgeToElem.values()) {
       const { x, y, angle, length } = getEdgePositionAndAngle(edge)
-      const t = translate(x * nodeScale, y * nodeScale)
-      const r = `rotate(${numToPixel(angle)}rad)`
-      line.style.transform = `translate(-50%,-50%)${t}${r}`
-      line.style.width = numToPx(length * nodeScale)
+      line.style.translate = `${x}px ${y}px`
+      line.style.rotate = `${angle}rad`
+      line.style.width = px(length)
     }
-
-    this.travelAnimation.updateScale(nodeScale)
   })
   private firstRender = true
-  private activeMapAnimation: Animation | undefined
   private forceDirectedSim = new ForceDirectedSim()
 
-  constructor () {
-    super()
-
+  override onInit () {
     this.element.classList.add(containerStyle)
 
-    addPanZoom(this.element, this.transform, (updatedScale) => {
-      updatedScale && this.updatePositions()
+    addPanZoom(this.element, this.transform, (updateScale) => {
+      updateScale && this.updateScale()
       this.updateTransform(false)
     })
 
@@ -69,21 +59,17 @@ export default class MapComponent extends Component {
   }
 
   render (centerZone: GameObject, panToCenter = false, startForceSim = false) {
-
     const graph = getZoneGraph(centerZone, this.maxDepthFromCenter)
-
-    for (const [zone, component] of this.zoneToComponent) {
-      if (!graph.nodes.has(zone)) {
-        this.removeNode(zone, component)
-      }
-    }
 
     for (const [zone, depth] of graph.nodes) {
       const component = makeOrGet(this.zoneToComponent, zone, () => {
         return this.makeNode(zone)
       })
-      depth <= this.depthForComplexZones ?
-          component.setComplex() : component.setSimple()
+      // component.setDepth(depth)
+    }
+
+    for (const [zone, component] of this.zoneToComponent) {
+      !graph.nodes.has(zone) && this.removeNode(zone, component)
     }
 
     const currentEdges = new Set<string>()
@@ -96,15 +82,11 @@ export default class MapComponent extends Component {
     }
 
     for (const [hash, { line }] of this.edgeToElem) {
-      if (!currentEdges.has(hash)) {
-        shrink(line).onfinish = () => {
-          line.remove()
-        }
-        this.edgeToElem.delete(hash)
-      }
+      !currentEdges.has(hash) && this.removeEdge(hash, line)
     }
 
     this.updatePositions()
+    this.updateScale()
 
     if (this.firstRender) {
       this.forceDirectedSim.simulateFully(centerZone)
@@ -123,6 +105,7 @@ export default class MapComponent extends Component {
   private makeNode (zone: GameObject) {
     const node = this.newComponent(MapNode, zone, this)
         .appendTo(this.zoneContainer)
+
     makeDraggable(node.element, {
       onDown: () => {
         this.forceDirectedSim.freeze(zone)
@@ -136,23 +119,30 @@ export default class MapComponent extends Component {
         this.forceDirectedSim.animate(zone)
       },
     })
-    node.element.addEventListener('pointerenter', () => {
-      moveToTop(node.element)
-    })
+
+    fadeIn(node.element, duration.long)
+
     return node
   }
 
   private removeNode (zone: GameObject, component: MapNode) {
-    shrink(component.element).onfinish = () => {
+    fadeOut(component.element, () => {
       component.remove()
-    }
+    }, duration.long)
     this.zoneToComponent.delete(zone)
   }
 
   private makeEdge (edge: Edge) {
     const line = createDiv(this.edgeContainer, edgeStyle)
-    grow(line)
+    fadeIn(line, duration.long)
     return { line, edge }
+  }
+
+  private removeEdge (hash: string, line: HTMLElement) {
+    fadeOut(line, () => {
+      line.remove()
+    }, duration.long)
+    this.edgeToElem.delete(hash)
   }
 
   private centerOnZone (zone: GameObject, animate = true) {
@@ -164,68 +154,50 @@ export default class MapComponent extends Component {
     this.updateTransform(animate)
   }
 
+  private updateScale () {
+    const invScale = (1 / this.transform.scale).toString()
+
+    for (const component of this.zoneToComponent.values()) {
+      component.element.style.transform = `scale(${invScale})`
+    }
+
+    for (const { line } of this.edgeToElem.values()) {
+      line.style.transform = `scale(1, ${invScale})`
+    }
+
+    this.travelAnimation.setScale(invScale)
+  }
+
   private updateTransform (animate = true) {
     const { x, y, scale } = this.transform
-    const mapScale = Math.min(1, scale)
 
-    const transform = `${translate(x, y)} scale(${mapScale})`
+    const transform = `${translate(x, y)} scale(${scale})`
 
-    this.activeMapAnimation?.finish()
-    this.activeMapAnimation = undefined
-
-    if (animate) {
-      this.activeMapAnimation = this.map.animate({
-        transform: transform,
-      }, {
-        duration: duration.long,
-        easing: 'ease-in-out',
-      })
-
-      this.activeMapAnimation.onfinish = () => {
-        this.map.style.transform = transform
-      }
-      // have to apply transform manually, since using
-      // fill: 'forwards' or commitStyles() prevents future manual transforms
-    } else {
-      this.map.style.transform = transform
-    }
+    this.map.animate({
+      transform: transform,
+    }, {
+      duration: animate ? duration.long : 0,
+      easing: 'ease-in-out',
+      fill: 'forwards',
+    }).commitStyles()
   }
 }
 
-function grow (elem: Element) {
-  return elem.animate({
-    transform: ['scale(0)', 'scale(1)'],
-  }, {
-    duration: duration.long,
-    easing: 'ease',
-    composite: 'add',
-  })
-}
-
-function shrink (elem: Element) {
-  return elem.animate({
-    transform: ['scale(1)', 'scale(0)'],
-  }, {
-    duration: duration.long,
-    easing: 'ease-in',
-    composite: 'add',
-  })
-}
+const edgeWidth = 2
 
 function getEdgePositionAndAngle ({ source, target }: Edge) {
   const dirX = target.position.x - source.position.x
   const dirY = target.position.y - source.position.y
   const length = Math.sqrt(dirX * dirX + dirY * dirY)
   const angle = Math.atan2(dirY, dirX)
-  const x = (source.position.x + target.position.x) / 2
-  const y = (source.position.y + target.position.y) / 2
+  const x = 0.5 * (source.position.x + target.position.x - length)
+  const y = 0.5 * (source.position.y + target.position.y - edgeWidth)
   return { x, y, angle, length }
 }
 
 const containerStyle = makeStyle({
   position: 'relative',
   contain: `strict`,
-  userSelect: `none`,
 })
 
 const zoneContainerStyle = makeStyle({
@@ -235,10 +207,11 @@ const zoneContainerStyle = makeStyle({
 
 const mapStyle = makeStyle({
   position: `absolute`,
-  transformOrigin: `top left`,
 })
 
 const edgeStyle = makeStyle({
   position: `absolute`,
-  borderTop: `2px solid ${mapEdgeColor}`,
+  background: mapEdgeColor,
+  height: `${edgeWidth}px`,
+  transformOrigin: `center center`,
 })

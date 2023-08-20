@@ -5,14 +5,14 @@ export default function makeDraggable (
     element: Element,
     options: {
       // if returns false, drag is aborted
-      onDown?: (e: MouseEvent) => boolean | void,
-      onDrag?: (e: MouseEvent) => void,
-      onOver?: (e: MouseEvent) => void,
-      onUp?: (e: MouseEvent) => void,
-      startEnabled?: MouseEvent
+      onDown?: (e: PointerEvent) => boolean | void,
+      onDrag?: (e: PointerEvent) => void,
+      onOver?: (e: PointerEvent) => void,
+      onUp?: (e: PointerEvent) => void,
+      startEnabled?: PointerEvent
     }) {
 
-  function down (e: MouseEvent) {
+  function down (e: PointerEvent) {
     if (childDragged) {
       return
     }
@@ -29,36 +29,38 @@ export default function makeDraggable (
     const controller = new AbortController()
     const signal = controller.signal
 
-    document.body.addEventListener('mousemove', () => {
+    document.body.addEventListener('pointermove', () => {
       isDragging = true
     }, { once: true, signal })
 
     if (options.onDrag) {
-      document.body.addEventListener('mousemove', options.onDrag, { signal })
+      document.body.addEventListener('pointermove', options.onDrag, { signal })
     }
 
     if (options.onOver) {
-      document.body.addEventListener('mouseover', options.onOver, { signal })
+      document.body.addEventListener('pointerover', options.onOver, { signal })
     }
 
-    window.addEventListener('mouseup', (e) => {
+    window.addEventListener('pointerup', (e) => {
       options.onUp?.(e)
-      childDragged = false
       controller.abort()
     }, { once: true })
   }
 
-  (element as HTMLElement).addEventListener('mousedown', down)
+  (element as HTMLElement).addEventListener('pointerdown', down)
 
   if (options.startEnabled) {
-    const event = options.startEnabled
-    setTimeout(() => down(event))
+    down(options.startEnabled)
   }
 
   return () => {
-    (element as HTMLElement).removeEventListener('mousedown', down)
+    (element as HTMLElement).removeEventListener('pointerdown', down)
   }
 }
+
+window.addEventListener('pointerup', () => {
+  childDragged = false
+})
 
 export function onClickNotDrag (
     element: HTMLElement, handler: (e: MouseEvent) => void) {
@@ -66,5 +68,11 @@ export function onClickNotDrag (
     if (!isDragging) {
       handler(e)
     }
+  })
+}
+
+export function cancelDrag (element: Element) {
+  element.addEventListener('pointerdown', (e) => {
+    childDragged = true
   })
 }
