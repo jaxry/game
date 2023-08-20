@@ -4,9 +4,14 @@ import type GameObject from '../GameObject'
 import Eat from '../actions/Eat'
 import Effect from '../effects/Effect'
 
-export function changePlayer (object: GameObject) {
+export function setPlayer (object: GameObject) {
   game.player = object
   game.event.playerChange.emit(object)
+  return object
+}
+
+export function getPlayer () {
+  return game.player
 }
 
 export function isPlayer (object: GameObject) {
@@ -22,11 +27,12 @@ export function setPlayerEffect (effect: Effect) {
 }
 
 export function playerTravelToZone (zone: GameObject) {
-  const playerZone = game.player.container
+  const player = getPlayer()
+  const playerZone = player.container
 
   for (const neighbor of playerZone.connections) {
     if (neighbor == zone) {
-      setPlayerEffect(new TravelAction(game.player, neighbor))
+      setPlayerEffect(new TravelAction(player, neighbor))
     }
   }
 }

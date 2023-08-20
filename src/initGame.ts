@@ -8,6 +8,7 @@ import { typeWood } from './objects/wood'
 import { typeTree } from './objects/tree'
 import { typePlayer } from './objects/player'
 import { typeVillager } from './objects/villager'
+import { setPlayer } from './behavior/player'
 
 export function initGame (game: Game) {
   game.energyPool = 600
@@ -32,8 +33,9 @@ export function initGame (game: Game) {
   const chest = spawn(typeChest, zone)
   spawn(typeWood, chest)
 
-  game.player = spawn(typePlayer, zone)
-  spawn(typeWood, game.player)
-  spawn(typeWood, game.player)
+  const player = spawn(typePlayer, zone)
+  setPlayer(player)
+  spawn(typeWood, player)
+  spawn(typeWood, player)
 }
 

@@ -8,6 +8,7 @@ import { createDiv, createElement } from '../createElement'
 import { deleteSaveFile, saveGameToFile } from '../../saveLoad'
 import { restartGame } from '../../main'
 import { gameDataColor, textButtonStyle } from '../theme'
+import { getPlayer } from '../../behavior/player'
 
 export default class GameUI extends GameComponent {
   override onInit () {
@@ -29,17 +30,17 @@ export default class GameUI extends GameComponent {
           map.render(this.object.container, true)
         })
       }
-    }, game.player)
+    }, getPlayer())
 
-    this.on(game.event.playerChange, () => {
-      mapEffect.changeObject(game.player)
+    this.on(game.event.playerChange, (player) => {
+      mapEffect.changeObject(player)
     })
 
     this.on(game.event.worldModified, () => {
-      map.render(game.player.container, false, true)
+      map.render(getPlayer().container, false, true)
     })
 
-    map.render(game.player.container, true)
+    map.render(getPlayer().container, true)
 
     return map
   }
