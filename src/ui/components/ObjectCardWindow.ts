@@ -3,6 +3,7 @@ import Inventory from './Inventory'
 import { createDiv, createElement } from '../createElement'
 import { buttonStyle } from '../theme'
 import Window from './Window'
+import { getPlayerActions } from '../../behavior/player'
 
 export default class ObjectCardWindow extends Window {
   constructor (public object: GameObject) {
@@ -16,6 +17,12 @@ export default class ObjectCardWindow extends Window {
       this.newComponent(Inventory, this.object).appendTo(this.element)
     }
 
-    const button = createElement(this.element, 'button', buttonStyle, `Move`)
+    for (const action of getPlayerActions(this.object)) {
+      const button = createElement(this.element, 'button', buttonStyle,
+          action.constructor.name)
+      button.addEventListener('click', () => {
+        action.activate()
+      })
+    }
   }
 }

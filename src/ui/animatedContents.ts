@@ -21,7 +21,8 @@ export default function animatedContents (
   })
 
   function initElement (element: HTMLElement) {
-    positions.set(element, position(element))
+    if (getComputedStyle(element).display === `none`) return
+    positions.set(element, getPosition(element))
     resizeObserver.observe(element)
   }
 
@@ -50,15 +51,20 @@ export default function animatedContents (
 function animate (element: HTMLElement, animDuration: number, smooth: boolean) {
   const previousPosition = positions.get(element)!
 
-  const { x, y } = position(element)
+  const position = getPosition(element)
 
-  const dx = previousPosition.x - x
-  const dy = previousPosition.y - y
+  if (!previousPosition) {
+    positions.set(element, position)
+    return
+  }
 
-  previousPosition.x = x
-  previousPosition.y = y
+  const dx = previousPosition.x - position.x
+  const dy = previousPosition.y - position.y
 
-  if (dx * dx + dy * dy < 0.01) return
+  previousPosition.x = position.x
+  previousPosition.y = position.y
+
+  if (dx === 0 && dy === 0) return
 
   element.animate({
     translate: [`${dx}px ${dy}px`, '0 0'],
@@ -69,7 +75,7 @@ function animate (element: HTMLElement, animDuration: number, smooth: boolean) {
   })
 }
 
-function position (element: HTMLElement) {
+function getPosition (element: HTMLElement) {
   return {
     x: element.offsetLeft,
     y: element.offsetTop,

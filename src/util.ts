@@ -121,6 +121,15 @@ export function mapFilter<T, U> (
   return array
 }
 
+export function reduce<T, U> (
+    iterable: Iterable<T>, reduceFn: (acc: U, x: T) => U, initialValue: U) {
+  let acc = initialValue
+  for (const x of iterable) {
+    acc = reduceFn(acc, x)
+  }
+  return acc
+}
+
 export function randomSetElement<T> (set: Set<T>) {
   let i = Math.floor(Math.random() * set.size)
   for (const elem of set) {

@@ -95,7 +95,7 @@ export class GameObjectEvents {
 
 export enum ContainedAs {
   inside,
-  wearing
+  holding
 }
 
 export type GameObjectEvent = keyof GameObjectEvents

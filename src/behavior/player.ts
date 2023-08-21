@@ -3,6 +3,8 @@ import { game } from '../Game'
 import type GameObject from '../GameObject'
 import Eat from '../actions/Eat'
 import Effect from '../effects/Effect'
+import Hold from '../actions/Hold'
+import Drop from '../actions/Drop'
 
 export function setPlayer (object: GameObject) {
   game.player = object
@@ -37,9 +39,11 @@ export function playerTravelToZone (zone: GameObject) {
   }
 }
 
-export function getPlayerActions (object: GameObject) {
+export function getPlayerActions (target: GameObject) {
   const actions = [
-    new Eat(game.player, object),
+    new Eat(game.player, target),
+    new Hold(game.player, target),
+    new Drop(game.player, target),
   ]
   return actions.filter(action => action.condition())
 }
