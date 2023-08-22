@@ -45,6 +45,8 @@ export function isAncestor (ancestor: GameObject, item: GameObject) {
   do {
     if (item === ancestor) {
       return true
+    } else if (item.container === ancestor.container) {
+      return false
     }
     item = item.container
   } while (item)

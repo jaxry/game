@@ -5,6 +5,7 @@ import Eat from '../actions/Eat'
 import Effect from '../effects/Effect'
 import Hold from '../actions/Hold'
 import Drop from '../actions/Drop'
+import PutInside from '../actions/PutInside'
 
 export function setPlayer (object: GameObject) {
   game.player = object
@@ -44,6 +45,7 @@ export function getPlayerActions (target: GameObject) {
     new Eat(game.player, target),
     new Hold(game.player, target),
     new Drop(game.player, target),
+    new PutInside(game.player, target),
   ]
   return actions.filter(action => action.condition())
 }

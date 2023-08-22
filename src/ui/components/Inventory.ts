@@ -1,4 +1,4 @@
-import { addStyle, makeStyle } from '../makeStyle'
+import { makeStyle } from '../makeStyle'
 import GameObject, { ContainedAs } from '../../GameObject'
 import { createDiv } from '../createElement'
 import ObjectCard from './ObjectCard'
@@ -68,6 +68,10 @@ export default class Inventory extends GameComponent {
       !row.children.length && row.remove()
     })
   }
+
+  get size () {
+    return this.objectToCard.size
+  }
 }
 
 class InventoryEffect extends Effect {
@@ -99,10 +103,6 @@ const containerStyle = makeStyle({
   display: `flex`,
   flexDirection: `column`,
   gap: `0.75rem`,
-})
-
-addStyle(`.${containerStyle}:empty`, {
-  display: `none`,
 })
 
 const rowStyle = makeStyle({

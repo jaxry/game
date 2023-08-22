@@ -130,6 +130,16 @@ export function reduce<T, U> (
   return acc
 }
 
+export function every<T> (
+    iterable: Iterable<T>, iteratee: (elem: T) => boolean) {
+  for (const elem of iterable) {
+    if (!iteratee(elem)) {
+      return false
+    }
+  }
+  return true
+}
+
 export function randomSetElement<T> (set: Set<T>) {
   let i = Math.floor(Math.random() * set.size)
   for (const elem of set) {

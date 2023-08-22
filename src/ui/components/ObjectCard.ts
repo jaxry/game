@@ -20,6 +20,7 @@ import Inventory from './Inventory'
 
 export default class ObjectCard extends GameComponent {
   actionComponent?: ActionComponent
+  holdingComponent?: Inventory
 
   constructor (public object: GameObject) {
     super()
@@ -30,12 +31,6 @@ export default class ObjectCard extends GameComponent {
     this.element.classList.toggle(playerStyle, isPlayer(this.object))
 
     createDiv(this.element, titleStyle, this.object.type.name)
-
-    // const holdingContainer = createDiv(this.element, holdingContainerStyle)
-    const holding = this.newComponent(Inventory, this.object,
-            ContainedAs.holding)
-        .appendTo(this.element)
-    holding.element.classList.add(holdingStyle)
 
     animatedBackground(this.element, backgroundStyle)
     animatedContents(this.element)
@@ -81,6 +76,22 @@ export default class ObjectCard extends GameComponent {
       actionComponent.remove()
     })
   }
+
+  makeHolding () {
+    if (this.holdingComponent) return
+    this.holdingComponent = this.newComponent(Inventory, this.object,
+        ContainedAs.holding).appendTo(this.element)
+    this.holdingComponent.element.classList.add(holdingStyle)
+  }
+
+  hideHoldingIfEmpty () {
+    if (!this.holdingComponent || this.holdingComponent.size) return
+    const holdingComponent = this.holdingComponent
+    this.holdingComponent = undefined
+    fadeOutAbsolute(holdingComponent.element, () => {
+      holdingComponent.remove()
+    })
+  }
 }
 
 class ObjectCardEffect extends Effect {
@@ -100,9 +111,12 @@ class ObjectCardEffect extends Effect {
     })
     this.onObjectChildren('enter', (child) => {
       if (child.containedAs !== ContainedAs.holding) return
+      this.card.makeHolding()
     })
     this.onObjectChildren('leave', (child) => {
-      if (child.containedAs !== ContainedAs.holding) return
+      queueMicrotask(() => {
+        this.card.hideHoldingIfEmpty()
+      })
     })
   }
 }

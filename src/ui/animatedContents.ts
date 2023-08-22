@@ -21,7 +21,6 @@ export default function animatedContents (
   })
 
   function initElement (element: HTMLElement) {
-    if (getComputedStyle(element).display === `none`) return
     positions.set(element, getPosition(element))
     resizeObserver.observe(element)
   }
@@ -52,11 +51,6 @@ function animate (element: HTMLElement, animDuration: number, smooth: boolean) {
   const previousPosition = positions.get(element)!
 
   const position = getPosition(element)
-
-  if (!previousPosition) {
-    positions.set(element, position)
-    return
-  }
 
   const dx = previousPosition.x - position.x
   const dy = previousPosition.y - position.y
