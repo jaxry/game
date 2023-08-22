@@ -195,7 +195,7 @@ export function copy<T> (source: T): T {
 // ---------------
 // DOM functions
 // ---------------
-export function removeChildren (node: Node) {
+export function removeElementChildren (node: Node) {
   while (node.firstChild) {
     node.removeChild(node.firstChild)
   }

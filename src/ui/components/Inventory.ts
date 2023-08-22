@@ -7,6 +7,7 @@ import Effect from '../../effects/Effect'
 import GameComponent from './GameComponent'
 import { duration, fadeIn, fadeOut } from '../theme'
 import animatedContents from '../animatedContents'
+import { children } from '../../behavior/container'
 
 export default class Inventory extends GameComponent {
   objectToCard = new Map<GameObject, ObjectCard>()
@@ -20,10 +21,8 @@ export default class Inventory extends GameComponent {
   override onInit () {
     this.element.classList.add(containerStyle)
 
-    if (this.object.contains) {
-      for (const child of this.object.contains) {
-        this.makeCard(child, false)
-      }
+    for (const child of children(this.object)) {
+      this.makeCard(child, false)
     }
 
     this.newEffect(InventoryEffect, this.object, this)
@@ -75,7 +74,7 @@ export default class Inventory extends GameComponent {
 }
 
 class InventoryEffect extends Effect {
-  static ignoreSerialize = true
+  static $serialize = false
 
   constructor (object: GameObject, public inventory: Inventory) {
     super(object)

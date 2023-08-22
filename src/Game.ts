@@ -4,6 +4,7 @@ import type Effect from './effects/Effect'
 import Observable from './Observable'
 import { serializable } from './serialize'
 import PriorityQueue from './PriorityQueue'
+import { children } from './behavior/container'
 
 export default class Game {
   time = new GameTime()
@@ -35,11 +36,9 @@ function rehydrateObject (object: GameObject) {
     }
   }
 
-  if (object.contains) {
-    for (const child of object.contains) {
-      child.container = object
-      rehydrateObject(child)
-    }
+  for (const child of children(object)) {
+    child.container = object
+    rehydrateObject(child)
   }
 }
 

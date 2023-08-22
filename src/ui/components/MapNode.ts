@@ -55,7 +55,7 @@ export default class MapNode extends GameComponent {
 }
 
 class TravelAnimationEffect extends Effect {
-  static ignoreSerialize = true
+  static $serialize = false
 
   constructor (zone: GameObject, public map: MapComponent) {
     super(zone)

@@ -1,6 +1,6 @@
 import type GameObject from '../GameObject'
 import { removeConnections } from './connections'
-import { removeFromContainer } from './container'
+import { children, removeFromContainer } from './container'
 import { removeEffects } from '../effects/Effect'
 import { game } from '../Game'
 
@@ -13,9 +13,7 @@ export function destroy (obj: GameObject) {
 
   obj.emit('leave')
 
-  if (obj.contains) {
-    for (const item of obj.contains) {
-      destroy(item)
-    }
+  for (const child of children(obj)) {
+    destroy(child)
   }
 }

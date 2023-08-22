@@ -17,6 +17,7 @@ import ObjectCardWindow from './ObjectCardWindow'
 import Effect from '../../effects/Effect'
 import GameComponent from './GameComponent'
 import Inventory from './Inventory'
+import { numberOfChildren } from '../../behavior/container'
 
 export default class ObjectCard extends GameComponent {
   actionComponent?: ActionComponent
@@ -32,9 +33,7 @@ export default class ObjectCard extends GameComponent {
 
     createDiv(this.element, titleStyle, this.object.type.name)
 
-    animatedBackground(this.element, backgroundStyle)
-    animatedContents(this.element)
-    cancelDrag(this.element)
+    this.makeHolding()
 
     this.element.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return
@@ -43,6 +42,10 @@ export default class ObjectCard extends GameComponent {
     })
 
     this.newEffect(ObjectCardEffect, this.object, this)
+
+    animatedBackground(this.element, backgroundStyle)
+    animatedContents(this.element)
+    cancelDrag(this.element)
   }
 
   showWindow (x: number, y: number) {
@@ -78,7 +81,10 @@ export default class ObjectCard extends GameComponent {
   }
 
   makeHolding () {
-    if (this.holdingComponent) return
+    if (this.holdingComponent ||
+        !numberOfChildren(this.object, ContainedAs.holding)) {
+      return
+    }
     this.holdingComponent = this.newComponent(Inventory, this.object,
         ContainedAs.holding).appendTo(this.element)
     this.holdingComponent.element.classList.add(holdingStyle)

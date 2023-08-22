@@ -4,6 +4,7 @@ import {
   childrenOfType, isAncestor, numberOfChildren, putInsideContainer,
 } from '../behavior/container'
 import { every } from '../util'
+import { serializable } from '../serialize'
 
 export default class PutInside extends TargetAction {
   static override duration = 2
@@ -21,3 +22,4 @@ export default class PutInside extends TargetAction {
     }
   }
 }
+serializable(PutInside)

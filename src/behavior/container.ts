@@ -36,9 +36,7 @@ export function holdItem (container: GameObject, item: GameObject) {
 }
 
 export function removeFromContainer (object: GameObject) {
-  if (object.container) {
-    object.container.contains.delete(object)
-  }
+  object.container?.contains.delete(object)
 }
 
 export function isAncestor (ancestor: GameObject, item: GameObject) {
@@ -58,8 +56,15 @@ export function isContainedWith (object: GameObject, neighbor: GameObject) {
   return isAncestor(object.container, neighbor)
 }
 
+export function* children (object: GameObject) {
+  if (!object.contains) {
+    return
+  }
+  yield* object.contains
+}
+
 export function* childrenOfType (object: GameObject, type: ContainedAs) {
-  for (const child of object.contains) {
+  for (const child of children(object)) {
     if (child.containedAs === type) {
       yield child
     }
@@ -67,7 +72,5 @@ export function* childrenOfType (object: GameObject, type: ContainedAs) {
 }
 
 export function numberOfChildren (object: GameObject, type: ContainedAs) {
-  return reduce(object.contains, (count, item) => {
-    return item.containedAs === type ? count + 1 : count
-  }, 0)
+  return reduce(childrenOfType(object, type), (count) => count + 1, 0)
 }
