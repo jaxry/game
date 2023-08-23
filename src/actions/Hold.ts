@@ -6,6 +6,10 @@ import { serializable } from '../serialize'
 export default class Hold extends TargetAction {
   static override duration = 2
 
+  override get name () {
+    return ['Hold', this.target]
+  }
+
   override condition () {
     return super.condition() &&
         !(this.target.container === this.object &&
