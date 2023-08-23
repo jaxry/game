@@ -8,6 +8,7 @@ export default class Window extends Component {
   posX = 0
   posY = 0
   focused = false
+  removeEventsController = new AbortController()
 
   constructor () {
     super()
@@ -34,7 +35,16 @@ export default class Window extends Component {
     })
   }
 
+  renderAt (x: number, y: number) {
+    this.onInit?.()
+    this.posX = x - this.element.offsetWidth / 2
+    this.posY = y - this.element.offsetHeight / 2
+    this.updatePosition()
+    return this
+  }
+
   animateRemove () {
+    this.removeEventsController.abort()
     this.element.animate({
       opacity: [`1`, `0`],
       scale: [`1 1`, `1 0`],
@@ -45,21 +55,15 @@ export default class Window extends Component {
       this.remove()
     }
   }
-
-  renderAt (x: number, y: number) {
-    this.onInit?.()
-    this.posX = x - this.element.offsetWidth / 2
-    this.posY = y - this.element.offsetHeight / 2
-    this.updatePosition()
-    return this
-  }
-
+  
   private setupRemoveEvents () {
+    const signal = this.removeEventsController.signal
+
     this.element.addEventListener('pointerenter', (e) => {
       for (const window of ancestorWindows(this)) {
         window.focused = true
       }
-    })
+    }, { signal })
 
     this.element.addEventListener('pointerleave', (e) => {
       this.focused = false
@@ -67,12 +71,11 @@ export default class Window extends Component {
         for (const window of ancestorWindows(this)) {
           if (!window.focused) {
             window.animateRemove()
-          } else {
-            window.focused = false
           }
+          window.focused = false
         }
       })
-    })
+    }, { signal })
   }
 
   private updatePosition () {

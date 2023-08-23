@@ -18,9 +18,11 @@ export default class ObjectCardWindow extends Window {
     }
 
     for (const action of getPlayerActions(this.object)) {
-      const button = createElement(this.element, 'button', buttonStyle,
-          action.constructor.name)
+      // add spaces to class name
+      const name = action.constructor.name.replaceAll(/[A-Z]/g, ' $&')
+      const button = createElement(this.element, 'button', buttonStyle, name)
       button.addEventListener('click', () => {
+        this.animateRemove()
         action.activate()
       })
     }
