@@ -8,7 +8,6 @@ import ActionComponent from './ActionComponent'
 import animatedBackground, {
   animatedBackgroundTemplate, fadeOutAbsolute,
 } from '../animatedBackground'
-import Action from '../../actions/Action'
 import { createDiv, createElement } from '../createElement'
 import animatedContents from '../animatedContents'
 import { isPlayer } from '../../behavior/player'
@@ -34,6 +33,7 @@ export default class ObjectCard extends GameComponent {
     createDiv(this.element, titleStyle, this.object.type.name)
 
     this.makeHolding()
+    this.showAction()
 
     this.element.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return
@@ -65,7 +65,9 @@ export default class ObjectCard extends GameComponent {
     }
   }
 
-  showAction (action: Action) {
+  showAction () {
+    const action = this.object.activeAction
+    if (!action) return
     this.actionComponent =
         this.newComponent(ActionComponent, action).appendTo(this.element)
     fadeIn(this.actionComponent.element)
@@ -101,13 +103,15 @@ export default class ObjectCard extends GameComponent {
 }
 
 class ObjectCardEffect extends Effect {
+  static $serialize = false
+
   constructor (object: GameObject, public card: ObjectCard) {
     super(object)
   }
 
   override events () {
-    this.onObject('actionStart', (action) => {
-      this.card.showAction(action)
+    this.onObject('actionStart', () => {
+      this.card.showAction()
     })
     this.onObject('actionEnd', () => {
       this.card.hideAction()

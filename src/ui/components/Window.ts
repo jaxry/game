@@ -55,7 +55,7 @@ export default class Window extends Component {
       this.remove()
     }
   }
-  
+
   private setupRemoveEvents () {
     const signal = this.removeEventsController.signal
 
