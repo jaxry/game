@@ -1,135 +1,111 @@
 import TravelAction from '../actions/Travel'
 import Effect from '../effects/Effect'
 import type GameObject from '../GameObject'
-import { randomElement } from '../util'
+import { find, noisy, randomElement } from '../util'
 import { makeType } from '../GameObjectType'
-import { speak } from '../behavior/speak'
 import { typeWood } from './wood'
-import TransferAction from '../actions/Transfer'
-import { findShortestPath } from '../behavior/connections'
+import { findShortestPath, isNeighbor } from '../behavior/connections'
 import { typeChest } from './chest'
+import { children } from '../behavior/container'
+import Hold from '../actions/Hold'
+import PutInside from '../actions/PutInside'
 import { serializable } from '../serialize'
+import { speak } from '../behavior/speak'
 
-class MoveToZone extends Effect {
-  path: GameObject[] = []
-
-  constructor (object: GameObject, public target: GameObject) {
-    super(object)
-  }
-
-  override onActivate () {
-    this.path = findShortestPath(this.object.container, this.target)!
-    this.runIn(Math.random())
-  }
+class Villager extends Effect {
+  queued = false
+  home = this.object.container
+  path?: GameObject[]
 
   override events () {
+    this.onObject('actionEnd', () => {
+      this.queueRun()
+    })
     this.onObject('enter', () => {
-      this.runIn(Math.random())
+      this.queueRun()
     })
   }
 
+  override onActivate () {
+    this.queueRun()
+  }
+
+  queueRun () {
+    if (this.queued) return
+    this.runIn(noisy(3))
+    this.queued = true
+  }
+
   override run () {
-    if (this.path.length) {
-      new TravelAction(this.object, this.path.pop()!).activate()
+    this.queued = false
+    const holdingWood = find(children(this.object),
+        object => object.type === typeWood)
+    holdingWood ? this.returnWood() : this.findWood()
+  }
+
+  returnWood () {
+    if (this.object.container === this.home) {
+      this.depositWood()
     } else {
-      this.deactivate()
+      this.travelHome()
     }
   }
-}
 
-class Search extends Effect {
-  home: GameObject
-
-  override onActivate () {
-    this.home = this.object.container
-    this.runIn(1 + Math.random())
+  depositWood () {
+    const chest = find(children(this.object.container),
+        object => object.type === typeChest)
+    if (chest) {
+      new PutInside(this.object, chest).activate()
+    }
   }
 
-  override events () {
-    this.onObject('enter', () => {
-      this.runIn(1 + Math.random())
-    })
-    this.onObjectChildren('enter', (item) => {
-      if (item.type === typeWood) {
-        new ReturnHome(this.object, this.home).replace(this)
-      }
-    })
+  travelHome () {
+    const validPath = this.path?.length &&
+        isNeighbor(this.object.container, this.path.at(-1)!)
+
+    if (!validPath) {
+      this.path = findShortestPath(this.object.container, this.home)
+      speak(this.object, `Bring wood home!`)
+    }
+
+    if (!this.path) return
+
+    const next = this.path.pop()
+    new TravelAction(this.object, next!).activate()
+    if (this.path.length === 0) {
+      this.path = undefined
+    }
   }
 
-  override run () {
-    const wood = findWood(this.object.container)
+  findWood () {
+    const wood = findWood(this.object)
     if (wood) {
-      new TransferAction(this.object, wood, this.object).activate()
-      speak(this.object, 'Found me some wood.')
+      new Hold(this.object, wood).activate()
     } else {
-      const nextZone = randomElement(this.object.container.connections!)
-      new TravelAction(this.object, nextZone).activate()
-      speak(this.object, 'No wood, must explore.')
+      const neighboringZone = randomElement(this.object.container.connections)
+      new TravelAction(this.object, neighboringZone).activate()
+      speak(this.object, `Looking for wood.`)
     }
   }
 }
 
-serializable(Search)
+serializable(Villager)
 
-class ReturnHome extends MoveToZone {
-  constructor (object: GameObject, home: GameObject) {
-    super(object, home)
-  }
-
-  override onActivate () {
-    super.onActivate()
-    speak(this.object, 'Returning wood to home.')
-  }
-
-  override onDeactivate () {
-    const chest = findChest(this.object.container)!
-    const wood = findWood(this.object)!
-    new DepositWood(this.object, wood, chest).activate()
-    speak(this.object, 'Depositing wood.')
-  }
+function findWood (object: GameObject) {
+  return find(children(object.container), (item) =>
+      item.type === typeWood && !isAlreadyBeingGrabbed(item))
 }
 
-serializable(ReturnHome)
-
-class DepositWood extends TransferAction {
-  override onDeactivate () {
-    new Search(this.object).activate()
-    speak(this.object, 'Back to searching.')
-  }
-}
-
-serializable(DepositWood)
-
-function findChest (zone: GameObject) {
-  for (const object of zone.contains) {
-    if (object.type === typeChest) {
-      return object
-    }
-  }
-}
-
-function findWood (zone: GameObject) {
-  for (const object of zone.contains) {
-    if (object.type === typeWood && !isAlreadyBeingCollected(object)) {
-      return object
-    }
-  }
-}
-
-function isAlreadyBeingCollected (item: GameObject) {
-  for (const object of item.container.contains) {
-    if (object.activeAction instanceof TransferAction &&
-        object.activeAction.item === item) {
-      return true
-    }
-  }
-  return false
+function isAlreadyBeingGrabbed (item: GameObject) {
+  return find(children(item.container),
+      (object) => object.activeAction instanceof Hold &&
+          object.activeAction.target === item)
 }
 
 export const typeVillager = makeType({
   name: 'villager',
   isContainer: true,
   description: 'hmmmmph',
-  effects: [Search],
+  effects: [Villager],
 })
 

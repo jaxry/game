@@ -27,6 +27,10 @@ export function randomCentered (scale = 1) {
   return scale * (Math.random() - 0.5)
 }
 
+export function noisy (x: number, amount = 1) {
+  return x * (1 + randomCentered(amount))
+}
+
 export function randomSign () {
   return Math.random() < 0.5 ? -1 : 1
 }
@@ -121,6 +125,25 @@ export function mapFilter<T, U> (
   return array
 }
 
+export function reduce<T, U> (
+    iterable: Iterable<T>, reduceFn: (acc: U, x: T) => U, initialValue: U) {
+  let acc = initialValue
+  for (const x of iterable) {
+    acc = reduceFn(acc, x)
+  }
+  return acc
+}
+
+export function every<T> (
+    iterable: Iterable<T>, iteratee: (elem: T) => boolean) {
+  for (const elem of iterable) {
+    if (!iteratee(elem)) {
+      return false
+    }
+  }
+  return true
+}
+
 export function randomSetElement<T> (set: Set<T>) {
   let i = Math.floor(Math.random() * set.size)
   for (const elem of set) {
@@ -176,7 +199,7 @@ export function copy<T> (source: T): T {
 // ---------------
 // DOM functions
 // ---------------
-export function removeChildren (node: Node) {
+export function removeElementChildren (node: Node) {
   while (node.firstChild) {
     node.removeChild(node.firstChild)
   }

@@ -1,24 +1,26 @@
-import Component from './Component'
-import GameObject from '../../GameObject'
+import GameObject, { ContainedAs } from '../../GameObject'
 import {
-  borderRadius, boxShadow, fadeIn, objectCardColor, objectCardPlayerColor,
-  objectSpeakColor,
+  borderRadius, boxShadow, duration, fadeIn, fadeInKeyframes, objectCardColor,
+  objectCardPlayerColor, objectTextColor, textColor,
 } from '../theme'
 import { addStyle, hoverStyle, makeStyle } from '../makeStyle'
 import ActionComponent from './ActionComponent'
 import animatedBackground, {
   animatedBackgroundTemplate, fadeOutAbsolute,
 } from '../animatedBackground'
-import Action from '../../actions/Action'
 import { createDiv, createElement } from '../createElement'
 import animatedContents from '../animatedContents'
 import { isPlayer } from '../../behavior/player'
 import { cancelDrag } from '../makeDraggable'
 import ObjectCardWindow from './ObjectCardWindow'
+import Effect from '../../effects/Effect'
+import GameComponent from './GameComponent'
+import Inventory from './Inventory'
+import { numberOfChildren } from '../../behavior/container'
 
-export default class ObjectCard extends Component {
-  title = createDiv(this.element)
+export default class ObjectCard extends GameComponent {
   actionComponent?: ActionComponent
+  holdingComponent?: Inventory
 
   constructor (public object: GameObject) {
     super()
@@ -28,15 +30,22 @@ export default class ObjectCard extends Component {
     this.element.classList.add(containerStyle)
     this.element.classList.toggle(playerStyle, isPlayer(this.object))
 
-    this.title.textContent = this.object.type.name
+    createDiv(this.element, titleStyle, this.object.type.name)
+
+    this.makeHolding()
+    this.showAction()
+
+    this.element.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return
+      e.stopPropagation()
+      this.showWindow(e.clientX, e.clientY)
+    })
+
+    this.newEffect(ObjectCardEffect, this.object, this)
 
     animatedBackground(this.element, backgroundStyle)
     animatedContents(this.element)
     cancelDrag(this.element)
-
-    this.element.addEventListener('pointerdown', (e) => {
-      this.showWindow(e.clientX, e.clientY)
-    })
   }
 
   showWindow (x: number, y: number) {
@@ -56,7 +65,9 @@ export default class ObjectCard extends Component {
     }
   }
 
-  showAction (action: Action) {
+  showAction () {
+    const action = this.object.activeAction
+    if (!action) return
     this.actionComponent =
         this.newComponent(ActionComponent, action).appendTo(this.element)
     fadeIn(this.actionComponent.element)
@@ -70,19 +81,69 @@ export default class ObjectCard extends Component {
       actionComponent.remove()
     })
   }
+
+  makeHolding () {
+    if (this.holdingComponent ||
+        !numberOfChildren(this.object, ContainedAs.holding)) {
+      return
+    }
+    this.holdingComponent = this.newComponent(Inventory, this.object,
+        ContainedAs.holding).appendTo(this.element)
+    this.holdingComponent.element.classList.add(holdingStyle)
+  }
+
+  hideHoldingIfEmpty () {
+    if (!this.holdingComponent ||
+        numberOfChildren(this.object, ContainedAs.holding)) {
+      return
+    }
+    const holdingComponent = this.holdingComponent
+    this.holdingComponent = undefined
+    fadeOutAbsolute(holdingComponent.element, () => {
+      holdingComponent.remove()
+    })
+  }
+}
+
+class ObjectCardEffect extends Effect {
+  static $serialize = false
+
+  constructor (object: GameObject, public card: ObjectCard) {
+    super(object)
+  }
+
+  override events () {
+    this.onObject('actionStart', () => {
+      this.card.showAction()
+    })
+    this.onObject('actionEnd', () => {
+      this.card.hideAction()
+    })
+    this.onObject('speak', (message) => {
+      this.card.showMessage(message)
+    })
+    this.onObjectChildren('enter', (child) => {
+      if (child.containedAs !== ContainedAs.holding) return
+      this.card.makeHolding()
+    })
+    this.onObjectChildren('leave', (child) => {
+      if (child.containedAs !== ContainedAs.holding) return
+      queueMicrotask(() => {
+        this.card.hideHoldingIfEmpty()
+      })
+    })
+  }
 }
 
 const containerStyle = makeStyle({
   position: `relative`,
   padding: `0.5rem`,
   width: `max-content`,
+  color: objectTextColor,
 })
-
 hoverStyle(containerStyle, {
   filter: `brightness(1.1)`,
 })
-
-const playerStyle = makeStyle({})
 
 const backgroundStyle = makeStyle({
   ...animatedBackgroundTemplate,
@@ -91,21 +152,28 @@ const backgroundStyle = makeStyle({
   boxShadow,
 })
 
+const playerStyle = makeStyle({})
+
 addStyle(`.${playerStyle} > .${backgroundStyle}`, {
   background: objectCardPlayerColor,
 })
 
-const messageStyle = makeStyle({
-  display: `block`,
-  color: objectSpeakColor,
+const titleStyle = makeStyle({
+  color: textColor,
 })
 
-const selectableStyle = makeStyle({
-  position: `absolute`,
-  top: `-1.75rem`,
-  right: `-0.75rem`,
-  fontSize: `3rem`,
+const messageStyle = makeStyle({
+  display: `block`,
 })
-hoverStyle(selectableStyle, {
-  color: `#fff`,
+
+const holdingStyle = makeStyle({
+  paddingLeft: `1.25rem`,
+})
+
+addStyle(`.${holdingStyle}::before`, {
+  content: `🖐`,
+  position: `absolute`,
+  top: `0`,
+  left: `0`,
+  animation: `${fadeInKeyframes} ${duration.normal}ms`,
 })

@@ -1,4 +1,4 @@
-import GameObject from '../../GameObject'
+import GameObject, { ContainedAs } from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import { borderRadius, boxShadow, duration, mapNodeColor } from '../theme'
 import GameComponent from './GameComponent'
@@ -36,7 +36,8 @@ export default class MapNode extends GameComponent {
 
     const content = createDiv(this.element, contentStyle)
 
-    this.newComponent(Inventory, this.zone).appendTo(content)
+    this.newComponent(Inventory, this.zone, ContainedAs.inside, duration.long)
+        .appendTo(content)
 
     animatedBackground(content, backgroundStyle, duration.long)
 
@@ -54,7 +55,7 @@ export default class MapNode extends GameComponent {
 }
 
 class TravelAnimationEffect extends Effect {
-  static ignoreSerialize = true
+  static $serialize = false
 
   constructor (zone: GameObject, public map: MapComponent) {
     super(zone)
@@ -83,6 +84,7 @@ const contentStyle = makeStyle({
   translate: `-50% -50%`,
   minWidth: `3rem`,
   minHeight: `3rem`,
+  padding: `0.75rem`,
 })
 
 const backgroundStyle = makeStyle({

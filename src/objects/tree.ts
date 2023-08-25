@@ -1,7 +1,7 @@
 import Effect from '../effects/Effect'
 import { makeType } from '../GameObjectType'
 import { takeEnergyFromWorld } from '../behavior/energy'
-import { randomCentered } from '../util'
+import { noisy } from '../util'
 import { serializable } from '../serialize'
 
 class Photosynthesis extends Effect {
@@ -16,7 +16,7 @@ class Photosynthesis extends Effect {
 
     this.object.energy += takeEnergyFromWorld(1)
 
-    this.runIn(4 * (1 + randomCentered()))
+    this.runIn(noisy(4))
   }
 }
 

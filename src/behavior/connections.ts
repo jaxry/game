@@ -108,8 +108,12 @@ export function getEdgeHash ({ source, target }: Edge) {
   }
 }
 
-// A* search
+// Dijkstra's algorithm
 export function findShortestPath (source: GameObject, destination: GameObject) {
+  if (!source.connections || !destination.connections) {
+    return
+  }
+
   const cameFrom = new Map<GameObject, GameObject>()
   const costSoFar = new Map<GameObject, number>()
   const frontier = new PriorityQueue<GameObject>()
@@ -154,4 +158,8 @@ function reconstructPath (
   }
 
   return path
+}
+
+export function isNeighbor (a: GameObject, b: GameObject) {
+  return a.connections && a.connections.includes(b)
 }

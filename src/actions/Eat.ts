@@ -1,21 +1,16 @@
-import Action from './Action'
-import GameObject from '../GameObject'
 import { serializable } from '../serialize'
 import { destroy } from '../behavior/destroy'
+import TargetAction from './TargetAction'
 
-export default class Eat extends Action {
+export default class Eat extends TargetAction {
   static override duration = 3
-
-  constructor (object: GameObject, public override target: GameObject) {
-    super(object)
-  }
 
   override get name () {
     return ['Eat', this.target]
   }
 
   override condition () {
-    return this.target.energy !== undefined && this.target !== this.object
+    return super.condition() && this.target.energy > 0
   }
 
   override do () {

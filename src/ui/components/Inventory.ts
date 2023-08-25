@@ -1,5 +1,5 @@
 import { makeStyle } from '../makeStyle'
-import GameObject from '../../GameObject'
+import GameObject, { ContainedAs } from '../../GameObject'
 import { createDiv } from '../createElement'
 import ObjectCard from './ObjectCard'
 import { getAndDelete, makeOrGet } from '../../util'
@@ -7,31 +7,32 @@ import Effect from '../../effects/Effect'
 import GameComponent from './GameComponent'
 import { duration, fadeIn, fadeOut } from '../theme'
 import animatedContents from '../animatedContents'
+import { children } from '../../behavior/container'
 
 export default class Inventory extends GameComponent {
   objectToCard = new Map<GameObject, ObjectCard>()
 
-  constructor (public object: GameObject) {
+  constructor (
+      public object: GameObject, public containerType = ContainedAs.inside,
+      private animationDuration = duration.normal) {
     super()
   }
 
   override onInit () {
     this.element.classList.add(containerStyle)
 
-    if (this.object.contains) {
-      for (const child of this.object.contains) {
-        this.makeCard(child, false)
-      }
+    for (const child of children(this.object)) {
+      this.makeCard(child, false)
     }
 
     this.newEffect(InventoryEffect, this.object, this)
 
-    animatedContents(this.element, duration.long, true)
+    animatedContents(this.element, this.animationDuration, true)
   }
 
   makeRow () {
     const row = createDiv(this.element, rowStyle)
-    animatedContents(row, duration.long, true)
+    animatedContents(row, this.animationDuration, true)
     return row
   }
 
@@ -41,19 +42,25 @@ export default class Inventory extends GameComponent {
     }
     const { element, width } = shortestElement(
         [...this.element.children] as HTMLElement[])
-    return width > this.element.offsetHeight ? this.makeRow() : element
+    return width > this.element.offsetHeight && element.children.length > 1 ?
+        this.makeRow() : element
   }
 
   makeCard (object: GameObject, animate = true) {
+    if (object.containedAs !== this.containerType) {
+      return
+    }
+
     const card = makeOrGet(this.objectToCard, object, () => {
       return this.newComponent(ObjectCard, object)
           .appendTo(this.getShortestRow())
     })
-    animate && fadeIn(card.element, duration.long)
+    animate && fadeIn(card.element, this.animationDuration)
   }
 
   removeCard (object: GameObject) {
     const card = getAndDelete(this.objectToCard, object)!
+    if (!card) return
     const row = card.element.parentElement!
     fadeOut(card.element, () => {
       card.remove()
@@ -63,7 +70,7 @@ export default class Inventory extends GameComponent {
 }
 
 class InventoryEffect extends Effect {
-  static ignoreSerialize = true
+  static $serialize = false
 
   constructor (object: GameObject, public inventory: Inventory) {
     super(object)
@@ -75,15 +82,6 @@ class InventoryEffect extends Effect {
     })
     this.onObjectChildren('leave', (child) => {
       this.inventory.removeCard(child)
-    })
-    this.onObjectChildren('actionStart', (child) => {
-      this.inventory.objectToCard.get(child)!.showAction(child.activeAction)
-    })
-    this.onObjectChildren('actionEnd', (child) => {
-      this.inventory.objectToCard.get(child)!.hideAction()
-    })
-    this.onObjectChildren('speak', (child, message) => {
-      this.inventory.objectToCard.get(child)!.showMessage(message)
     })
   }
 }
@@ -100,7 +98,6 @@ const containerStyle = makeStyle({
   display: `flex`,
   flexDirection: `column`,
   gap: `0.75rem`,
-  padding: `0.75rem`,
 })
 
 const rowStyle = makeStyle({

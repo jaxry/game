@@ -13,8 +13,7 @@ export const duration = {
 
 // Animations
 
-const fadeInKeyframes = makeKeyframes({ opacity: `0` }, { opacity: `1` })
-export const fadeInAnimation = `${fadeInKeyframes} ${duration.short}ms both`
+export const fadeInKeyframes = makeKeyframes({ opacity: `0` }, { opacity: `1` })
 
 // Element.animate presets
 
@@ -61,7 +60,7 @@ export const objectCardColor = new LCH(
 
 export const objectCardPlayerColor = objectCardColor.addC(25)
 
-export const objectSpeakColor = objectCardColor.setL(textColor.l)
+export const objectTextColor = objectCardColor.setL(textColor.l)
 
 export const actionColor = objectCardColor.setL(textColor.l)
     .addC(25).addH(randomSign() / 4)

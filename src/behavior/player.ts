@@ -3,10 +3,19 @@ import { game } from '../Game'
 import type GameObject from '../GameObject'
 import Eat from '../actions/Eat'
 import Effect from '../effects/Effect'
+import Hold from '../actions/Hold'
+import Drop from '../actions/Drop'
+import PutInside from '../actions/PutInside'
+import { isNeighbor } from './connections'
 
-export function changePlayer (object: GameObject) {
+export function setPlayer (object: GameObject) {
   game.player = object
   game.event.playerChange.emit(object)
+  return object
+}
+
+export function getPlayer () {
+  return game.player
 }
 
 export function isPlayer (object: GameObject) {
@@ -22,18 +31,19 @@ export function setPlayerEffect (effect: Effect) {
 }
 
 export function playerTravelToZone (zone: GameObject) {
-  const playerZone = game.player.container
+  const player = getPlayer()
 
-  for (const neighbor of playerZone.connections) {
-    if (neighbor == zone) {
-      setPlayerEffect(new TravelAction(game.player, neighbor))
-    }
+  if (isNeighbor(player.container, zone)) {
+    setPlayerEffect(new TravelAction(player, zone))
   }
 }
 
-export function getPlayerActions (object: GameObject) {
+export function getPlayerActions (target: GameObject) {
   const actions = [
-    new Eat(game.player, object),
+    new Eat(game.player, target),
+    new Hold(game.player, target),
+    new Drop(game.player, target),
+    new PutInside(game.player, target),
   ]
   return actions.filter(action => action.condition())
 }

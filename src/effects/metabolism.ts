@@ -1,6 +1,6 @@
 import Effect from './Effect'
 import { destroy } from '../behavior/destroy'
-import { randomCentered } from '../util'
+import { noisy } from '../util'
 import { game } from '../Game'
 import { serializable } from '../serialize'
 
@@ -16,8 +16,7 @@ export default class Metabolism extends Effect {
 
     this.object.energy--
     game.energyPool++
-
-    this.runIn(1 * (1 + randomCentered()))
+    this.runIn(noisy(1))
   }
 }
 serializable(Metabolism)

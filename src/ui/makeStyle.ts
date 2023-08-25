@@ -8,7 +8,10 @@ const sheet = createElement(document.head, 'style').sheet!
 let nextId = 1
 
 export function addStyle (selector: string, style: Style): void {
-  const index = sheet.insertRule(`${selector} {}`, sheet.cssRules.length)
+  // Adding content property dynamically doesn't work for some reason
+  const contentStr = style.content ? `content: '${style.content}';` : ``
+  const index = sheet.insertRule(`${selector} {${contentStr}}`,
+      sheet.cssRules.length)
   const rule = sheet.cssRules[index] as CSSStyleRule
   Object.assign(rule.style, style)
 }
