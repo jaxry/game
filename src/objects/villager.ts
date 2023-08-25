@@ -10,6 +10,7 @@ import { children } from '../behavior/container'
 import Hold from '../actions/Hold'
 import PutInside from '../actions/PutInside'
 import { serializable } from '../serialize'
+import { speak } from '../behavior/speak'
 
 class Villager extends Effect {
   queued = false
@@ -64,6 +65,7 @@ class Villager extends Effect {
 
     if (!validPath) {
       this.path = findShortestPath(this.object.container, this.home)
+      speak(this.object, `Bring wood home!`)
     }
 
     if (!this.path) return
@@ -82,6 +84,7 @@ class Villager extends Effect {
     } else {
       const neighboringZone = randomElement(this.object.container.connections)
       new TravelAction(this.object, neighboringZone).activate()
+      speak(this.object, `Looking for wood.`)
     }
   }
 }
