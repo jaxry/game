@@ -18,10 +18,6 @@ export default class Inventory extends GameComponent {
     super()
   }
 
-  get size () {
-    return this.objectToCard.size
-  }
-
   override onInit () {
     this.element.classList.add(containerStyle)
 

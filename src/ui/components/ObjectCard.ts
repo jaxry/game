@@ -93,7 +93,10 @@ export default class ObjectCard extends GameComponent {
   }
 
   hideHoldingIfEmpty () {
-    if (!this.holdingComponent || this.holdingComponent.size) return
+    if (!this.holdingComponent ||
+        numberOfChildren(this.object, ContainedAs.holding)) {
+      return
+    }
     const holdingComponent = this.holdingComponent
     this.holdingComponent = undefined
     fadeOutAbsolute(holdingComponent.element, () => {
@@ -124,6 +127,7 @@ class ObjectCardEffect extends Effect {
       this.card.makeHolding()
     })
     this.onObjectChildren('leave', (child) => {
+      if (child.containedAs !== ContainedAs.holding) return
       queueMicrotask(() => {
         this.card.hideHoldingIfEmpty()
       })

@@ -1,10 +1,10 @@
 import TravelAction from '../actions/Travel'
 import Effect from '../effects/Effect'
 import type GameObject from '../GameObject'
-import { find, randomCentered, randomElement } from '../util'
+import { find, noisy, randomElement } from '../util'
 import { makeType } from '../GameObjectType'
 import { typeWood } from './wood'
-import { findShortestPath } from '../behavior/connections'
+import { findShortestPath, isNeighbor } from '../behavior/connections'
 import { typeChest } from './chest'
 import { children } from '../behavior/container'
 import Hold from '../actions/Hold'
@@ -31,7 +31,7 @@ class Villager extends Effect {
 
   queueRun () {
     if (this.queued) return
-    this.runIn(3 * (1 + randomCentered()))
+    this.runIn(noisy(3))
     this.queued = true
   }
 
@@ -59,12 +59,18 @@ class Villager extends Effect {
   }
 
   travelHome () {
-    if (!this.path) {
-      this.path = findShortestPath(this.object.container, this.home)!
+    const validPath = this.path?.length &&
+        isNeighbor(this.object.container, this.path.at(-1)!)
+
+    if (!validPath) {
+      this.path = findShortestPath(this.object.container, this.home)
     }
+
+    if (!this.path) return
+
     const next = this.path.pop()
     new TravelAction(this.object, next!).activate()
-    if (!this.path.length) {
+    if (this.path.length === 0) {
       this.path = undefined
     }
   }

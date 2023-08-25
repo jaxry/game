@@ -6,6 +6,7 @@ import Effect from '../effects/Effect'
 import Hold from '../actions/Hold'
 import Drop from '../actions/Drop'
 import PutInside from '../actions/PutInside'
+import { isNeighbor } from './connections'
 
 export function setPlayer (object: GameObject) {
   game.player = object
@@ -31,12 +32,9 @@ export function setPlayerEffect (effect: Effect) {
 
 export function playerTravelToZone (zone: GameObject) {
   const player = getPlayer()
-  const playerZone = player.container
 
-  for (const neighbor of playerZone.connections) {
-    if (neighbor == zone) {
-      setPlayerEffect(new TravelAction(player, neighbor))
-    }
+  if (isNeighbor(player.container, zone)) {
+    setPlayerEffect(new TravelAction(player, zone))
   }
 }
 
