@@ -1,8 +1,7 @@
 import Effect from './Effect'
-import { destroy } from '../behavior/destroy'
 import { noisy } from '../util'
-import { game } from '../Game'
 import { serializable } from '../serialize'
+import { giveEnergyToWorld, takeEnergyFromObject } from '../behavior/energy'
 
 export default class Metabolism extends Effect {
   override onActivate () {
@@ -10,12 +9,8 @@ export default class Metabolism extends Effect {
   }
 
   override run () {
-    if (!this.object.energy || this.object.energy <= 0) {
-      return destroy(this.object)
-    }
-
-    this.object.energy--
-    game.energyPool++
+    const expended = takeEnergyFromObject(this.object, 1)
+    giveEnergyToWorld(expended)
     this.runIn(noisy(1))
   }
 }

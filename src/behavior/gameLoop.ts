@@ -8,7 +8,7 @@ export function runEffectIn (effect: Effect, timeFromNow: number) {
   }
 }
 
-function tick (elapsedGameTime = 0) {
+export function advanceTime (elapsedGameTime = 0) {
   const finalTime = game.time.current + elapsedGameTime
 
   while (finalTime >= game.timedEffects.peekPriority()) {
@@ -28,7 +28,7 @@ function tick (elapsedGameTime = 0) {
 let timeout: NodeJS.Timeout | null = null
 
 function gameLoop () {
-  tick(100 * GameTime.millisecond)
+  advanceTime(100 * GameTime.millisecond)
   timeout = setTimeout(gameLoop, 100)
 }
 

@@ -16,7 +16,6 @@ export default class Game {
   player!: GameObject
   world!: GameObject
   timedEffects = new PriorityQueue<Effect>()
-  energyPool = 0
 }
 
 serializable(Game, {

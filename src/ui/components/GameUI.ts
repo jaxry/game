@@ -9,6 +9,7 @@ import { deleteSaveFile, saveGameToFile } from '../../saveLoad'
 import { restartGame } from '../../main'
 import { dataStyle, textButtonStyle } from '../theme'
 import { getPlayer } from '../../behavior/player'
+import { getWorldEnergy } from '../../behavior/energy'
 
 export default class GameUI extends GameComponent {
   override onInit () {
@@ -55,7 +56,7 @@ export default class GameUI extends GameComponent {
     const energyValue = createSpan(energy, dataStyle)
 
     this.on(game.event.tick, () => {
-      energyValue.textContent = game.energyPool.toString()
+      energyValue.textContent = getWorldEnergy().toString()
     })
 
     // save load bar

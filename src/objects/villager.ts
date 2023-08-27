@@ -2,8 +2,7 @@ import TravelAction from '../actions/Travel'
 import Effect from '../effects/Effect'
 import type GameObject from '../GameObject'
 import { find, noisy, randomElement } from '../util'
-import { makeType } from '../GameObjectType'
-import { typeWood } from './wood'
+import GameObjectType, { makeType } from '../GameObjectType'
 import { findShortestPath, isNeighbor } from '../behavior/connections'
 import { typeChest } from './chest'
 import { children } from '../behavior/container'
@@ -11,11 +10,13 @@ import Hold from '../actions/Hold'
 import PutInside from '../actions/PutInside'
 import { serializable } from '../serialize'
 import { speak } from '../behavior/speak'
+import { typeTree } from './tree'
 
 class Villager extends Effect {
   queued = false
   home = this.object.container
   path?: GameObject[]
+  gatherType = typeTree
 
   override events () {
     this.onObject('actionEnd', () => {
@@ -39,7 +40,7 @@ class Villager extends Effect {
   override run () {
     this.queued = false
     const holdingWood = find(children(this.object),
-        object => object.type === typeWood)
+        object => object.type === this.gatherType)
     holdingWood ? this.returnWood() : this.findWood()
   }
 
@@ -78,7 +79,7 @@ class Villager extends Effect {
   }
 
   findWood () {
-    const wood = findWood(this.object)
+    const wood = findType(this.object, this.gatherType)
     if (wood) {
       new Hold(this.object, wood).activate()
     } else {
@@ -91,9 +92,9 @@ class Villager extends Effect {
 
 serializable(Villager)
 
-function findWood (object: GameObject) {
+function findType (object: GameObject, type: GameObjectType) {
   return find(children(object.container), (item) =>
-      item.type === typeWood && !isAlreadyBeingGrabbed(item))
+      item.type === type && !isAlreadyBeingGrabbed(item))
 }
 
 function isAlreadyBeingGrabbed (item: GameObject) {
