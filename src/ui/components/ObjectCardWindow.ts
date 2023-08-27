@@ -1,9 +1,10 @@
 import GameObject from '../../GameObject'
 import Inventory from './Inventory'
-import { createDiv, createElement } from '../createElement'
-import { buttonStyle } from '../theme'
+import { createDiv, createElement, createSpan } from '../createElement'
+import { buttonStyle, dataStyle } from '../theme'
 import Window from './Window'
 import { getPlayerActions } from '../../behavior/player'
+import { game } from '../../Game'
 
 export default class ObjectCardWindow extends Window {
   constructor (public object: GameObject) {
@@ -12,6 +13,14 @@ export default class ObjectCardWindow extends Window {
 
   override onInit () {
     createDiv(this.element, undefined, this.object.type.name)
+
+    if (this.object.energy) {
+      const energy = createDiv(this.element, undefined, 'Energy: ')
+      const energyValue = createSpan(energy, dataStyle)
+      this.on(game.event.tick, () => {
+        energyValue.textContent = this.object.energy.toString()
+      })
+    }
 
     if (this.object.type.isContainer) {
       this.newComponent(Inventory, this.object).appendTo(this.element)

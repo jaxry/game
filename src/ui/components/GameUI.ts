@@ -4,10 +4,10 @@ import Effect from '../../effects/Effect'
 import { pauseGameLoop, startGameLoop } from '../../behavior/gameLoop'
 import { makeStyle } from '../makeStyle'
 import GameComponent from './GameComponent'
-import { createDiv, createElement } from '../createElement'
+import { createDiv, createElement, createSpan } from '../createElement'
 import { deleteSaveFile, saveGameToFile } from '../../saveLoad'
 import { restartGame } from '../../main'
-import { gameDataColor, textButtonStyle } from '../theme'
+import { dataStyle, textButtonStyle } from '../theme'
 import { getPlayer } from '../../behavior/player'
 
 export default class GameUI extends GameComponent {
@@ -52,11 +52,11 @@ export default class GameUI extends GameComponent {
 
     // energy level
     const energy = createDiv(info, undefined, 'Energy Pool: ')
-    const energyValue = createElement(energy, 'span', energyStyle)
+    const energyValue = createSpan(energy, dataStyle)
 
-    setInterval(() => {
+    this.on(game.event.tick, () => {
       energyValue.textContent = game.energyPool.toString()
-    }, 1000)
+    })
 
     // save load bar
     const saveLoadContainer = createDiv(bar, saveLoadContainerStyle)
@@ -100,10 +100,6 @@ const barStyle = makeStyle({
 
 const infoStyle = makeStyle({
   flex: `1 1 auto`,
-})
-
-const energyStyle = makeStyle({
-  color: gameDataColor,
 })
 
 const saveLoadContainerStyle = makeStyle({

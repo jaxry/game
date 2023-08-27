@@ -2,8 +2,6 @@ import { duration } from './theme'
 
 const positions = new WeakMap<HTMLElement, { x: number, y: number }>()
 
-//TODO: deleting the outer element of a nested element errors
-
 export default function animatedContents (
     container: HTMLElement, animDuration = duration.normal, smooth = false) {
   let first = true

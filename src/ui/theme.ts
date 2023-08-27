@@ -94,4 +94,8 @@ hoverStyle(textButtonStyle, {
   color: `#fff`,
 })
 
+export const dataStyle = makeStyle({
+  color: gameDataColor,
+})
+
 
