@@ -2,7 +2,7 @@ import { makeStyle } from '../makeStyle'
 import GameObject, { ContainedAs } from '../../GameObject'
 import { createDiv } from '../createElement'
 import ObjectCard from './ObjectCard'
-import { getAndDelete, makeOrGet } from '../../util'
+import { getAndDelete, makeOrGet, reduce } from '../../util'
 import Effect from '../../effects/Effect'
 import GameComponent from './GameComponent'
 import { duration, fadeIn, fadeOut } from '../theme'
@@ -40,8 +40,7 @@ export default class Inventory extends GameComponent {
     if (!this.element.children.length) {
       return this.makeRow()
     }
-    const { element, width } = shortestElement(
-        [...this.element.children] as HTMLElement[])
+    const { element, width } = shortestElement(this.element.children)
     return width > this.element.offsetHeight && element.children.length > 1 ?
         this.makeRow() : element
   }
@@ -86,11 +85,11 @@ class InventoryEffect extends Effect {
   }
 }
 
-function shortestElement (elements: HTMLElement[]) {
-  return elements.reduce((shortest, element) => {
-    const width = element.offsetWidth
+function shortestElement (elements: HTMLCollection) {
+  return reduce(elements, (shortest, element) => {
+    const width = (element as HTMLElement).offsetWidth
     return width < shortest.width ? { width, element } : shortest
-  }, { width: Infinity, element: null as any as HTMLElement })
+  }, { width: Infinity, element: null as any })
 }
 
 const containerStyle = makeStyle({

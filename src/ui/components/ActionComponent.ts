@@ -4,7 +4,7 @@ import { actionColor, actionTimeColor, textColor } from '../theme'
 import { addStyle, makeStyle } from '../makeStyle'
 import GameTime from '../../GameTime'
 import { game } from '../../Game'
-import { createDiv, createElement, createTextNode } from '../createElement'
+import { createSpan, createTextNode } from '../createElement'
 import { castArray } from '../../util'
 
 export default class ActionComponent extends Component {
@@ -13,10 +13,10 @@ export default class ActionComponent extends Component {
 
     this.element.classList.add(containerStyle)
 
-    const name = createDiv(this.element, nameStyle)
+    const name = createSpan(this.element)
     formatName(name, action)
 
-    const time = createDiv(this.element, timeStyle)
+    const time = createSpan(this.element, timeStyle)
 
     function update () {
       const t = Math.max(0, action.time - game.time.current)
@@ -33,23 +33,18 @@ function formatName (container: Element, action: Action) {
   for (const n of castArray(action.name)) {
     typeof n === 'string' ?
         createTextNode(container, ` ${n} `) :
-        createElement(container, 'span', objectStyle, n.type.name)
+        createSpan(container, objectStyle, n.type.name)
   }
+  createTextNode(container, ` `)
 }
 
 const containerStyle = makeStyle({
   width: `max-content`,
-  display: `flex`,
-  flexDirection: `row`,
-  gap: `0.5rem`,
   fontWeight: `bold`,
-})
-
-const nameStyle = makeStyle({
   color: actionColor,
 })
 
-addStyle(`.${nameStyle}::first-letter`, {
+addStyle(`.${containerStyle}::first-letter`, {
   textTransform: `capitalize`,
 })
 

@@ -137,6 +137,9 @@ class ObjectCardEffect extends Effect {
 
 const containerStyle = makeStyle({
   position: `relative`,
+  display: `flex`,
+  flexDirection: `column`,
+  gap: `0.25rem`,
   padding: `0.5rem`,
   width: `max-content`,
   color: objectTextColor,
