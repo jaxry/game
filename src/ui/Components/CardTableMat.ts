@@ -4,52 +4,58 @@ import { Permutation, permutationProduct } from '../../symmetricGroup'
 import makeDraggable from '../makeDraggable'
 import { makeStyle } from '../makeStyle'
 import { cardSpawnerDragAndDrop } from '../dragAndDroppables'
-import { numToPx } from '../../util'
+import { px } from '../../util'
 
 export default class CardTableMat extends Component {
   lastHovered: Element | null = null
   elemToCard = new WeakMap<Element, PermutationCard>()
 
-  constructor () {
-    super()
+  override onInit () {
     this.element.classList.add(containerStyle)
 
-    cardSpawnerDragAndDrop.drop(this.element, (permutation, event) => {
-      const rect = this.element.getBoundingClientRect()
-      if (this.lastHovered) {
-        const existingCard = this.elemToCard.get(this.lastHovered)!
-        existingCard.remove()
-        permutation = permutationProduct(existingCard.permutation, permutation)
-      }
-      this.makeCard(permutation, event.clientX - rect.x, event.clientY - rect.y)
+    cardSpawnerDragAndDrop.drop(this.element, {
+      isDroppable: () => 'copy',
+      onDrop: (permutation, event) => {
+        const rect = this.element.getBoundingClientRect()
+        if (this.lastHovered) {
+          const existingCard = this.elemToCard.get(this.lastHovered)!
+          existingCard.remove()
+          permutation =
+              permutationProduct(existingCard.permutation, permutation)
+        }
+        this.makeCard(permutation, event.clientX - rect.x,
+            event.clientY - rect.y)
+      },
     })
   }
 
   makeCard (permutation: Permutation, positionX: number, positionY: number) {
     const card = this.newComponent(PermutationCard, permutation)
+        .appendTo(this.element)
     card.element.classList.add(cardStyle)
     this.elemToCard.set(card.element, card)
-    this.element.append(card.element)
 
     const rect = card.element.getBoundingClientRect()
     const x = positionX - rect.width / 2
     const y = positionY - rect.height / 2
-    card.element.style.transform = `translate(${numToPx(x)}, ${numToPx(y)})`
+    card.element.style.transform = `translate(${px(x)}, ${px(y)})`
 
+    let diffX = 0
+    let diffY = 0
     makeDraggable(card.element, {
       onDown: (e) => {
         const rect = this.element.getBoundingClientRect()
         const cardRect = card.element.getBoundingClientRect()
-        const diffX = -rect.x + cardRect.x - e.clientX
-        const diffY = -rect.y + cardRect.y - e.clientY
+        diffX = -rect.x + cardRect.x - e.clientX
+        diffY = -rect.y + cardRect.y - e.clientY
         card.element.style.pointerEvents = `none`
         card.element.parentElement?.append(card.element)
-        return (e) => {
-          const x = e.clientX + diffX
-          const y = e.clientY + diffY
-          card.element.style.transform =
-              `translate(${numToPx(x)}, ${numToPx(y)})`
-        }
+      },
+      onDrag: (e) => {
+        const x = e.clientX + diffX
+        const y = e.clientY + diffY
+        card.element.style.transform =
+            `translate(${px(x)}, ${px(y)})`
       },
       onUp: (e) => {
         card.element.style.pointerEvents = ``

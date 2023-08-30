@@ -7,12 +7,10 @@ import CardList from './CardList'
 import Tabs from './Tabs'
 
 export default class App extends Component {
-  constructor (element: HTMLElement) {
-    super(element)
-
+  override onInit () {
     this.element.classList.add(containerStyle)
 
-    const tabs = this.newComponent(Tabs, [
+    this.newComponent(Tabs, [
       {
         name: 'List',
         component: CardList,
@@ -20,8 +18,7 @@ export default class App extends Component {
         name: 'Cards',
         component: CardTable,
       },
-    ])
-    this.element.append(tabs.element)
+    ]).appendTo(this.element)
   }
 }
 

@@ -2,13 +2,15 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "lib": ["ESNext", "DOM"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "moduleResolution": "Node",
     "strict": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "noEmit": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noImplicitOverride": true,
+    "strictPropertyInitialization": false
   },
   "include": ["src"]
 }

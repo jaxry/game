@@ -1,16 +1,17 @@
 import Component from './Component'
-import { makeStyle } from '../makeStyle'
+import { addStyle, makeStyle } from '../makeStyle'
 import { border } from '../theme'
 import colors from '../colors'
+import { createDiv } from '../createElement'
 
 interface Tab {
   name: string,
-  component: typeof Component
+  component: typeof Component<HTMLElement>
 }
 
 export default class Tabs extends Component {
-  tabList = document.createElement('div')
-  tabContent = document.createElement('div')
+  tabList = createDiv(this.element, tabListStyle)
+  tabContent = createDiv(this.element, tabContentStyle)
 
   selectedTab!: Tab
 
@@ -18,27 +19,21 @@ export default class Tabs extends Component {
 
   private tabElements = new Map<Tab, HTMLElement>()
 
-  constructor (tabs: Tab[]) {
+  constructor (public tabs: Tab[]) {
     super()
+  }
 
+  override onInit () {
     this.element.classList.add(containerStyle)
 
-    this.tabList.classList.add(tabListStyle)
-    this.element.append(this.tabList)
-
-    this.tabContent.classList.add(tabContentStyle)
-    this.element.append(this.tabContent)
-
-    for (const tab of tabs) {
+    for (const tab of this.tabs) {
       this.makeTab(tab)
     }
-    this.select(tabs[0])
+    this.select(this.tabs[0])
   }
 
   select (tab: Tab) {
-    if (tab === this.selectedTab) {
-      return
-    }
+    if (tab === this.selectedTab) return
 
     for (const tabElement of this.tabElements.values()) {
       tabElement.classList.remove(selectedTabStyle)
@@ -47,8 +42,8 @@ export default class Tabs extends Component {
     this.tabElements.get(tab)!.classList.add(selectedTabStyle)
 
     this.activeComponent?.remove()
-    this.activeComponent = this.newComponent(tab.component)
-    this.tabContent.appendChild(this.activeComponent.element)
+    this.activeComponent =
+        this.newComponent(tab.component).appendTo(this.tabContent)
 
     this.selectedTab = tab
 
@@ -56,10 +51,7 @@ export default class Tabs extends Component {
   }
 
   private makeTab (tab: Tab) {
-    const tabElement = document.createElement('div')
-    tabElement.classList.add(tabStyle)
-    tabElement.textContent = tab.name
-    this.tabList.appendChild(tabElement)
+    const tabElement = createDiv(this.tabList, tabStyle, tab.name)
     this.tabElements.set(tab, tabElement)
 
     tabElement.addEventListener('click', () => {
@@ -93,15 +85,15 @@ const selectedTabStyle = makeStyle({
   background: colors.sky[800],
 })
 
-makeStyle(`.${tabStyle}:not(:last-child)`, {
+addStyle(`.${tabStyle}:not(:last-child)`, {
   borderRight: border,
 })
 
-makeStyle(`.${tabStyle}:hover:not(.${selectedTabStyle})`, {
+addStyle(`.${tabStyle}:hover:not(.${selectedTabStyle})`, {
   background: colors.sky[900] + '88',
 })
 
-makeStyle(`.${tabStyle}:active:not(.${selectedTabStyle})`, {
+addStyle(`.${tabStyle}:active:not(.${selectedTabStyle})`, {
   background: colors.sky[900] + 'aa',
 })
 

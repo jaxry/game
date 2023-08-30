@@ -4,31 +4,21 @@ import {
 } from '../../symmetricGroup'
 import PermutationCard from './PermutationCard'
 import { makeStyle } from '../makeStyle'
+import { createDiv } from '../createElement'
 
 export default class CardList extends Component {
 
-  list = document.createElement('div')
-  products = document.createElement('div')
+  list = createDiv(this.element)
+  products = createDiv(this.element)
 
   inputCards: PermutationCard[] = []
   productCards: PermutationCard[] = []
 
-  constructor () {
-    super()
-
+  override onInit () {
     this.element.classList.add(containerStyle)
 
-    this.element.append(this.list)
-
-    const listLabel = document.createElement('div')
-    listLabel.textContent = 'Input'
-    this.list.append(listLabel)
-
-    this.element.append(this.products)
-
-    const productsLabel = document.createElement('div')
-    productsLabel.textContent = 'Product'
-    this.products.append(productsLabel)
+    createDiv(this.list, undefined, `Input`)
+    createDiv(this.products, undefined, `Products`)
 
     for (const permutation of s4Permutations) {
       this.makeCard(permutation)
@@ -38,13 +28,12 @@ export default class CardList extends Component {
 
   private makeCard (permutation: Permutation) {
     const card = this.newComponent(PermutationCard, permutation)
+        .appendTo(this.list)
     this.inputCards.push(card)
 
     card.element.addEventListener('click', () => {
       this.select(card)
     })
-
-    this.list.appendChild(card.element)
   }
 
   private select (card: PermutationCard) {
@@ -56,13 +45,13 @@ export default class CardList extends Component {
       const product = permutationProduct(card.permutation, other)
 
       const productCard = this.newComponent(PermutationCard, product)
+          .appendTo(this.products)
 
       productCard.element.addEventListener('click', () => {
         this.clickedPermutation(product)
       })
 
       this.productCards.push(productCard)
-      this.products.appendChild(productCard.element)
     }
   }
 

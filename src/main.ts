@@ -1,3 +1,3 @@
-import App from './ui/Components/App'
+import App from './ui/components/App'
 
-new App(document.getElementById('app')!)
+new App().appendTo(document.body)

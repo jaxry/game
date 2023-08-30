@@ -5,14 +5,12 @@ import { makeStyle } from '../makeStyle'
 import { cardSpawnerDragAndDrop } from '../dragAndDroppables'
 
 export default class CardTableSpawner extends Component {
-  constructor () {
-    super()
-
+  override onInit () {
     this.element.classList.add(containerStyle)
 
     for (const permutation of s4Permutations) {
       const card = this.newComponent(PermutationCard, permutation)
-      this.element.appendChild(card.element)
+          .appendTo(this.element)
 
       cardSpawnerDragAndDrop.drag(card.element, permutation)
     }

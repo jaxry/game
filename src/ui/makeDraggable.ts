@@ -1,86 +1,78 @@
-import throttle from './throttle'
-
-interface OnDrag {
-  (e: MouseEvent, movementX: number, movementY: number): void
-}
+let isDragging = false
+let childDragged = false
 
 export default function makeDraggable (
     element: Element,
     options: {
-      onDrag?: OnDrag,
-
       // if returns false, drag is aborted
-      // if returns callback, this callback will be used instead of options.onDrag
-      // otherwise, options.onDrag will be the drag callback
-      onDown?: (e: MouseEvent) => boolean | OnDrag | void,
-
-      onOver?: (e: MouseEvent) => void,
-      onUp?: (e: MouseEvent) => void,
-
-      startEnabled?: MouseEvent
+      onDown?: (e: PointerEvent) => boolean | void,
+      onDrag?: (e: PointerEvent) => void,
+      onOver?: (e: PointerEvent) => void,
+      onUp?: (e: PointerEvent) => void,
+      startEnabled?: PointerEvent
     }) {
 
-  let startX = 0
-  let startY = 0
-  let onDrag: OnDrag | undefined
+  function down (e: PointerEvent) {
+    if (childDragged) {
+      return
+    }
 
-  function down (e: MouseEvent) {
     const returned = options.onDown?.(e)
+
     if (returned === false) {
       return
-    } else if (returned instanceof Function) {
-      onDrag = returned
-    } else if (options.onDrag) {
-      onDrag = options.onDrag
-    } else if (!options.onOver) {
-      return
     }
 
-    e.preventDefault()
+    childDragged = true
+    isDragging = false
 
-    if (onDrag) {
-      startX = e.clientX
-      startY = e.clientY
-      document.body.addEventListener('mousemove', move)
+    const controller = new AbortController()
+    const signal = controller.signal
+
+    document.body.addEventListener('pointermove', () => {
+      isDragging = true
+    }, { once: true, signal })
+
+    if (options.onDrag) {
+      document.body.addEventListener('pointermove', options.onDrag, { signal })
     }
-    if (options.onOver) {
-      document.body.addEventListener('mouseover', options.onOver)
-    }
-
-    window.addEventListener('mouseup', up, { once: true })
-  }
-
-  // throttle the mousemove event to the browser's requestAnimationFrame
-  // otherwise event gets triggered way more than necessary
-  const move = throttle((e: MouseEvent) => {
-    if (!onDrag) {
-      return
-    }
-    const relativeX = e.clientX - startX
-    const relativeY = e.clientY - startY
-    onDrag(e, relativeX, relativeY)
-  })
-
-  function up (e: MouseEvent) {
-    document.body.removeEventListener('mousemove', move)
 
     if (options.onOver) {
-      document.body.removeEventListener('mouseover', options.onOver)
+      document.body.addEventListener('pointerover', options.onOver, { signal })
     }
 
-    options.onUp?.(e)
-
-    onDrag = undefined
+    window.addEventListener('pointerup', (e) => {
+      options.onUp?.(e)
+      controller.abort()
+    }, { once: true })
   }
 
-  (element as HTMLElement).addEventListener('mousedown', down)
+  (element as HTMLElement).addEventListener('pointerdown', down)
 
   if (options.startEnabled) {
-    const event = options.startEnabled
-    setTimeout(() => down(event))
+    down(options.startEnabled)
   }
 
   return () => {
-    (element as HTMLElement).removeEventListener('mousedown', down)
+    (element as HTMLElement).removeEventListener('pointerdown', down)
   }
+}
+
+window.addEventListener('pointerup', () => {
+  childDragged = false
+})
+
+export function onClickNotDrag (
+    element: HTMLElement, handler: (e: MouseEvent) => void) {
+  element.addEventListener('click', (e) => {
+    if (!isDragging) {
+      handler(e)
+    }
+  })
+}
+
+export function cancelDrag (element: Element) {
+  element.addEventListener('pointerdown', (e) => {
+    childDragged = true
+  })
 }

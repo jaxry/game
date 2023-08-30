@@ -1,22 +1,20 @@
-import Observer from '../../Observer'
+import Observable from '../../Observable'
+import { Constructor } from '../../types'
 
-type Constructor<T> = { new (...args: any[]): T }
+export default class Component<T extends Element = HTMLElement> {
+  element: T
 
-export default class Component {
-  element: HTMLElement | SVGGElement
-
-  private parentComponent?: Component
-  private childComponents = new Set<Component>()
+  parentComponent?: Component<Element>
+  childComponents = new Set<Component<Element>>()
   private destroyCallbacks: Array<() => void> = []
 
-  constructor (element: HTMLElement | SVGGElement = document.createElement(
-      'div')) {
+  constructor (element: T = document.createElement('div') as any) {
     this.element = element
   }
 
   newComponent<T extends Constructor<Component>> (
       constructor: T,
-      ...args: ConstructorParameters<T>): InstanceType<T> {
+      ...args: ConstructorParameters<T>) {
 
     const component = new constructor(...args)
     component.parentComponent = this
@@ -26,6 +24,24 @@ export default class Component {
     return component as InstanceType<T>
   }
 
+  appendTo (parent: Element) {
+    parent.append(this.element)
+    this.onInit?.()
+    return this
+  }
+
+  putBefore (element: Element) {
+    element.before(this.element)
+    this.onInit?.()
+    return this
+  }
+
+  putAfter (element: Element) {
+    element.after(this.element)
+    this.onInit?.()
+    return this
+  }
+
   onRemove (unsubscribe: () => void) {
     this.destroyCallbacks.push(unsubscribe)
   }
@@ -33,20 +49,22 @@ export default class Component {
   remove () {
     this.element.remove()
 
-    if (this.parentComponent) {
-      this.parentComponent.childComponents.delete(this)
-    }
-
     for (const callback of this.destroyCallbacks) {
       callback()
     }
+    this.destroyCallbacks.length = 0
 
     for (const component of this.childComponents) {
       component.remove()
     }
+
+    this.parentComponent?.childComponents.delete(this)
+    this.parentComponent = undefined
   }
 
-  on<T> (event: Observer<T>, listener: (data: T) => void) {
+  onInit? (): void
+
+  on<T> (event: Observable<T>, listener: (data: T) => void) {
     this.onRemove(event.on(listener))
   }
 }

@@ -5,18 +5,14 @@ import { makeStyle } from '../makeStyle'
 import { border } from '../theme'
 
 export default class CardTable extends Component {
-  constructor () {
-    super()
-
+  override onInit () {
     this.element.classList.add(containerStyle)
 
-    const spawner = this.newComponent(CardTableSpawner)
+    const spawner = this.newComponent(CardTableSpawner).appendTo(this.element)
     spawner.element.classList.add(cardSpawnerStyle)
-    this.element.append(spawner.element)
 
-    const mat = this.newComponent(CardTableMat)
+    const mat = this.newComponent(CardTableMat).appendTo(this.element)
     mat.element.classList.add(cardMatStyle)
-    this.element.append(mat.element)
   }
 }
 

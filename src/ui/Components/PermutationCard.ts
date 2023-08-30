@@ -1,5 +1,5 @@
 import Component from './Component'
-import { makeStyle } from '../makeStyle'
+import { addStyle, makeStyle } from '../makeStyle'
 import { borderRadius } from '../theme'
 import colors from '../colors'
 import { Permutation } from '../../symmetricGroup'
@@ -7,20 +7,15 @@ import { Permutation } from '../../symmetricGroup'
 export default class PermutationCard extends Component {
   constructor (public permutation: Permutation) {
     super()
+  }
 
+  override onInit () {
     this.element.classList.add(containerStyle)
-
-    const text = document.createTextNode(permutation.name)
-
-    this.element.appendChild(text)
+    this.element.textContent = this.permutation.name
   }
 
   select (selected = true) {
-    if (selected) {
-      this.element.classList.add(selectedStyle)
-    } else {
-      this.element.classList.remove(selectedStyle)
-    }
+    this.element.classList.toggle(selectedStyle, selected)
   }
 }
 
@@ -36,7 +31,7 @@ const selectedStyle = makeStyle({
   backgroundColor: colors.lime[600],
 })
 
-makeStyle(`.${containerStyle}:hover:not(.${selectedStyle})`, {
+addStyle(`.${containerStyle}:hover:not(.${selectedStyle})`, {
   background: colors.green['800'],
 })
 

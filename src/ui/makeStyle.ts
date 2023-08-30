@@ -1,41 +1,47 @@
-type Style = Partial<CSSStyleDeclaration>
+import { createElement } from './createElement'
 
-export function makeStyle (style?: Style): string
-export function makeStyle (selector: string, style: Style): void
-export function makeStyle (
-    styleOrSelector?: string | Style,
-    style?: Style | string): string | void {
-  if (typeof styleOrSelector === 'string') {
-    makeStyleSelector(styleOrSelector, style!)
-  } else {
-    return makeStyleClass(styleOrSelector)
-  }
+type Style = {
+  [key in keyof CSSStyleDeclaration]?: string | { toString (): string }
 }
-
-const sheet = makeStyleSheet()
+const sheet = createElement(document.head, 'style').sheet!
 
 let nextId = 1
 
-function makeStyleSelector (selector: string, style: Style): void {
-  const index = sheet.insertRule(`${selector} {}`, sheet.cssRules.length)
+export function addStyle (selector: string, style: Style): void {
+  // Adding content property dynamically doesn't work for some reason
+  const contentStr = style.content ? `content: '${style.content}';` : ``
+  const index = sheet.insertRule(`${selector} {${contentStr}}`,
+      sheet.cssRules.length)
   const rule = sheet.cssRules[index] as CSSStyleRule
-  for (const key in style) {
-    rule.style[key] = style[key]!
-  }
+  Object.assign(rule.style, style)
 }
 
-function makeStyleClass (style?: Style): string {
-  const className = `makeStyle-${nextId++}`
+export function makeStyle (style?: Style): string {
+  const className = `style-${nextId++}`
   if (style) {
-    makeStyleSelector(`.${className}`, style)
+    addStyle(`.${className}`, style)
   }
   return className
 }
 
-function makeStyleSheet () {
-  const elem = document.createElement('style')
-  document.head.append(elem)
-  return elem.sheet!
+export function makeKeyframes (from: Style, to: Style): string {
+  const name = `makeKeyframes-${nextId++}`
+  const index = sheet.insertRule(`@keyframes ${name} { from {} to {} }`)
+  const keyframes = sheet.cssRules[index] as CSSKeyframesRule
+
+  const fromKeyframe = keyframes.cssRules[0] as CSSKeyframeRule
+  Object.assign(fromKeyframe.style, from)
+
+  const toKeyframe = keyframes.cssRules[1] as CSSKeyframeRule
+  Object.assign(toKeyframe.style, to)
+
+  return name
 }
 
+export function childStyle (className: string, style: Style) {
+  addStyle(`.${className} > *`, style)
+}
 
+export function hoverStyle (className: string, style: Style) {
+  addStyle(`.${className}:hover`, style)
+}
