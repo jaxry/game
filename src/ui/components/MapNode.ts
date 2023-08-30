@@ -1,6 +1,8 @@
 import GameObject, { ContainedAs } from '../../GameObject'
 import { makeStyle } from '../makeStyle'
-import { borderRadius, boxShadow, duration, mapNodeColor } from '../theme'
+import {
+  borderRadius, boxShadow, duration, fadeIn, mapNodeColor, mapNodeSimpleColor,
+} from '../theme'
 import GameComponent from './GameComponent'
 import Effect from '../../effects/Effect'
 import TravelAction from '../../actions/Travel'
@@ -8,7 +10,7 @@ import MapComponent from './Map'
 import { playerTravelToZone } from '../../behavior/player'
 import { onClickNotDrag } from '../makeDraggable'
 import animatedBackground, {
-  animatedBackgroundTemplate,
+  animatedBackgroundTemplate, fadeOutAbsolute,
 } from '../animatedBackground'
 import { moveToTop, translate } from '../../util'
 import Inventory from './Inventory'
@@ -16,6 +18,9 @@ import { onResize } from '../onResize'
 import { createDiv } from '../createElement'
 
 export default class MapNode extends GameComponent {
+  content = createDiv(this.element, contentStyle)
+  background = animatedBackground(this.content, backgroundStyle, duration.long)
+  inventory?: Inventory
 
   constructor (public zone: GameObject, public map: MapComponent) {
     super()
@@ -34,15 +39,8 @@ export default class MapNode extends GameComponent {
 
     this.newEffect(TravelAnimationEffect, this.zone, this.map)
 
-    const content = createDiv(this.element, contentStyle)
-
-    this.newComponent(Inventory, this.zone, ContainedAs.inside, duration.long)
-        .appendTo(content)
-
-    animatedBackground(content, backgroundStyle, duration.long)
-
     // animate container to new centered position
-    onResize(content, (width, height, dw, dh) => {
+    onResize(this.content, (width, height, dw, dh) => {
       this.element.animate({
         transform: [translate(dw / 2, dh / 2), `translate(0, 0)`],
       }, {
@@ -51,6 +49,23 @@ export default class MapNode extends GameComponent {
         duration: duration.long,
       })
     })
+  }
+
+  fullZone () {
+    if (this.inventory) return
+    this.inventory = this.newComponent(Inventory, this.zone, ContainedAs.inside,
+        duration.long).appendTo(this.content)
+    this.inventory.element.classList.add(inventoryStyle)
+    fadeIn(this.inventory.element)
+    this.background.classList.add(fullBackgroundStyle)
+  }
+
+  simpleZone () {
+    if (!this.inventory) return
+    this.background.classList.remove(fullBackgroundStyle)
+    const inventory = this.inventory
+    this.inventory = undefined
+    fadeOutAbsolute(inventory.element, () => inventory.remove())
   }
 }
 
@@ -84,13 +99,23 @@ const contentStyle = makeStyle({
   translate: `-50% -50%`,
   minWidth: `3rem`,
   minHeight: `3rem`,
-  padding: `0.75rem`,
+  padding: `1rem`,
 })
 
 const backgroundStyle = makeStyle({
   ...animatedBackgroundTemplate,
-  background: mapNodeColor,
-  borderRadius,
   boxShadow: boxShadow,
+  borderRadius: `50%`,
+  background: mapNodeSimpleColor,
+  transition: `all ${duration.long}ms ease`,
+})
+
+const fullBackgroundStyle = makeStyle({
+  borderRadius,
+  background: mapNodeColor,
+})
+
+const inventoryStyle = makeStyle({
+  transformOrigin: `center`,
 })
 

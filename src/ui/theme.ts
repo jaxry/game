@@ -6,7 +6,7 @@ import LCH from './LCH'
 
 const baseSpeed = 800
 export const duration = {
-  short: 200,
+  short: 150,
   normal: baseSpeed,
   long: baseSpeed * 2,
 }
@@ -45,13 +45,15 @@ export function fadeOut (
 
 // Colors
 
-export const backgroundColor = new LCH(25, 5, Math.random())
+export const backgroundColor = new LCH(20, 5, Math.random())
 
 export const textColor = backgroundColor.setL(90)
 
 export const windowColor = backgroundColor.addL(15).addC(4)
+    .addH(randomSign() / 8)
 
-export const mapNodeColor = backgroundColor.addL(10)
+export const mapNodeColor = backgroundColor.addL(10).addC(4)
+export const mapNodeSimpleColor = backgroundColor.addL(5)
 
 export const mapEdgeColor = backgroundColor.addL(20)
 

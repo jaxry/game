@@ -13,8 +13,8 @@ import ForceDirectedSim from '../../map/ForceDirectedSim'
 import throttle from '../throttle'
 
 export default class MapComponent extends Component {
-  maxDepthFromCenter = 2
-  depthForComplexZones = 1
+  maxDepthFromCenter = 3
+  fullZoneDepth = this.maxDepthFromCenter - 1
 
   private map = createDiv(this.element, mapStyle)
   private edgeContainer = createDiv(this.map)
@@ -65,7 +65,7 @@ export default class MapComponent extends Component {
       const component = makeOrGet(this.zoneToComponent, zone, () => {
         return this.makeNode(zone)
       })
-      // component.setDepth(depth)
+      depth > this.fullZoneDepth ? component.simpleZone() : component.fullZone()
     }
 
     for (const [zone, component] of this.zoneToComponent) {

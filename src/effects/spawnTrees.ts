@@ -8,7 +8,7 @@ import { getWorldEnergy, takeEnergyFromWorld } from '../behavior/energy'
 export default class SpawnTrees extends Effect {
 
   queue () {
-    this.runIn(noisy(8))
+    this.runIn(noisy(16))
   }
 
   override onActivate () {

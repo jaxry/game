@@ -4,8 +4,8 @@ export function onResize (
         dw: number, dh: number) => void) {
 
   let first = true
-  let oldWidth = element.offsetWidth
-  let oldHeight = element.offsetHeight
+  let oldWidth = 0
+  let oldHeight = 0
 
   const observer = new ResizeObserver((entries) => {
     if (first || !document.contains(element)) return first = false
@@ -20,7 +20,11 @@ export function onResize (
     oldHeight = height
   })
 
-  observer.observe(element)
+  queueMicrotask(() => {
+    oldWidth = element.offsetWidth
+    oldHeight = element.offsetHeight
+    observer.observe(element)
+  })
 
   return () => {
     observer.disconnect()

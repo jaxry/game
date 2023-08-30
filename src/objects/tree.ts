@@ -10,8 +10,8 @@ class Photosynthesis extends Effect {
   }
 
   override run () {
-    if (this.object.energy >= 128) {
-      return
+    if (this.object.energy >= 64) {
+      return this.deactivate()
     }
 
     this.object.energy += takeEnergyFromWorld(1)

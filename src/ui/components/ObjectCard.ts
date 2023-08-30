@@ -140,8 +140,7 @@ const containerStyle = makeStyle({
   display: `flex`,
   flexDirection: `column`,
   gap: `0.25rem`,
-  padding: `0.5rem`,
-  width: `max-content`,
+  padding: `0.75rem`,
   color: objectTextColor,
 })
 hoverStyle(containerStyle, {
