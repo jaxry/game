@@ -35,43 +35,33 @@ export const s4Permutations = [
   { cycleName: '(1432)', code: '4123' },
 ] as Permutation[]
 
-export function permutationProduct (
-    a: Permutation, b: Permutation): Permutation {
-  return cayleyTable[a.index][b.index]
-}
-
-const cayleyTable = makeCayleyTable(s4Permutations)
-
 for (const [i, p] of s4Permutations.entries()) {
   p.name = p.cycleName
   p.index = i
 }
 
+export function permutationProduct (a: Permutation, b: Permutation) {
+  return cayleyTable[a.index][b.index]
+}
+
+const cayleyTable = makeCayleyTable(s4Permutations)
+
 function makeCayleyTable (permutations: Permutation[]) {
-  const codeToPermutation: Record<string, Permutation> = {}
+  const codeToPermutation = new Map<string, Permutation>()
+
   for (const p of permutations) {
-    codeToPermutation[p.code] = p
+    codeToPermutation.set(p.code, p)
   }
 
   function computeProduct (a: Permutation, b: Permutation): Permutation {
     let product = ''
-    for (let i = 0; i < a.code.length; i++) {
-      product += b.code[Number(a.code[i]) - 1]
+    for (const digit of a.code) {
+      product += b.code[Number(digit) - 1]
     }
-    return codeToPermutation[product]
+    return codeToPermutation.get(product)!
   }
 
-  const cayleyTable: Permutation[][] = []
-  for (const perm of permutations) {
-    const products: Permutation[] = []
-
-    for (const operand of permutations) {
-      products.push(computeProduct(perm, operand))
-    }
-
-    cayleyTable.push(products)
-  }
-
-  return cayleyTable
+  return permutations.map(p => {
+    return permutations.map(q => computeProduct(p, q))
+  })
 }
-
