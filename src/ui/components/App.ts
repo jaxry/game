@@ -11,7 +11,6 @@ export default class App extends Component {
 
     this.newComponent(GameUI).appendTo(this.element)
     this.element.append(outsideElement)
-    // this.newComponent(Base).appendTo(this.element)
   }
 }
 

@@ -60,6 +60,5 @@ export default class TravelAnimation {
 const containerStyle = makeStyle({
   position: `absolute`,
   pointerEvents: 'none',
-  transformOrigin: `center center`,
   translate: `-50% -50%`,
 })

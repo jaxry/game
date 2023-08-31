@@ -24,6 +24,8 @@ export function fadeIn (element: HTMLElement, animDuration = duration.normal) {
   }, {
     duration: animDuration,
     easing: `ease`,
+    delay: animDuration / 4,
+    fill: `backwards`,
   })
 }
 

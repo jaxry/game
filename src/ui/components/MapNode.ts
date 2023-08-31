@@ -55,7 +55,6 @@ export default class MapNode extends GameComponent {
     if (this.inventory) return
     this.inventory = this.newComponent(Inventory, this.zone, ContainedAs.inside,
         duration.long).appendTo(this.content)
-    this.inventory.element.classList.add(inventoryStyle)
     fadeIn(this.inventory.element)
     this.background.classList.add(fullBackgroundStyle)
   }
@@ -114,8 +113,3 @@ const fullBackgroundStyle = makeStyle({
   borderRadius,
   background: mapNodeColor,
 })
-
-const inventoryStyle = makeStyle({
-  transformOrigin: `center`,
-})
-

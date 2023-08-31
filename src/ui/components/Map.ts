@@ -213,5 +213,4 @@ const edgeStyle = makeStyle({
   position: `absolute`,
   background: mapEdgeColor,
   height: `${edgeWidth}px`,
-  transformOrigin: `center center`,
 })
