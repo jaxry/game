@@ -3,7 +3,7 @@ import { duration } from './theme'
 const positions = new WeakMap<HTMLElement, { x: number, y: number }>()
 
 export default function animatedContents (
-    container: HTMLElement, animDuration = duration.normal, smooth = false) {
+    container: HTMLElement, animDuration = duration.normal, ease = false) {
   let first = true
 
   const resizeObserver = new ResizeObserver(() => {
@@ -14,7 +14,7 @@ export default function animatedContents (
       if (!document.contains(element)) {
         continue
       }
-      animate(element, animDuration, smooth)
+      animate(element, animDuration, ease)
     }
   })
 
@@ -45,7 +45,7 @@ export default function animatedContents (
   })
 }
 
-function animate (element: HTMLElement, animDuration: number, smooth: boolean) {
+function animate (element: HTMLElement, animDuration: number, ease: boolean) {
   const previousPosition = positions.get(element)!
 
   const position = getPosition(element)
@@ -62,7 +62,7 @@ function animate (element: HTMLElement, animDuration: number, smooth: boolean) {
     translate: [`${dx}px ${dy}px`, '0 0'],
   }, {
     duration: animDuration,
-    easing: smooth ? `ease-in-out` : `ease`,
+    easing: ease ? `ease-in-out` : `ease`,
     composite: `accumulate`,
   })
 }

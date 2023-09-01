@@ -1,12 +1,12 @@
 import GameObject, { ContainedAs } from '../../GameObject'
 import {
-  borderRadius, boxShadow, duration, fadeIn, fadeInKeyframes, objectCardColor,
-  objectCardPlayerColor, objectTextColor, textColor,
+  borderRadius, boxShadow, duration, fadeIn, fadeInKeyframes, fadeOut,
+  objectCardColor, objectCardPlayerColor, objectTextColor, textColor,
 } from '../theme'
 import { addStyle, hoverStyle, makeStyle } from '../makeStyle'
 import ActionComponent from './ActionComponent'
 import animatedBackground, {
-  animatedBackgroundTemplate, fadeOutAbsolute,
+  animatedBackgroundTemplate,
 } from '../animatedBackground'
 import { createDiv, createElement } from '../createElement'
 import animatedContents from '../animatedContents'
@@ -77,9 +77,7 @@ export default class ObjectCard extends GameComponent {
     if (!this.actionComponent) return
     const actionComponent = this.actionComponent
     this.actionComponent = undefined
-    fadeOutAbsolute(actionComponent.element, () => {
-      actionComponent.remove()
-    })
+    fadeOut(actionComponent.element, () => actionComponent.remove())
   }
 
   makeHolding () {
@@ -90,6 +88,7 @@ export default class ObjectCard extends GameComponent {
     this.holdingComponent = this.newComponent(Inventory, this.object,
         ContainedAs.holding).appendTo(this.element)
     this.holdingComponent.element.classList.add(holdingStyle)
+    fadeIn(this.holdingComponent.element)
   }
 
   hideHoldingIfEmpty () {
@@ -99,9 +98,7 @@ export default class ObjectCard extends GameComponent {
     }
     const holdingComponent = this.holdingComponent
     this.holdingComponent = undefined
-    fadeOutAbsolute(holdingComponent.element, () => {
-      holdingComponent.remove()
-    })
+    fadeOut(holdingComponent.element, () => holdingComponent.remove())
   }
 }
 
@@ -139,7 +136,7 @@ const containerStyle = makeStyle({
   position: `relative`,
   display: `flex`,
   flexDirection: `column`,
-  gap: `0.25rem`,
+  gap: `0.2rem`,
   padding: `0.75rem`,
   color: objectTextColor,
 })

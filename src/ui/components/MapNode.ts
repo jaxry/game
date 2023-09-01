@@ -1,7 +1,8 @@
 import GameObject, { ContainedAs } from '../../GameObject'
 import { makeStyle } from '../makeStyle'
 import {
-  borderRadius, boxShadow, duration, fadeIn, mapNodeColor, mapNodeSimpleColor,
+  borderRadius, boxShadow, duration, fadeIn, fadeOut, mapNodeColor,
+  mapNodeSimpleColor,
 } from '../theme'
 import GameComponent from './GameComponent'
 import Effect from '../../effects/Effect'
@@ -10,7 +11,7 @@ import MapComponent from './Map'
 import { playerTravelToZone } from '../../behavior/player'
 import { onClickNotDrag } from '../makeDraggable'
 import animatedBackground, {
-  animatedBackgroundTemplate, fadeOutAbsolute,
+  animatedBackgroundTemplate,
 } from '../animatedBackground'
 import { moveToTop, translate } from '../../util'
 import Inventory from './Inventory'
@@ -19,7 +20,8 @@ import { createDiv } from '../createElement'
 
 export default class MapNode extends GameComponent {
   content = createDiv(this.element, contentStyle)
-  background = animatedBackground(this.content, backgroundStyle, duration.long)
+  background = animatedBackground(this.content, backgroundStyle, duration.long,
+      true)
   inventory?: Inventory
 
   constructor (public zone: GameObject, public map: MapComponent) {
@@ -53,18 +55,20 @@ export default class MapNode extends GameComponent {
 
   fullZone () {
     if (this.inventory) return
-    this.inventory = this.newComponent(Inventory, this.zone, ContainedAs.inside,
-        duration.long).appendTo(this.content)
+    this.inventory = this.newComponent(Inventory, this.zone, ContainedAs.inside)
+        .appendTo(this.content)
     fadeIn(this.inventory.element)
     this.background.classList.add(fullBackgroundStyle)
   }
 
   simpleZone () {
     if (!this.inventory) return
-    this.background.classList.remove(fullBackgroundStyle)
     const inventory = this.inventory
     this.inventory = undefined
-    fadeOutAbsolute(inventory.element, () => inventory.remove())
+    fadeOut(inventory.element, () => {
+      inventory.remove()
+      this.background.classList.remove(fullBackgroundStyle)
+    })
   }
 }
 

@@ -14,7 +14,7 @@ const currentAnimation = new WeakMap<any, Animation>()
 
 export default function animatedBackground (
     element: HTMLElement, backgroundStyle: string,
-    animDuration = duration.normal) {
+    animDuration = duration.normal, ease = false) {
 
   const background = createDiv(null, backgroundStyle)
   element.prepend(background)
@@ -29,16 +29,13 @@ export default function animatedBackground (
       const oldWidth = background.offsetWidth
       const oldHeight = background.offsetHeight
 
-      const expanding = width > oldWidth || height > oldHeight
-
       const animation = background.animate({
         width: [px(oldWidth), px(width)],
         height: [px(oldHeight), px(height)],
       }, {
         duration: animDuration,
-        easing: `ease`,
+        easing: ease ? `ease-in-out` : `ease`,
         fill: `both`,
-        delay: expanding ? 0 : animDuration / 4,
       })
 
       animation.commitStyles()

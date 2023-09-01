@@ -76,8 +76,6 @@ export const gameDataColor = textColor.addC(25).addH(randomSign() / 4)
 
 export const borderRadius = '0.25rem'
 
-export const dropBorder = `2px dashed #fff8`
-
 export const boxShadow = `0rem 0.1rem 0.5rem #0003`
 export const boxShadowLarge = `0rem 0.5rem 2rem #0004`
 

@@ -13,8 +13,7 @@ export default class Inventory extends GameComponent {
   objectToCard = new Map<GameObject, ObjectCard>()
 
   constructor (
-      public object: GameObject, public containerType = ContainedAs.inside,
-      private animationDuration = duration.normal) {
+      public object: GameObject, public containerType = ContainedAs.inside) {
     super()
   }
 
@@ -27,12 +26,12 @@ export default class Inventory extends GameComponent {
 
     this.newEffect(InventoryEffect, this.object, this)
 
-    animatedContents(this.element, this.animationDuration, true)
+    animatedContents(this.element, duration.long, true)
   }
 
   makeRow () {
     const row = createDiv(this.element, rowStyle)
-    animatedContents(row, this.animationDuration, true)
+    animatedContents(row, duration.long, true)
     return row
   }
 
@@ -50,11 +49,12 @@ export default class Inventory extends GameComponent {
       return
     }
 
-    const card = makeOrGet(this.objectToCard, object, () => {
-      return this.newComponent(ObjectCard, object)
+    makeOrGet(this.objectToCard, object, () => {
+      const card = this.newComponent(ObjectCard, object)
           .appendTo(this.getShortestRow())
+      animate && fadeIn(card.element, duration.long)
+      return card
     })
-    animate && fadeIn(card.element, this.animationDuration)
   }
 
   removeCard (object: GameObject) {
