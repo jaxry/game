@@ -32,8 +32,10 @@ export default class ObjectCard extends GameComponent {
 
     createDiv(this.element, titleStyle, this.object.type.name)
 
-    this.makeHolding()
-    this.showAction()
+    queueMicrotask(() => {
+      this.makeHolding()
+      this.showAction()
+    })
 
     this.element.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return

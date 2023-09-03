@@ -3,7 +3,7 @@ import GameObject from '../GameObject'
 import { isContainedWith } from '../behavior/container'
 
 export default class TargetAction extends Action {
-  constructor (object: GameObject, public override target: GameObject) {
+  constructor (object: GameObject, public target: GameObject) {
     super(object)
   }
 

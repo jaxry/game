@@ -36,7 +36,7 @@ export default class ObjectCardWindow extends Window {
       const name = action.constructor.name.replaceAll(/[A-Z]/g, ' $&')
       const button = createElement(actions, 'button', buttonStyle, name)
       button.addEventListener('click', () => {
-        this.animateRemove()
+        this.animateRemove() // remove all windows
         action.activate()
       })
     }

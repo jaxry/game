@@ -3,6 +3,7 @@ import { makeType } from '../GameObjectType'
 import { takeEnergyFromWorld } from '../behavior/energy'
 import { noisy } from '../util'
 import { serializable } from '../serialize'
+import { typeWood } from './wood'
 
 class Photosynthesis extends Effect {
   override onActivate () {
@@ -26,4 +27,5 @@ export const typeTree = makeType({
   name: 'tree',
   energy: 1,
   effects: [Photosynthesis],
+  composedOf: [[typeWood, 2]],
 })

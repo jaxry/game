@@ -8,8 +8,6 @@ import { every } from '../util'
 import { serializable } from '../serialize'
 
 export default class PutInside extends TargetAction {
-  static override duration = 2
-
   override get name () {
     return [`Put in`, this.target]
   }

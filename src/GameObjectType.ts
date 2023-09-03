@@ -1,4 +1,5 @@
 import type Effect from './effects/Effect'
+import { Permutation } from './symmetricGroup'
 
 export default class GameObjectType {
   name: string
@@ -10,18 +11,30 @@ export default class GameObjectType {
   energy: number
 
   isContainer: boolean
+
+  composedOf: [GameObjectType, number][]
+
+  element: Permutation
 }
 
 const typeToId = new Map<GameObjectType, number>()
 const idToType = new Map<number, GameObjectType>()
 let nextId = 1
 
+const elementToType = new Map<Permutation, GameObjectType>()
+
 export function makeType (template: Partial<GameObjectType>) {
+  const type = Object.assign(new GameObjectType(), template)
+
   const id = nextId++
-  const type = new GameObjectType()
   typeToId.set(type, id)
   idToType.set(id, type)
-  return Object.assign(type, template)
+
+  if (type.element) {
+    elementToType.set(type.element, type)
+  }
+
+  return type
 }
 
 export function getIdFromType (type: GameObjectType) {

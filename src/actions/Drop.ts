@@ -3,7 +3,6 @@ import { isAncestor, putInsideContainer } from '../behavior/container'
 import { serializable } from '../serialize'
 
 export default class Drop extends TargetAction {
-
   override get name () {
     return ['Drop', this.target]
   }

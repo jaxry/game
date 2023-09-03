@@ -14,6 +14,13 @@ export function giveEnergyToObject (object: GameObject, amount: number) {
   object.energy += amount
 }
 
+export function transferEnergy (
+    from: GameObject, to: GameObject, amount = from.energy) {
+  const energy = takeEnergyFromObject(from, amount ?? 0)
+  giveEnergyToObject(to, energy)
+  return energy
+}
+
 export function takeEnergyFromWorld (amount: number) {
   return takeEnergyFromObject(game.world, amount)
 }

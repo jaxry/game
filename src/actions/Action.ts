@@ -1,15 +1,12 @@
 import Effect from '../effects/Effect'
 import type GameObject from '../GameObject'
-import GameTime from '../GameTime'
 import { game } from '../Game'
 import { serializable } from '../serialize'
 import { toPrecision } from '../util'
 
 export default class Action extends Effect {
-  static duration = GameTime.second
+  static duration = 2
   time: number
-  // for targeted actions such as attacks
-  target?: GameObject | GameObject[]
 
   get duration () {
     return (this.constructor as typeof Action).duration

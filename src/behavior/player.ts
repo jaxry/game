@@ -7,6 +7,7 @@ import Hold from '../actions/Hold'
 import Drop from '../actions/Drop'
 import PutInside from '../actions/PutInside'
 import { isNeighbor } from './connections'
+import Disassemble from '../actions/Disassemble'
 
 export function setPlayer (object: GameObject) {
   game.player = object
@@ -44,6 +45,7 @@ export function getPlayerActions (target: GameObject) {
     new Hold(game.player, target),
     new Drop(game.player, target),
     new PutInside(game.player, target),
+    new Disassemble(game.player, target),
   ]
   return actions.filter(action => action.condition())
 }
