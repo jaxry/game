@@ -1,7 +1,8 @@
 import Effect from './Effect'
 import { noisy } from '../util'
 import { serializable } from '../serialize'
-import { giveEnergyToWorld, takeEnergyFromObject } from '../behavior/energy'
+import { transferEnergyTo } from '../behavior/energy'
+import { getWorld } from '../behavior/general'
 
 export default class Metabolism extends Effect {
   override onActivate () {
@@ -9,8 +10,7 @@ export default class Metabolism extends Effect {
   }
 
   override run () {
-    const expended = takeEnergyFromObject(this.object, 1)
-    giveEnergyToWorld(expended)
+    transferEnergyTo(getWorld(), this.object, 1)
     this.runIn(noisy(1))
   }
 }

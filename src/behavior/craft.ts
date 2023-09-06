@@ -1,14 +1,17 @@
 import GameObject from '../GameObject'
 import { spawn } from './spawn'
 import { destroy } from './destroy'
+import { transferEnergyTo } from './energy'
 
 export function disassemble (object: GameObject) {
   if (!object.type.composedOf) return
 
-  for (const [type, quantity] of object.type.composedOf) {
-    for (let i = 0; i < quantity; i++) {
-      spawn(type, object.container)
-    }
+  const energyPerPart = Math.floor(
+      object.energy / object.type.composedOf.length)
+
+  for (const type of object.type.composedOf) {
+    const part = spawn(type, object.container)
+    transferEnergyTo(part, object, energyPerPart)
   }
 
   destroy(object)

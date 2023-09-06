@@ -3,5 +3,5 @@ import { s4Permutations } from '../symmetricGroup'
 
 export const typeWood = makeType({
   name: 'wood',
-  element: s4Permutations[1]
+  element: s4Permutations[1],
 })

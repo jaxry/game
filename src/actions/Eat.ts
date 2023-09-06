@@ -1,7 +1,7 @@
 import { serializable } from '../serialize'
 import { destroy } from '../behavior/destroy'
 import TargetAction from './TargetAction'
-import { transferEnergy } from '../behavior/energy'
+import { transferEnergyTo } from '../behavior/energy'
 
 export default class Eat extends TargetAction {
   override get name () {
@@ -13,7 +13,7 @@ export default class Eat extends TargetAction {
   }
 
   override do () {
-    transferEnergy(this.target, this.object)
+    transferEnergyTo(this.object, this.target)
     destroy(this.target)
   }
 }

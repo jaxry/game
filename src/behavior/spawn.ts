@@ -5,10 +5,6 @@ import { putInsideContainer } from './container'
 export function spawn (type: GameObjectType, container?: GameObject) {
   const object = new GameObject(type)
 
-  if (type.energy) {
-    object.energy = type.energy
-  }
-
   if (container) {
     putInsideContainer(container, object)
   }

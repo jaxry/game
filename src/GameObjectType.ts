@@ -12,7 +12,7 @@ export default class GameObjectType {
 
   isContainer: boolean
 
-  composedOf: [GameObjectType, number][]
+  composedOf: GameObjectType[]
 
   element: Permutation
 }

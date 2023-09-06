@@ -6,7 +6,7 @@ import { toPrecision } from '../util'
 
 export default class Action extends Effect {
   static duration = 2
-  time: number
+  finishTime: number
 
   get duration () {
     return (this.constructor as typeof Action).duration
@@ -29,7 +29,7 @@ export default class Action extends Effect {
     this.object.activeAction?.deactivate()
     this.object.activeAction = this
 
-    this.time = game.time.current + this.duration
+    this.finishTime = game.time.current + this.duration
 
     this.runIn(this.duration)
 
@@ -69,6 +69,6 @@ export default class Action extends Effect {
 
 serializable(Action, {
   transform: {
-    time: (time) => toPrecision(time, 1),
+    finishTime: (time) => toPrecision(time, 1),
   },
 })

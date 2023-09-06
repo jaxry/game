@@ -56,6 +56,12 @@ export default class Window extends Component {
     }
   }
 
+  closeAll () {
+    for (const window of ancestorWindows(this)) {
+      window.animateRemove()
+    }
+  }
+
   private setupRemoveEvents () {
     const signal = this.removeEventsController.signal
 

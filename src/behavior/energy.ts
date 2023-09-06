@@ -1,34 +1,14 @@
-import { game } from '../Game'
 import GameObject from '../GameObject'
 
-export function takeEnergyFromObject (object: GameObject, amount: number) {
-  if (!object.energy) {
-    return 0
-  }
-  amount = Math.min(object.energy, amount)
-  object.energy -= amount
+export function transferEnergyTo (
+    to: GameObject, from: GameObject, amount?: number) {
+
+  if (!from.energy) return 0
+
+  amount = amount ? Math.min(from.energy, amount) : from.energy
+
+  from.energy -= amount
+  to.energy = (to.energy ?? 0) + amount
+
   return amount
-}
-
-export function giveEnergyToObject (object: GameObject, amount: number) {
-  object.energy += amount
-}
-
-export function transferEnergy (
-    from: GameObject, to: GameObject, amount = from.energy) {
-  const energy = takeEnergyFromObject(from, amount ?? 0)
-  giveEnergyToObject(to, energy)
-  return energy
-}
-
-export function takeEnergyFromWorld (amount: number) {
-  return takeEnergyFromObject(game.world, amount)
-}
-
-export function giveEnergyToWorld (amount: number) {
-  giveEnergyToObject(game.world, amount)
-}
-
-export function getWorldEnergy () {
-  return game.world.energy
 }

@@ -3,7 +3,7 @@ import { noisy, randomSetElement } from '../util'
 import { spawn } from '../behavior/spawn'
 import { typeTree } from '../objects/tree'
 import { serializable } from '../serialize'
-import { getWorldEnergy, takeEnergyFromWorld } from '../behavior/energy'
+import { getWorld } from '../behavior/general'
 
 export default class SpawnTrees extends Effect {
 
@@ -16,8 +16,7 @@ export default class SpawnTrees extends Effect {
   }
 
   override run () {
-    if (getWorldEnergy() > typeTree.energy) {
-      takeEnergyFromWorld(typeTree.energy)
+    if (getWorld().energy > 0) {
       spawn(typeTree, randomSetElement(this.object.contains))
     }
 

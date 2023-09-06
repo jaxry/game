@@ -2,14 +2,15 @@ import type GameObject from '../GameObject'
 import { removeConnections } from './connections'
 import { children, removeFromContainer } from './container'
 import { removeEffects } from '../effects/Effect'
-import { giveEnergyToWorld } from './energy'
+import { transferEnergyTo } from './energy'
+import { getWorld } from './general'
 
 export function destroy (obj: GameObject) {
   removeFromContainer(obj)
   removeConnections(obj)
   removeEffects(obj)
 
-  giveEnergyToWorld(obj.energy)
+  transferEnergyTo(getWorld(), obj)
 
   obj.emit('leave')
 

@@ -27,8 +27,8 @@ export function randomCentered (scale = 1) {
   return scale * (Math.random() - 0.5)
 }
 
-export function noisy (x: number, amount = 1) {
-  return x * (1 + randomCentered(amount))
+export function noisy (x: number, scale = 1 /*between 0 and 2*/) {
+  return x * (1 + randomCentered(scale))
 }
 
 export function randomSign () {

@@ -19,7 +19,7 @@ export default class ActionComponent extends Component {
     const time = createSpan(this.element, timeStyle)
 
     function update () {
-      const t = Math.max(0, action.time - game.time.current)
+      const t = Math.max(0, action.finishTime - game.time.current)
       time.textContent = GameTime.displaySeconds(t)
     }
 

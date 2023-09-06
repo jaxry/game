@@ -1,13 +1,14 @@
 import Component from './Component'
 import { createElement } from '../createElement'
 import { permutationProduct, s4Permutations } from '../../symmetricGroup'
-import { addStyle, makeStyle } from '../makeStyle'
+import { makeStyle } from '../makeStyle'
 import { backgroundColor } from '../theme'
 
 export default class CayleyTable extends Component {
   constructor () {
     super(document.createElement('table'))
   }
+
   override onInit () {
     this.element.classList.add(tableStyle)
 
