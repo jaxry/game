@@ -1,0 +1,86 @@
+.frame {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.noPointerEvents {
+  pointer-events: none;
+}
+
+.content {
+  overflow: auto;
+}
+
+.handleContainer {
+  --edgeSize: 1rem;
+  --edgeOffset: -0.75rem;
+}
+
+.handle {
+  position: absolute;
+}
+
+.n {
+  width: 100%;
+  height: var(--edgeSize);
+  left: 0;
+  top: var(--edgeOffset);
+  cursor: n-resize;
+}
+
+.e {
+  width: var(--edgeSize);
+  height: 100%;
+  right: var(--edgeOffset);
+  top: 0;
+  cursor: e-resize;
+}
+
+.s {
+  width: 100%;
+  height: var(--edgeSize);
+  left: 0;
+  bottom: var(--edgeOffset);
+  cursor: s-resize;
+}
+
+.w {
+  width: var(--edgeSize);
+  height: 100%;
+  left: var(--edgeOffset);
+  top: 0;
+  cursor: w-resize;
+}
+
+.ne {
+  width: var(--edgeSize);
+  height: var(--edgeSize);
+  right: var(--edgeOffset);
+  top: var(--edgeOffset);
+  cursor: ne-resize;
+}
+
+.se {
+  width: var(--edgeSize);
+  height: var(--edgeSize);
+  right: var(--edgeOffset);
+  bottom: var(--edgeOffset);
+  cursor: se-resize;
+}
+
+.sw {
+  width: var(--edgeSize);
+  height: var(--edgeSize);
+  left: var(--edgeOffset);
+  bottom: var(--edgeOffset);
+  cursor: sw-resize;
+}
+
+.nw {
+  width: var(--edgeSize);
+  height: var(--edgeSize);
+  left: var(--edgeOffset);
+  top: var(--edgeOffset);
+  cursor: nw-resize;
+}

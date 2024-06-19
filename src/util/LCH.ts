@@ -1,0 +1,43 @@
+import { mod } from './util.ts'
+
+// Wrapper for CSS LCH color space
+// l: lightness [0, 100]
+// c: chroma/saturation [0, 100]
+// h: hue [0, 1]
+export default class LCH {
+  constructor (public l: number, public c: number, public h: number) {
+  }
+
+  toString () {
+    return lch(this.l, this.c, this.h)
+  }
+
+  addL (l: number) {
+    return new LCH(this.l + l, this.c, this.h)
+  }
+
+  setL (l: number) {
+    return new LCH(l, this.c, this.h)
+  }
+
+  addC (c: number) {
+    return new LCH(this.l, this.c + c, this.h)
+  }
+
+  setC (c: number) {
+    return new LCH(this.l, c, this.h)
+  }
+
+  addH (h: number) {
+    return new LCH(this.l, this.c, this.h + h)
+  }
+
+  setH (h: number) {
+    return new LCH(this.l, this.c, h)
+  }
+}
+
+export function lch (l: number, c: number, h: number) {
+  // chroma has max effective value of 0.4
+  return `oklch(${l}% ${c * 0.4 / 100} ${mod(h, 1) * 360})`
+}
